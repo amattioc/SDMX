@@ -1,0 +1,41 @@
+<project name="SDMX" default="dist" basedir=".">
+	<description>
+        SDMX build file
+    </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="test" location="test"/>
+	<property name="build" location="build"/>
+	<property name="dist"  location="dist"/>
+	<property name="rjsdmx"  location="../RJSDMX/inst/java"/>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+	
+	<target name="SDMX"  depends="init"
+	    description="compile the source " >
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}"/>
+		<javac srcdir="${test}" destdir="${build}"/>
+	</target>
+
+	<target name="dist" depends="SDMX"  description="generate the distribution" >
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/lib"/>
+		<!-- Put everything in ${build} into the jar file -->
+		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}"/>
+		<!-- Now distribute the jar file to the plugins -->
+		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx}"/>
+	</target>
+	
+	<target name="clean"
+        description="clean up" >
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
