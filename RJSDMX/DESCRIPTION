@@ -1,0 +1,11 @@
+Package: RJSDMX
+Version: 1.1
+Title: R interface to SDMX Web Services
+Author: Attilio Mattiocco, Diana Nicoletti, Banca d'Italia
+Maintainer: Attilio Mattiocco <attilio.mattiocco@bancaditalia.it>, Diana Nicoletti <diana.nicoletti@bancaditalia.it>, Gianpaolo Lopez <gianpaolo.lopez@bancaditalia.it>
+Description: This package provides functions that can be used to retrieve 
+			 data and metadata from SDMX compliant data providers.
+Depends: R (>= 2.12.0), rJava (>= 0.8-8), zoo (>= 1.6-4)
+SystemRequirements: Java (>= 1.6)
+License: EUPL
+URL: https://github.com/amattioc/SDMX/
