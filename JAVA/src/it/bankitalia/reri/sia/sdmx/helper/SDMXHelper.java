@@ -21,6 +21,7 @@
 package it.bankitalia.reri.sia.sdmx.helper;
 
 import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
+import it.bankitalia.reri.sia.util.Configuration;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,6 +29,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -52,20 +54,23 @@ public class SDMXHelper extends JFrame {
 	private JTree tree;
 	private DefaultTreeModel treeModel;
 	private JTextArea sdmxMessages;
-
+	private HelperHandler textAreaHandler = null;
+	private Logger logger = Configuration.getSdmxLogger();
+	
 	public SDMXHelper() {
 		super("SDMX Helper Tool");
 		setSize(800, 600);
 		//to avoid exiting the statistic tool
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		// for future use (e.g. flows filtering)
 		setJMenuBar(createMenuBar());
 				
-		//Create a scrolled text area for the logging output - to be completed
+		//Create a scrolled text area for the logging output 
         sdmxMessages = new JTextArea();
         sdmxMessages.setEditable(false);
         sdmxMessages.setBackground(Color.LIGHT_GRAY);
+        textAreaHandler = new HelperHandler(sdmxMessages);
         JScrollPane p = new JScrollPane(sdmxMessages);
         
         // the top node is just for description
@@ -95,11 +100,14 @@ public class SDMXHelper extends JFrame {
 		splitPane.setOneTouchExpandable(true);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
+		logger.addHandler(textAreaHandler);
+		
 		WindowListener closer = new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				JFrame frame = (JFrame)e.getSource();
-				//to avoid closing the JVM
-				frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);		        	
+				//to avoid crashing R
+				frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				logger.removeHandler(textAreaHandler);
 			}
 		};
 		addWindowListener(closer);
