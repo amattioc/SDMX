@@ -1,4 +1,4 @@
-Sdmx Connectors for Scientific Software
+Sdmx Connectors for Statistical Software
 ====
 
 Browse SDMX data providers, build your queries and get data directly in your favourite tool. 
