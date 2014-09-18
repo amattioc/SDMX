@@ -22,6 +22,7 @@
 package it.bankitalia.reri.sia.sdmx.parser.v20;
 
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
+import it.bankitalia.reri.sia.util.LocalizedText;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -37,7 +38,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.util.EventReaderDelegate;
 
 /**
  * @author Attilio Mattiocco
@@ -62,6 +62,7 @@ public class DataflowParser {
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 
 		Dataflow df = null;
+		LocalizedText currentName = new LocalizedText();
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
@@ -93,8 +94,7 @@ public class DataflowParser {
 					}
 				}
 				else if (startElement.getName().getLocalPart() == (NAME)) {
-					String name = eventReader.getElementText();
-					df.setName(name);
+					currentName.setText(startElement, eventReader);
 				}
 				else if (startElement.getName().getLocalPart() == (KF_REF)) {
 					setKeyFamily(df, eventReader);
@@ -103,6 +103,7 @@ public class DataflowParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
+					df.setName(currentName.getText());
 					dfList.add(df);
 				}
 			}

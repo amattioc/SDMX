@@ -26,13 +26,13 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 public class ECBClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ECB", "EXR*"));
+		System.err.println(SdmxClientHandler.getFlows("ECB", "EXR*"));
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "EX"));
 		
 //		System.err.println(SdmxClientHandler.getInstance().getDataFlowStructure("ECB", "EXR"));
-//		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR/A.USD.EUR.SP00.A", null, null));
-		System.err.println(SdmxClientHandler.getCodes("ECB", "EXR", "FREQ"));
+//		System.err.pridntln(SdmxClientHandler.getDimensions("ECB", "EX"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", null, null));
+		//System.err.println(SdmxClientHandler.getCodes("ECB", "EXR", "FREQ"));
 		
 	}
 }

@@ -54,7 +54,6 @@ public class GenericDataParser {
 	private static final String OBS = "Obs";
 	private static final String OBS_DIMENSION = "ObsDimension";
 	private static final String OBS_VALUE = "ObsValue";
-	private static final String OBS_STATUS = "OBS_STATUS";
 	private static final String ATTRIBUTES = "Attributes";
 
 	public static List<PortableTimeSeries> parse(String xmlBuffer) throws XMLStreamException, UnsupportedEncodingException {
@@ -99,7 +98,6 @@ public class GenericDataParser {
 	}
 
 	private static void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
-		String key = "";
 		String id = null;
 		String val = null;
 		while (eventReader.hasNext()) {

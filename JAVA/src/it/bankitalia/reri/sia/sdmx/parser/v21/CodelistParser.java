@@ -23,8 +23,8 @@
  */
 package it.bankitalia.reri.sia.sdmx.parser.v21;
 
-import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
 import it.bankitalia.reri.sia.util.Configuration;
+import it.bankitalia.reri.sia.util.LocalizedText;
 import it.bankitalia.reri.sia.util.SdmxException;
 
 import java.io.ByteArrayInputStream;
@@ -54,8 +54,8 @@ public class CodelistParser {
 	static final String CODELIST = "Codelist";
 
 	static final String NAME = "Name";
-	static final String CODE = "Code";
-	static final String ID = "id";
+	static final String VALUE = "Code";
+	static final String KEY = "id";
 
 	public static Map<String,String> parse(String xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
 		final String sourceMethod = "parse";
@@ -66,8 +66,6 @@ public class CodelistParser {
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 		Map<String,String> codes = getCodes(eventReader);
 		
-		
-		
 		logger.exiting(sourceClass, sourceMethod);
 		return codes;
 	}
@@ -76,41 +74,41 @@ public class CodelistParser {
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
-		String value = null;
+		LocalizedText value = new LocalizedText();
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart() == (CODE)) {
+				if (startElement.getName().getLocalPart() == (VALUE)) {
 					key = null;
-					value = null;
+					value = new LocalizedText();
 					logger.finest("Got code element.");
 					
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
 						Attribute attr = attributes.next();
-						if (attr.getName().toString().equals(ID)) {
+						if (attr.getName().toString().equals(KEY)) {
 							key = attr.getValue();
 						}
 					}
 				}
 				else if (startElement.getName().getLocalPart() == (NAME)) {
-					value = eventReader.getElementText();
+					value.setText(startElement, eventReader);
 				}
 				
 			}
 			
 			if (event.isEndElement()) {
 				String eventName=event.asEndElement().getName().getLocalPart();
-				if (eventName.equals(CODE)) {
-					if(key != null && value != null){
-						codes.put(key, value);
+				if (eventName.equals(VALUE)) {
+					if(key != null){
+						codes.put(key, value.getText());
 					}
 					else{
-						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key + " or value: " + value);
+						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);
 					}
 					
 				}

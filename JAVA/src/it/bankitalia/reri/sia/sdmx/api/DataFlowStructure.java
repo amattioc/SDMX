@@ -37,6 +37,7 @@ import java.util.Map;
 public class DataFlowStructure {
 	
 	private String id;
+	private String name;
 	private String agency;
 	private String version;
 	private String timeDimension;
@@ -57,6 +58,14 @@ public class DataFlowStructure {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String getAgency() {
@@ -123,7 +132,7 @@ public class DataFlowStructure {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DSD [name=").append(agency).append("/").append(id).append("/").append(version)
+		builder.append("DSD [id=").append(agency).append("/").append(id).append("/").append(version)
 				.append(",\n dimensions=").append(dimensions).append("]");
 		return builder.toString();
 	}

@@ -25,7 +25,6 @@ package it.bankitalia.reri.sia.sdmx.parser.v21;
 
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
 import it.bankitalia.reri.sia.util.Configuration;
 
 import java.io.ByteArrayInputStream;

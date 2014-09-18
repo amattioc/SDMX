@@ -26,11 +26,12 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 public class OecdClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("OECD", null));
+//		System.err.println(SdmxClientHandler.getFlows("OECD", null));
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("OECD", "REFSERIES"));
-		System.err.println(SdmxClientHandler.getDimensions("OECD", "REFSERIES"));
+//		System.err.println(SdmxClientHandler.getDimensions("OECD", "REFSERIES"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("OECD", "REFSERIES"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("OECD", "REFSERIES.ITA.PPPGDP.A", "2000", "2010"));
-		
+//		System.err.println(SdmxClientHandler.getTimeSeries("OECD", "REFSERIES.ITA.PPPGDP.M", "2000", "2010"));
+		System.err.println(SdmxClientHandler.getCodes("OECD", "QNA", "SUBJECT"));
+
 	}
 }

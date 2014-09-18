@@ -78,7 +78,7 @@ public class SdmxNode {
 				DefaultMutableTreeNode node = new DefaultMutableTreeNode(sdmxStuff);
 				if(sdmxStuff.hasSubNodes()){
 					//trick to have the empty levels always with one element
-					node.add(new DefaultMutableTreeNode(new SdmxNode("DUMMY", "Placeholder", false)));
+					node.add(new DefaultMutableTreeNode(new SdmxNode("Calling provider, please wait...", "", false)));
 				}
 				parent.add(node);
 			}

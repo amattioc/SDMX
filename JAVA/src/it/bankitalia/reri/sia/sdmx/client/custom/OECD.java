@@ -22,7 +22,6 @@ package it.bankitalia.reri.sia.sdmx.client.custom;
 
 import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
 import it.bankitalia.reri.sia.sdmx.client.RestSdmxClient;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataStructureParser;
@@ -30,7 +29,6 @@ import it.bankitalia.reri.sia.sdmx.parser.v20.GenericDataParser;
 import it.bankitalia.reri.sia.util.Configuration;
 import it.bankitalia.reri.sia.util.SdmxException;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,15 +39,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Attilio Mattiocco
  *
  */
 public class OECD extends RestSdmxClient{
 		
-	private static final String sourceClass = OECD.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public OECD() throws MalformedURLException{
@@ -125,22 +120,12 @@ public class OECD extends RestSdmxClient{
 		if(xml!=null && !xml.isEmpty()){
 			logger.finest(xml);
 			try {
-				
-//				try {
-//					// small fix for OECD GetDataStructure API, avoids problems on some characters
-//					xml = new String(xml.getBytes("UTF-8"));
-//				} catch (UnsupportedEncodingException e) {
-//					logger.severe("Exception caught parsing results from call to provider " + getAgency());
-//					logger.log(Level.FINER, "Exception: ", e);
-//					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//
-//				}
 				List<DataFlowStructure> dsds = DataStructureParser.parse(xml);
 				if(dsds.size() > 0){
 					result = new HashMap<String, String>();
 					for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) {
 						DataFlowStructure dsd = (DataFlowStructure) iterator.next();
-						result.put(dsd.getId(), dsd.getId());
+						result.put(dsd.getId(), dsd.getName());
 					}
 				}
 				else{

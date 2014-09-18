@@ -23,6 +23,7 @@ package it.bankitalia.reri.sia.sdmx.parser.v20;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dimension;
 import it.bankitalia.reri.sia.util.Configuration;
+import it.bankitalia.reri.sia.util.LocalizedText;
 import it.bankitalia.reri.sia.util.SdmxException;
 
 import java.io.ByteArrayInputStream;
@@ -80,6 +81,7 @@ public class DataStructureParser {
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
 		DataFlowStructure currentStructure = null;
+		LocalizedText currentName = new LocalizedText();
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
@@ -108,8 +110,13 @@ public class DataStructureParser {
 							currentStructure.setAgency(agency);
 						}
 					}					
-					logger.finer("Got data structure.");
 				}
+				else if (startElement.getName().getLocalPart().equals(NAME)) {
+					//this has to be checked better
+					if(currentStructure != null){
+						currentName.setText(startElement, eventReader);
+					}
+				}				
 				else if (startElement.getName().getLocalPart().equals(COMPONENTS)) {
 					if(currentStructure != null){
 						setStructureDimensionsAndAttributes(currentStructure, eventReader, codelists);
@@ -123,6 +130,7 @@ public class DataStructureParser {
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(DATASTRUCTURE)) {
 					logger.finer("Adding data structure. " + currentStructure);
+					currentStructure.setName(currentName.getText());
 					result.add(currentStructure);
 				}
 			}
@@ -264,5 +272,7 @@ public class DataStructureParser {
 		}
 		return(codelists);
 	}
+	
+
 	
 } 

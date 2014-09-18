@@ -1,6 +1,6 @@
 /* Copyright 2010,2014 Bank Of Italy
 *
-* Licensed under the EUPL, Version 1.1 or â€“ as soon they
+* Licensed under the EUPL, Version 1.1 or – as soon they
 * will be approved by the European Commission - subsequent
 * versions of the EUPL (the "Licence");
 * You may not use this work except in compliance with the
@@ -33,12 +33,16 @@ class SdmxExpansionListener implements TreeExpansionListener {
 	}
 	
 	public void treeExpanded(TreeExpansionEvent event) {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
-		SdmxNode n = (SdmxNode)node.getUserObject();
-		//perform the sdmx call
-		n.expand(node);
-		//and reload the tree model
-		model.reload(node);
+		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+		final SdmxNode n = (SdmxNode)node.getUserObject();
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	        	//perform the sdmx call
+	    		n.expand(node);
+	    		//and reload the tree model
+	    		model.reload(node);
+	        }
+	    });
 	}
 	
 	public void treeCollapsed(TreeExpansionEvent event) {

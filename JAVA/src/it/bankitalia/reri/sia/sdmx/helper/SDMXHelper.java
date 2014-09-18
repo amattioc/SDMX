@@ -60,8 +60,6 @@ public class SDMXHelper extends JFrame {
 	public SDMXHelper() {
 		super("SDMX Helper Tool");
 		setSize(800, 600);
-		//to avoid exiting the statistic tool
-//		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		// for future use (e.g. flows filtering)
 		setJMenuBar(createMenuBar());
@@ -82,7 +80,7 @@ public class SDMXHelper extends JFrame {
 		
 		for (int k = 0; k < providers.length; k++) {
 			node = new DefaultMutableTreeNode(new ProviderNode(providers[k], "", true));
-			node.add(new DefaultMutableTreeNode(new SdmxNode("DUMMY", "Placeholder", false)));
+			node.add(new DefaultMutableTreeNode(new SdmxNode("Calling provider, please wait......", "", false)));
 			top.add(node);
 		}
 

@@ -21,6 +21,7 @@
 package it.bankitalia.reri.sia.sdmx.parser.v20;
 
 import it.bankitalia.reri.sia.util.Configuration;
+import it.bankitalia.reri.sia.util.LocalizedText;
 import it.bankitalia.reri.sia.util.SdmxException;
 
 import java.io.ByteArrayInputStream;
@@ -49,7 +50,7 @@ public class CodelistParser {
 	static final String CODELIST = "CodeList";
 
 	static final String VALUE = "value";
-	static final String CODE = "Code";
+	static final String KEY = "Code";
 	static final String DESCRIPTION = "Description";
 
 	public static Map<String,String> parse(String xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
@@ -71,15 +72,15 @@ public class CodelistParser {
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
-		String value = null;
+		LocalizedText value = new LocalizedText();
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart() == (CODE)) {
+				if (startElement.getName().getLocalPart() == (KEY)) {
 					key = null;
-					value = null;
+					value = new LocalizedText();
 					logger.finer("Got code element.");
 					
 					@SuppressWarnings("unchecked")
@@ -92,18 +93,18 @@ public class CodelistParser {
 					}
 				}
 				else if (startElement.getName().getLocalPart() == (DESCRIPTION)) {
-					value = eventReader.getElementText();
+					value.setText(startElement, eventReader);
 				}
 				
 			}
 			else if (event.isEndElement()) {
 				String eventName=event.asEndElement().getName().getLocalPart();
-				if (eventName.equals(CODE)) {
-					if(key != null && value != null){
-						codes.put(key, value);
+				if (eventName.equals(KEY)) {
+					if(key != null){
+						codes.put(key, value.getText());
 					}
 					else{
-						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key + " or value: " + value);
+						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);
 					}
 				}
 				else{

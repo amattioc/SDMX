@@ -25,10 +25,10 @@ import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
 import it.bankitalia.reri.sia.sdmx.client.RestSdmxClient;
+import it.bankitalia.reri.sia.sdmx.parser.v20.CodelistParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataStructureParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataflowParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.GenericDataParser;
-import it.bankitalia.reri.sia.sdmx.parser.v20.CodelistParser;
 import it.bankitalia.reri.sia.util.Configuration;
 import it.bankitalia.reri.sia.util.SdmxException;
 
@@ -42,15 +42,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Attilio Mattiocco
  *
  */
 public class ILO extends RestSdmxClient{
 		
-	private static final String sourceClass = ILO.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ILO() throws MalformedURLException{
