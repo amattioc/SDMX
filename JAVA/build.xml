@@ -8,10 +8,9 @@
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 	<property name="rjsdmx"  location="../RJSDMX/inst/java"/>
+	<property name="matlab"  location="../MATLAB/lib"/>
 
 	<target name="init">
-		<!-- Create the time stamp -->
-		<tstamp/>
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
 	</target>
@@ -30,6 +29,7 @@
 		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}"/>
 		<!-- Now distribute the jar file to the plugins -->
 		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx}"/>
+		<copy file="${dist}/lib/SDMX.jar" todir="${matlab}"/>
 	</target>
 	
 	<target name="clean"
@@ -37,5 +37,7 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
+		<delete file="${rjsdmx}/SDMX.jar"/>
+		<delete file="${matlab}/SDMX.jar"/>
 	</target>
 </project>

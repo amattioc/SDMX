@@ -1,0 +1,3 @@
+Source code for the SDMX java library available at:
+
+https://github.com/amattioc/SDMX/ 
