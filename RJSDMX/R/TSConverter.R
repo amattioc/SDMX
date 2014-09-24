@@ -49,11 +49,11 @@ convertHashTable <- function (javaList) {
 	idSet = .jcall(javaList,"Ljava/util/Set;","keySet");
 	ids = .jcall(idSet,"[Ljava/lang/Object;","toArray");
 	rIDs = as.list(ids)
-	
+
 	nameSet = .jcall(javaList,"Ljava/util/Collection;","values");
 	names = .jcall(nameSet,"[Ljava/lang/Object;","toArray");
 	rNames = as.list(names)
-	
+
   flowIdentifiers = lapply(rIDs, .jstrVal)
 	result = lapply(rNames, .jstrVal)
 	names(result) <- flowIdentifiers
@@ -77,17 +77,17 @@ convertTSList <- function (javaList) {
 # 			#print(paste("Name: ", name));
 # 			freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
 # 			#print(paste("Frequency: ", freq));
-# 			dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE, 
+# 			dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,
 # 					evalString = TRUE);
 # 			#print(paste("Dimensions: ", dimensions));
-# 			attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE, 
+# 			attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE,
 # 					evalString = TRUE);
 # 			#print(paste("Attributes: ", attributes));
-# 			timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE, 
+# 			timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
 # 					evalString = TRUE);
 # 			#print(paste("timeSlots: ", timeSlots));
 # 			observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
-# 			status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE, 
+# 			status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE,
 # 					evalString = TRUE);
 # 			numOfObs = length(observationsJ);
 # 			numOfTimes = length(timeSlots);
@@ -120,14 +120,14 @@ convertSingleTS<-function(ttss){
     s = .jcast(ttss, new.class = "it/bankitalia/reri/sia/sdmx/api/PortableTimeSeries", check = TRUE);
     name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
     freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
-    dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE, 
+    dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,
                         evalString = TRUE);
-    attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE, 
+    attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE,
                         evalString = TRUE);
-    timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE, 
+    timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
                        evalString = TRUE);
     observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
-    status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE, 
+    status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE,
                     evalString = TRUE);
     numOfObs = length(observationsJ);
     numOfTimes = length(timeSlots);
@@ -157,13 +157,13 @@ convertSingleTS<-function(ttss){
 # status= list of values of status attribute
 # convert the frequency from SDMX-like codelist to numeric, e.g. 'M'-> 12 etc..
 makeSDMXTS<- function (TSname,freq,times,values,series_attr, series_dims, status) {
-	
+
 	if(length(values > 0)) {
 
 		if (is.null(freq)) {
-			print ("Frequency is NULL. Irregular timeseries defined")	
+			print ("Frequency is NULL. Irregular timeseries defined")
 			tmp_ts <- zoo(values, order.by=times)
-		} 
+		}
 		else {
       if(freq == 'A'){
         tmp_ts<- zoo(values, order.by = as.integer(times),frequency=1)
@@ -181,14 +181,14 @@ makeSDMXTS<- function (TSname,freq,times,values,series_attr, series_dims, status
 		# if the time series is empty
 		tmp_ts <- zoo()
 	}
-	
+
 # 	# define ts attributes
 # 	attr(tmp_ts,"Id") <- TSname
 # 	attr(tmp_ts,"Name") <- TSname
-	
+
 	# define ts attributes
 	attr(tmp_ts,"STATUS") <- status
-	
+
 	# define the timeseries attributes (dimensions + attributes)
 	if (length(series_dims) >0){
 		for (l in 1:length(series_dims)) {
@@ -203,6 +203,24 @@ makeSDMXTS<- function (TSname,freq,times,values,series_attr, series_dims, status
 		}
 	}
 	return(tmp_ts)
-	
+
+}
+
+sdmxTS2DF <- function(SDMXTS,provider,timevar="date",numeric=TRUE) {
+    require(reshape2)
+    id <- sapply(strsplit(names(SDMXTS[1]), "[.]"), "[[", 1)
+    dimnames <- names(getDimensions(provider, id))
+    SDMXTS <- do.call("merge.zoo", SDMXTS)
+    SDMXTS.df <- as.data.frame(SDMXTS)
+    ## add functions to convert date to R date format
+    SDMXTS.df[[timevar]] <- rownames(SDMXTS.df)
+    if (numeric==TRUE) SDMXTS.df[[timevar]] <- as.numeric(SDMXTS.df[[timevar]])
+    SDMXTS.df.m <- suppressWarnings(melt(SDMXTS.df, id.vars = c(timevar)))
+    X <- strsplit(as.character(SDMXTS.df.m$variable), "[.]")
+    for (d in seq(along = dimnames)) {
+        SDMXTS.df.m[dimnames[d]]  <- sapply(X, '[[', d+1)
+    }
+    SDMXTS.df.m <- SDMXTS.df.m[,!colnames(SDMXTS.df.m)=="variable"]
+    return(SDMXTS.df.m)
 }
 
