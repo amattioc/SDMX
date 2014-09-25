@@ -44,8 +44,7 @@ import javax.swing.JFrame;
 /**
  * <p>Java class for optimizing interactions with the SdmxClients in non Java 
  * environment. It provides a sort fo 'session', storing the clients that are created 
- * and reusing them. It also provides caching of last time series queried and of all 
- * key families retrieved.
+ * and reusing them. It also provides caching of all key families retrieved.
  * 
  * @author Attilio Mattiocco
  *
