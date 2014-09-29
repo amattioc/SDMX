@@ -76,6 +76,7 @@ public class SDMXClientFactory {
 	    //add internal 2.0 providers
 	    addProvider("OECD", "OECD", null, false);
 	    addProvider("ILO", "ILO", null, false);
+	    addProvider("IMF", "IMF", null, false);
 	    
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);

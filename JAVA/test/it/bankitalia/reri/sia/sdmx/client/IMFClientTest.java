@@ -24,15 +24,13 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 
 
-public class ECBClientTest {
+public class IMFClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ECB", "EXR*"));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "EX"));
-		
-//		System.err.println(SdmxClientHandler.getInstance().getDataFlowStructure("ECB", "EXR"));
-//		System.err.pridntln(SdmxClientHandler.getDimensions("ECB", "EX"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", null, null));
-		//System.err.println(SdmxClientHandler.getCodes("ECB", "EXR", "FREQ"));
-		
+		System.err.println(SdmxClientHandler.getDSDIdentifier("IMF", "PGI"));
+		System.err.println(SdmxClientHandler.getDimensions("IMF", "PGI"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("IMF", "PGI"));
+		System.err.println(SdmxClientHandler.getCodes("IMF", "PGI", "REF_AREA"));
+		System.err.println(SdmxClientHandler.getTimeSeries("IMF", "PGI.US+JP+CN+GB+CA+FR.PCPI.IFS.PCOCY.A", "1980", "2010"));
+
 	}
 }

@@ -21,20 +21,29 @@
 
 package it.bankitalia.reri.sia.sdmx.client;
 
+import it.bankitalia.reri.sia.util.SdmxException;
+
 public class SASHandlerTest {
 
 	public static void main(String[] args) {
 		//System.out.println(SASClientHandler.makeGetDimensions("ECB", "EXR"));
-		SASClientHandler h = new SASClientHandler();
-		System.out.println(h.makeGetTimeSeries("ECB", "EXR.A+M.*.EUR.SP00.A", null, null));
-		System.err.println(h.getName(0));
-//		for (int i = 0; i < SASClientHandler.getNumberOfMeta(); i++) {
-//			System.out.println(SASClientHandler.getMeta(i));
-//		}
-//		for (int i = 0; i < SASClientHandler.getNumberOfData(); i++) {
-//			System.out.println(SASClientHandler.getName(i) + " , " + SASClientHandler.getTimestamp(i) + " , " + 
-//					SASClientHandler.getData(i) + " , " + SASClientHandler.getStatus(i));
-//		}
+		try {
+			System.out.println(SASClientHandler.makeGetTimeSeries("ECB", "EXR.A+M.*.EUR.SP00.A", null, null));
+			System.out.println();
+			for (int i = 0; i < SASClientHandler.getNumberOfData(); i++) {
+					System.out.println(SASClientHandler.getDataName(i) + " , " + SASClientHandler.getDataTimestamp(i) + " , " + 
+							SASClientHandler.getDataObservation(i) + " , " + SASClientHandler.getDataStatus(i));
+			}
+			for (int i = 0; i < SASClientHandler.getNumberOfMeta(); i++) {
+				System.out.println(SASClientHandler.getMetaName(i) + " , " + 
+									SASClientHandler.getMetaKey(i) + " , " + 
+									SASClientHandler.getMetaValue(i) + " , " + 
+									SASClientHandler.getMetaType(i));
+			}
+		} catch (SdmxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
