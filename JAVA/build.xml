@@ -19,7 +19,7 @@
 	    description="compile the source " >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}"/>
-		<javac srcdir="${test}" destdir="${build}"/>
+		<!-- <javac srcdir="${test}" destdir="${build}"/>  -->
 	</target>
 
 	<target name="dist" depends="SDMX"  description="generate the distribution" >
