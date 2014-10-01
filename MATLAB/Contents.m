@@ -7,9 +7,9 @@
 %	getProviders  - get the list of available data providers
 %	getFlows - get the list of available data flows for the input provider
 %	getDimensions - get the list of dimensions for the input dataflow
-%	getDSDIdentifier - get the ame of the DSD for the input dataflow
+%	getDSDIdentifier - get the name of the DSD for the input dataflow
 %	getTimeSeries - get the list of time series that match the input query
-%	sdmxHelp - opena graphical metadata browser that (hopefully) helps building  data queries
+%	sdmxHelp - opena graphical metadata browser that helps building  data queries
 %
 % #############################################################################################
 % Copyright 2010,2014 Bank Of Italy
