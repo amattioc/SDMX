@@ -90,8 +90,7 @@ public class SASClientHandler extends SdmxClientHandler{
 					for (Iterator<String> iterator2 = dimensions.iterator(); iterator2.hasNext();) {
 						String dim = (String) iterator2.next();
 						//deparse dimension (KEY=VALUE)
-						String delims = "[ =]";
-						String[] tokens = dim.split(delims);
+						String[] tokens = dim.split("\\s*=\\s*");
 						String key = tokens[0];
 						String value = tokens[1];
 						metadata.setRow(metaRowIndex, name, key, value, "DIMENSION");
@@ -101,8 +100,7 @@ public class SASClientHandler extends SdmxClientHandler{
 					for (Iterator<String> iterator2 = attributes.iterator(); iterator2.hasNext();) {
 						String attr = (String) iterator2.next();
 						//deparse dimension (KEY=VALUE)
-						String delims = "[ =]";
-						String[] tokens = attr.split(delims);
+						String[] tokens = attr.split("\\s*=\\s*");
 						String key = tokens[0];
 						String value = tokens[1];
 						metadata.setRow(metaRowIndex, name, key, value, "ATTRIBUTE");
@@ -245,13 +243,16 @@ class DataCache {
 		this.data = new Object[size][4];
 	}
 	
-	void setRow(int rowIndex, String name, String time, double obs, String status){
+	void setRow(int rowIndex, String name, String time, double obs, String status) throws SdmxException{
 		if( data!= null && rowIndex < data.length ){
 			data[rowIndex][NAME_COL] = name;
 			data[rowIndex][TIME_COL] = time;
 			data[rowIndex][OBS_COL] = new Double(obs);
 			data[rowIndex][STATUS_COL] = status;
 			
+		}
+		else{
+			throw new SdmxException("Row index exceeds data size");
 		}
 	}
 	double getObservation(int rowIndex) throws SdmxException{
@@ -302,20 +303,22 @@ class MetadataCache {
 	private static final int VALUE_COL = 2;
 	private static final int TYPE_COL = 3;
 	
-	Object [][] data = null;
+	String [][] data = null;
 	
 	MetadataCache(int size) {
 		super();
-		this.data = new Object[size][4];
+		this.data = new String[size][4];
 	}
 	
-	void setRow(int rowIndex, String name, String key, String value, String type){
+	void setRow(int rowIndex, String name, String key, String value, String type) throws SdmxException{
 		if( data!= null && rowIndex < data.length ){
 			data[rowIndex][NAME_COL] = name;
 			data[rowIndex][KEY_COL] = key;
 			data[rowIndex][VALUE_COL] = value;
 			data[rowIndex][TYPE_COL] = type;
-			
+		}
+		else{
+			throw new SdmxException("Row index exceeds metadata size");
 		}
 	}
 	String getName(int rowIndex) throws SdmxException{
