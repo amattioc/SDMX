@@ -21,6 +21,7 @@
 
 package it.bankitalia.reri.sia.sdmx.parser.v20;
 
+import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.util.LocalizedText;
 
@@ -123,20 +124,20 @@ public class DataflowParser {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_ID)) {
 					id = eventReader.getElementText();
-					df.setDsd(id);
 				}
 				else if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_AGID)) {
 					agency = eventReader.getElementText();
-					df.setDsdAgency(agency);
 				}
 				else if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_VER)) {
 					version = eventReader.getElementText();
-					df.setDsdVersion(version);
 				}
+				
 			}
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (KF_REF)) {
+					DSDIdentifier dsd = new DSDIdentifier(id, agency, version);
+					df.setDsdIdentifier(dsd);
 					break;
 				}
 			}

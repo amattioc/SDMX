@@ -35,15 +35,13 @@ public class IMF extends OECD{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public IMF() throws MalformedURLException{
-		//super("IMF", new URL("http://sdmxws.imf.org/RestSDMX2/sdmx.ashx"), "IMF", false, true);
 		this.name = "IMF";
-		this.agencyID = "IMF";
 		this.wsEndpoint = new URL("http://sdmxws.imf.org/RestSDMX2/sdmx.ashx");
 		this.dotStat = true;
 		this.needsCredentials = false;
 	}
 
-	
+	@Override
 	protected String buildDataQuery(URL endpoint, String dataflow, String resource, String startTime, String endTime){
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
@@ -73,7 +71,8 @@ public class IMF extends OECD{
 		}
 	}
 	
-	protected String buildStructureQuery(URL endpoint, String dsd){
+	@Override
+	protected String buildStructureQuery(URL endpoint, String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 
@@ -83,9 +82,5 @@ public class IMF extends OECD{
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
 		}
-	}
-	
-	protected String buildFlowQuery(URL endpoint, String flow){
-		return(buildStructureQuery(endpoint, flow));
 	}
 }

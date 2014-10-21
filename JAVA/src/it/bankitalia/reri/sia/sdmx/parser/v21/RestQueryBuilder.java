@@ -31,7 +31,6 @@ import java.net.URL;
 public class RestQueryBuilder{
 	
 	
-	// e.g. BIS:  https://dbsonline-test.bis.org/FusionAccessDataBank/test/data/BIS,BIS_MACRO,1.0/.ABBA.BE.01?version=2.1
 	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end){
 		
 		if( endpoint!=null && 
@@ -62,8 +61,7 @@ public class RestQueryBuilder{
 		}
 	}
 	
-	// e.g. BIS: https://dbsonline-test.bis.org/FusionAccessDataBank/test/datastructure/BIS/BIS_CPSS_SEC
-	public static String getStructureQuery(URL endpoint, String agency, String dsd, String version){
+	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version){
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
@@ -78,7 +76,6 @@ public class RestQueryBuilder{
 		}
 	}
 
-	// e.g. BIS: https://dbsonline-test.bis.org/FusionAccessDataBank/test/dataflow/BIS/BIS_CPSS_SEC
 	public static String getDataflowQuery(URL endpoint, String dataflow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
 			String dataflowKey = agency + "/" + dataflow + "/" + version;

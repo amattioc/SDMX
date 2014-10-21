@@ -32,6 +32,57 @@ import java.util.Map;
 public interface GenericSDMXClient {
 	
 	/**
+	 * <p>Gets all the dataflows from this provider
+	 * @return a HashTable of mappings (flow id and name)
+	 * @throws SdmxException 
+	 */
+	public Map<String, String> getDataflows() throws SdmxException;
+
+	/**
+	 * <p>Gets the dsd name for the given dataflow
+	 * @param dataFlow name of the dataflow
+	 * @param agency TODO
+	 * @param version TODO
+	 * @return the dsd identifier (id, agency, version)
+	 * @throws SdmxException 
+	 */
+	public DSDIdentifier getDSDIdentifier(String dataFlow, String agency, String version) throws SdmxException;
+
+	/**
+	 * <p>Gets the dimension names for the given dataflow
+	 * @param dataflow name of the dataflow
+	 * @return the list of dimensions
+	 * @throws SdmxException 
+	 */
+	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
+	
+	/**
+	 * <p>Gets the basic dsd structure for the given dataflow
+	 * @param dsd the dsd identification
+	 * @return the dimensions and code lists
+	 * @throws SdmxException 
+	 */
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException;
+
+	/**
+	 * <p>Gets the dimension names for the given dataflow
+	 * @param dataflow name of the dataflow
+	 * @return the list of dimensions
+	 * @throws SdmxException 
+	 */
+	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
+	
+	/**
+	 * <p>Gets all the codes from this provider for the specified codelist
+	 * 
+	 * @param provider
+	 * @param codeList
+	 * @return
+	 * @throws SdmxException 
+	 */
+	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException;
+
+	/**
      * <p>Gets a time series with the specified classification keys. The id is in a dot separated
      * form, where the first token is the name of  the dataflow. Note that single keys can be 
      * wildcarded.
@@ -62,47 +113,6 @@ public interface GenericSDMXClient {
      */
 	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
 	
-	/**
-     * <p>Gets the basic dsd structure for the given dataflow
-     * @param dsd the dsd identification
-     * @return the dimensions and code lists
-	 * @throws SdmxException 
-     */
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException;
-
-	/**
-     * <p>Gets the dsd name for the given dataflow
-     * @param dataFlow name of the dataflow
-	 * @param agency TODO
-	 * @param version TODO
-     * @return the dsd identifier (id, agency, version)
-	 * @throws SdmxException 
-     */
-	public DSDIdentifier getDSDIdentifier(String dataFlow, String version) throws SdmxException;
-	
-	/**
-     * <p>Gets all the dataflows from this provider
-     * @return a HashTable of mappings (flow id and name)
-	 * @throws SdmxException 
-     */
-	public Map<String, String> getDataflows() throws SdmxException;
-	
-	/**
-	 * <p>Gets all the codes from this provider for the specified codelist
-	 * 
-	 * @param provider
-	 * @param codeList
-	 * @return
-	 * @throws SdmxException 
-	 */
-	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException;
-
-	/**
-     * <p>Gets the agency id of the data provider for this client
-     * @return agency id
-     */
-	public String getAgency();
-
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 
      * with setCredentials()

@@ -65,23 +65,23 @@ public class SDMXClientFactory {
 	private static void initBuiltInProviders(){
 		providers = new HashMap<String, Provider>();
     	try {
-	    	addProvider("ECB", "ECB", new URL(ECB_PROVIDER), false);
-	    	addProvider("BIS", "BIS", new URL(BIS_PROVIDER), true);
-			addProvider("EUROSTAT", "ESTAT", new URL(EUROSTAT_PROVIDER), false);
+	    	addProvider("ECB", new URL(ECB_PROVIDER), false);
+	    	addProvider("BIS", new URL(BIS_PROVIDER), true);
+			addProvider("EUROSTAT", new URL(EUROSTAT_PROVIDER), false);
 	    } catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
 		}
 
 	    //add internal 2.0 providers
-	    addProvider("OECD", "OECD", null, false);
-	    addProvider("ILO", "ILO", null, false);
-	    addProvider("IMF", "IMF", null, false);
+	    addProvider("OECD", null, false);
+	    addProvider("ILO", null, false);
+	    addProvider("IMF", null, false);
 	    
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
         for (GenericSDMXClient provider : ldr) {
-            addProvider(provider.getClass().getSimpleName(), provider.getAgency(), null, provider.needsCredentials());
+            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials());
         }
 	}
 	
@@ -93,8 +93,8 @@ public class SDMXClientFactory {
 	 * @param endpoint
 	 * @param needsCredentials
 	 */
-	public static void addProvider(String name, String agency, URL endpoint, boolean needsCredentials){
-		Provider p = new Provider(name, agency, endpoint, needsCredentials);
+	public static void addProvider(String name, URL endpoint, boolean needsCredentials){
+		Provider p = new Provider(name, endpoint, needsCredentials);
     	providers.put(name, p);
 	}
 	
@@ -117,11 +117,11 @@ public class SDMXClientFactory {
 		String errorMsg = "The provider '" + provider + "' is not available in this configuration.";
 		if(p != null && p.getEndpoint() != null){
 			if(p.getEndpoint().getProtocol().equals("http")){
-				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.getAgency(), p.isNeedsCredentials(), false);
+				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), false);
 			}
 			else if(p.getEndpoint().getProtocol().equals("https")){
 				try {
-					client = new HttpsSdmxClient(p.getName(), p.getEndpoint(), p.getAgency(), p.isNeedsCredentials(), false);
+					client = new HttpsSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), false);
 				} catch (KeyManagementException e) {
 					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 					logger.log(Level.FINER, "", e);

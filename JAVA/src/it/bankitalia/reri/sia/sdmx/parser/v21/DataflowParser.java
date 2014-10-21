@@ -23,6 +23,7 @@
  */
 package it.bankitalia.reri.sia.sdmx.parser.v21;
 
+import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.util.LocalizedText;
 
@@ -97,26 +98,25 @@ public class DataflowParser {
 					
 				}
 				else if (startElement.getName().getLocalPart() == (REF)) {
+					String id = null;
+					String agency = null;
+					String version = null;
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
 						Attribute attr = attributes.next();
-						String id = null;
-						String agency = null;
-						String version = null;
 						if (attr.getName().toString().equals(ID)) {
 							id = attr.getValue();
-							df.setDsd(id);
 						}
 						else if (attr.getName().toString().equals(AGENCY)) {
 							agency = attr.getValue();
-							df.setDsdAgency(agency);
 						}
 						else if (attr.getName().toString().equals(VERSION)) {
 							version = attr.getValue();
-							df.setDsdVersion(version);
 						}
 					}
+					DSDIdentifier dsd = new DSDIdentifier(id, agency, version);
+					df.setDsdIdentifier(dsd);
 				}
 			}
 			if (event.isEndElement()) {

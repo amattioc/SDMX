@@ -54,30 +54,13 @@ public class SdmxClientHandler {
 	protected static Logger logger = Configuration.getSdmxLogger();
 	private static final String sourceClass = SdmxClientHandler.class.getSimpleName();
 
-	//private static SdmxClientHandler theHandler = null;
-	
-	// we only manage 'latest' dataflow version for now
-	private static final String VERSION = "latest";
+	// we only manage 'latest' and 'all' as starting points, for now
+	public static final String LATEST_VERSION = "latest";
+	public static final String ALL_AGENCIES = "all";
 
 	// key: provider name --> client
 	private static Map<String, GenericSDMXClient> clients = new Hashtable<String, GenericSDMXClient>();
 
-//	// key: provider name --> provider class
-//	private static Map<String, Provider> providers = null;
-
-//	private SdmxClientHandler() {
-//		super();
-//		clients = new Hashtable<String, GenericSDMXClient>();
-//		providers = SDMXClientFactory.getProviders();
-//	}
-	
-//	public static SdmxClientHandler getInstance(){
-//		if(theHandler == null){
-//			theHandler = new SdmxClientHandler();
-//		}
-//		return theHandler;
-//	}
-	
 	public static boolean needsCredentials(String provider) throws SdmxException {
 		return getClient(provider).needsCredentials();
 	}
@@ -90,7 +73,7 @@ public class SdmxClientHandler {
 		URL ep;
 		try {
 			ep = new URL(endpoint);
-			SDMXClientFactory.addProvider(name, agency, ep, needsCredentials);
+			SDMXClientFactory.addProvider(name, ep, needsCredentials);
 		} catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
@@ -122,7 +105,6 @@ public class SdmxClientHandler {
 				try {
 					tmp = getClient(provider).getDataFlowStructure(keyF);
 					p.setDSD(fullkeyFamilyKey, tmp);
-					// just for exdi
 					delay();
 				} catch (SdmxException e) {
 					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
@@ -137,16 +119,14 @@ public class SdmxClientHandler {
 	}
 	
 	public static DSDIdentifier getDSDIdentifier(String provider, String dataflow) throws SdmxException {
-		String dataflowKey = getClient(provider).getAgency() + "/" + dataflow + "/" + VERSION;
 		Provider p = getProvider(provider);
 		DSDIdentifier result = null;
-		result = p.getDSDIdentifier(dataflowKey);
+		result = p.getDSDIdentifier(dataflow);
 		if(result == null){
-			logger.info("DSD identifier for dataflow " + dataflowKey + " not cached. Call Provider.");
+			logger.info("DSD identifier for dataflow " + dataflow + " not cached. Call Provider.");
 			try {
-				result = getClient(provider).getDSDIdentifier(dataflow, VERSION);
-				p.setDSDIdentifier(dataflowKey, result);
-				// just for exdi
+				result = getClient(provider).getDSDIdentifier(dataflow, ALL_AGENCIES, LATEST_VERSION);
+				p.setDSDIdentifier(dataflow, result);
 				delay();
 			} catch (SdmxException e) {
 				logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
@@ -212,7 +192,7 @@ public class SdmxClientHandler {
 	public static List<PortableTimeSeries> getTimeSeries(String provider, String tsKey,
 			String startTime, String endTime) throws SdmxException {
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries> ();
-		String[] ids = tsKey.split("\\s*,\\s*");
+		String[] ids = tsKey.trim().split("\\s*,\\s*");
 		for (int i = 0; i < ids.length; i++) {
 			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime);
 			if(tmp != null){
@@ -225,10 +205,9 @@ public class SdmxClientHandler {
 	public static List<PortableTimeSeries> getSingleTimeSeries(String provider, String tsKey,
 			String startTime, String endTime) throws SdmxException {
 		List<PortableTimeSeries> result = null;
-		
 		String dataflow = null;
 		String resource = null;
-		
+		tsKey = tsKey.trim();
 		String delims = "[ /]";
 		String[] tokens = tsKey.split(delims, 2);
 		if(tokens.length == 2){
@@ -241,6 +220,7 @@ public class SdmxClientHandler {
 			dataflow = tokens[0];
 			resource = tokens[1];
 		}
+		
 
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
 		try {
@@ -328,9 +308,9 @@ public class SdmxClientHandler {
 	private static void handlePassword(GenericSDMXClient client, String user, String pw){
 		if(client.needsCredentials()){
 			if(user == null || pw == null){
-				final JFrame frame = new JFrame(client.getAgency() + " Authentication");
+				final JFrame frame = new JFrame("Authentication");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				LoginDialog loginDlg = new LoginDialog(frame, client.getAgency() + " Authentication");
+				LoginDialog loginDlg = new LoginDialog(frame, "Authentication");
                 loginDlg.setVisible(true);
                 client.setCredentials(loginDlg.getUsername(), loginDlg.getPassword());
                 frame.dispose();
@@ -379,7 +359,6 @@ public class SdmxClientHandler {
 	
 	private static void delay(){
 		long sleepTime = Configuration.getDelay();
-		// workaround for the Secure ECB SDW
 		if(sleepTime>0){
 			try {
 				Thread.sleep(Configuration.getDelay());

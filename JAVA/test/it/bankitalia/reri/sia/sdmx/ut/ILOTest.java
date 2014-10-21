@@ -28,7 +28,6 @@ import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
 import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
 import it.bankitalia.reri.sia.util.SdmxException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class ILOTest {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_FRA_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null key family for DF_YI_FRA_EMP_TEMP_SEX_AGE_NB", keyF);
 		assertEquals("Wrong Key Family", "YI_FRA_EMP_TEMP_SEX_AGE_NB", keyF.getId());
-		assertEquals("Wrong agency", "ILO", keyF.getAgency());
+		assertEquals("Wrong agency", null, keyF.getAgency());
 	}
 
 //	@Test
@@ -62,7 +61,6 @@ public class ILOTest {
 	public void testGetDimensions() throws SdmxException {
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		ArrayList<Dimension> dimensions = new ArrayList<Dimension>();
 		String result = "[Dimension [id=COLLECTION, position=1, codelist=ILO/CL_COLLECTION], " +
 						"Dimension [id=COUNTRY, position=2, codelist=ILO/CL_COUNTRY], " +
 						"Dimension [id=FREQ, position=3, codelist=ILO/CL_FREQ], " +

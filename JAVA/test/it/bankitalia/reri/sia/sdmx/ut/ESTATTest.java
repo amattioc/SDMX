@@ -73,12 +73,12 @@ public class ESTATTest {
 	}
 
 
-//	@Test
-//	public void testGetCodes() throws SdmxException {
-//			Map<String, String> codes = SdmxClientHandler.getCodes("EUROSTAT", "prc_hicp_midx", "FREQ");
-//			assertNotNull("Null getCodes result", codes);
-//			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
-//	}
+	@Test
+	public void testGetCodes() throws SdmxException {
+			Map<String, String> codes = SdmxClientHandler.getCodes("EUROSTAT", "prc_hicp_midx", "FREQ");
+			assertNotNull("Null getCodes result", codes);
+			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
+	}
 
 	@Test
 	public void testGetTimeSeries() throws SdmxException {

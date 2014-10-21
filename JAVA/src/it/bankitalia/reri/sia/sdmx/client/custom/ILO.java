@@ -24,7 +24,6 @@ import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.client.RestSdmxClient;
 import it.bankitalia.reri.sia.sdmx.parser.v20.CodelistParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataStructureParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataflowParser;
@@ -46,130 +45,22 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-public class ILO extends RestSdmxClient{
+public class ILO extends RestSdmx20Client {
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ILO() throws MalformedURLException{
-		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest/"), "ILO", false, true);
+		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false, true);
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(String dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
-		String query=null;
-		String xml = null;
-		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries>();
-		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime);
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
-			try {
-				ts = GenericDataParser.parse(xml, dataflow);
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + getAgency());
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			}
-		}
-		else{
-			throw new SdmxException("The query returned an empty result");
-		}
-		return ts;
-	}
-
-	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException {
-		String query=null;
-		String xml = null;
-		DataFlowStructure str = new DataFlowStructure();
-		if(dsd!=null){
-			query = buildStructureQuery(wsEndpoint, dsd.getId());
-			xml = runQuery(query, null);
-			if(xml!=null && !xml.isEmpty()){
-				logger.finest(xml);
-				try {
-					str = DataStructureParser.parse(xml).get(0);
-				} catch (Exception e) {
-					logger.severe("Exception caught parsing results from call to provider " + getAgency());
-					logger.log(Level.FINER, "Exception: ", e);
-					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-				}
-			}
-			else{
-				throw new SdmxException("The query returned an empty result");
-			}
-		}
-		else{
-			throw new SdmxException("Null dsd in input");
-		}
-		return str;
-
-	}
-
-	@Override
-	public DSDIdentifier getDSDIdentifier(String dataflow, String version) throws SdmxException {
+	public DSDIdentifier getDSDIdentifier(String dataflow, String agency, String version) throws SdmxException {
 		//quick and dirty: ILO just prepones 'DF_' to the dsd id
-		DSDIdentifier dsd = new DSDIdentifier(dataflow.substring(3), getAgency(), version);
+		DSDIdentifier dsd = new DSDIdentifier(dataflow.substring(3), null, null);
 		return dsd;
 	}
 
 	@Override
-	public Map<String, String> getDataflows() throws SdmxException {
-		String query=null;
-		String xml = null;
-		Map<String, String> result = new HashMap<String, String>();
-		query = buildFlowQuery(wsEndpoint, "ALL");
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
-			try {
-				List<Dataflow> dfs = DataflowParser.parse(xml);
-				if(dfs.size() > 0){
-					result = new HashMap<String, String>();
-					for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
-						Dataflow df = (Dataflow) iterator.next();
-						result.put(df.getId(), df.getDsd());
-					}
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + getAgency());
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			}
-		}
-		else{
-			throw new SdmxException("The query returned an empty result");
-		}
-		return result;
-	}
-	
-	@Override
-	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException {
-		String query=null;
-		String xml = null;
-		Map<String, String> result = null;
-		query = buildCodelistQuery(wsEndpoint, codeList);
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
-			try {
-				result = CodelistParser.parse(xml);
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + getAgency());
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			}
-			
-		}
-		else{
-			throw new SdmxException("The query returned an empty result");
-		}
-		return result;
-	}
-	
 	protected String buildDataQuery(URL endpoint, String dataflow, String resource, String startTime, String endTime){
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
@@ -199,11 +90,12 @@ public class ILO extends RestSdmxClient{
 		}
 	}
 	
-	protected String buildStructureQuery(URL endpoint, String dsd){
+	@Override
+	protected String buildStructureQuery(URL endpoint, String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 
-			String query = endpoint + "/datastructure/" + this.agencyID + "/" + dsd;
+			String query = endpoint + "/datastructure/ILO/" + dsd;
 			return query;
 		}
 		else{
@@ -211,11 +103,14 @@ public class ILO extends RestSdmxClient{
 		}
 	}
 
-	protected String buildFlowQuery(URL endpoint, String flow){
+	@Override
+	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
+		agency = (agency == null) ? "ALL" : agency;
+		version = (version == null) ? "latest" : version;
 		if( endpoint!=null  &&
 				flow!=null && !flow.isEmpty()){
 
-			String query = endpoint + "/dataflow/" + this.agencyID + "/" + flow;
+			String query = endpoint + "/dataflow/ILO/" + flow;
 			return query;
 		}
 		else{

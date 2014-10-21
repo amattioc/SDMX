@@ -40,8 +40,8 @@ import javax.net.ssl.X509TrustManager;
  */
 public class HttpsSdmxClient extends RestSdmxClient{
 
-	public HttpsSdmxClient(String name, URL endpoint, String agency, boolean needsCredentials, boolean dotStat) throws NoSuchAlgorithmException, KeyManagementException {
-		super(name, endpoint, agency, needsCredentials, dotStat);
+	public HttpsSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean dotStat) throws NoSuchAlgorithmException, KeyManagementException {
+		super(name, endpoint, needsCredentials, dotStat);
 		
 		// check if we want to disable the certificate checks, 
 		// elseway the certificates have to be installed in teh keystore
