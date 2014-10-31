@@ -26,13 +26,17 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 public class ECBClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ECB", "EXR*"));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "EX"));
-		
-//		System.err.println(SdmxClientHandler.getInstance().getDataFlowStructure("ECB", "EXR"));
-//		System.err.pridntln(SdmxClientHandler.getDimensions("ECB", "EX"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", null, null));
-		//System.err.println(SdmxClientHandler.getCodes("ECB", "EXR", "FREQ"));
+//		System.err.println(SdmxClientHandler.getFlows("ECB", "Exchange*"));
+//		
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "MOBILE_EXR"));
+//		
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "ICPF"));
+//		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
+		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
+//		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
+//		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
+//		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "ICPF.A.AT.N.V.LE.N_F.S1251.A1.S.1.N.E.Z", null, null));
 		
 	}
 }

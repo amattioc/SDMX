@@ -73,7 +73,7 @@ public class CompactDataParser {
 				StartElement startElement = event.asStartElement();
 
 				if (startElement.getName().getLocalPart() == (SERIES)) {
-					logger.finest("Got time series");
+					logger.finer("Got new time series");
 					ts = new PortableTimeSeries();
 					ts.setDataflow(dataflow);
 					@SuppressWarnings("unchecked")
@@ -113,7 +113,7 @@ public class CompactDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (SERIES) && ts.getObservations().size() > 0) {
-					logger.finest("Adding time series " + ts);
+					logger.finer("Adding time series " + ts);
 					tsList.add(ts);
 				}
 			}

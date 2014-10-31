@@ -20,12 +20,26 @@
 %
 \name{RJSDMX-package}
 \title{Gets timeseries from SDMX data Provider}
-\description{  This package provides functions to extract timeseries from an SDMX Provider (e.g. ECB,OECD, EUROSTAT) via SDMX Web Service}
+\description{  This package provides functions to extract timeseries data and 
+structural metadata from an SDMX Provider (e.g. ECB,OECD, EUROSTAT) via SDMX Web Service}
 \details{\tabular{ll}{
 Package: \tab RJSDMX\cr
 Type: \tab Package\cr
 }
-Download Timeseries in local environment using Web Services published by SDMX data Providers.
+The SDMX Connectors framework (of which RJSDMX is part) aims to offer data users the means for efficiently interacting with SDMX Web Service providers 
+from within the most popular statistical tools.
+The source code of the SDMX Connectors project can be found at:  
+
+\url{https://github.com/amattioc/SDMX}
+
+Information about the R Connector can be found in the dedicated wiki page: 
+
+\url{https://github.com/amattioc/SDMX/wiki/RJSDMX:-Connector-for-R}
+
+In particular, all information related to configuration (network, tracing, security) can be found at: 
+
+\url{https://github.com/amattioc/SDMX/wiki/Configuration}
+
 }
 \alias{RJSDMX}
 \docType{package}
@@ -37,8 +51,4 @@ Download Timeseries in local environment using Web Services published by SDMX da
 }
 \author{Attilio Mattiocco, Diana Nicoletti, Bank of Italy, IT Support for the Economic Research 
 \email{attilio.mattiocco@bancaditalia.it, diana.nicoletti@bancaditalia.it}}
-\references{\url{http://sdmx.org/}
-\url{http://bancaditalia.it}
-\url{http://sdw.ecb.europa.eu/}
-\url{http://stats.oecd.org/}}
-
+\references{\url{http://sdmx.org/}}

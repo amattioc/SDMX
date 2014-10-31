@@ -97,14 +97,6 @@ public class DataFlowStructure {
 		return Arrays.asList(result);
 	}
 
-	public Map<String, String> getCodes(String dimension) {
-		return dimensions.get(dimension).getCodes();
-	}
-	
-	public void setCodes(String dimension, Map<String, String> codes){
-		dimensions.get(dimension).setCodes(codes);
-	}
-
 	public void setDimension(Dimension dim) {
 		this.dimensions.put(dim.getId(), dim);
 	}
@@ -129,11 +121,23 @@ public class DataFlowStructure {
 		return timeDimension;
 	}
 
+	public String getFullIdentifier() {
+		String dsd = id;
+		if(agency!=null){
+			dsd = agency + "/" + dsd;
+		}
+		if(version!=null){
+			dsd = dsd +  "/" + version;
+		}
+		return dsd;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DSD [id=").append(agency).append("/").append(id).append("/").append(version)
-				.append(",\n dimensions=").append(dimensions).append("]");
+		builder.append("DSD [id=").append(getFullIdentifier())
+			.append(",\n name=").append(name)
+			.append(",\n dimensions=").append(dimensions).append("]");
 		return builder.toString();
 	}
 

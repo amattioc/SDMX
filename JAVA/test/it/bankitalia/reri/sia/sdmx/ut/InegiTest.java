@@ -34,54 +34,47 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-public class ESTATTest {
+public class InegiTest {
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
 	}
-	
+
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
-		DSDIdentifier dsd = SdmxClientHandler.getDSDIdentifier("EUROSTAT", "prc_hicp_midx");
-		assertNotNull("Null key family for prc_hicp_midx", dsd);
-		assertEquals("Wrong Key Family", "DSD_prc_hicp_midx", dsd.getId());
+		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("INEGI", "DF_STEI");
+		assertNotNull("Null key family for DF_STEI", keyF);
+		assertEquals("Wrong Key Family", "DSD_STEI", keyF.getId());
 	}
 
 	@Test
 	public void testGetFlows() throws SdmxException {
-		Map<String, String> f = SdmxClientHandler.getFlows("EUROSTAT", "prc_hicp_midx");
+		Map<String, String> f = SdmxClientHandler.getFlows("INEGI", "DF_STEI");
 		assertNotNull("Null getFlows result", f);
-		String descr = f.get("prc_hicp_midx");
-		assertEquals("Wrong description for prc_hicp_midx", "ESTAT,prc_hicp_midx,1.0 ; HICP (2005 = 100) - monthly data (index)", descr);
+		String descr = f.get("DF_STEI");
+		assertEquals("Wrong description for DF_STEI", "INEGI,DF_STEI,1.0 ; Dataflow Short Term Economic Indicators", descr);
 	}
 
 	@Test
 	public void testGetDimensionsAndCodes() throws SdmxException {
-		Map<String, String> codes = SdmxClientHandler.getCodes("EUROSTAT", "prc_hicp_midx", "FREQ");
+		Map<String, String> codes = SdmxClientHandler.getCodes("INEGI", "DF_STEI", "REF_AREA");
 		assertNotNull("Null getCodes result", codes);
-		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
-		List<Dimension> dim = SdmxClientHandler.getDimensions("EUROSTAT", "prc_hicp_midx");
-		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=ESTAT/CL_FREQ/1.0, codes={A=Annual, W=Weekly, H=Semi-annual, Q=Quarterly, D=Daily, M=Monthly}]]";
-		assertEquals("Wrong dimensions for prc_hicp_midx", result,dim.toString().substring(0, result.length()));
+		assertEquals("Wrong code for REF_AREA MEX",  "Mexico", codes.get("MX"));
+		List<Dimension> dim = SdmxClientHandler.getDimensions("INEGI", "DF_STEI");
+		assertNotNull("Null getDimensions result DF_STEI", dim);
+		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=INEGI/CL_AREA, codes={TL=Timor-Leste, TK=Tokelau, TJ=Tajikistan, TH=Thailand, TG=Togo, TF=French Southern Territories, GY=Guyana, TD=Chad,";
+		assertEquals("Wrong dimensions for DF_STEI", result, dim.toString().substring(0, result.length()));
 	}
-
-
+	
 	@Test
-	public void testGetCodes() throws SdmxException {
-	}
-
-	@Test
-	public void testGetTimeSeries() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("EUROSTAT","prc_hicp_midx/..CP00.EU+DE+FR", null, "2013-08");
+	public void testGetTimeSeriesFromID() throws SdmxException {
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("INEGI", "DF_STEI/..C1161+C1162+C5004.....", "1980", "2010");
 		assertNotNull("Null time series result", res);
-		
 		//warning: they depend on eventual order
-		String monthly = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "prc_hicp_midx.M.I2005.CP00.DE", monthly);
+		String annual = res.get(0).getName();
+		assertEquals("Wrong name for first time series", "DF_STEI.MX.C1161.N.29.Z.Z.2003.M", annual);
 		String start = res.get(0).getTimeSlots().get(0);
-		assertEquals("Wrong start date for time series", "2013-08", start);
+		assertEquals("Wrong start date for time series", "2001-01", start);
 		//System.out.println(res);
 	}
 

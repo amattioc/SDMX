@@ -20,6 +20,7 @@
 */
 package it.bankitalia.reri.sia.sdmx.parser.v20;
 
+import it.bankitalia.reri.sia.sdmx.api.Codelist;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dimension;
 import it.bankitalia.reri.sia.util.Configuration;
@@ -157,7 +158,7 @@ public class DataStructureParser {
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
-					String codelist = null;
+					String codelistID = null;
 					currentDimension = new Dimension();
 					// in sdmx2.0 this position is not set, we rely on the order of the DSD
 					position++;
@@ -168,7 +169,7 @@ public class DataStructureParser {
 							id=attribute.getValue();
 						}
 						else if (attribute.getName().toString().equals(CODELIST2)) {
-							codelist=attribute.getValue();
+							codelistID=attribute.getValue();
 						}
 					}
 					
@@ -178,15 +179,16 @@ public class DataStructureParser {
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Invalid id: " + id);
 					}
-					if(codelist!= null && !codelist.isEmpty()){
-						currentDimension.setCodeList(agency + "/" + codelist);
+					if(codelistID!= null && !codelistID.isEmpty()){
+						Codelist cl = new  Codelist(codelistID, agency, null);
 						if(codelists != null){
-							Map<String, String> codes = codelists.get(currentDimension.getCodeList());
-							currentDimension.setCodes(codes);
+						Map<String, String> codes = codelists.get(cl.getFullIdentifier());
+							cl.setCodes(codes);
 						}
+						currentDimension.setCodeList(cl);					
 					}
 					else{
-						throw new RuntimeException("Error during Structure Parsing. Invalid CODELIST: " + codelist);
+						throw new RuntimeException("Error during Structure Parsing. Invalid CODELIST: " + codelistID);
 					}
 				}
 				else if (startElement.getName().getLocalPart().equals((TIMEDIMENSION))) {

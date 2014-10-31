@@ -46,7 +46,7 @@ public class FlowNode extends SdmxNode {
 		List<Dimension> dimensions = SdmxClientHandler.getDimensions(providerId, this.id);
 		for (Iterator<Dimension> iterator = dimensions.iterator(); iterator.hasNext();) {
 			Dimension dim = (Dimension) iterator.next();
-			DimensionNode n = new DimensionNode(dim.getId(), providerId, this.id, dim.getCodeList(), true);
+			DimensionNode n = new DimensionNode(dim.getId(), providerId, this.id, dim.getCodeList().getFullIdentifier(), true);
 			result.add(n);
 		}
 		return result;

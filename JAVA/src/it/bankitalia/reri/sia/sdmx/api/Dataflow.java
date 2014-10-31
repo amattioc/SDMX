@@ -33,7 +33,6 @@ public class Dataflow {
 	private String name; // the description
 	private String agency;
 	private String version;
-	private String description;
 	private DSDIdentifier dsdIdentifier;
 
 	public String getId() {
@@ -45,7 +44,7 @@ public class Dataflow {
 	}
 
 	public String getName() {
-		return name;
+		return getFullIdentifier() + " ; " + name;
 	}
 
 	public void setName(String name) {
@@ -68,14 +67,6 @@ public class Dataflow {
 		this.version = version;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
 	public DSDIdentifier getDsdIdentifier() {
 		return dsdIdentifier;
 	}
@@ -84,14 +75,23 @@ public class Dataflow {
 		this.dsdIdentifier = dsdIdentifier;
 	}
 
+	public String getFullIdentifier() {
+		String dsd = id;
+		if(agency!=null){
+			dsd = agency + "," + dsd;
+		}
+		if(version!=null){
+			dsd = dsd +  "," + version;
+		}
+		return dsd;
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Dataflow [id=").append(id).append(",\n name=")
-				.append(name).append(",\n agency=").append(agency)
-				.append(",\n version=").append(version).append(",\n dsd=")
-				.append(dsdIdentifier).append("]");
+		builder.append("Dataflow [id=").append(getFullIdentifier())
+			.append(",\n name=").append(name)
+			.append(",\n dsd=").append(dsdIdentifier).append("]");
 		return builder.toString();
 	}
 }

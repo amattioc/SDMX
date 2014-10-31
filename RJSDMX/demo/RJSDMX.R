@@ -20,15 +20,29 @@
 #
 
 getProviders()
+readline("\nType  <Return>\t to continue : ")
+
+addProvider('TEST', "http://sdw-wsrest.ecb.europa.eu/service", F)
+
+getProviders()
+readline("\nType  <Return>\t to continue : ")
 
 getFlows('ECB')
+readline("\nType  <Return>\t to continue : ")
+
 getDimensions('ECB', 'EXR')
+readline("\nType  <Return>\t to continue : ")
+
 ans=getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A')
-plot(ans[[1]])
+plot(ans[[1]], main=names(ans)[[1]])
 
 getFlows('EUROSTAT')
+readline("\nType  <Return>\t to continue : ")
+
 getDimensions('EUROSTAT', 'prc_hicp_midx')
+readline("\nType  <Return>\t to continue : ")
+
 ans=getTimeSeries('EUROSTAT', 'prc_hicp_midx/..CP00.EU+DE+FR')
-plot(ans[[1]])
+plot(ans[[1]], main=names(ans)[[1]])
 
 sdmxHelp()

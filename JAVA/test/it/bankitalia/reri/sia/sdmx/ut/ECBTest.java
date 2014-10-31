@@ -1,3 +1,24 @@
+/* Copyright 2010,2014 Bank Of Italy
+*
+* Licensed under the EUPL, Version 1.1 or - as soon they
+* will be approved by the European Commission - subsequent
+* versions of the EUPL (the "Licence");
+* You may not use this work except in compliance with the
+* Licence.
+* You may obtain a copy of the Licence at:
+*
+*
+* http://ec.europa.eu/idabc/eupl
+*
+* Unless required by applicable law or agreed to in
+* writing, software distributed under the Licence is
+* distributed on an "AS IS" basis,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+* express or implied.
+* See the Licence for the specific language governing
+* permissions and limitations under the Licence.
+*/
+
 package it.bankitalia.reri.sia.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
@@ -8,16 +29,15 @@ import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
 import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
 import it.bankitalia.reri.sia.util.SdmxException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.security.auth.Subject;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ECBTest {
-	//private static SdmxClientHandler handler= SdmxClientHandler.getInstance();
-	
 	@BeforeClass
 	public static void setUp() throws Exception {
 	}
@@ -32,30 +52,21 @@ public class ECBTest {
 
 	@Test
 	public void testGetFlows() throws SdmxException {
-		Map<String, String> f = SdmxClientHandler.getFlows("ECB", "Exchange*");
+		Map<String, String> f = SdmxClientHandler.getFlows("ECB", "*Exchange*");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("EXR");
-		assertEquals("Wrong description for EXR", "Exchange Rates", descr);
+		assertEquals("Wrong description for EXR", "ECB,EXR,1.0 ; Exchange Rates", descr);
 	}
 
 	@Test
-	public void testGetDimensions() throws SdmxException {
+	public void testGetDimensionsAndCodes() throws SdmxException {
+		Map<String, String> codes = SdmxClientHandler.getCodes("ECB", "EXR", "FREQ");
+		assertNotNull("Null getCodes result", codes);
+		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ECB", "EXR");
 		assertNotNull("Null getDimensions result", dim);
-		ArrayList<Dimension> dimensions = new ArrayList<Dimension>();
-		dimensions.add(0, new Dimension("FREQ", 1, "ECB/CL_FREQ/1.0"));
-		dimensions.add(1, new Dimension("CURRENCY", 2, "ECB/CL_CURRENCY/1.0"));
-		dimensions.add(2, new Dimension("CURRENCY_DENOM", 3, "ECB/CL_CURRENCY/1.0"));
-		dimensions.add(3, new Dimension("EXR_TYPE", 4, "ECB/CL_EXR_TYPE/1.0"));
-		dimensions.add(4, new Dimension("EXR_SUFFIX",5, "ECB/CL_EXR_SUFFIX/1.0"));
-		assertEquals("Wrong dimensions for EXR", dimensions.toString(), dim.toString());
-	}
-	
-	@Test
-	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes("ECB", "EXR", "FREQ");
-			assertNotNull("Null getCodes result", codes);
-			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=ECB/CL_FREQ/1.0, codes={D=Daily, B=Business, A=Annual, W=Weekly, S=Half Yearly, semester (value H exists but change to S in 2009, move from H to this new value to be agreed in ESCB context), Q=Quarterly, N=Minutely, M=Monthly, H=Half-yearly, E=Event (not supported)}";
+		assertEquals("Wrong dimensions for EXR", result, dim.toString().substring(0, result.length()));
 	}
 
 	@Test
@@ -66,6 +77,9 @@ public class ECBTest {
 		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.*.USD|GBP.EUR.SP00.A", null, null);
 		assertNotNull("Null time series result", res);
 		assertEquals("Wrong result size", 10, res.size());
+		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", null, null);
+		assertNotNull("Null time series result", res);
+		assertEquals("Wrong result size", 2, res.size());
 	}
 
 }

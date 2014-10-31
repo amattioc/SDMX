@@ -26,16 +26,15 @@
   This function can be used to configure a new (SDMX 2.1 compliant, REST based) data provider.
 }
 \usage{
-  addProvider(name, agency, endpoint, needsCredentials)
+  addProvider(name, endpoint, needsCredentials)
 }
 \arguments{
   \item{name}{the name of the provider}
-  \item{agency}{the agency identifier of the provider}
   \item{endpoint}{the URL where the provider resides}
   \item{needsCredentials}{set this to TRUE if the user needs to authenticate to query the provider }
 }
 \examples{
 #not run
-#addProvider('pname', 'pagency', 'pendpoint', F)
+#addProvider('pname', 'pendpoint', F)
 }
 \author{Attilio Mattiocco}

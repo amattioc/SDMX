@@ -35,8 +35,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ILOTest {
-	//private static SdmxClientHandler handler= SdmxClientHandler.getInstance();
-	
 	@BeforeClass
 	public static void setUp() throws Exception {
 	}
@@ -46,7 +44,7 @@ public class ILOTest {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_FRA_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null key family for DF_YI_FRA_EMP_TEMP_SEX_AGE_NB", keyF);
 		assertEquals("Wrong Key Family", "YI_FRA_EMP_TEMP_SEX_AGE_NB", keyF.getId());
-		assertEquals("Wrong agency", null, keyF.getAgency());
+		assertEquals("Wrong agency", "ILO", keyF.getAgency());
 	}
 
 //	@Test
@@ -58,27 +56,17 @@ public class ILOTest {
 //	}
 
 	@Test
-	public void testGetDimensions() throws SdmxException {
+	public void testGetDimensionsAndCodes() throws SdmxException {
+		Map<String, String> codes = SdmxClientHandler.getCodes("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "COLLECTION");
+		assertNotNull("Null getCodes result", codes);
+		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("KILMNSO"), "KILM national data");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=COLLECTION, position=1, codelist=ILO/CL_COLLECTION], " +
-						"Dimension [id=COUNTRY, position=2, codelist=ILO/CL_COUNTRY], " +
-						"Dimension [id=FREQ, position=3, codelist=ILO/CL_FREQ], " +
-						"Dimension [id=SURVEY, position=4, codelist=ILO/CL_SURVEY], " +
-						"Dimension [id=REPRESENTED_VARIABLE, position=5, codelist=ILO/CL_REPRESENTED_VARIABLE], " +
-						"Dimension [id=CLASSIF_SEX, position=6, codelist=ILO/CL_SEX], " +
-						"Dimension [id=CLASSIF_AGE, position=7, codelist=ILO/CL_AGE]]";
+		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={KILMNSO=KILM national data, CP=Country Profiles, MIG=International Labour Migration";
+		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result,dim.toString().substring(0, result.length()));
 
-		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result, dim.toString());
 	}
 	
-	@Test
-	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "COUNTRY");
-			assertNotNull("Null getCodes result", codes);
-			assertEquals("Wrong code for COUNTRY Belize", codes.get("BLZ"), "Belize");
-	}
-
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
 		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null);

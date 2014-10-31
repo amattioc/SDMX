@@ -36,25 +36,17 @@ public interface GenericSDMXClient {
 	 * @return a HashTable of mappings (flow id and name)
 	 * @throws SdmxException 
 	 */
-	public Map<String, String> getDataflows() throws SdmxException;
+	public Map<String, Dataflow> getDataflows() throws SdmxException;
 
 	/**
-	 * <p>Gets the dsd name for the given dataflow
+	 * <p>Gets the dataflow information for the given dataflow id
 	 * @param dataFlow name of the dataflow
 	 * @param agency TODO
 	 * @param version TODO
 	 * @return the dsd identifier (id, agency, version)
 	 * @throws SdmxException 
 	 */
-	public DSDIdentifier getDSDIdentifier(String dataFlow, String agency, String version) throws SdmxException;
-
-	/**
-	 * <p>Gets the dimension names for the given dataflow
-	 * @param dataflow name of the dataflow
-	 * @return the list of dimensions
-	 * @throws SdmxException 
-	 */
-	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
+	public Dataflow getDataflow(String dataFlow, String agency, String version) throws SdmxException;
 	
 	/**
 	 * <p>Gets the basic dsd structure for the given dataflow
@@ -64,13 +56,6 @@ public interface GenericSDMXClient {
 	 */
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException;
 
-	/**
-	 * <p>Gets the dimension names for the given dataflow
-	 * @param dataflow name of the dataflow
-	 * @return the list of dimensions
-	 * @throws SdmxException 
-	 */
-	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
 	
 	/**
 	 * <p>Gets all the codes from this provider for the specified codelist
@@ -80,7 +65,7 @@ public interface GenericSDMXClient {
 	 * @return
 	 * @throws SdmxException 
 	 */
-	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException;
+	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException;
 
 	/**
      * <p>Gets a time series with the specified classification keys. The id is in a dot separated
@@ -103,7 +88,7 @@ public interface GenericSDMXClient {
      * @return the list of {@link PortableTimeSeries }
 	 * @throws SdmxException 
      */
-	public List<PortableTimeSeries> getTimeSeries(String dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException;
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException;
 	
 	/**
      * <p>Gets the dimension names for the given dataflow

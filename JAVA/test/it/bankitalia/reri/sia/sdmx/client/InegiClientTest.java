@@ -20,18 +20,18 @@
 */
 package it.bankitalia.reri.sia.sdmx.client;
 
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
 import it.bankitalia.reri.sia.util.SdmxException;
 
-import java.util.List;
 
 
-public class BISClientTest {
+public class InegiClientTest {
 	public static void main(String[] args) throws SdmxException{
-//			client = SDMXClientFactory.createClient("BIS", null, null);
-			List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries("BIS","BIS_MACRO/.ABBA.IT.", null, null);
-			System.err.println(result);
-		//System.err.println(SdmxClientHandler.getFlows("BIS", null));
-//			System.err.println(SdmxClientHandler.getDSDIdentifier("BIS", "BIS_MACRO"));
+//		System.err.println(SdmxClientHandler.getFlows("INEGI", null));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("INEGI", "DF_STEI"));
+//		System.err.println(SdmxClientHandler.getDimensions("INEGI", "DF_STEI"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("INEGI", "DF_STEI"));
+		System.err.println(SdmxClientHandler.getCodes("INEGI", "DF_STEI", "FREQ"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("INEGI", "DF_STEI/..C1161+C1162+C5004.....", "1980", "2010"));
+
 	}
 }

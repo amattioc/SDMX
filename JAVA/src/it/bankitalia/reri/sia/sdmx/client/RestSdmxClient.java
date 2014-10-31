@@ -70,10 +70,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public Map<String, String> getDataflows() throws SdmxException {
+	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		String query=null;
 		String xml = null;
-		Map<String, String> result = null;
+		Map<String, Dataflow> result = null;
 		query = buildFlowQuery(wsEndpoint, SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
@@ -81,10 +81,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 			try {
 				List<Dataflow> flows = DataflowParser.parse(xml);
 				if(flows.size() > 0){
-					result = new HashMap<String, String>();
+					result = new HashMap<String, Dataflow>();
 					for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
 						Dataflow dataflow = (Dataflow) iterator.next();
-						result.put(dataflow.getId(), dataflow.getName());
+						result.put(dataflow.getId(), dataflow);
 					}
 				}
 				else{
@@ -104,10 +104,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public DSDIdentifier getDSDIdentifier(String dataflow, String agency, String version) throws SdmxException {
+	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		String query=null;
 		String xml = null;
-		DSDIdentifier dsd = null;
+		Dataflow result = null;
 		query = buildFlowQuery(wsEndpoint, dataflow, agency, version);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
@@ -115,8 +115,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			try {
 				List<Dataflow> flows = DataflowParser.parse(xml);
 				if(flows.size() >= 1){
-					Dataflow result = flows.get(0);
-					dsd = result.getDsdIdentifier();
+					result = flows.get(0);
 				}
 				else{
 					throw new SdmxException("The query returned zero dataflows");
@@ -131,7 +130,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		else{
 			throw new SdmxException("The query returned an empty result");
 		}
-		return dsd;
+		return result;
 	}
 
 	@Override
@@ -140,7 +139,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		String xml = null;
 		DataFlowStructure str = null;
 		if(dsd!=null){
-			query = buildStructureQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
+			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
 			
 			xml = runQuery(query, null);
 			if(xml!=null && !xml.isEmpty()){
@@ -165,11 +164,11 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException {
+	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException {
 		String query=null;
 		String xml = null;
 		Map<String, String> result = null;
-		query = buildCodelistQuery(wsEndpoint, codeList);
+		query = buildCodelistQuery(wsEndpoint, codeList, agency, version);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
 			logger.finest(xml);
@@ -189,7 +188,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(String dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
 		String query=null;
 		String xml = null;
 		List<PortableTimeSeries> ts = null;
@@ -199,7 +198,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		if(xml!=null && !xml.isEmpty()){
 			logger.finest(xml);
 			try {
-				ts = CompactDataParser.parse(xml, dsd, dataflow);
+				ts = CompactDataParser.parse(xml, dsd, dataflow.getId());
 				//ts = GenericDataParser.parse(xml);
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
@@ -253,9 +252,40 @@ public class RestSdmxClient implements GenericSDMXClient{
 				logger.fine("Connection closed.");
 			}
 			else{
-				String msg = "Connection failed. HTTP error code : " + conn.getResponseCode() + " Message: " + conn.getResponseMessage();
-				logger.severe(msg);
-				throw new SdmxException(msg);
+				String msg = "Connection failed. HTTP error code : " + code + ", message: "+ conn.getResponseMessage() +"\n";
+				switch (code) {
+				case 400:
+					msg += "SDMX meaning: there is a problem with the syntax of the query";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 403:
+					msg += "SDMX meaning: The syntax of the query is OK but it has no meaning";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 404:
+					msg += "SDMX meaning: No results matching the query.";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 406:
+					msg += "SDMX meaning: Not a supported format.";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 500:
+					msg += "SDMX meaning: Error on the provider side.";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 501:
+					msg += "SDMX meaning: Feature not supported.";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				case 503:
+					msg += "SDMX meaning: Service temporarily unavailable. Please try again later..";
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				default:
+					logger.severe(msg);
+					throw new SdmxException(msg);
+				}
 			}
 		}
 		catch (IOException e) {
@@ -279,12 +309,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 	}
 
-	protected String buildDataQuery(URL endpoint, String dataflow, String resource, String startTime, String endTime) throws SdmxException{
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime) throws SdmxException{
 		if( endpoint!=null && 
-				dataflow!=null && !dataflow.isEmpty() &&
+				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow, resource, startTime, endTime);
+			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime);
 			return query;
 		}
 		else{
@@ -292,7 +322,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 	}
 	
-	protected String buildStructureQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
 		if( endpoint!=null  &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
@@ -310,8 +340,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 		return query;
 	}
 	
-	protected String buildCodelistQuery(URL endpoint, String codeList) throws SdmxException {
-		String query = RestQueryBuilder.getCodelistQuery(endpoint, codeList);
+	protected String buildCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
+		String query = RestQueryBuilder.getCodelistQuery(endpoint, codeList, agency, version);
 		return query;
 	}
 

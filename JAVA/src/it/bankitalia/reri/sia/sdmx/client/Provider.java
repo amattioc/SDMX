@@ -22,6 +22,7 @@ package it.bankitalia.reri.sia.sdmx.client;
 
 import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
+import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 
 import java.net.URL;
 import java.util.Hashtable;
@@ -31,14 +32,11 @@ public class Provider {
 	private String name;
 	private URL endpoint;
 	private boolean needsCredentials;
+	private boolean full = false;
 
-	// key: flow id (simple) --> flow name.
-	private Map<String, String> flows; // Only used in getFlows for listing all
-										// flows in a provider
-
-	// key: agency/flow/version --> dsd identifier
-	private Hashtable<String, DSDIdentifier> flowToDSDCache = null;
-	// key: agency/dsd/version --> structure
+	// key: flow id (simple) --> flow
+	private Map<String, Dataflow> flows; 
+	// key: dsd id (full) --> structure
 	private Hashtable<String, DataFlowStructure> dsdNameToStructureCache = null;
 
 	public Provider(String name, URL endpoint,
@@ -47,8 +45,8 @@ public class Provider {
 		this.name = name;
 		this.endpoint = endpoint;
 
-		this.flows = new Hashtable<String, String>();
-		this.flowToDSDCache = new Hashtable<String, DSDIdentifier>();
+		this.flows = new Hashtable<String, Dataflow>();
+		//this.flowToDSDCache = new Hashtable<String, DSDIdentifier>();
 		this.dsdNameToStructureCache = new Hashtable<String, DataFlowStructure>();
 		this.needsCredentials = needsCredentials;
 	}
@@ -69,20 +67,25 @@ public class Provider {
 		this.endpoint = endpoint;
 	}
 
-	public void setFlows(Map<String, String> flows) {
+	public void setFlows(Map<String, Dataflow> flows) {
 		this.flows = flows;
 	}
 
-	public Map<String, String> getFlows() {
+	public void setFlow(Dataflow flow) {
+		this.flows.put(flow.getId(), flow);
+	}
+
+	public Map<String, Dataflow> getFlows() {
 		return flows;
 	}
 
 	public DSDIdentifier getDSDIdentifier(String flow) {
-		return flowToDSDCache.get(flow);
-	}
-
-	public void setDSDIdentifier(String flow, DSDIdentifier dsd) {
-		this.flowToDSDCache.put(flow, dsd);
+		DSDIdentifier dsdid = null;
+		Dataflow df = flows.get(flow);
+		if(df != null){
+			dsdid = df.getDsdIdentifier();
+		}
+		return dsdid;
 	}
 
 	public DataFlowStructure getDSD(String flow) {
@@ -99,6 +102,14 @@ public class Provider {
 
 	public void setNeedsCredentials(boolean needsCredentials) {
 		this.needsCredentials = needsCredentials;
+	}
+
+	public void setFull(boolean full) {
+		this.full = full;
+	}
+
+	public boolean isFull() {
+		return full;
 	}
 
 }

@@ -20,18 +20,15 @@
 */
 package it.bankitalia.reri.sia.sdmx.api;
 
-import java.util.Map;
 
 
 public class Dimension {
 	
-	String id = null;
-	int position;
-	String  codeList = null;
-	// code id --> code description
-	private Map<String, String> codes;
+	private String id = null;
+	private int position;
+	private Codelist  codeList = null;
 	
-	public Dimension(String id, int position, String codeList) {
+	public Dimension(String id, int position, Codelist codeList) {
 		super();
 		this.id = id;
 		this.position = position;
@@ -53,19 +50,11 @@ public class Dimension {
 	public void setPosition(int position) {
 		this.position = position;
 	}
-	public String  getCodeList() {
+	public Codelist getCodeList() {
 		return codeList;
 	}
-	public void setCodeList(String  codeList) {
+	public void setCodeList(Codelist  codeList) {
 		this.codeList = codeList;
-	}
-	
-	public void setCodes(Map<String, String> codes) {
-		this.codes = codes;
-	}
-
-	public Map<String, String> getCodes() {
-		return codes;
 	}
 
 	@Override

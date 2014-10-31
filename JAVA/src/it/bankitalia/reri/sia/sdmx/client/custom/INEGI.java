@@ -32,30 +32,22 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-public class ILO extends RestSdmx20Client {
+public class INEGI extends RestSdmx20Client{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public ILO() throws MalformedURLException{
-		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false, true);
+	public INEGI() throws MalformedURLException{
+		super("INEGI", new URL("http://www.snieg.mx/opendata/NSIRestService"), false, true);
 	}
-
-//	@Override
-//	public Dataflow getFlow(String dataflow, String agency, String version) throws SdmxException {
-//		//quick and dirty: ILO just prepones 'DF_' to the dsd id
-//		Dataflow df = new DSDIdentifier(dataflow.substring(3), null, null);
-//		return dsd;
-//	}
-
+	
 	@Override
 	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
 		if( endpoint!=null && 
-				dataflow!=null &&
+				dataflow!=null && 
 				resource!=null && !resource.isEmpty()){
 
-			// for ILO use the simple DF id
-			String query = endpoint + "/data/" + dataflow.getFullIdentifier() + "/";
-			query += resource ;
+			String query = endpoint + "/Data/ALL," + dataflow.getId() + ",ALL/" ;
+			query += resource + "/" + name + "/";
 			
 			if(startTime != null && startTime.isEmpty()) startTime = null;
 			if(endTime != null && endTime.isEmpty()) endTime = null;		
@@ -71,6 +63,7 @@ public class ILO extends RestSdmx20Client {
 					query=query+"endPeriod="+endTime;
 				}
 			}
+			query += "&format=generic";
 			return query;
 		}
 		else{
@@ -80,30 +73,47 @@ public class ILO extends RestSdmx20Client {
 	
 	@Override
 	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
-		if( endpoint!=null  &&
-				dsd!=null && !dsd.isEmpty()){
-
-			String query = endpoint + "/datastructure/ILO/" + dsd;
+		// it seems that the only accepted version is 'ALL' in the query
+		version = "ALL";
+		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+//			String query = endpoint + "/DataStructure/" + agency + "/" + dsd + "/" + version + "?references=children";
+			String query = endpoint + "/DataStructure/" + agency + "/" + dsd + "/" + version;
 			return query;
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
-
+	
 	@Override
 	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
-		agency = (agency == null) ? "ALL" : agency;
-		version = (version == null) ? "latest" : version;
-		if( endpoint!=null  &&
-				flow!=null && !flow.isEmpty()){
-
-			String query = endpoint + "/dataflow/ILO/" + flow;
+		if( endpoint!=null){
+			agency = (agency == null) || agency.equals("all") ? "ALL" : agency;
+			version = "ALL";
+			String dataflowKey = agency + "/" + flow + "/" + version;
+			String query = endpoint + "/Dataflow";
+			if(dataflowKey!=null && !dataflowKey.isEmpty()){
+				query += "/" + dataflowKey;
+			}
+			else{
+				throw new SdmxException("Invalid query parameters: dataflow=" + dataflowKey);
+			}
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + flow + " endpoint=" + endpoint);
+			throw new RuntimeException("Invalid query parameters: endpoint=" + endpoint);
 		}
 	}
 	
+	@Override
+	protected String buildCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
+		if( endpoint!=null &&
+				codeList!=null && !codeList.isEmpty()){
+					String query = endpoint + "/Codelist/" + "ALL/" + codeList + "/ALL";
+					return query;
+			}
+			else{
+				throw new SdmxException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
+			}
+	}
 }

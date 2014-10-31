@@ -23,6 +23,7 @@
  */
 package it.bankitalia.reri.sia.sdmx.parser.v21;
 
+import it.bankitalia.reri.sia.sdmx.api.Codelist;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dimension;
 import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
@@ -233,7 +234,9 @@ public class DataStructureParser {
 					setCodelistName(currentDimension, eventReader);
 					//now set codes
 					if(codelists != null){
-						currentDimension.setCodes(codelists.get(currentDimension.getCodeList()));
+						Codelist cl = currentDimension.getCodeList();
+						Map<String,String> codes = codelists.get(cl.getFullIdentifier());
+						cl.setCodes(codes);
 					}
 				}
 				
@@ -286,9 +289,9 @@ public class DataStructureParser {
 					}
 					if(id!= null && !id.isEmpty()){
 						if(dim != null){
-							String key = agency + "/" + id + "/" + version;
-							logger.finer("Adding codelist: " + agency + "/" + id + "/" + version);
-							dim.setCodeList(key);
+							Codelist cl = new Codelist(id, agency, version);
+							logger.finer("Adding codelist: " + cl.getFullIdentifier());
+							dim.setCodeList(cl);
 						}
 						else{
 							throw new RuntimeException("Error during Structure Parsing. Null current Structure.");

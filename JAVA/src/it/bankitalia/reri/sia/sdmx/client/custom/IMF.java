@@ -20,6 +20,7 @@
 */
 package it.bankitalia.reri.sia.sdmx.client.custom;
 
+import it.bankitalia.reri.sia.sdmx.api.Dataflow;
 import it.bankitalia.reri.sia.util.Configuration;
 
 import java.net.MalformedURLException;
@@ -42,12 +43,13 @@ public class IMF extends OECD{
 	}
 
 	@Override
-	protected String buildDataQuery(URL endpoint, String dataflow, String resource, String startTime, String endTime){
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
 		if( endpoint!=null && 
-				dataflow!=null && !dataflow.isEmpty() &&
+				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			String query = endpoint + "/GetData?dataflow=" + dataflow + "&key=";
+			// for IMF use the simple DF id
+			String query = endpoint + "/GetData?dataflow=" + dataflow.getId() + "&key=";
 			query += resource ;
 			
 			if(startTime != null && startTime.isEmpty()) startTime = null;
@@ -72,7 +74,7 @@ public class IMF extends OECD{
 	}
 	
 	@Override
-	protected String buildStructureQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 

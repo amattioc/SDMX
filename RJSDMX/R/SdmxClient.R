@@ -38,8 +38,8 @@ getDSDIdentifier <- function(provider, dataflow) {
 }
 
 # add a new sdmx provider
-addProvider <- function(name, agency, endpoint, needsCredentials=F) {  	
-  J("it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler")$addProvider(name, agency, endpoint, needsCredentials)
+addProvider <- function(name, endpoint, needsCredentials=F) {  	
+  J("it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials)
 }
 
 # get dimensions of the given dataflow (after retrieving the key family)

@@ -30,8 +30,11 @@ public class OecdClientTest {
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("OECD", "REFSERIES"));
 //		System.err.println(SdmxClientHandler.getDimensions("OECD", "REFSERIES"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("OECD", "REFSERIES"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("OECD", "REFSERIES.ITA.PPPGDP.M", "2000", "2010"));
-		System.err.println(SdmxClientHandler.getCodes("OECD", "QNA", "SUBJECT"));
+		//System.err.println(SdmxClientHandler.getTimeSeries("OECD", "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010"));
+		System.err.println(SdmxClientHandler.getTimeSeries("OECD", "KEI.*.*.*.*", "2000", "2010"));
+		//		System.err.println(SdmxClientHandler.getTimeSeries("OECD", "G20_PRICES.CAN.CPALTT01.IXOB.M", "2000", "2010"));
+
+//		System.err.println(SdmxClientHandler.getCodes("OECD", "QNA", "SUBJECT"));
 
 	}
 }

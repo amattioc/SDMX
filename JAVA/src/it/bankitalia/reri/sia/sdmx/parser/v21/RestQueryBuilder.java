@@ -31,7 +31,7 @@ import java.net.URL;
 public class RestQueryBuilder{
 	
 	
-	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end){
+	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end) throws SdmxException{
 		
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
@@ -57,11 +57,11 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
 	
-	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version){
+	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
@@ -72,13 +72,19 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
 
 	public static String getDataflowQuery(URL endpoint, String dataflow, String agency, String version) throws SdmxException{
-		if( endpoint!=null){
-			String dataflowKey = agency + "/" + dataflow + "/" + version;
+		if( endpoint!=null || dataflow != null){
+			String dataflowKey = dataflow;
+			if(agency != null){
+				dataflowKey = agency + "/" + dataflowKey;
+			}
+			if(version != null){
+				dataflowKey = dataflowKey + "/" + version;
+			}
 			String query = endpoint + "/dataflow";
 			if(dataflowKey!=null && !dataflowKey.isEmpty()){
 				query += "/" + dataflowKey;
@@ -89,14 +95,21 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 		}
 	}
 
-	public static String getCodelistQuery(URL endpoint, String codeList) throws SdmxException {
+	public static String getCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
 		if( endpoint!=null &&
 			codeList!=null && !codeList.isEmpty()){
-				String query = endpoint + "/codelist/" + codeList ;
+				String codelistKey = codeList; 
+				if(agency != null){
+					codelistKey = agency + "/" + codelistKey;
+				}
+				if(version != null){
+					codelistKey = codelistKey + "/" + version;
+				}
+				String query = endpoint + "/codelist/" + codelistKey ;
 				return query;
 		}
 		else{

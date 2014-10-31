@@ -26,11 +26,11 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 public class IMFClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getDSDIdentifier("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDimensions("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getCodes("IMF", "PGI", "REF_AREA"));
-		System.err.println(SdmxClientHandler.getTimeSeries("IMF", "PGI.US+JP+CN+GB+CA+FR.PCPI.IFS.PCOCY.A", "1980", "2010"));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("IMF", "PGI"));
+//		System.err.println(SdmxClientHandler.getDimensions("IMF", "PGI"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("IMF", "PGI"));
+//		System.err.println(SdmxClientHandler.getCodes("IMF", "PGI", "REF_AREA"));
+		System.err.println(SdmxClientHandler.getTimeSeries("IMF", "PGI.*.*.*.*.H", "1980", "2010"));
 
 	}
 }

@@ -26,12 +26,12 @@ import it.bankitalia.reri.sia.util.SdmxException;
 
 public class EstatClientTest {
 	public static void main(String[] args) throws SdmxException{
-			//System.err.println(SdmxClientHandler.getCodes("EUROSTAT", "aact_ali01", "FREQ"));
-			//System.err.println(SdmxClientHandler.getDataFlowStructure("EUROSTAT", "DS-008573"));
+		//System.err.println(SdmxClientHandler.getCodes("EUROSTAT", "aact_ali01", "FREQ"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("EUROSTAT", "DS-008573"));
 		//	System.err.println(SdmxClientHandler.getTimeSeries("EUROSTAT","prc_hicp_midx/..CP00.EU", null, null));
 //		System.err.println(SdmxClientHandler.getDimensions("EUROSTAT", "DS-016890"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("EUROSTAT","DS-016890/.DE.FR.87019039.2.VALUE_IN_EUROS.", null, null));
-		System.err.println(SdmxClientHandler.getFlows("EUROSTAT", null));
+		System.err.println(SdmxClientHandler.getTimeSeries("EUROSTAT","DS-016890/.DE.FR.87019039.2.VALUE_IN_EUROS.", null, null));
+//		System.err.println(SdmxClientHandler.getFlows("EUROSTAT", null));
 		
 	}
 }

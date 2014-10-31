@@ -84,7 +84,6 @@ public class CodelistParser {
 				if (startElement.getName().getLocalPart() == (VALUE)) {
 					key = null;
 					value = new LocalizedText();
-					logger.finest("Got code element.");
 					
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
@@ -105,6 +104,7 @@ public class CodelistParser {
 				String eventName=event.asEndElement().getName().getLocalPart();
 				if (eventName.equals(VALUE)) {
 					if(key != null){
+						logger.finer("Got code " + key + ", " + value.getText());
 						codes.put(key, value.getText());
 					}
 					else{

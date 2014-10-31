@@ -20,25 +20,37 @@
 */
 package it.bankitalia.reri.sia.sdmx.api;
 
-public class DSDIdentifier {
+import java.util.Map;
+
+public class Codelist {
 	private String id = null;
 	private String agency = null;
 	private String version = null;
-	
-	public DSDIdentifier(String id, String agency, String version) {
+	// code id --> code description
+	private Map<String, String> codes;
+
+	public Codelist(String id, String agency, String version) {
 		super();
 		this.id = id;
 		this.agency = agency;
 		this.version = version;
 	}
 	
-	public DSDIdentifier() {
+	public Codelist() {
 		super();
 		this.id = null;
 		this.agency = null;
-		this.version = null; // for providers that are not handling versions
+		this.version = null; 
 	}
 
+	public void setCodes(Map<String, String> codes) {
+		this.codes = codes;
+	}
+
+	public Map<String, String> getCodes() {
+		return codes;
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -59,19 +71,22 @@ public class DSDIdentifier {
 	}
 	
 	public String getFullIdentifier() {
-		String dsd = id;
+		String codelist = id;
 		if(agency!=null){
-			dsd = agency + "/" + dsd;
+			codelist = agency + "/" + codelist;
 		}
 		if(version!=null){
-			dsd = dsd +  "/" + version;
+			codelist = codelist +  "/" + version;
 		}
-		return dsd;
+		return codelist;
 	}
 
 	@Override
 	public String toString() {
-		return getFullIdentifier();
+		StringBuilder builder = new StringBuilder();
+		builder.append("Codelist [id=").append(getFullIdentifier())
+			.append(", codes=").append(codes).append("]");
+		return builder.toString();
 	}
 
 }

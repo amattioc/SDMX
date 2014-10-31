@@ -20,14 +20,6 @@
 */
 package it.bankitalia.reri.sia.sdmx.client.custom;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
 import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
 import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
 import it.bankitalia.reri.sia.sdmx.api.Dataflow;
@@ -37,8 +29,15 @@ import it.bankitalia.reri.sia.sdmx.parser.v20.CodelistParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataStructureParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.DataflowParser;
 import it.bankitalia.reri.sia.sdmx.parser.v20.GenericDataParser;
-import it.bankitalia.reri.sia.sdmx.parser.v21.RestQueryBuilder;
 import it.bankitalia.reri.sia.util.SdmxException;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class RestSdmx20Client extends RestSdmxClient{
 
@@ -47,10 +46,10 @@ public class RestSdmx20Client extends RestSdmxClient{
 	}
 	
 	@Override
-	public Map<String, String> getDataflows() throws SdmxException {
+	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		String query=null;
 		String xml = null;
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
 		query = buildFlowQuery(wsEndpoint, "ALL", null, null);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
@@ -58,10 +57,10 @@ public class RestSdmx20Client extends RestSdmxClient{
 			try {
 				List<Dataflow> dfs = DataflowParser.parse(xml);
 				if(dfs.size() > 0){
-					result = new HashMap<String, String>();
+					result = new HashMap<String, Dataflow>();
 					for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
 						Dataflow df = (Dataflow) iterator.next();
-						result.put(df.getId(), df.getName());
+						result.put(df.getId(), df);
 					}
 				}
 				else{
@@ -80,10 +79,10 @@ public class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public DSDIdentifier getDSDIdentifier(String dataflow, String agency, String version) throws SdmxException {
+	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		String query=null;
 		String xml = null;
-		DSDIdentifier dsd = null;
+		Dataflow df = null;
 		query = buildFlowQuery(wsEndpoint, dataflow, agency, version);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
@@ -91,8 +90,7 @@ public class RestSdmx20Client extends RestSdmxClient{
 			try {
 				List<Dataflow> flows = DataflowParser.parse(xml);
 				if(flows.size() >= 1){
-					Dataflow result = flows.get(0);
-					dsd = result.getDsdIdentifier();
+					df = flows.get(0);
 				}
 				else{
 					throw new SdmxException("The query returned zero dataflows");
@@ -107,7 +105,7 @@ public class RestSdmx20Client extends RestSdmxClient{
 		else{
 			throw new SdmxException("The query returned an empty result");
 		}
-		return dsd;
+		return df;
 	}
 
 	@Override
@@ -116,7 +114,7 @@ public class RestSdmx20Client extends RestSdmxClient{
 		String xml = null;
 		DataFlowStructure str = new DataFlowStructure();
 		if(dsd!=null){
-			query = buildStructureQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
+			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
 			xml = runQuery(query, null);
 			if(xml!=null && !xml.isEmpty()){
 				logger.finest(xml);
@@ -140,11 +138,11 @@ public class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String provider, String codeList) throws SdmxException {
+	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException {
 		String query=null;
 		String xml = null;
 		Map<String, String> result = null;
-		query = buildCodelistQuery(wsEndpoint, codeList);
+		query = buildCodelistQuery(wsEndpoint, codeList, agency, version);
 		xml = runQuery(query, null);
 		if(xml!=null && !xml.isEmpty()){
 			logger.finest(xml);
@@ -164,7 +162,7 @@ public class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(String dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
 		String query=null;
 		String xml = null;
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries>();
@@ -173,7 +171,7 @@ public class RestSdmx20Client extends RestSdmxClient{
 		if(xml!=null && !xml.isEmpty()){
 			logger.finest(xml);
 			try {
-				ts = GenericDataParser.parse(xml, dataflow);
+				ts = GenericDataParser.parse(xml, dataflow.getId());
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
@@ -186,16 +184,17 @@ public class RestSdmx20Client extends RestSdmxClient{
 		return ts;
 	}
 	
-	protected String buildDataQuery(URL endpoint, String dataflow, String resource, String startTime, String endTime) throws SdmxException{
-		throw new SdmxException("NOT IMPLEMENTED");
-	}
-	
-	protected String buildStructureQuery(URL endpoint, String agency, String dsd, String version) throws SdmxException{
-		throw new SdmxException("NOT IMPLEMENTED");
-	}
-	
-	protected String buildFlowQuery(URL endpoint, String agency, String dataflow, String version) throws SdmxException{
-		throw new SdmxException("NOT IMPLEMENTED");
-	}
+//	@Override
+//	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime) throws SdmxException{
+//		throw new SdmxException("NOT IMPLEMENTED");
+//	}
+//	@Override
+//	protected String buildDSDQuery(URL endpoint, String agency, String dsd, String version) throws SdmxException{
+//		throw new SdmxException("NOT IMPLEMENTED");
+//	}
+//	@Override
+//	protected String buildFlowQuery(URL endpoint, String agency, String dataflow, String version) throws SdmxException{
+//		throw new SdmxException("NOT IMPLEMENTED");
+//	}
 		
 }
