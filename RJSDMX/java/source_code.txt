@@ -2,10 +2,3 @@ Source code for the SDMX java library available at:
 
 https://github.com/amattioc/SDMX/
 
-The required SDXM.jar file can be built using `ant` (http://antinstaller.sourceforge.net/)
-
-Using the RPM version of ant: 
-
-- sudo yum install ant
-- navigate to directory containing "build.xml" (SDMX/JAVA/)
-- call "ant"
