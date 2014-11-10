@@ -24,6 +24,6 @@
 		conf =file.path(find.package("RJSDMX"), "inst", "configuration.properties")
 		Sys.setenv(SDMX_CONF=conf)
 	}
-	packageStartupMessage(paste('Connector configuration:', conf))
+	#packageStartupMessage(paste('Connector configuration:', conf))
 	.jpackage(pkgname, lib.loc = libname)
 }
