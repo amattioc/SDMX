@@ -133,7 +133,7 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, status
       } else if(freq == 'Q'){
         tmp_ts<- zoo(values, order.by = as.yearqtr(sub(pattern='-', replacement=' ', times)),frequency=4)
       } else if(freq == 'D' || freq == 'B'){
-        tmp_ts<- zoo(values, order.by = as.Date(times),frequency=4)
+        tmp_ts<- zoo(values, order.by = as.Date(times))
       } else {
 	      tmp_ts <- zoo(values, order.by=times)
       }
