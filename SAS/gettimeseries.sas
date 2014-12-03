@@ -19,7 +19,7 @@
 * permissions and limitations under the Licence.
 */
 
-%macro GetTimeSeries (provider=, tsKey=, start="0001", end="9999", metadata=0 );
+%macro gettimeseries (provider=, tsKey=, start="0001", end="9999", metadata=0 );
 /*	options  nonotes; */
 
 	/* 
@@ -198,8 +198,8 @@
 		drop  META_KEY META_VALUE META_TYPE;
 	run;
 	
-%mend GetTimeSeries;
+%mend gettimeseries;
 
 /* example
-*  %GetTimeSeries(provider="ECB", tsKey="EXR.A.USD.EUR.SP00.A");
+*  %gettimeseries(provider="ECB", tsKey="EXR.A.USD.EUR.SP00.A");
 */

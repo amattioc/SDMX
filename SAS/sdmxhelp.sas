@@ -18,7 +18,7 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-%macro sdmxHelp;
+%macro sdmxhelp;
 
 data _null_;
 declare javaobj jClient ( 'it.bankitalia.reri.sia.sdmx.helper.SDMXHelper' );
