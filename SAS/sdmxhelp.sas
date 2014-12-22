@@ -21,7 +21,7 @@
 %macro sdmxhelp;
 
 data _null_;
-declare javaobj jClient ( 'it.bankitalia.reri.sia.sdmx.helper.SDMXHelper' );
+declare javaobj jClient ( 'it.bancaditalia.oss.sdmx.helper.SDMXHelper' );
 jClient.delete();
 run;
 

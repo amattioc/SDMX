@@ -27,7 +27,7 @@ function sdmxHelp()
     
     %try java code
     try
-        it.bankitalia.reri.sia.sdmx.helper.SDMXHelper.start();
+        it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();
     catch mexp
         error(['SDMX sdmxHelp()() error:\n' mexp.message]);
     end 

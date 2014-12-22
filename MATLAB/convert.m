@@ -52,12 +52,12 @@ function ts = convertSeries(series)
     if nargin ~= 1
         error([ 'Usage: convertSeries(series)\n' ...
                     'Arguments\n' ...
-                    'series: a it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries']);
+                    'series: a it.bancaditalia.oss.sdmx.api.PortableTimeSeries']);
     end
      
     %check class
-    if (~ isa(series,'it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries')) 
-        error('SDMX convertSeries(series) error: input list must be of class it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries.');
+    if (~ isa(series,'it.bancaditalia.oss.sdmx.api.PortableTimeSeries')) 
+        error('SDMX convertSeries(series) error: input list must be of class it.bancaditalia.oss.sdmx.api.PortableTimeSeries.');
     end
     
     % get frequency

@@ -43,7 +43,7 @@ function flows = getFlows(provider, pattern)
     end
     %get flows
     try
-        result = it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler.getFlows(provider, pattern);
+        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlows(provider, pattern);
     catch mexp
         error(['SDMX getFlows() error:\n' mexp.message]);             
     end 

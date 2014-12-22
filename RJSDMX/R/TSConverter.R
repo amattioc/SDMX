@@ -37,7 +37,7 @@ convertDimList <- function (javaList) {
   if( numOfDims > 0 ) {
     for (i in 1:numOfDims)  {
       name=.jcall(rList[[i]],"Ljava/lang/String;","getId");
-      codelist=.jcall(rList[[i]],"Lit/bankitalia/reri/sia/sdmx/api/Codelist;","getCodeList");
+      codelist=.jcall(rList[[i]],"Lit/bancaditalia/oss/sdmx/api/Codelist;","getCodeList");
       codelist = .jcall(codelist,"Ljava/lang/String;","getFullIdentifier");
       result[[name]] = codelist
     }
@@ -76,13 +76,13 @@ convertTSList <- function (javaList) {
 }
 
 getNames<-function(ttss){
-  s = .jcast(ttss, new.class = "it/bankitalia/reri/sia/sdmx/api/PortableTimeSeries", check = TRUE);
+  s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
   name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
   return(name)
 }
 
 convertSingleTS<-function(ttss){
-    s = .jcast(ttss, new.class = "it/bankitalia/reri/sia/sdmx/api/PortableTimeSeries", check = TRUE);
+    s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
     name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
     freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
     dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,

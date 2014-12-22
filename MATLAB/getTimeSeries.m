@@ -59,7 +59,7 @@ function list = getTimeSeries(provider, id, startTime, endTime)
     
     %try java code
     try
-        result = it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler.getTimeSeries(provider, id, startTime, endTime); 
+        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries(provider, id, startTime, endTime); 
 	catch mexp
         error(['SDMX getTimeSeries() error:\n' mexp.message]);            
     end

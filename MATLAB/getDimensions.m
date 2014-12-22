@@ -38,7 +38,7 @@ function dimensions = getDimensions(provider, dataflow)
     end
     %try java call
     try
-        dimensions = it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler.getDimensions(provider, dataflow);
+        dimensions = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDimensions(provider, dataflow);
     catch mexp
         error(['SDMX getDimension() error:\n' mexp.message]);             
     end

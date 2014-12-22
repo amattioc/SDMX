@@ -25,7 +25,7 @@ function providers = getProviders()
 	% permissions and limitations under the Licence.
 	%
     try        
-        providers = it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler.getProviders();
+        providers = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getProviders();
     catch mexp
         error(['SDMX getProviders() error:\n' mexp.message]);         
     end

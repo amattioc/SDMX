@@ -48,7 +48,7 @@
 		length nSeries 8.;
 
 		/* build java object ;*/
-		declare javaobj jClient ( 'it.bankitalia.reri.sia.sdmx.client.SASClientHandler' );
+		declare javaobj jClient ( 'it.bancaditalia.oss.sdmx.client.SASClientHandler' );
 		/* call the handler with parameters to get data and metadata */
 		jClient.callStaticIntMethod( 'makeGetTimeSeries' , &provider, &tsKey , &start , &end , nSeries);
 		jClient.exceptioncheck(e);
