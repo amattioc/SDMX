@@ -7,3 +7,4 @@ Info: ![SDMX wiki](https://github.com/amattioc/SDMX/wiki)
 
 
 ![My image](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx.png)
+
