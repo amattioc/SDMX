@@ -19,12 +19,12 @@
 * permissions and limitations under the Licence.
 */
 
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.Iterator;
 import java.util.List;

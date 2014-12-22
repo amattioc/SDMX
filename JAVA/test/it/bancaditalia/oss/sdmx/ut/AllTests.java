@@ -18,7 +18,7 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.ut;
+package it.bancaditalia.oss.sdmx.ut;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

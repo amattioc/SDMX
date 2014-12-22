@@ -18,10 +18,11 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client.custom;
+package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.util.Configuration;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,15 +32,25 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-public class IMF extends OECD{
+public class IMF extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public IMF() throws MalformedURLException{
-		this.name = "IMF";
-		this.wsEndpoint = new URL("http://sdmxws.imf.org/RestSDMX2/sdmx.ashx");
-		this.dotStat = true;
-		this.needsCredentials = false;
+		super("IMF", new URL("http://sdmxws.imf.org/RestSDMX2/sdmx.ashx"), false);
+	}
+
+	@Override
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+		if( endpoint!=null  &&
+				dsd!=null && !dsd.isEmpty()){
+	
+			String query = endpoint + "/GetKeyFamily/" + dsd;
+			return query;
+		}
+		else{
+			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
+		}
 	}
 
 	@Override
@@ -52,37 +63,19 @@ public class IMF extends OECD{
 			String query = endpoint + "/GetData?dataflow=" + dataflow.getId() + "&key=";
 			query += resource ;
 			
-			if(startTime != null && startTime.isEmpty()) startTime = null;
-			if(endTime != null && endTime.isEmpty()) endTime = null;		
-			if(startTime != null || endTime != null){
-				query=query+"&";
+			//query += "&format=compact_v2";
+			if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 				if(startTime != null){
-					query=query+"startTime="+startTime;
-				}
-				if(startTime != null && endTime != null){
-					query=query+"&";
+					query=query+"&startTime="+startTime;
 				}
 				if(endTime != null){
-					query=query+"endTime="+endTime;
+					query=query+"&endTime="+endTime;
 				}
 			}
 			return query;
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
-		}
-	}
-	
-	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
-		if( endpoint!=null  &&
-				dsd!=null && !dsd.isEmpty()){
-
-			String query = endpoint + "/GetKeyFamily/" + dsd;
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
 }

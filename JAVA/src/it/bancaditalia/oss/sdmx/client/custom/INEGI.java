@@ -18,11 +18,12 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client.custom;
+package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,54 +38,21 @@ public class INEGI extends RestSdmx20Client{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public INEGI() throws MalformedURLException{
-		super("INEGI", new URL("http://www.snieg.mx/opendata/NSIRestService"), false, true);
+		super("INEGI", new URL("http://www.snieg.mx/opendata/NSIRestService"), false);
 	}
 	
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
-		if( endpoint!=null && 
-				dataflow!=null && 
-				resource!=null && !resource.isEmpty()){
-
-			String query = endpoint + "/Data/ALL," + dataflow.getId() + ",ALL/" ;
-			query += resource + "/" + name + "/";
-			
-			if(startTime != null && startTime.isEmpty()) startTime = null;
-			if(endTime != null && endTime.isEmpty()) endTime = null;		
-			if(startTime != null || endTime != null){
-				query=query+"?";
-				if(startTime != null){
-					query=query+"startPeriod="+startTime;
-				}
-				if(startTime != null && endTime != null){
-					query=query+"&";
-				}
-				if(endTime != null){
-					query=query+"endPeriod="+endTime;
-				}
+	protected String buildCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
+		if( endpoint!=null &&
+				codeList!=null && !codeList.isEmpty()){
+					String query = endpoint + "/Codelist/" + "ALL/" + codeList + "/ALL";
+					return query;
 			}
-			query += "&format=generic";
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
-		}
+			else{
+				throw new SdmxException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
+			}
 	}
-	
-	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
-		// it seems that the only accepted version is 'ALL' in the query
-		version = "ALL";
-		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
-//			String query = endpoint + "/DataStructure/" + agency + "/" + dsd + "/" + version + "?references=children";
-			String query = endpoint + "/DataStructure/" + agency + "/" + dsd + "/" + version;
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
-		}
-	}
-	
+
 	@Override
 	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
@@ -106,14 +74,34 @@ public class INEGI extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
-		if( endpoint!=null &&
-				codeList!=null && !codeList.isEmpty()){
-					String query = endpoint + "/Codelist/" + "ALL/" + codeList + "/ALL";
-					return query;
-			}
-			else{
-				throw new SdmxException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
-			}
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+		// it seems that the only accepted version is 'ALL' in the query
+		version = "ALL";
+		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+			String query = endpoint + "/DataStructure/" + agency + "/" + dsd + "/" + version;
+			return query;
+		}
+		else{
+			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
+		}
+	}
+
+	@Override
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
+		if( endpoint!=null && 
+				dataflow!=null && 
+				resource!=null && !resource.isEmpty()){
+	
+			String query = endpoint + "/Data/ALL," + dataflow.getId() + ",ALL/" ;
+			query += resource + "/" + name + "/";
+			
+			//query=query+"?";
+			//query += "&format=compact_v2";
+			query += RestQueryBuilder.addTime(startTime, endTime);
+			return query;
+		}
+		else{
+			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+		}
 	}
 }

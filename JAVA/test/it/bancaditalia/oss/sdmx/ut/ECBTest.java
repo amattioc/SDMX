@@ -19,20 +19,18 @@
 * permissions and limitations under the Licence.
 */
 
-package it.bankitalia.reri.sia.sdmx.ut;
+package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.Map;
-
-import javax.security.auth.Subject;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,10 +72,10 @@ public class ECBTest {
 		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ECB", "EXR/.GBP+USD.EUR.SP00.A", null, null);
 		assertNotNull("Null time series result", res);
 		assertEquals("Wrong result size", 10, res.size());
-		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.*.USD|GBP.EUR.SP00.A", null, null);
+		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.*.USD|GBP.EUR.SP00.A", "2000", "2010");
 		assertNotNull("Null time series result", res);
 		assertEquals("Wrong result size", 10, res.size());
-		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", null, null);
+		res = SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010");
 		assertNotNull("Null time series result", res);
 		assertEquals("Wrong result size", 2, res.size());
 	}

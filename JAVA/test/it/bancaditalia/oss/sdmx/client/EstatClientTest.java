@@ -18,9 +18,10 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 
 

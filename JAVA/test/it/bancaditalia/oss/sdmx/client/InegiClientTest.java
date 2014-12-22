@@ -18,9 +18,10 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 
 
@@ -29,9 +30,9 @@ public class InegiClientTest {
 //		System.err.println(SdmxClientHandler.getFlows("INEGI", null));
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("INEGI", "DF_STEI"));
 //		System.err.println(SdmxClientHandler.getDimensions("INEGI", "DF_STEI"));
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("INEGI", "DF_STEI"));
-		System.err.println(SdmxClientHandler.getCodes("INEGI", "DF_STEI", "FREQ"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("INEGI", "DF_STEI/..C1161+C1162+C5004.....", "1980", "2010"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("INEGI", "DF_STEI"));
+//		System.err.println(SdmxClientHandler.getCodes("INEGI", "DF_STEI", "FREQ"));
+		System.err.println(SdmxClientHandler.getTimeSeries("INEGI", "DF_STEI/..C1161+C1162+C5004.....", "1980", "2010"));
 
 	}
 }

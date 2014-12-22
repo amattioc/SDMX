@@ -18,9 +18,9 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -40,8 +40,8 @@ import javax.net.ssl.X509TrustManager;
  */
 public class HttpsSdmxClient extends RestSdmxClient{
 
-	public HttpsSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean dotStat) throws NoSuchAlgorithmException, KeyManagementException {
-		super(name, endpoint, needsCredentials, dotStat);
+	public HttpsSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression) throws NoSuchAlgorithmException, KeyManagementException {
+		super(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression);
 		
 		// check if we want to disable the certificate checks, 
 		// elseway the certificates have to be installed in teh keystore

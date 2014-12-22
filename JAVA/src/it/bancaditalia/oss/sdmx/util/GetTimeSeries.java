@@ -18,9 +18,9 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.util;
+package it.bancaditalia.oss.sdmx.util;
 
-import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 
 import java.io.IOException;
 

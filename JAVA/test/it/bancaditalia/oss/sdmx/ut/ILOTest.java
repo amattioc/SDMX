@@ -18,15 +18,15 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.ut;
+package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.Map;
@@ -47,13 +47,14 @@ public class ILOTest {
 		assertEquals("Wrong agency", "ILO", keyF.getAgency());
 	}
 
-//	@Test
-//	public void testGetFlows() throws SdmxException {
-//		Map<String, String> f = SdmxClientHandler.getFlows("ECB", "Exchange*");
+	//temporary... to be notified when this is fixed
+	@Test(expected=SdmxException.class)
+	public void testGetFlows() throws SdmxException {
+		Map<String, String> f = SdmxClientHandler.getFlows("ILO", "*DF_YI_ALL_EMP_TEMP_SEX_AGE_NB*");
 //		assertNotNull("Null getFlows result", f);
-//		String descr = f.get("EXR");
-//		assertEquals("Wrong description for EXR", "Exchange Rates", descr);
-//	}
+//		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
+//		assertEquals("Wrong description for EXR", "", descr);
+	}
 
 	@Test
 	public void testGetDimensionsAndCodes() throws SdmxException {
@@ -62,14 +63,14 @@ public class ILOTest {
 		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("KILMNSO"), "KILM national data");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={KILMNSO=KILM national data, CP=Country Profiles, MIG=International Labour Migration";
+		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={KILMNSOORIG=KILM national data (orig), KILMNSO=KILM national data, CP=Country Profi";
 		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result,dim.toString().substring(0, result.length()));
 
 	}
 	
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null);
+		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", "2000", "2010");
 		assertNotNull("Null time series result", res);
 		assertEquals("Wrong result size", 1, res.size());
 	}

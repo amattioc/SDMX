@@ -18,10 +18,11 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client.custom;
+package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.util.Configuration;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,22 +32,19 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-public class ABS extends OECD{
+public class ABS extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ABS() throws MalformedURLException{
-		this.name = "ABS";
-		this.wsEndpoint = new URL("http://stat.abs.gov.au/restsdmx/sdmx.ashx");
-		this.dotStat = true;
-		this.needsCredentials = false;
+		super("ABS", new URL("http://stat.abs.gov.au/restsdmx/sdmx.ashx"), false);
 	}
 	
 	@Override
 	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
-
+			// agency=all is not working. we always use ABS
 			String query = endpoint + "/GetDataStructure/" + dsd + "/ABS";
 			return query;
 		}
@@ -58,18 +56,13 @@ public class ABS extends OECD{
 	@Override
 	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
 		String query = super.buildDataQuery(endpoint, dataflow, resource + "/ABS", null, null);
-		if(startTime != null && startTime.isEmpty()) startTime = null;
-		if(endTime != null && endTime.isEmpty()) endTime = null;		
-		if(startTime != null || endTime != null){
-			query=query+"?";
+		//query += "&format=compact_v2";
+		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			if(startTime != null){
-				query=query+"startTime="+startTime;
-			}
-			if(startTime != null && endTime != null){
-				query=query+"&";
+				query=query+"&startTime="+startTime;
 			}
 			if(endTime != null){
-				query=query+"endTime="+endTime;
+				query=query+"&endTime="+endTime;
 			}
 		}
 		return query;

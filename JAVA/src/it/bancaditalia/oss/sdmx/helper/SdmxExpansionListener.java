@@ -18,7 +18,7 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.helper;
+package it.bancaditalia.oss.sdmx.helper;
 
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -35,14 +35,21 @@ class SdmxExpansionListener implements TreeExpansionListener {
 	public void treeExpanded(TreeExpansionEvent event) {
 		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
 		final SdmxNode n = (SdmxNode)node.getUserObject();
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	        	//perform the sdmx call
-	    		n.expand(node);
-	    		//and reload the tree model
-	    		model.reload(node);
-	        }
-	    });
+		//add separate thread for non blocking 
+		Thread runner = new Thread() {
+			public void run() { 
+				//perform the sdmx call
+				n.expand(node);
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						//and reload the tree model
+						model.reload(node);
+					}
+				});
+
+			}
+		};
+		runner.start();
 	}
 	
 	public void treeCollapsed(TreeExpansionEvent event) {

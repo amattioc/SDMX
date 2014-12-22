@@ -18,18 +18,18 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.sdmx.api.Codelist;
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.api.GenericSDMXClient;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.LoginDialog;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LoginDialog;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -72,7 +72,7 @@ public class SdmxClientHandler {
 		getClient(provider, user, pw);
 	}
 
-	public static void addProvider(String name, String endpoint, boolean needsCredentials) throws SdmxException{
+	public static void addProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description) throws SdmxException{
 		if(name == null || name.trim().isEmpty()){
 			logger.severe("The name of the provider cannot be null: " + name);
 			throw new SdmxException("The name of the provider cannot be null: '" + name + "'");
@@ -84,7 +84,7 @@ public class SdmxClientHandler {
 		URL ep;
 		try {
 			ep = new URL(endpoint);
-			SDMXClientFactory.addProvider(name, ep, needsCredentials);
+			SDMXClientFactory.addProvider(name, ep, needsCredentials, needsURLEncoding, supportsCompression, description);
 		} catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);

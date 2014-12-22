@@ -18,19 +18,20 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 
 
 public class ABSClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ABS", null));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_NRP9_ASGS", "FREQUENCY"));
+		System.err.println(SdmxClientHandler.getFlows("ABS", null));
+		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_NRP9_ASGS"));
+		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_NRP9_ASGS"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_NRP9_ASGS"));
+		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_NRP9_ASGS", "FREQUENCY"));
 		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ABS_NRP9_ASGS.EC43.AUS.0.A", "2000", "2010"));
 		
 

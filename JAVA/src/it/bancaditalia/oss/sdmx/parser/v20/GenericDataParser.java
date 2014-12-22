@@ -18,14 +18,15 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.parser.v20;
+package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,10 +54,9 @@ public class GenericDataParser {
 	private static final String OBS_VALUE = "ObsValue";
 	private static final String ATTRIBUTES = "Attributes";
 
-	public static List<PortableTimeSeries> parse(String xmlBuffer, String dataflow) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = new ByteArrayInputStream(xmlBuffer.getBytes("UTF-8"));
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
 		PortableTimeSeries ts = null;
@@ -73,7 +73,7 @@ public class GenericDataParser {
 				}
 
 				if (startElement.getName().getLocalPart() == (SERIES_KEY)) {
-					setSeriesKey(ts, eventReader);
+					setSeriesKey(ts, eventReader, dsd);
 				}
 
 				if (startElement.getName().getLocalPart() == (ATTRIBUTES)) {
@@ -95,9 +95,10 @@ public class GenericDataParser {
 		return tsList;
 	}
 
-	private static void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
+	private static void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader, DataFlowStructure dsd) throws XMLStreamException {
 		String id = null;
 		String val = null;
+		String[] dimensions = new String[dsd.getDimensions().size()];
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			if (event.isStartElement()) {
@@ -119,11 +120,9 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					ts.addDimension(id+'='+val);
-//					if(!key.equalsIgnoreCase("")){
-//						key+=".";
-//					}
-//					key+=val;
+					if(dsd.isDimension(id)){
+						dimensions[dsd.getDimensionPosition(id)-1] = id+"="+val;
+					}
 					if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 						ts.setFrequency(val);
 					}
@@ -132,7 +131,7 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (SERIES_KEY)) {
-					//ts.setName(key);
+					ts.setDimensions(Arrays.asList(dimensions));
 					break;
 				}
 			}

@@ -18,22 +18,21 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.sdmx.api.GenericSDMXClient;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.parser.v21.CodelistParser;
-import it.bankitalia.reri.sia.sdmx.parser.v21.CompactDataParser;
-import it.bankitalia.reri.sia.sdmx.parser.v21.DataStructureParser;
-import it.bankitalia.reri.sia.sdmx.parser.v21.DataflowParser;
-import it.bankitalia.reri.sia.sdmx.parser.v21.RestQueryBuilder;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
+import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Attilio Mattiocco
@@ -55,6 +55,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected URL wsEndpoint = null;
 	protected String name = null;
 	protected boolean needsCredentials = false;
+	protected boolean needsURLEncoding = false;
+	protected boolean supportsCompression = false;
 	protected boolean containsCredentials = false;
 	protected String user = null;
 	protected String pw = null;
@@ -62,24 +64,24 @@ public class RestSdmxClient implements GenericSDMXClient{
 	private static final String sourceClass = RestSdmxClient.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public RestSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean dotStat){
+	public RestSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression){
 		this.wsEndpoint = endpoint;
 		this.name = name;
 		this.needsCredentials=needsCredentials;
-		this.dotStat=dotStat;
+		this.needsURLEncoding=needsURLEncoding;
+		this.supportsCompression=supportsCompression;
 	}
 
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		String query=null;
-		String xml = null;
+		InputStreamReader xmlStream = null;
 		Map<String, Dataflow> result = null;
 		query = buildFlowQuery(wsEndpoint, SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
+		xmlStream = runQuery(query, null);
+		if(xmlStream!=null){
 			try {
-				List<Dataflow> flows = DataflowParser.parse(xml);
+				List<Dataflow> flows = DataflowParser.parse(xmlStream);
 				if(flows.size() > 0){
 					result = new HashMap<String, Dataflow>();
 					for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
@@ -98,7 +100,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			}
 		}
 		else{
-			throw new SdmxException("The query returned an empty result");
+			throw new SdmxException("The query returned a null stream");
 		}
 		return result;
 	}
@@ -106,14 +108,13 @@ public class RestSdmxClient implements GenericSDMXClient{
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		String query=null;
-		String xml = null;
+		InputStreamReader xmlStream = null;
 		Dataflow result = null;
 		query = buildFlowQuery(wsEndpoint, dataflow, agency, version);
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
+		xmlStream = runQuery(query, null);
+		if(xmlStream!=null){
 			try {
-				List<Dataflow> flows = DataflowParser.parse(xml);
+				List<Dataflow> flows = DataflowParser.parse(xmlStream);
 				if(flows.size() >= 1){
 					result = flows.get(0);
 				}
@@ -128,7 +129,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	
 		}
 		else{
-			throw new SdmxException("The query returned an empty result");
+			throw new SdmxException("The query returned a null stream");
 		}
 		return result;
 	}
@@ -136,16 +137,15 @@ public class RestSdmxClient implements GenericSDMXClient{
 	@Override
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException {
 		String query=null;
-		String xml = null;
+		InputStreamReader xmlStream = null;
 		DataFlowStructure str = null;
 		if(dsd!=null){
 			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
 			
-			xml = runQuery(query, null);
-			if(xml!=null && !xml.isEmpty()){
-				logger.finest(xml);
+			xmlStream = runQuery(query, null);
+			if(xmlStream!=null){
 				try {
-					str = DataStructureParser.parse(xml).get(0);
+					str = DataStructureParser.parse(xmlStream).get(0);
 				} catch (Exception e) {
 					logger.severe("Exception caught parsing results from call to provider " + name);
 					logger.log(Level.FINER, "Exception: ", e);
@@ -153,7 +153,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 				}
 			}
 			else{
-				throw new SdmxException("The query returned an empty result");
+				throw new SdmxException("The query returned a null stream");
 			}
 		}
 		else{
@@ -166,14 +166,13 @@ public class RestSdmxClient implements GenericSDMXClient{
 	@Override
 	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException {
 		String query=null;
-		String xml = null;
+		InputStreamReader xmlStream = null;
 		Map<String, String> result = null;
 		query = buildCodelistQuery(wsEndpoint, codeList, agency, version);
-		xml = runQuery(query, null);
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
+		xmlStream = runQuery(query, null);
+		if(xmlStream!=null){
 			try {
-				result = CodelistParser.parse(xml);
+				result = CodelistParser.parse(xmlStream);
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
@@ -182,7 +181,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			
 		}
 		else{
-			throw new SdmxException("The query returned an empty result");
+			throw new SdmxException("The query returned a null stream");
 		}
 		return result;
 	}
@@ -190,15 +189,13 @@ public class RestSdmxClient implements GenericSDMXClient{
 	@Override
 	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
 		String query=null;
-		String xml = null;
+		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = null;
 		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime);
-			
-		xml = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
-		if(xml!=null && !xml.isEmpty()){
-			logger.finest(xml);
+		xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
+		if(xmlStream!=null){
 			try {
-				ts = CompactDataParser.parse(xml, dsd, dataflow.getId());
+				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId());
 				//ts = GenericDataParser.parse(xml);
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
@@ -207,7 +204,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			}
 		}
 		else{
-			throw new SdmxException("The query returned an empty result");
+			throw new SdmxException("The query returned a null stream");
 		}
 			
 		return ts;
@@ -226,12 +223,15 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.containsCredentials=true;
 	}
 	
-	protected String runQuery(String query, String acceptHeader) throws SdmxException{
+	protected InputStreamReader runQuery(String query, String acceptHeader) throws SdmxException{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);
+		if(needsURLEncoding){
+			query = query.replace("|", "%2B");
+			query = query.replace("+", "%2B");
+		}
+		
 		logger.info("Contacting web service with query: " + query);
-	
-		StringBuilder result = new StringBuilder(1000);
 		try {
 			URL url = new URL(query);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -242,14 +242,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 			int code = conn.getResponseCode();
 			if (code == 200) {
 				logger.fine("Connection opened. Code: " +code);
-	
-				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				String output;	
-				while ((output = br.readLine()) != null) {
-					result.append(output);
+				if(supportsCompression){
+					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
 				}
-				conn.disconnect();
-				logger.fine("Connection closed.");
+				else{
+					return new InputStreamReader(conn.getInputStream());
+				}
 			}
 			else{
 				String msg = "Connection failed. HTTP error code : " + code + ", message: "+ conn.getResponseMessage() +"\n";
@@ -293,9 +291,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 			logger.log(Level.FINER, "Exception: ", e);
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		}
-		logger.exiting(sourceClass, sourceMethod);
-		String res =  result.toString();
-		return(res);
 	}
 
 	protected void handleHttpHeaders(HttpURLConnection conn, String acceptHeader){
@@ -303,6 +298,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 			logger.fine("Setting http authorization");		
 			String auth = javax.xml.bind.DatatypeConverter.printBase64Binary((user + ":" + pw).getBytes());
 			conn.setRequestProperty("Authorization", "Basic " + auth);
+		}
+		if(supportsCompression){
+			conn.addRequestProperty("Accept-Encoding","gzip");
 		}
 		if(acceptHeader!=null){
 			conn.setRequestProperty("Accept", acceptHeader);

@@ -18,11 +18,11 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.helper;
+package it.bancaditalia.oss.sdmx.helper;
 
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

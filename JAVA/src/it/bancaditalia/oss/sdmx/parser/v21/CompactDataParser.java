@@ -21,14 +21,13 @@
 /**
  * 
  */
-package it.bankitalia.reri.sia.sdmx.parser.v21;
+package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.util.Configuration;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,14 +54,14 @@ public class CompactDataParser {
 	private static final String SERIES = "Series";
 	private static final String OBS = "Obs";
 
-	public static List<PortableTimeSeries> parse(String xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = new ByteArrayInputStream(xmlBuffer.getBytes("UTF-8"));
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+		//InputStream in = new ByteArrayInputStream(xmlBuffer);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		PortableTimeSeries ts = null;
 
@@ -133,7 +132,7 @@ public class CompactDataParser {
 			String value = attr.getValue();
 			if(dsd.isDimension(id)){
 				dimensions[dsd.getDimensionPosition(id)-1] = id+"="+value;
-				if(id.equalsIgnoreCase("FREQ")){
+				if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 					ts.setFrequency(value);
 				}
 			}

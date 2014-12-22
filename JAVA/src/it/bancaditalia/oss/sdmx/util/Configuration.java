@@ -18,7 +18,7 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.util;
+package it.bancaditalia.oss.sdmx.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;

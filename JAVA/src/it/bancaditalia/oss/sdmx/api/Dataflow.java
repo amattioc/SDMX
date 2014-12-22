@@ -19,7 +19,7 @@
 * permissions and limitations under the Licence.
 */
 
-package it.bankitalia.reri.sia.sdmx.api;
+package it.bancaditalia.oss.sdmx.api;
 
 /**
  * This is a Java container for dataflow information.

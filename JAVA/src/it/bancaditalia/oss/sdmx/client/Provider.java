@@ -18,11 +18,11 @@
  * See the Licence for the specific language governing
  * permissions and limitations under the Licence.
  */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
 
 import java.net.URL;
 import java.util.Hashtable;
@@ -30,8 +30,11 @@ import java.util.Map;
 
 public class Provider {
 	private String name;
+	private String description;
 	private URL endpoint;
 	private boolean needsCredentials;
+	private boolean needsURLEncoding;
+	private boolean supportsCompression;
 	private boolean full = false;
 
 	// key: flow id (simple) --> flow
@@ -39,16 +42,16 @@ public class Provider {
 	// key: dsd id (full) --> structure
 	private Hashtable<String, DataFlowStructure> dsdNameToStructureCache = null;
 
-	public Provider(String name, URL endpoint,
-			boolean needsCredentials) {
+	public Provider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description) {
 		super();
 		this.name = name;
 		this.endpoint = endpoint;
-
+		this.description = description;
 		this.flows = new Hashtable<String, Dataflow>();
-		//this.flowToDSDCache = new Hashtable<String, DSDIdentifier>();
 		this.dsdNameToStructureCache = new Hashtable<String, DataFlowStructure>();
 		this.needsCredentials = needsCredentials;
+		this.needsURLEncoding = needsURLEncoding;
+		this.supportsCompression = supportsCompression;
 	}
 
 	public String getName() {
@@ -96,6 +99,14 @@ public class Provider {
 		this.dsdNameToStructureCache.put(flow, dsd);
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public boolean isNeedsCredentials() {
 		return needsCredentials;
 	}
@@ -110,6 +121,22 @@ public class Provider {
 
 	public boolean isFull() {
 		return full;
+	}
+
+	public boolean isNeedsURLEncoding() {
+		return needsURLEncoding;
+	}
+
+	public void setNeedsURLEncoding(boolean needsURLEncoding) {
+		this.needsURLEncoding = needsURLEncoding;
+	}
+
+	public boolean isSupportsCompression() {
+		return supportsCompression;
+	}
+
+	public void setSupportsCompression(boolean supportsCompression) {
+		this.supportsCompression = supportsCompression;
 	}
 
 }

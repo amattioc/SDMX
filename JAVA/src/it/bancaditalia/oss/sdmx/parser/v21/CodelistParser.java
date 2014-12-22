@@ -18,17 +18,13 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-/**
- * 
- */
-package it.bankitalia.reri.sia.sdmx.parser.v21;
+package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.LocalizedText;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -50,27 +46,31 @@ public class CodelistParser {
 	private static final String sourceClass = CodelistParser.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
-	static final String CODELISTS = "Codelists";
+	// valid in V.2.1
 	static final String CODELIST = "Codelist";
+	static final String CODE = "Code";
+	static final String ID = "id";
+	static final String DESCRIPTION = "Name";
 
-	static final String NAME = "Name";
-	static final String VALUE = "Code";
-	static final String KEY = "id";
-
-	public static Map<String,String> parse(String xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static Map<String,String> parse(InputStreamReader xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+		return parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
+	}
+	public static Map<String,String> parse(InputStreamReader xmlBuffer, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = new ByteArrayInputStream(xmlBuffer.getBytes("UTF-8"));
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-		Map<String,String> codes = getCodes(eventReader);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
+		Map<String,String> codes = getCodes(eventReader, codelist, code, id, description);
 		
 		logger.exiting(sourceClass, sourceMethod);
 		return codes;
 	}
-	
+
 	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+		return getCodes(eventReader, CODELIST, CODE, ID, DESCRIPTION);
+	}
+	public static Map<String, String> getCodes(XMLEventReader eventReader, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException{
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
@@ -78,10 +78,9 @@ public class CodelistParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
-
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart() == (VALUE)) {
+				if (startElement.getName().getLocalPart() == (code)) {
 					key = null;
 					value = new LocalizedText();
 					
@@ -89,12 +88,12 @@ public class CodelistParser {
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
 						Attribute attr = attributes.next();
-						if (attr.getName().toString().equals(KEY)) {
+						if (attr.getName().toString().equals(id)) {
 							key = attr.getValue();
 						}
 					}
 				}
-				else if (startElement.getName().getLocalPart() == (NAME)) {
+				else if (startElement.getName().getLocalPart() == (description)) {
 					value.setText(startElement, eventReader);
 				}
 				
@@ -102,7 +101,7 @@ public class CodelistParser {
 			
 			if (event.isEndElement()) {
 				String eventName=event.asEndElement().getName().getLocalPart();
-				if (eventName.equals(VALUE)) {
+				if (eventName.equals(code)) {
 					if(key != null){
 						logger.finer("Got code " + key + ", " + value.getText());
 						codes.put(key, value.getText());
@@ -110,11 +109,10 @@ public class CodelistParser {
 					else{
 						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);
 					}
-					
 				}
 				else{
 					//stop after first codelist
-					if (eventName.equals(CODELIST)) {
+					if (eventName.equals(codelist)) {
 						break;
 					}
 				}
@@ -122,5 +120,4 @@ public class CodelistParser {
 		}
 		return codes;
 	}
-
 } 

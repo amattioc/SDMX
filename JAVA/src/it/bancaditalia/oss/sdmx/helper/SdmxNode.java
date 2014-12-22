@@ -18,14 +18,13 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.helper;
+package it.bancaditalia.oss.sdmx.helper;
 
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +61,7 @@ public class SdmxNode {
 	}
 
 	public void expand(DefaultMutableTreeNode parent) {
+
 		parent.removeAllChildren(); 
 		List<SdmxNode> subNodes = null;
 		try {
@@ -71,10 +71,12 @@ public class SdmxNode {
 			logger.log(Level.FINER, "", e);
 		}
 		if(subNodes != null){
-			Vector<SdmxNode> v = orderNodes(subNodes);
+			if(orderLexicographically){
+				Collections.sort(subNodes, new NodeComparator());
+			}
 			// now add to tree
-			for (int i = 0; i < v.size(); i++) {
-				SdmxNode sdmxStuff = (SdmxNode) v.elementAt(i);
+			for (int i = 0; i < subNodes.size(); i++) {
+				SdmxNode sdmxStuff = (SdmxNode) subNodes.get(i);
 				DefaultMutableTreeNode node = new DefaultMutableTreeNode(sdmxStuff);
 				if(sdmxStuff.hasSubNodes()){
 					//trick to have the empty levels always with one element
@@ -89,34 +91,5 @@ public class SdmxNode {
 		return true;
 	}
 
-	private int compareTo(SdmxNode toCompare) {
-		return id.compareToIgnoreCase(toCompare.getId());
-	}
-	
-	private Vector<SdmxNode> orderNodes(List<SdmxNode> subNodes) {
-		Vector<SdmxNode> v = new Vector<SdmxNode>();
-		if(!orderLexicographically){
-			v.addAll(subNodes);
-		}
-		else{
-			// Lexicographical ordering 
-			for (Iterator<SdmxNode> iterator = subNodes.iterator(); iterator.hasNext();) {
-				SdmxNode newNode = (SdmxNode) iterator.next();
-				boolean isAdded = false;
-				for (int i = 0; i < v.size(); i++) {
-					SdmxNode nd = (SdmxNode) v.elementAt(i);
-					if (newNode.compareTo(nd) < 0) {
-						v.insertElementAt(newNode, i);
-						isAdded = true;
-						break;
-					}
-				}
-				if (!isAdded)
-					v.addElement(newNode);
-			}
-		}
-		return v;
-	}
-	
 	public List<SdmxNode> listSubNodes() throws SdmxException {return null;}
 }

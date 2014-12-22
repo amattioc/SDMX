@@ -18,7 +18,7 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.api;
+package it.bancaditalia.oss.sdmx.api;
 
 import java.util.Arrays;
 import java.util.Collection;

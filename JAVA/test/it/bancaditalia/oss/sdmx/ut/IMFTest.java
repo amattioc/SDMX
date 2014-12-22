@@ -18,16 +18,16 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.ut;
+package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.api.PortableTimeSeries;
-import it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler;
-import it.bankitalia.reri.sia.sdmx.client.custom.IMF;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.client.custom.IMF;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class IMFTest {
 		assertNotNull("Null time series result", res);
 		//warning: they depend on eventual order
 		String annual = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "PGI.US.IFS.PCPI.A.PCOCY", annual);
+		assertEquals("Wrong name for first time series", "PGI.US.PCPI.IFS.PCOCY.A", annual);
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "1980", start);
 		//System.out.println(res);

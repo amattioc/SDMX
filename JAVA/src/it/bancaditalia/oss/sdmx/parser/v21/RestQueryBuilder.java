@@ -18,9 +18,9 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.parser.v21;
+package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.URL;
 
@@ -38,21 +38,21 @@ public class RestQueryBuilder{
 				resource!=null && !resource.isEmpty()){
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
-			
-			if(start != null && start.isEmpty()) start = null;
-			if(end != null && end.isEmpty()) end = null;		
-			if(start != null || end != null){
-				query=query+"?";
-				if(start != null){
-					query=query+"startPeriod="+start;
-				}
-				if(start != null && end != null){
-					query=query+"&";
-				}
-				if(end != null){
-					query=query+"endPeriod="+end;
-				}
-			}
+			query += addTime(start, end);
+//			if(start != null && start.isEmpty()) start = null;
+//			if(end != null && end.isEmpty()) end = null;		
+//			if(start != null || end != null){
+//				query=query+"?";
+//				if(start != null){
+//					query=query+"startPeriod="+start;
+//				}
+//				if(start != null && end != null){
+//					query=query+"&";
+//				}
+//				if(end != null){
+//					query=query+"endPeriod="+end;
+//				}
+//			}
 			//query += "?version=2.1";
 			return query;
 		}
@@ -116,5 +116,19 @@ public class RestQueryBuilder{
 			throw new SdmxException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
 		}
 	}
-
+	
+	public static String addTime(String start, String end){
+		String query = "";
+		if((start != null && !start.isEmpty()) || (end != null && !end.isEmpty())){
+			query=query+"?";
+			if(start != null){
+				query=query+"&startPeriod="+start;
+			}
+			if(end != null){
+				query=query+"&endPeriod="+end;
+			}
+		}
+		return query;
+	}
+	
 }

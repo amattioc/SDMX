@@ -19,14 +19,13 @@
 * permissions and limitations under the Licence.
 */
 
-package it.bankitalia.reri.sia.sdmx.parser.v20;
+package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bankitalia.reri.sia.sdmx.api.DSDIdentifier;
-import it.bankitalia.reri.sia.sdmx.api.Dataflow;
-import it.bankitalia.reri.sia.util.LocalizedText;
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,11 +55,10 @@ public class DataflowParser {
 	private static final String KF_AGID = "KeyFamilyAgencyID";
 	private static final String KF_VER = "Version";
 
-	public static List<Dataflow> parse(String xmlBuffer) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<Dataflow> parse(InputStreamReader xmlBuffer) throws XMLStreamException, UnsupportedEncodingException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = new ByteArrayInputStream(xmlBuffer.getBytes("UTF-8"));
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		Dataflow df = null;
 		LocalizedText currentName = new LocalizedText();

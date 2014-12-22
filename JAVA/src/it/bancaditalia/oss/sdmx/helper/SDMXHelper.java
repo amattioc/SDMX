@@ -18,10 +18,11 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.helper;
+package it.bancaditalia.oss.sdmx.helper;
 
-import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
-import it.bankitalia.reri.sia.util.Configuration;
+import it.bancaditalia.oss.sdmx.client.Provider;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,6 +30,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -71,17 +76,27 @@ public class SDMXHelper extends JFrame {
         textAreaHandler = new HelperHandler(sdmxMessages);
         JScrollPane p = new JScrollPane(sdmxMessages);
         
-        // the top node is just for description
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new SdmxNode("SDMX", "List of SDMX Data Providers", true));
-
 		// immediately populate the first level with the list of SDMX data providers
-		DefaultMutableTreeNode node;
-		String[] providers = SDMXClientFactory.getProviders().keySet().toArray(new String[]{});
-		
-		for (int k = 0; k < providers.length; k++) {
-			node = new DefaultMutableTreeNode(new ProviderNode(providers[k], "", true));
-			node.add(new DefaultMutableTreeNode(new SdmxNode("Calling provider, please wait......", "", false)));
-			top.add(node);
+		// get providers and transfom into nodes
+        ProviderNode node;
+		List<Provider> providers = new ArrayList<Provider>(SDMXClientFactory.getProviders().values());		
+		List<ProviderNode> providerNodes = new ArrayList<ProviderNode>();	
+		for (Iterator<Provider> iterator = providers.iterator(); iterator.hasNext();) {
+			Provider provider = (Provider) iterator.next();
+			node = new ProviderNode(provider.getName(), provider.getDescription(), true);			
+			providerNodes.add(node);
+		}
+		//sort by id
+		Collections.sort(providerNodes, new NodeComparator());
+        // now add to top node 
+		DefaultMutableTreeNode n;
+		// the top node is just for description
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new SdmxNode("SDMX", "List of SDMX Data Providers", true));
+		for (Iterator<ProviderNode> iterator = providerNodes.iterator(); iterator.hasNext();) {
+			ProviderNode pn = (ProviderNode) iterator.next();
+			n = new DefaultMutableTreeNode(pn);			
+			n.add(new DefaultMutableTreeNode(new SdmxNode("Calling provider, please wait......", "", false)));
+			top.add(n);
 		}
 
 		treeModel = new DefaultTreeModel(top);

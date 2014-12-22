@@ -18,12 +18,12 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bankitalia.reri.sia.sdmx.client;
+package it.bancaditalia.oss.sdmx.client;
 
 
-import it.bankitalia.reri.sia.sdmx.api.GenericSDMXClient;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,6 +48,7 @@ public class SDMXClientFactory {
 
 	//read the configuration file
 	static {
+		providers = new HashMap<String, Provider>();
 		Configuration.init();
 		initBuiltInProviders();
 	}
@@ -62,26 +63,26 @@ public class SDMXClientFactory {
      * 
      */
 	private static void initBuiltInProviders(){
-		providers = new HashMap<String, Provider>();
     	try {
-	    	addProvider("ECB", new URL(ECB_PROVIDER), false);
-			addProvider("EUROSTAT", new URL(EUROSTAT_PROVIDER), false);
+	    	addProvider("ECB", new URL(ECB_PROVIDER), false, false, true, "European Central Bank");
+			addProvider("EUROSTAT", new URL(EUROSTAT_PROVIDER), false, false, true, "Eurostat");
 	    } catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
 		}
 
 	    //add internal 2.0 providers
-	    addProvider("OECD", null, false);
-	    addProvider("ILO", null, false);
-	    addProvider("IMF", null, false);
-	    addProvider("INEGI", null, false);
-	    addProvider("ABS", null, false);
+	    addProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development");
+	    addProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS");
+	    addProvider("ILO", null, false, false, false, "International Labour Office");
+	    addProvider("IMF", null, false, false, false, "International Monetary Fund");
+	    addProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia");
+	    addProvider("ABS", null, false, false, false, "Australian Bureau of Statistics");
 	    
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
         for (GenericSDMXClient provider : ldr) {
-            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials());
+            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName());
         }
 	}
 	
@@ -89,12 +90,14 @@ public class SDMXClientFactory {
      * General method for creating an SdmxClient. 
      * 
 	 * @param name
-	 * @param agency
 	 * @param endpoint
 	 * @param needsCredentials
+	 * @param needsURLEncoding
+	 * @param supportsCompression
+	 * @param description
 	 */
-	public static void addProvider(String name, URL endpoint, boolean needsCredentials){
-		Provider p = new Provider(name, endpoint, needsCredentials);
+	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description){
+		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description);
     	providers.put(name, p);
 	}
 	
@@ -117,11 +120,11 @@ public class SDMXClientFactory {
 		String errorMsg = "The provider '" + provider + "' is not available in this configuration.";
 		if(p != null && p.getEndpoint() != null){
 			if(p.getEndpoint().getProtocol().equals("http")){
-				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), false);
+				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
 			}
 			else if(p.getEndpoint().getProtocol().equals("https")){
 				try {
-					client = new HttpsSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), false);
+					client = new HttpsSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
 				} catch (KeyManagementException e) {
 					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 					logger.log(Level.FINER, "", e);
@@ -140,7 +143,7 @@ public class SDMXClientFactory {
 		else {
 			///legacy 2.0
 			try{
-				Class<?> clazz = Class.forName("it.bankitalia.reri.sia.sdmx.client.custom." + provider);
+				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.client.custom." + provider);
 				client = (GenericSDMXClient)clazz.newInstance();
 			}
 			catch (ClassNotFoundException e) {
@@ -162,38 +165,6 @@ public class SDMXClientFactory {
 	 * @return
 	 */
 	public static Map<String, Provider> getProviders() {
-//		List<String> res = new ArrayList<String>();
-//		res.addAll(providers.keySet());
-//		
-//		//Legacy 2.0
-//		ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
-//        for (GenericSDMXClient provider : ldr) {
-//            res.add(provider.getClass().getSimpleName());
-//        }
-        ////
         return providers;
     }
-
-//	/**
-//	 * 	 Get the list of all available SDMX Providers that do not require authentication
-//	 * @return
-//	 */
-//	public static List<String> getClearProviders() {
-//		List<String> result = new ArrayList<String>();
-//		for (Iterator<Provider> iterator = providers.values().iterator(); iterator.hasNext();) {
-//			Provider p = (Provider) iterator.next();
-//			if(!p.isNeedsCredentials()){
-//				result.add(p.getName());
-//			}	
-//		}
-//		
-//		//Legacy 2.0
-////		ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
-////        for (GenericSDMXClient provider : ldr) {
-////            if(!provider.needsCredentials()){
-////            	result.add(provider.getClass().getSimpleName());
-////            }
-////        }
-//        return result;
-//    }
 }

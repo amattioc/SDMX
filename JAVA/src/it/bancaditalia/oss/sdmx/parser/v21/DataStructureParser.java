@@ -18,20 +18,15 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-/**
- * 
- */
-package it.bankitalia.reri.sia.sdmx.parser.v21;
+package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bankitalia.reri.sia.sdmx.api.Codelist;
-import it.bankitalia.reri.sia.sdmx.api.DataFlowStructure;
-import it.bankitalia.reri.sia.sdmx.api.Dimension;
-import it.bankitalia.reri.sia.sdmx.client.SDMXClientFactory;
-import it.bankitalia.reri.sia.util.Configuration;
-import it.bankitalia.reri.sia.util.SdmxException;
+import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -52,7 +47,7 @@ import javax.xml.stream.events.XMLEvent;
  *
  */
 public class DataStructureParser {
-	private static final String sourceClass = SDMXClientFactory.class.getSimpleName();
+	private static final String sourceClass = DataStructureParser.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
 	static final String DATASTRUCTURE = "DataStructure";
@@ -76,12 +71,11 @@ public class DataStructureParser {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public static List<DataFlowStructure> parse(String xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static List<DataFlowStructure> parse(InputStreamReader xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		InputStream in = new ByteArrayInputStream(xmlBuffer.getBytes("UTF-8"));
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
