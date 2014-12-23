@@ -39,20 +39,7 @@ public class RestQueryBuilder{
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
 			query += addTime(start, end);
-//			if(start != null && start.isEmpty()) start = null;
-//			if(end != null && end.isEmpty()) end = null;		
-//			if(start != null || end != null){
-//				query=query+"?";
-//				if(start != null){
-//					query=query+"startPeriod="+start;
-//				}
-//				if(start != null && end != null){
-//					query=query+"&";
-//				}
-//				if(end != null){
-//					query=query+"endPeriod="+end;
-//				}
-//			}
+
 			//query += "?version=2.1";
 			return query;
 		}
@@ -121,10 +108,10 @@ public class RestQueryBuilder{
 		String query = "";
 		if((start != null && !start.isEmpty()) || (end != null && !end.isEmpty())){
 			query=query+"?";
-			if(start != null){
+			if(start != null && !start.isEmpty()){
 				query=query+"&startPeriod="+start;
 			}
-			if(end != null){
+			if(end != null && !end.isEmpty()){
 				query=query+"&endPeriod="+end;
 			}
 		}
