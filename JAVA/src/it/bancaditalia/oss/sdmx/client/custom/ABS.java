@@ -58,6 +58,7 @@ public class ABS extends DotStat{
 		String query = super.buildDataQuery(endpoint, dataflow, resource + "/ABS", null, null);
 		//query += "&format=compact_v2";
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
+			query += "?";
 			if(startTime != null){
 				query=query+"&startTime="+startTime;
 			}
