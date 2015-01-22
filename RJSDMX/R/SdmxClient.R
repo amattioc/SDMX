@@ -81,3 +81,17 @@ getCodes <- function(provider, flow, dimension){
 sdmxHelp<- function(){
   J("it.bancaditalia.oss.sdmx.helper.SDMXHelper")$start()
 }
+
+# convert from list of zoo to data.frame
+sdmxdf<- function(tslist, meta=F){
+  ddf = NULL
+  if(!missing(tslist) && length(tslist) != 0 && is.list(tslist)){
+    dflist=lapply(tslist, sdmxzoo2df, meta)
+    ddf=Reduce(function(x, y) merge(x, y, all=TRUE), dflist)
+    rownames(ddf)<-NULL
+  }
+  else{
+    cat('The time series list in input is missing or invalid\n')
+  }
+  return(ddf)
+}

@@ -21,6 +21,39 @@
 
 # Basic class for converting from Java objects to R
 
+# convert a zoo to a df
+sdmxzoo2df <- function (tts, meta) {
+  ddf = NULL
+  if(!missing(tts) && length(tts) != 0 && is.zoo(tts)){
+    n = length(tts)
+    time=as.character(index(tts))
+    data=as.numeric(tts)
+    id=rep(attr(tts, 'ID'), n)
+    status=attr(tts, 'STATUS')
+    header=c('ID', 'TIME', 'OBS')
+    if(length(status) == n){
+      ddf=data.frame(id, time, data, status)
+      header=append(header, 'STATUS')
+    }
+    else{
+      ddf=data.frame(id, time, data)
+    }
+    if(meta){
+      for(x in names(attributes(tts))){
+        if(x != 'ID' && x != 'class' && x != 'frequency' && x != 'index' && x != 'STATUS'){
+          ddf = cbind(ddf, rep(attr(tts, x), n))
+          header=append(header, x)
+        }
+      }
+    }
+    colnames(ddf) = header
+  }
+  else{
+    cat('The time series in input is missing or invalid\n')
+  }
+  return(ddf)
+}
+
 # convert a java List<String>
 convertStringList <- function (javaList) {
 	rList = as.list(javaList)
