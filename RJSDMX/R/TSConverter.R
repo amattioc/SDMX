@@ -99,7 +99,7 @@ convertTSList <- function (javaList) {
 
 	rList = as.list(javaList);
 	numOfTS = length(rList);
-	#print(paste("Found ", numOfTS, " timeseries"));
+	#cat(paste("Found ", numOfTS, " timeseries\n"));
 	#result = list();
 	names = lapply(X=rList, FUN=getNames)
 	result = lapply(X=rList, FUN=convertSingleTS)
@@ -115,29 +115,30 @@ getNames<-function(ttss){
 }
 
 convertSingleTS<-function(ttss){
-    s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
-    name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
-    freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
-    dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,
-                        evalString = TRUE);
-    attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE,
-                        evalString = TRUE);
-    timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
-                       evalString = TRUE);
-    observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
-    status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE,
-                    evalString = TRUE);
-    numOfObs = length(observationsJ);
-    numOfTimes = length(timeSlots);
-    if( numOfObs > 0 && numOfObs == numOfTimes){
-      observations = sapply(observationsJ, .jcall,"D","doubleValue")
+  tts = NULL  
+  s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
+  name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
+  freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
+  dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,
+                      evalString = TRUE);
+  attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE,
+                      evalString = TRUE);
+  timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
+                     evalString = TRUE);
+  observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
+  status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE,
+                  evalString = TRUE);
+  numOfObs = length(observationsJ);
+  numOfTimes = length(timeSlots);
+  if( numOfObs > 0 && numOfObs == numOfTimes){
+    observations = sapply(observationsJ, .jcall,"D","doubleValue")
 
-      tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, status);
-    }
-    else{
-      print(paste("Number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes));
-    }
-    return(tts)
+    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, status);
+  }
+  else{
+    cat(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
+  }
+  return(tts)
 }
 
 # parameters used:
@@ -154,7 +155,7 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, status
 	if(length(values > 0)) {
 
 		if (is.null(freq)) {
-			print ("Frequency is NULL. Irregular timeseries defined")
+			cat ("Frequency is NULL. Irregular timeseries defined\n")
 			tmp_ts <- zoo(values, order.by=times)
 		}
 		else {
