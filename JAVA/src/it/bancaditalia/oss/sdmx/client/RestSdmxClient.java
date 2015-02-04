@@ -97,6 +97,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 		}
 		else{
@@ -125,6 +131,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 	
 		}
@@ -150,6 +162,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught parsing results from call to provider " + name);
 					logger.log(Level.FINER, "Exception: ", e);
 					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+				} finally{
+					try {
+						xmlStream.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
+					}
 				}
 			}
 			else{
@@ -164,7 +182,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException {
+	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, String> result = null;
@@ -177,6 +195,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 			
 		}
@@ -201,6 +225,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 		}
 		else{

@@ -25,13 +25,15 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 
 
-public class IMFClientTest {
+public class WBClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getDSDIdentifier("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDimensions("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getCodes("IMF", "PGI", "REF_AREA"));
-		System.err.println(SdmxClientHandler.getTimeSeries("IMF", "PGI.US....", "1980", "2010"));
+//		System.err.println(SdmxClientHandler.getFlows("WB", null));
+//		System.err.println(SdmxClientHandler.getFlow("WB", "WDI"));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("WB", "WDI"));
+//		System.err.println(SdmxClientHandler.getDimensions("WB", "WDI"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("WB", "WDI"));
+		System.err.println(SdmxClientHandler.getCodes("WB", "WDI", "REF_AREA"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("WB", "WDI.usa.sp_pop_totl", "2003", "2005"));
 
 	}
 }

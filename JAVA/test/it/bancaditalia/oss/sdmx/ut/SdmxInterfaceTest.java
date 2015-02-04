@@ -197,5 +197,10 @@ public class SdmxInterfaceTest {
 		//wrong dimension list
 		SdmxClientHandler.getTimeSeries("ECB", "EXR.A.N.SS.A.A.EUR.SP00.A", null, null);
 	}
+	@Test(expected=SdmxException.class)
+	public void testGetTimeSeriesFail8() throws SdmxException {
+		//zero time series, 2.0 provider
+		SdmxClientHandler.getTimeSeries("IMF", "PGI.CA.BIS.FOSLB.A.L_M", null, null);
+	}
 
 }

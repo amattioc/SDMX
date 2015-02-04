@@ -78,6 +78,7 @@ public class CodelistParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart() == (code)) {

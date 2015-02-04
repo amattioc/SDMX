@@ -31,6 +31,7 @@ import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -70,6 +71,12 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 		}
 		else{
@@ -98,6 +105,12 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 
 		}
@@ -122,6 +135,12 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 					logger.severe("Exception caught parsing results from call to provider " + name);
 					logger.log(Level.FINER, "Exception: ", e);
 					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+				} finally{
+					try {
+						xmlStream.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
+					}
 				}
 			}
 			else{
@@ -149,6 +168,12 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 			
 		}
@@ -173,6 +198,12 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 		}
 		else{

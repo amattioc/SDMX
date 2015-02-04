@@ -84,6 +84,7 @@ public class DataStructureParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
@@ -149,6 +150,7 @@ public class DataStructureParser {
 		
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equals(DIMENSION)) {
@@ -240,6 +242,7 @@ public class DataStructureParser {
 		Map<String, Map<String, String>> codelists = new Hashtable<String, Map<String,String>>();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 

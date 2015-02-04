@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +44,15 @@ public class Configuration {
 	private static final String sourceClass = Configuration.class.getSimpleName();
 	
 	public static final String CONFIGURATION_FILE = "configuration.properties";
-	private static final String CENTRAL_CONFIGURATION_FILE_UX = "/home/opt/dev_dms/configuration.properties";
-	private static final String CENTRAL_CONFIGURATION_FILE_WIN = "D:/Dati/configuration.properties";
 	private static final String CENTRAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
 
 	private static final String PROXY_NAME = "http.proxy.name";
+	private static final String PROXY_DEFAULT = "http.proxy.default";
 		
 	private static final String HTTP_AUTH_USER = "http.auth.user";
 	private static final String PROXY_AUTH_PW = "http.auth.pw";  
 
-	public static final String USAGE_STATISTICS_FILE = "usage.stats.file";  
-	public static final String EXDI_DELAY = "exdi.delay";  
+	public static final String DELAY = "exdi.delay";  
 	public static final String REVERSE_DUMP = "reverse.dump";  
 
 	private static Properties props = new Properties();
@@ -91,12 +90,8 @@ public class Configuration {
 		return props.getProperty(REVERSE_DUMP, "TRUE").equalsIgnoreCase("TRUE");
 	}
 
-	public static String getStatsFile(){
-		return props.getProperty(USAGE_STATISTICS_FILE, null);
-	}
-	
 	public static long getDelay() {
-		String delay = props.getProperty(EXDI_DELAY, null);
+		String delay = props.getProperty(DELAY, null);
 		if(delay==null){
 			return 0;
 		}
@@ -107,56 +102,63 @@ public class Configuration {
 		
 		//normal configuration steps:
 		// 1 init logger
-		// 2 search configuration in this order: local file, global file, BIConfiguration class (only for internal deployments)
+		// 2 search configuration in this order: local, global, Configuration class 
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
-		//Hack for Matlab: to avoid being considered a browser
-		System.setProperty("http.agent", "");
+		//for Matlab: to avoid being considered a browser
+		System.setProperty("http.agent", "SDMX");
 		
-		//get central configuration file location
-		String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
-		if(central == null){
-			if(isWindows())
-				central = CENTRAL_CONFIGURATION_FILE_WIN;
-			else
-				central = CENTRAL_CONFIGURATION_FILE_UX;
-		}
+		String confType = null;
 		
-		try {
-			boolean localConfigurationFound = false;
-			InputStream is1 = null;
-			InputStream is2 = null;
+		InputStream is1 = null;
+		InputStream is2 = null;
+		// try local configuration
+		if(new File(CONFIGURATION_FILE).exists()){
 			try {
 				is1 = new FileInputStream(CONFIGURATION_FILE);
 				is2 = new FileInputStream(CONFIGURATION_FILE);
-				System.err.println("Using local configuration.");
-				localConfigurationFound = true;
-			} catch (Exception e) {
-				SDMX_LOGGER.fine("No local configuration file.");
-			}
-			if(!localConfigurationFound){
-				is1 = new FileInputStream(central);
-				is2 = new FileInputStream(central);
-				System.err.println("Using central configuration: " + central);
-			}
-			
-			init(is1, is2);
-			
-		} catch (Exception e) {
-			// switch to default configuration, if it exists
-			try {
-				Class<?> clazz = Class.forName("sdmx.SdmxConfiguration");
-				Method method = clazz.getMethod("initBI");
-				method.invoke((Object)null);
-				System.err.println("Using SdmxConfiguration class.");
-			} catch( Exception notFound ) {
-				//notFound.printStackTrace();
-				System.err.println("No Configuration has been found. Apply defaults.");
-				ConsoleHandler handler = new ConsoleHandler();
-				handler.setLevel(Level.ALL);
-				SDMX_LOGGER.addHandler(handler);
+				init(is1, is2);
+				confType = "local";
+				SDMX_LOGGER.info("Using " + confType + " configuration.");
+				return;
+			} 
+			catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
+		
+		// try global configuration
+		//get central configuration file location
+		String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
+		if( 	central != null && 
+				!central.isEmpty()){
+			if(new File(central).exists()){
+				try {
+					is1 = new FileInputStream(central);
+					is2 = new FileInputStream(central);
+					init(is1, is2);
+					confType = "global";
+					SDMX_LOGGER.info("Using " + confType + " configuration.");
+					return;
+				} 
+				catch (Exception e) {
+				}
+			}
+		}
+		
+		// try configuration class
+		try {
+			Class<?> clazz = Class.forName("sdmx.SdmxConfiguration");
+			Method method = clazz.getMethod("initBI");
+			method.invoke((Object)null);
+			confType = "sdmxclass";
+		} catch( Exception notFound ) {
+			confType = "default";
+			ConsoleHandler handler = new ConsoleHandler();
+			handler.setLevel(Level.INFO);
+			SDMX_LOGGER.addHandler(handler);
+		}
+		SDMX_LOGGER.info("Using " + confType + " configuration.");
 	}
 	
 	public static void init(InputStream is1, InputStream is2) throws SecurityException, IOException {
@@ -181,14 +183,27 @@ public class Configuration {
 		Logger logger = SDMX_LOGGER;
 		logger.entering(sourceClass, sourceMethod);
 		
-		SdmxProxySelector proxySelector = new SdmxProxySelector();
+		//property: http.proxy.default
+		String defaultproxy = props.getProperty(PROXY_DEFAULT);
+		String defaultHost = null;
+		int defaultPort = 0;
+		if(defaultproxy != null && !defaultproxy.isEmpty()){
+			String[] toks = defaultproxy.split(":");
+			if(toks.length != 2  || toks[0] == null || toks[0].isEmpty() || toks[1] == null || toks[1].isEmpty()){
+				throw new IllegalArgumentException("Proxy settings must be valid. found: '" + defaultproxy + "'");
+			}
+			defaultHost = toks[0].trim();
+			defaultPort = Integer.parseInt(toks[1].trim());
+		}
+		SdmxProxySelector proxySelector = new SdmxProxySelector(defaultHost, defaultPort);
 		
 		for (int i = 0; ; i++) {
 			//property: http.proxy.name_n
 			String proxy = props.getProperty(PROXY_NAME + i);
-			if (proxy != null){
-				String[] toks = proxy.split(":");
-				if(toks.length != 2  || toks[0] == null || toks[0].isEmpty() || toks[1] == null || toks[1].isEmpty()){
+			if (proxy != null && ! proxy.isEmpty()){
+				String[] toks = null;
+				toks = proxy.split(":");
+				if(toks == null || toks.length != 2  || toks[0] == null || toks[0].isEmpty() || toks[1] == null || toks[1].isEmpty()){
 					throw new IllegalArgumentException("Proxy settings must be valid. host: '" + toks[0] + "', port: '" + toks[1] + "'");
 				}
 				//property: http.proxy.name_n.list

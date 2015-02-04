@@ -37,19 +37,25 @@ import java.util.logging.Logger;
  */
 public class SdmxProxySelector extends ProxySelector{
 	
-	private ArrayList<Proxy> noProxy = null;
+	private ArrayList<Proxy> defaultProxyTable = null;
 	private Hashtable<String, Proxy> proxyTable = null;
 
 	private static final String sourceClass = SdmxProxySelector.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
-	public SdmxProxySelector(){
-		final String sourceMethod = "SdmxWSProxySelector";
+	public SdmxProxySelector(String defaultProxy, int port){
+		final String sourceMethod = "SdmxProxySelector";
 		logger.entering(sourceClass, sourceMethod);
 
-		noProxy = new ArrayList<Proxy>();
-		Proxy p = Proxy.NO_PROXY;
-		noProxy.add(p);
+		defaultProxyTable = new ArrayList<Proxy>();
+		Proxy p = null;
+		if(defaultProxy != null && !defaultProxy.isEmpty()){
+			p = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(defaultProxy,port));
+		}
+		else{
+			p = Proxy.NO_PROXY;
+		}
+		defaultProxyTable.add(p);
 		
 		proxyTable = new Hashtable<String, Proxy>();
 		
@@ -87,7 +93,7 @@ public class SdmxProxySelector extends ProxySelector{
 	@Override
 	public List<Proxy> select(URI arg0) {
 		final String sourceMethod = "select";
-		List<Proxy> res = noProxy;
+		List<Proxy> res = defaultProxyTable;
 		logger.entering(sourceClass, sourceMethod);
 		logger.finer("Getting proxy for host: " + arg0.getHost());	
 		Proxy p = proxyTable.get(arg0.getHost());

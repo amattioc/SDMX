@@ -67,7 +67,8 @@ public class CompactDataParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
-
+			logger.finest(event.toString());
+			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 
@@ -82,6 +83,7 @@ public class CompactDataParser {
 
 				if (startElement.getName().getLocalPart().equals(OBS)) {
 					event = eventReader.nextEvent();
+					logger.finest(event.toString());
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String time = null;

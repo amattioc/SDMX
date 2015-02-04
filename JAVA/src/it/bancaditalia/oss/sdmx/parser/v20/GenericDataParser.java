@@ -22,13 +22,18 @@ package it.bancaditalia.oss.sdmx.parser.v20;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -44,6 +49,7 @@ import javax.xml.stream.events.XMLEvent;
  *
  */
 public class GenericDataParser {
+	protected static Logger logger = Configuration.getSdmxLogger();
 
 	private static final String SERIES = "Series";
 	private static final String SERIES_KEY = "SeriesKey";
@@ -54,16 +60,18 @@ public class GenericDataParser {
 	private static final String OBS_VALUE = "ObsValue";
 	private static final String ATTRIBUTES = "Attributes";
 
-	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
+		BufferedReader br = skipBOM(xmlBuffer);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
 		PortableTimeSeries ts = null;
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
-
+			logger.finest(event.toString());
+			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 
@@ -101,6 +109,7 @@ public class GenericDataParser {
 		String[] dimensions = new String[dsd.getDimensions().size()];
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
@@ -143,6 +152,7 @@ public class GenericDataParser {
 		String val = null;
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
@@ -179,6 +189,7 @@ public class GenericDataParser {
 		String val = null;
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart() == (OBS_TIME)) {
@@ -196,5 +207,25 @@ public class GenericDataParser {
 				}
 			}
 		}
+	}
+	
+	private static BufferedReader skipBOM(InputStreamReader xmlBuffer) throws SdmxException{
+		BufferedReader br = new BufferedReader(xmlBuffer);
+		try {
+			char[] cbuf = new char[3];
+			br.mark(3);
+			br.read(cbuf, 0, 3);
+			
+			if(		(byte)cbuf[0] == (byte)0xEF && 
+					(byte)cbuf[1] == (byte)0xBB && 
+					(byte)cbuf[2] == (byte)0xBF){
+			}
+			else{
+				br.reset();
+			}
+		} catch (IOException e) {
+			throw new SdmxException("Error handling BOM for UTF8 response stream.");
+		}
+		return br;
 	}
 } 

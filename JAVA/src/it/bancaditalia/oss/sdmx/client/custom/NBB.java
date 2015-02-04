@@ -18,20 +18,18 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bancaditalia.oss.sdmx.client;
+package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-
-
-public class IMFClientTest {
-	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getDSDIdentifier("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDimensions("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("IMF", "PGI"));
-		System.err.println(SdmxClientHandler.getCodes("IMF", "PGI", "REF_AREA"));
-		System.err.println(SdmxClientHandler.getTimeSeries("IMF", "PGI.US....", "1980", "2010"));
-
+/**
+ * @author Attilio Mattiocco
+ *
+ */
+public class NBB extends DotStat{
+		
+	public NBB() throws MalformedURLException{
+		super("NBB", new URL("http://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
 	}
 }

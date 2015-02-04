@@ -83,7 +83,8 @@ public class DataStructureParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
-
+			logger.finest(event.toString());
+			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				
@@ -160,6 +161,7 @@ public class DataStructureParser {
 		
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equals(DIMENSION)) {
@@ -260,6 +262,7 @@ public class DataStructureParser {
 		logger.entering(sourceClass, sourceMethod);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart().equals(REF)) {
@@ -316,6 +319,7 @@ public class DataStructureParser {
 			// TODO skip for now
 			
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(GROUP)) {
 					break;
@@ -334,6 +338,7 @@ public class DataStructureParser {
 			// TODO skip for now
 			
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(MEASURELIST)) {
 					break;
@@ -351,6 +356,7 @@ public class DataStructureParser {
 			// TODO skip for now
 			
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(ATTRIBUTELIST)) {
 					break;
@@ -364,6 +370,7 @@ public class DataStructureParser {
 		Map<String, Map<String, String>> codelists = new Hashtable<String, Map<String,String>>();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 

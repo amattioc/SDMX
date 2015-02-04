@@ -120,18 +120,17 @@ public class SdmxClientHandler {
 			tmp = p.getDSD(fullkeyFamilyKey);
 			if(tmp == null){
 				logger.info("DSD for " + keyF.getFullIdentifier() + " not cached. Call Provider.");
-//				try {
-					tmp = getClient(provider).getDataFlowStructure(keyF);
+				tmp = getClient(provider).getDataFlowStructure(keyF);
+				if(tmp != null){
 					p.setDSD(fullkeyFamilyKey, tmp);
-					delay();
-//				} catch (SdmxException e) {
-//					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//					logger.log(Level.FINER, "", e);
-//				}
+				}
+				else{
+					throw new SdmxException("Could not get structure for '" + dataflow + "' in provider: '" + provider + "'");
+				}
 			}
 		}
 		else{
-			throw new SdmxException("Could not get structure for '" + dataflow + "' in provider: '" + provider + "'");
+			throw new SdmxException("Could not get dataflow '" + dataflow + "' in provider: '" + provider + "'");
 		}
 		return tmp;
 	}
@@ -148,20 +147,14 @@ public class SdmxClientHandler {
 		result = p.getDSDIdentifier(dataflow);
 		if(result == null){
 			logger.info("DSD identifier for dataflow " + dataflow + " not cached. Call Provider.");
-//			try {
-				Dataflow df = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
-				if(df != null){
-					p.setFlow(df);
-					delay();
-					result = df.getDsdIdentifier();
-				}
-				else{
-					throw new SdmxException("Could not get dataflow information '" + dataflow + "' in provider: '" + provider + "'");
-				}
-//			} catch (SdmxException e) {
-//				logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//				logger.log(Level.FINER, "", e);
-//			}
+			Dataflow df = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
+			if(df != null){
+				p.setFlow(df);
+				result = df.getDsdIdentifier();
+			}
+			else{
+				throw new SdmxException("Could not get dataflow '" + dataflow + "' in provider: '" + provider + "'");
+			}
 		}
 		return result;
 	}
@@ -202,20 +195,15 @@ public class SdmxClientHandler {
 		if(dim != null){
 			codes = dim.getCodeList().getCodes();
 			if(codes == null){ // this is a 2.1 provider
-//				try {
-					logger.info("Codelist for " + provider + ", " + dataflow + ", " + dimension +" not cached.");
-					Codelist codelist = dsd.getDimension(dimension).getCodeList();
-					codes = getClient(provider).getCodes(provider, codelist.getId(), codelist.getAgency(), codelist.getVersion());
-					if(codes != null){
-						codelist.setCodes(codes);
-					}
-					else{
-						throw new SdmxException("Could not get codes for '" + dataflow + "' in provider: '" + provider + "'");
-					}
-//				} catch (SdmxException e) {
-//					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//					logger.log(Level.FINER, "", e);
-//				}
+				logger.info("Codelist for " + provider + ", " + dataflow + ", " + dimension +" not cached.");
+				Codelist codelist = dsd.getDimension(dimension).getCodeList();
+				codes = getClient(provider).getCodes(provider, codelist.getId(), codelist.getAgency(), codelist.getVersion());
+				if(codes != null){
+					codelist.setCodes(codes);
+				}
+				else{
+					throw new SdmxException("Could not get codes for '" + dataflow + "' in provider: '" + provider + "'");
+				}
 			}
 		}
 		else{
@@ -234,19 +222,14 @@ public class SdmxClientHandler {
 		Provider p = getProvider(provider);
 		Dataflow flow = p.getFlows().get(dataflow);
 		if(flow == null){
-			logger.info("Dataflow " + dataflow + " not cached. Call Provider.");
-//			try {
-				flow = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
-				if(flow != null){
-					p.setFlow(flow);
-				}
-				else{
-					throw new SdmxException("Could not get dataflow information '" + dataflow + "' in provider: '" + provider + "'");
-				}
-//			} catch (SdmxException e) {
-//				logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//				logger.log(Level.FINER, "", e);
-//			}
+			logger.fine("Dataflow " + dataflow + " not cached. Call Provider.");
+			flow = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
+			if(flow != null){
+				p.setFlow(flow);
+			}
+			else{
+				throw new SdmxException("Could not get dataflow '" + dataflow + "' in provider: '" + provider + "'");
+			}
 		}
 		return flow;
 	}
@@ -259,21 +242,15 @@ public class SdmxClientHandler {
 		Provider p = getProvider(provider);
 		flows = p.getFlows();
 		if(flows == null || flows.size() == 0 || !p.isFull()){
-			logger.info("Flows for " + provider + " not cached. Call Provider.");
-//			try {
-				flows = getClient(provider).getDataflows();
-				if(flows != null){
-					p.setFlows(flows);
-					p.setFull(true);
-				}
-				else{
-					throw new SdmxException("Could not get dataflows from provider: '" + provider + "'");
-				}
-				
-//			} catch (SdmxException e) {
-//				logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//				logger.log(Level.FINER, "", e);
-//			}
+			logger.fine("Flows for " + provider + " not cached. Call Provider.");
+			flows = getClient(provider).getDataflows();
+			if(flows != null && flows.size() != 0){
+				p.setFlows(flows);
+				p.setFull(true);
+			}
+			else{
+				throw new SdmxException("Could not get dataflows from provider: '" + provider + "'");
+			}
 		}
 		return filterFlows(flows, pattern);
 	}
@@ -324,13 +301,10 @@ public class SdmxClientHandler {
 
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
-//		try {
-			result = getClient(provider).getTimeSeries(df, dsd, resource, startTime, endTime);
-//		} catch (SdmxException e) {
-//			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-//			logger.log(Level.FINER, "", e);
-//		}
-
+		result = getClient(provider).getTimeSeries(df, dsd, resource, startTime, endTime);
+		if(result == null || result.size() == 0){
+			throw new SdmxException("The query: " + tsKey + " did not match any time series on the provider.");
+		}
 		return result;
 	}
 	
@@ -482,16 +456,4 @@ public class SdmxClientHandler {
 		return newKey;
 	}
 	
-	private static void delay(){
-		long sleepTime = Configuration.getDelay();
-		if(sleepTime>0){
-			try {
-				Thread.sleep(Configuration.getDelay());
-			} catch (InterruptedException e) {
-				logger.warning("Error with delay");
-			}
-		}
-	}
-
-
 }

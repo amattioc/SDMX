@@ -23,6 +23,7 @@ package it.bancaditalia.oss.sdmx.parser.v21;
 
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 import java.io.InputStreamReader;
@@ -30,6 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -44,7 +46,8 @@ import javax.xml.stream.events.XMLEvent;
  *
  */
 public class DataflowParser {
-
+	protected static Logger logger = Configuration.getSdmxLogger();
+	
 	private static final String DATAFLOW = "Dataflow";
 	private static final String ID = "id";
 	private static final String AGENCY = "agencyID";
@@ -62,7 +65,8 @@ public class DataflowParser {
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
-
+			logger.finest(event.toString());
+			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 

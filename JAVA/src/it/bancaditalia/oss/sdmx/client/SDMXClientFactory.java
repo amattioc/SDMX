@@ -78,6 +78,8 @@ public class SDMXClientFactory {
 	    addProvider("IMF", null, false, false, false, "International Monetary Fund");
 	    addProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia");
 	    addProvider("ABS", null, false, false, false, "Australian Bureau of Statistics");
+	    addProvider("WB", null, false, false, false, "World Bank (BETA provider)");
+	    addProvider("NBB", null, false, false, false, "National Bank Belgium");
 	    
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
