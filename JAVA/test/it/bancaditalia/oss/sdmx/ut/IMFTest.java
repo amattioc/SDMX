@@ -42,43 +42,43 @@ public class IMFTest {
 
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
-		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(IMF.class.getSimpleName(), "PGI");
-		assertNotNull("Null key family for PGI", keyF);
-		assertEquals("Wrong Key Family", "PGI", keyF.getId());
+		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(IMF.class.getSimpleName(), "DM");
+		assertNotNull("Null key family for DM", keyF);
+		assertEquals("Wrong Key Family", "DM", keyF.getId());
 	}
 
 	@Test
 	public void testGetFlows() throws SdmxException {
-		Map<String, String> f = SdmxClientHandler.getFlows(IMF.class.getSimpleName(), "PGI");
+		Map<String, String> f = SdmxClientHandler.getFlows(IMF.class.getSimpleName(), "DM");
 		assertNotNull("Null getFlows result", f);
-		String descr = f.get("PGI");
-		assertEquals("Wrong description for PGI", "IMF,PGI ; Principal Global Indicators", descr);
+		String descr = f.get("DM");
+		assertEquals("Wrong description for DM", "IMF,DM ; Data Mapper", descr);
 	}
 
 	@Test
 	public void testGetDimensions() throws SdmxException {
-		List<Dimension> dim = SdmxClientHandler.getDimensions(IMF.class.getSimpleName(), "PGI");
-		assertNotNull("Null getDimensions result PGI", dim);
-		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=IMF/CL_AREA, codes={JP=Japan, DK=Denmark, DE=Germany, PL=Poland, GB=United Kingdom, SG=Singapore, SE=Sweden, SA=Saudi Arabia, A1=World, FR=France, IT=Italy";
-		assertEquals("Wrong dimensions for PGI", result, dim.toString().substring(0, result.length()));
+		List<Dimension> dim = SdmxClientHandler.getDimensions(IMF.class.getSimpleName(), "DM");
+		assertNotNull("Null getDimensions result DM", dim);
+		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=IMF/CL_AREA, codes={GRP=Regions and Groups, 469=Egypt";
+		assertEquals("Wrong dimensions for DM", result, dim.toString().substring(0, result.length()));
 	}
 	
 	@Test
 	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes(IMF.class.getSimpleName(), "PGI", "FREQ");
+			Map<String, String> codes = SdmxClientHandler.getCodes(IMF.class.getSimpleName(), "DM", "FREQ");
 			assertNotNull("Null getCodes result", codes);
 			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 	}
 
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(IMF.class.getSimpleName(), "PGI.US.FAA.PGI.PCOCY.A", "1980", "2010");
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(IMF.class.getSimpleName(), "DM.111....A", "2000", "2015");
 		assertNotNull("Null time series result", res);
 		//warning: they depend on eventual order
 		String annual = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "PGI.US.FAA.PGI.PCOCY.A", annual);
+		assertEquals("Wrong name for first time series", "DM.111.BCA_NGDPD.WEO.B.A", annual);
 		String start = res.get(0).getTimeSlots().get(0);
-		assertEquals("Wrong start date for time series", "2002", start);
+		assertEquals("Wrong start date for time series", "2000", start);
 		//System.out.println(res);
 	}
 

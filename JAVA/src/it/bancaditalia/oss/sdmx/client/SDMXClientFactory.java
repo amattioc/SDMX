@@ -80,6 +80,7 @@ public class SDMXClientFactory {
 	    addProvider("ABS", null, false, false, false, "Australian Bureau of Statistics");
 	    addProvider("WB", null, false, false, false, "World Bank (BETA provider)");
 	    addProvider("NBB", null, false, false, false, "National Bank Belgium");
+	    addProvider("UIS", null, false, false, false, "Unesco Institute for Statistics");
 	    
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
