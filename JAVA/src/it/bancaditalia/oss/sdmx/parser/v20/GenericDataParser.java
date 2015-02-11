@@ -209,16 +209,19 @@ public class GenericDataParser {
 		}
 	}
 	
+	// some 2.0 providers are apparently adding a BOM
 	private static BufferedReader skipBOM(InputStreamReader xmlBuffer) throws SdmxException{
 		BufferedReader br = new BufferedReader(xmlBuffer);
+		logger.fine(xmlBuffer.getEncoding());
 		try {
-			char[] cbuf = new char[3];
-			br.mark(3);
-			br.read(cbuf, 0, 3);
-			
-			if(		(byte)cbuf[0] == (byte)0xEF && 
-					(byte)cbuf[1] == (byte)0xBB && 
-					(byte)cbuf[2] == (byte)0xBF){
+			// java uses Unicode big endian
+			char[] cbuf = new char[1];
+			br.mark(1);
+			br.read(cbuf, 0, 1);
+			logger.fine(String.format("0x%2s", Integer.toHexString(cbuf[0])));
+			if(		(byte)cbuf[0] == (byte)0xfeff) 
+			{
+				logger.fine("BOM found and skipped");
 			}
 			else{
 				br.reset();

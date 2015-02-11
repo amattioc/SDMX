@@ -276,7 +276,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
 				}
 				else{
-					return new InputStreamReader(conn.getInputStream());
+					return new InputStreamReader(conn.getInputStream(), "UTF-8");
 				}
 			}
 			else{
