@@ -47,13 +47,12 @@ public class ILOTest {
 		assertEquals("Wrong agency", "ILO", keyF.getAgency());
 	}
 
-	//temporary... to be notified when this is fixed
-	@Test(expected=SdmxException.class)
+	@Test
 	public void testGetFlows() throws SdmxException {
 		Map<String, String> f = SdmxClientHandler.getFlows("ILO", "*DF_YI_ALL_EMP_TEMP_SEX_AGE_NB*");
-//		assertNotNull("Null getFlows result", f);
-//		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
-//		assertEquals("Wrong description for EXR", "", descr);
+		assertNotNull("Null getFlows result", f);
+		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
+		assertEquals("Wrong description for EXR", "ILO,DF_YI_ALL_EMP_TEMP_SEX_AGE_NB ; Employment by sex and age", descr);
 	}
 
 	@Test

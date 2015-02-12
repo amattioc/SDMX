@@ -60,12 +60,13 @@ public interface GenericSDMXClient {
 	/**
 	 * <p>Gets all the codes from this provider for the specified codelist
 	 * 
-	 * @param provider
 	 * @param codeList
+	 * @param agency
+	 * @param version
 	 * @return
-	 * @throws SdmxException 
+	 * @throws SdmxException
 	 */
-	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException;
+	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException;
 
 	/**
      * <p>Gets a time series with the specified classification keys. The id is in a dot separated

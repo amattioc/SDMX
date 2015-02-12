@@ -182,7 +182,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException{
+	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, String> result = null;

@@ -155,7 +155,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String provider, String codeList, String agency, String version) throws SdmxException {
+	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, String> result = null;

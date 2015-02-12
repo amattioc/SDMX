@@ -27,8 +27,8 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 public class ILOClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ILO", "YI_FRA_EMP_TEMP_SEX_AGE_NB"));
-		System.err.println(SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
+		System.err.println(SdmxClientHandler.getFlows("ILO", null));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getCodes("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "COUNTRY"));

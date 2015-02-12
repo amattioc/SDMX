@@ -20,13 +20,23 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,21 +52,64 @@ public class ILO extends RestSdmx20Client {
 	}
 
 
-	@Override
-	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
-		agency = (agency == null) ? "ALL" : agency;
-		version = (version == null) ? "latest" : version;
-		if( endpoint!=null  &&
-				flow!=null && !flow.isEmpty()){
-	
-			String query = endpoint + "/dataflow/ILO/" + flow;
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + flow + " endpoint=" + endpoint);
-		}
-	}
+//	@Override
+//	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
+//		agency = (agency == null) ? "ALL" : agency;
+//		version = (version == null) ? "latest" : version;
+//		if( endpoint!=null  &&
+//				flow!=null && !flow.isEmpty()){
+//	
+//			String query = endpoint + "/dataflow/ILO/" + flow;
+//			return query;
+//		}
+//		else{
+//			throw new RuntimeException("Invalid query parameters: dataflow=" + flow + " endpoint=" + endpoint);
+//		}
+//	}
 
+	@Override
+	public Map<String, Dataflow> getDataflows() throws SdmxException {
+		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
+		Map<String, String> collections = getCodes("CL_COLLECTION", "ILO", "latest");
+		// this algorithm will be replaced as soon as the ILO provider supports 
+		// 'ALL_MULTI' queries for dataflows
+		for (Iterator<String> iterator = collections.keySet().iterator(); iterator.hasNext();) {
+			String coll = (String) iterator.next();
+			String query = wsEndpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
+			InputStreamReader xmlStream = null;
+			xmlStream = runQuery(query, null);				
+			if(xmlStream!=null){
+				try {
+					List<DataFlowStructure> dfs = DataStructureParser.parse(xmlStream);
+					if(dfs.size() > 0){
+						for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) {
+							DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
+							Dataflow tmp = new Dataflow();
+							tmp.setId("DF_" + dsd.getId());
+							tmp.setName(dsd.getName());
+							tmp.setAgency(dsd.getAgency());
+							tmp.setVersion(dsd.getVersion());					
+							result.put(tmp.getId(), tmp);
+						}
+					}
+				} catch (Exception e) {
+					logger.severe("Exception caught parsing results from call to provider " + name);
+					logger.log(Level.FINER, "Exception: ", e);
+					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+				} finally{
+					try {
+						xmlStream.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
+					}
+				}
+			}
+			else{
+				throw new SdmxException("The query returned anull stream");
+			}
+		}
+		return result;
+	}
 
 	@Override
 	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){

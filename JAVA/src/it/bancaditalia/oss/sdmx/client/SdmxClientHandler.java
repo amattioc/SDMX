@@ -197,7 +197,7 @@ public class SdmxClientHandler {
 			if(codes == null){ // this is a 2.1 provider
 				logger.info("Codelist for " + provider + ", " + dataflow + ", " + dimension +" not cached.");
 				Codelist codelist = dsd.getDimension(dimension).getCodeList();
-				codes = getClient(provider).getCodes(provider, codelist.getId(), codelist.getAgency(), codelist.getVersion());
+				codes = getClient(provider).getCodes(codelist.getId(), codelist.getAgency(), codelist.getVersion());
 				if(codes != null){
 					codelist.setCodes(codes);
 				}
