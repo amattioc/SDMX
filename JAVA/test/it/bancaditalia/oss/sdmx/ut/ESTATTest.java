@@ -53,7 +53,7 @@ public class ESTATTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("prc_hicp_midx");
-		assertEquals("Wrong description for prc_hicp_midx", "ESTAT,prc_hicp_midx,1.0 ; HICP (2005 = 100) - monthly data (index)", descr);
+		assertEquals("Wrong description for prc_hicp_midx", "HICP (2005 = 100) - monthly data (index)", descr);
 	}
 
 	@Test

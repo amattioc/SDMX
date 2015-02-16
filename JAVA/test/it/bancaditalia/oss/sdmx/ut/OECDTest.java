@@ -52,7 +52,7 @@ public class OECDTest {
 		Map<String, String> f = SdmxClientHandler.getFlows(OECD.class.getSimpleName(), "AEO");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("AEO");
-		assertEquals("Wrong description for AEO", "OECD,AEO ; African Economic Outlook", descr);
+		assertEquals("Wrong description for AEO", "African Economic Outlook", descr);
 	}
 
 	@Test

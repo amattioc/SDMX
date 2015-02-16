@@ -202,7 +202,13 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (OBS)) {
-					ts.addObservation(new Double(val), time, "");
+					try {
+						ts.addObservation(new Double(val), time, "");
+					} catch (NumberFormatException  e) {
+						logger.warning("Invalid observation: '" + val + "' for ts " + ts.getName() + ". Setting NaN.");
+						ts.addObservation(new Double("NaN"), time, "");
+					}
+					
 					break;
 				}
 			}

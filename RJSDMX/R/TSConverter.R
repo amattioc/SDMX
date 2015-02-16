@@ -49,7 +49,7 @@ sdmxzoo2df <- function (tts, meta) {
     colnames(ddf) = header
   }
   else{
-    cat('The time series in input is missing or invalid\n')
+    message('The time series in input is missing or invalid\n')
   }
   return(ddf)
 }
@@ -99,7 +99,7 @@ convertTSList <- function (javaList) {
 
 	rList = as.list(javaList);
 	numOfTS = length(rList);
-	#cat(paste("Found ", numOfTS, " timeseries\n"));
+	#message(paste("Found ", numOfTS, " timeseries\n"));
 	#result = list();
 	names = lapply(X=rList, FUN=getNames)
 	result = lapply(X=rList, FUN=convertSingleTS)
@@ -136,7 +136,7 @@ convertSingleTS<-function(ttss){
     tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, status);
   }
   else{
-    cat(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
+    message(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
   }
   return(tts)
 }
@@ -155,7 +155,7 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, status
 	if(length(values > 0)) {
 
 		if (is.null(freq)) {
-			cat ("Frequency is NULL. Irregular timeseries defined\n")
+			message ("Frequency is NULL. Irregular timeseries defined\n")
 			tmp_ts <- zoo(values, order.by=times)
 		}
 		else {
