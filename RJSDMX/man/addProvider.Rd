@@ -26,7 +26,8 @@
   This function can be used to configure a new (SDMX 2.1 compliant, REST based) data provider.
 }
 \usage{
-  addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)
+  addProvider(name, endpoint, needsCredentials, needsURLEncoding, 
+              supportsCompression, description)
 }
 \arguments{
   \item{name}{the name of the provider}
