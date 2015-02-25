@@ -80,8 +80,8 @@ public class DataStructureParser {
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
 		DataFlowStructure currentStructure = null;
-		LocalizedText currentName = new LocalizedText();
 
+		LocalizedText currentName = new LocalizedText(Configuration.getLang());
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -131,6 +131,7 @@ public class DataStructureParser {
 				if (event.asEndElement().getName().getLocalPart().equals(DATASTRUCTURE)) {
 					logger.finer("Adding data structure. " + currentStructure);
 					currentStructure.setName(currentName.getText());
+					currentName = new LocalizedText(Configuration.getLang());
 					result.add(currentStructure);
 				}
 			}

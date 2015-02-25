@@ -36,6 +36,7 @@ public class HelperHandler extends java.util.logging.Handler {
     @Override
     public void publish(final LogRecord record) {
     	whereTo.append(" " + record.getMessage()+"\n");
+    	whereTo.setCaretPosition(whereTo.getDocument().getLength());
     }
 
 	@Override

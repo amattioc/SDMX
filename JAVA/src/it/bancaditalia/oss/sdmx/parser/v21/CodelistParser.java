@@ -74,8 +74,7 @@ public class CodelistParser {
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
-		LocalizedText value = new LocalizedText();
-
+		LocalizedText value = new LocalizedText(Configuration.getLang());
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -83,7 +82,6 @@ public class CodelistParser {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart() == (code)) {
 					key = null;
-					value = new LocalizedText();
 					
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
@@ -106,6 +104,7 @@ public class CodelistParser {
 					if(key != null){
 						logger.finer("Got code " + key + ", " + value.getText());
 						codes.put(key, value.getText());
+						value = new LocalizedText(Configuration.getLang());
 					}
 					else{
 						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);

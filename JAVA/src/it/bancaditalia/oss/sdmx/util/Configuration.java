@@ -52,8 +52,12 @@ public class Configuration {
 	private static final String HTTP_AUTH_USER = "http.auth.user";
 	private static final String PROXY_AUTH_PW = "http.auth.pw";  
 
-	public static final String DELAY = "exdi.delay";  
-	public static final String REVERSE_DUMP = "reverse.dump";  
+	private static final String REVERSE_DUMP_PROP = "reverse.dump";  
+	private static boolean REVERSE_DUMP = false;
+	
+	private static final String SDMX_LANG_PROP = "sdmx.lang";  
+	private static String SDMX_LANG = null;  
+	private static final String SDMX_DEFAULT_LANG = "en";  
 
 	private static Properties props = new Properties();
 
@@ -87,15 +91,14 @@ public class Configuration {
 	}
 
 	public static boolean isReverse(){
-		return props.getProperty(REVERSE_DUMP, "TRUE").equalsIgnoreCase("TRUE");
+		return REVERSE_DUMP;
 	}
 
-	public static long getDelay() {
-		String delay = props.getProperty(DELAY, null);
-		if(delay==null){
-			return 0;
-		}
-		return Integer.parseInt(delay);
+	public static String getLang(){
+		return SDMX_LANG;
+	}
+	public static void setLang(String lang){
+		SDMX_LANG = lang;
 	}
 
 	public static void init() {
@@ -173,6 +176,13 @@ public class Configuration {
 		if(tStore != null && !tStore.isEmpty()){
 			System.setProperty(SSL_TRUSTSTORE, tStore);
 		}
+		
+		//configure default language if not already set explicitly
+		if(SDMX_LANG == null){
+			SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
+		}
+		//configure dump format
+		REVERSE_DUMP = props.getProperty(REVERSE_DUMP_PROP, "TRUE").equalsIgnoreCase("TRUE");
 		
 		configureProxy(props);
 

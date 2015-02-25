@@ -61,8 +61,8 @@ public class DataflowParser {
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		Dataflow df = null;
-		LocalizedText currentName = new LocalizedText();
 
+		LocalizedText currentName = new LocalizedText(Configuration.getLang());
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -123,6 +123,7 @@ public class DataflowParser {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
 					df.setName(currentName.getText());
+					currentName = new LocalizedText(Configuration.getLang());
 					dfList.add(df);
 				}
 			}

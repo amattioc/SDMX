@@ -72,6 +72,10 @@ public class SdmxClientHandler {
 		getClient(provider, user, pw);
 	}
 
+	public static void setPreferredLanguage(String lang) throws SdmxException {
+		Configuration.setLang(lang);
+	}
+
 	public static void addProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description) throws SdmxException{
 		if(name == null || name.trim().isEmpty()){
 			logger.severe("The name of the provider cannot be null: " + name);
