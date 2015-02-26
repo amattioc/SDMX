@@ -43,6 +43,10 @@ public class Dataflow {
 		this.id = id;
 	}
 
+	public String getDescription() {
+		return name;
+	}
+
 	public String getName() {
 		return getFullIdentifier() + " ; " + name;
 	}
