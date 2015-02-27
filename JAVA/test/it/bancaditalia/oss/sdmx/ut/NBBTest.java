@@ -52,7 +52,7 @@ public class NBBTest {
 		Map<String, String> f = SdmxClientHandler.getFlows(NBB.class.getSimpleName(), "AFCSURV");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("AFCSURV");
-		assertEquals("Wrong description for AFCSURV", "Quarterly survey on the assessment of financing conditions", descr);
+		assertEquals("Wrong description for AFCSURV", "NBB,AFCSURV ; Quarterly survey on the assessment of financing conditions", descr);
 	}
 
 	@Test

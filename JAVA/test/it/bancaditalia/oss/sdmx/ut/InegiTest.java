@@ -52,7 +52,7 @@ public class InegiTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("INEGI", "DF_STEI");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("DF_STEI");
-		assertEquals("Wrong description for DF_STEI", "Dataflow Short Term Economic Indicators", descr);
+		assertEquals("Wrong description for DF_STEI", "INEGI,DF_STEI,1.0 ; Dataflow Short Term Economic Indicators", descr);
 	}
 
 	@Test

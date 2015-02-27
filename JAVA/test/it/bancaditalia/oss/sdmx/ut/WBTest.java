@@ -52,7 +52,7 @@ public class WBTest {
 		Map<String, String> f = SdmxClientHandler.getFlows(WB.class.getSimpleName(), "WDI");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("WDI");
-		assertEquals("Wrong description for WDI", "World Development Indicators", descr);
+		assertEquals("Wrong description for WDI", "WB,WDI ; World Development Indicators", descr);
 	}
 
 	@Test

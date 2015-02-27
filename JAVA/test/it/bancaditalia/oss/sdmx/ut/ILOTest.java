@@ -52,7 +52,7 @@ public class ILOTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("ILO", "*DF_YI_ALL_EMP_TEMP_SEX_AGE_NB*");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
-		assertEquals("Wrong description for EXR", "Employment by sex and age", descr);
+		assertEquals("Wrong description for EXR", "ILO,DF_YI_ALL_EMP_TEMP_SEX_AGE_NB ; Employment by sex and age", descr);
 	}
 
 	@Test

@@ -94,7 +94,7 @@ public class SdmxInterfaceTest {
 		assertNotNull("Null getFlows result", f);
 		assertEquals("Wrong number of results for prc_hicp_midx", 1, f.size());
 		String descr = f.get("prc_hicp_midx");
-		assertEquals("Wrong description for prc_hicp_midx", "HICP (2005 = 100) - monthly data (index)", descr);
+		assertEquals("Wrong description for prc_hicp_midx", "ESTAT,prc_hicp_midx,1.0 ; HICP (2005 = 100) - monthly data (index)", descr);
 		f = SdmxClientHandler.getFlows("EUROSTAT", null);
 		assertEquals("Wrong number of results for prc_hicp_midx", f.size() > 0, true);
 		f = SdmxClientHandler.getFlows("EUROSTAT", "");
