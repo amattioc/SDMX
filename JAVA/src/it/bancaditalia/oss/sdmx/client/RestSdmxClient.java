@@ -356,7 +356,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 				dsd!=null && !dsd.isEmpty()){
 
 			String query = RestQueryBuilder.getStructureQuery(endpoint, dsd, agency,  version);
-			return query;
+			return query + "?references=children";
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
