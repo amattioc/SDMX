@@ -67,4 +67,30 @@ public class ABS extends DotStat{
 		}
 		return query;
 	}
+
+	@Override
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
+		return super.getTimeSeries(dataflow, dsd, fixWildcard(resource), startTime, endTime);
+	}
+
+	// https://github.com/amattioc/SDMX/issues/19
+	private static String fixWildcard(String resource) {
+		String[] items = resource.split("\\.");
+		if (items.length <= 1) {
+			return resource;
+		}
+		for (int i = 0; i < items.length; i++) {
+			String tmp = items[i].trim();
+			if (tmp.isEmpty() || tmp.equals("*")) {
+				items[i] = "+";
+			}
+		}
+		StringBuilder result = new StringBuilder();
+		result.append(items[0]);
+		for (int i = 1; i < items.length; i++) {
+			result.append('.').append(items[i]);
+		}
+		return result.toString();
+	}
+
 }
