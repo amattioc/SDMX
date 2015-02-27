@@ -79,7 +79,7 @@ public class ABS extends DotStat{
 
 	// https://github.com/amattioc/SDMX/issues/19
 	private static String fixWildcard(String resource) {
-		String[] items = resource.split("\\.");
+		String[] items = resource.split("\\.", -1);
 		if (items.length <= 1) {
 			return resource;
 		}
