@@ -51,10 +51,11 @@ public interface GenericSDMXClient {
 	/**
 	 * <p>Gets the basic dsd structure for the given dataflow
 	 * @param dsd the dsd identification
+	 * @param full if true, for 2.1 providers it retrieves the full dsd, with all the codelists.
 	 * @return the dimensions and code lists
 	 * @throws SdmxException 
 	 */
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException;
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException;
 
 	
 	/**

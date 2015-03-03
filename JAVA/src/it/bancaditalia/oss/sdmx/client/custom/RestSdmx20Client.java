@@ -29,6 +29,7 @@ import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.IOException;
@@ -121,7 +122,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException {
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		DataFlowStructure str = new DataFlowStructure();
@@ -210,6 +211,10 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 			throw new SdmxException("The query returned a null stream");
 		}
 		return ts;
+	}
+	
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
+		return super.buildDSDQuery(endpoint, dsd, agency, version, false);
 	}
 		
 }

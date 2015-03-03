@@ -49,12 +49,19 @@ public class RestQueryBuilder{
 	}
 	
 	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
+		return getStructureQuery(endpoint, dsd, agency, version, false);
+	}
+
+	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version, boolean full) throws SdmxException{
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
 			String query = endpoint + "/datastructure/" + agency + "/" + dsd;
 			if(version!=null && !version.isEmpty()){
 				query += "/" + version;
+			}
+			if(full){
+				query += "?references=children";
 			}
 			return query;
 		}

@@ -124,7 +124,7 @@ public class SdmxClientHandler {
 			tmp = p.getDSD(fullkeyFamilyKey);
 			if(tmp == null){
 				logger.info("DSD for " + keyF.getFullIdentifier() + " not cached. Call Provider.");
-				tmp = getClient(provider).getDataFlowStructure(keyF);
+				tmp = getClient(provider).getDataFlowStructure(keyF, false);
 				if(tmp != null){
 					p.setDSD(fullkeyFamilyKey, tmp);
 				}

@@ -147,12 +147,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd) throws SdmxException {
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		DataFlowStructure str = null;
 		if(dsd!=null){
-			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
+			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			
 			xmlStream = runQuery(query, null);
 			if(xmlStream!=null){
@@ -350,12 +350,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 	}
 	
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
+	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version, boolean full) throws SdmxException{
 		if( endpoint!=null  &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
 
-			String query = RestQueryBuilder.getStructureQuery(endpoint, dsd, agency,  version);
+			String query = RestQueryBuilder.getStructureQuery(endpoint, dsd, agency,  version, full);
 			return query;
 		}
 		else{
