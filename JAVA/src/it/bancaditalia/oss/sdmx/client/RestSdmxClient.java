@@ -273,7 +273,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			if (code == 200) {
 				logger.fine("Connection opened. Code: " +code);
 				if(supportsCompression){
-					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
+					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()), "UTF-8");
 				}
 				else{
 					return new InputStreamReader(conn.getInputStream(), "UTF-8");
