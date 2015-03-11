@@ -60,10 +60,15 @@ public class SDMXHelper extends JFrame {
 	private DefaultTreeModel treeModel;
 	private JTextArea sdmxMessages;
 	private HelperHandler textAreaHandler = null;
+	private boolean exitOnClose = true;
 	private Logger logger = Configuration.getSdmxLogger();
 	
-	public SDMXHelper() {
+	public SDMXHelper(boolean exitOnClose) {
 		super("SDMX Helper Tool");
+		this.exitOnClose = exitOnClose;
+	}
+	
+	public void init(){
 		setSize(800, 600);
 		
 		// for future use (e.g. flows filtering)
@@ -118,13 +123,18 @@ public class SDMXHelper extends JFrame {
 		WindowListener closer = new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				JFrame frame = (JFrame)e.getSource();
-				//to avoid crashing R
-				frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				if(exitOnClose){
+					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				}
+				else{
+					frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				}
 				logger.removeHandler(textAreaHandler);
 			}
 		};
 		addWindowListener(closer);
 		setVisible(true);
+
 	}
 	
     private JMenuBar createMenuBar() {
@@ -144,10 +154,24 @@ public class SDMXHelper extends JFrame {
     }
     
     public static void start(){
-		new SDMXHelper();
+		//add separate thread (tentative fix for issue #41)
+		Thread runner = new Thread() {
+			public void run() { 
+				SDMXHelper h = new SDMXHelper(false);
+				h.init();
+			}
+		};
+		runner.start();
     }
 
 	public static void main(String argv[]) {
-		new SDMXHelper();
+		//add separate thread (tentative fix for issue #41)
+		Thread runner = new Thread() {
+			public void run() { 
+				SDMXHelper h = new SDMXHelper(true);
+				h.init();
+			}
+		};
+		runner.start();
 	}
 }
