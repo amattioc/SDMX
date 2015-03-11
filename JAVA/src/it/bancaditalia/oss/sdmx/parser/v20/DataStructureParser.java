@@ -93,8 +93,8 @@ public class DataStructureParser {
 					codelists = getCodelists(eventReader);
 				}
 				else if (startElement.getName().getLocalPart() == (DATASTRUCTURE)) {
-					
 					currentStructure = new DataFlowStructure();
+					currentName.clear();
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
@@ -131,7 +131,6 @@ public class DataStructureParser {
 				if (event.asEndElement().getName().getLocalPart().equals(DATASTRUCTURE)) {
 					logger.finer("Adding data structure. " + currentStructure);
 					currentStructure.setName(currentName.getText());
-					currentName = new LocalizedText(Configuration.getLang());
 					result.add(currentStructure);
 				}
 			}
