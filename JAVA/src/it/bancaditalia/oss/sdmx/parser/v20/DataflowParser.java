@@ -75,6 +75,7 @@ public class DataflowParser {
 
 				if (startElement.getName().getLocalPart() == (DATAFLOW)) {
 					df = new Dataflow();
+					currentName.clear();
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
@@ -107,7 +108,6 @@ public class DataflowParser {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
 					df.setName(currentName.getText());
-					currentName = new LocalizedText(Configuration.getLang());
 					dfList.add(df);
 				}
 			}

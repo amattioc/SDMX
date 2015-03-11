@@ -56,7 +56,7 @@ public class Configuration {
 	private static boolean REVERSE_DUMP = false;
 	
 	private static final String SDMX_LANG_PROP = "sdmx.lang";  
-	private static String SDMX_LANG = null;  
+	private static String SDMX_LANG = "en";  
 	private static final String SDMX_DEFAULT_LANG = "en";  
 
 	private static Properties props = new Properties();
@@ -178,9 +178,7 @@ public class Configuration {
 		}
 		
 		//configure default language if not already set explicitly
-		if(SDMX_LANG == null){
-			SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
-		}
+		SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
 		//configure dump format
 		REVERSE_DUMP = props.getProperty(REVERSE_DUMP_PROP, "TRUE").equalsIgnoreCase("TRUE");
 		

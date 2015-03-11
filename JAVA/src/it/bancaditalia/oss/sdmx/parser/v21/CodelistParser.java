@@ -81,6 +81,7 @@ public class CodelistParser {
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart() == (code)) {
+					value.clear();
 					key = null;
 					
 					@SuppressWarnings("unchecked")
@@ -104,7 +105,6 @@ public class CodelistParser {
 					if(key != null){
 						logger.finer("Got code " + key + ", " + value.getText());
 						codes.put(key, value.getText());
-						value = new LocalizedText(Configuration.getLang());
 					}
 					else{
 						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);

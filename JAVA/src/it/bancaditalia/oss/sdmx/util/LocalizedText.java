@@ -62,8 +62,9 @@ public class LocalizedText {
 			Attribute attribute = attributes.next();
 			if (attribute.getName().getLocalPart().equals(this.LANG)) {
 				String lang = attribute.getValue();
-				if(lang.equals(preferredLang))
+				if(lang.equals(preferredLang)){
 					preferred = true;
+				}
 			}
 		}
 		text = eventReader.getElementText();
@@ -75,6 +76,11 @@ public class LocalizedText {
 				setAltText(text);
 			}
 		}
+	}
+	
+	public void clear(){
+		preferredText = "";
+		altText = "";
 	}
 
 }
