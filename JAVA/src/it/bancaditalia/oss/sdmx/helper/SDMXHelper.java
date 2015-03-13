@@ -154,24 +154,12 @@ public class SDMXHelper extends JFrame {
     }
     
     public static void start(){
-		//add separate thread (tentative fix for issue #41)
-		Thread runner = new Thread() {
-			public void run() { 
-				SDMXHelper h = new SDMXHelper(false);
-				h.init();
-			}
-		};
-		runner.start();
+		SDMXHelper h = new SDMXHelper(false);
+		h.init();
     }
 
 	public static void main(String argv[]) {
-		//add separate thread (tentative fix for issue #41)
-		Thread runner = new Thread() {
-			public void run() { 
-				SDMXHelper h = new SDMXHelper(true);
-				h.init();
-			}
-		};
-		runner.start();
+		SDMXHelper h = new SDMXHelper(true);
+		h.init();
 	}
 }
