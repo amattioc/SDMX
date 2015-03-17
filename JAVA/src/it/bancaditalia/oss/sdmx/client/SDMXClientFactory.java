@@ -45,6 +45,7 @@ public class SDMXClientFactory {
 	
 	private static final String ECB_PROVIDER = "http://sdw-wsrest.ecb.europa.eu/service";
 	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
+	private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
 
 	//read the configuration file
 	static {
@@ -66,6 +67,7 @@ public class SDMXClientFactory {
     	try {
 	    	addProvider("ECB", new URL(ECB_PROVIDER), false, false, true, "European Central Bank");
 			addProvider("EUROSTAT", new URL(EUROSTAT_PROVIDER), false, false, true, "Eurostat");
+			addProvider("ISTAT", new URL(ISTAT_PROVIDER), false, false, false, "Istituto nazionale di statistica");
 	    } catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
