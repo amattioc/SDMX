@@ -428,7 +428,7 @@ public class SdmxClientHandler {
 			}
 			for (Iterator<String> iterator = flows.keySet().iterator(); iterator.hasNext();) {
 				String key = (String) iterator.next();
-				String value = flows.get(key).getName();
+				String value = flows.get(key).getDescription();
 				if(pattern != null && !pattern.trim().isEmpty()){
 					if(key.matches(pattern) || value.matches(pattern)){
 						result.put(key, value);
