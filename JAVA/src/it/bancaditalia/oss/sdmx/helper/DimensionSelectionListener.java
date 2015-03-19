@@ -24,7 +24,10 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +55,10 @@ public class DimensionSelectionListener implements ListSelectionListener{
         	String dimension = (String)((JList)e.getSource()).getSelectedValue();
 			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
 			int i=0;
-			for (Iterator<String> iterator = codes.keySet().iterator(); iterator.hasNext();) {
+			List<String> keys = new ArrayList<String>(); 
+			keys.addAll(codes.keySet());
+			Collections.sort(keys);
+			for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
 				String code = iterator.next();
 				codeListModel.add(i++, code + ": " + codes.get(code));
 			}

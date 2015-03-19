@@ -26,7 +26,10 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +53,10 @@ public class ProviderActionListener implements ActionListener{
 					DefaultListModel flowListModel = new DefaultListModel();
 					Map<String, String> flows = SdmxClientHandler.getFlows(provider , null);
 					int i=0;
-					for (Iterator<String> iterator = flows.keySet().iterator(); iterator.hasNext();) {
+					List<String> keys = new ArrayList<String>(); 
+					keys.addAll(flows.keySet());
+					Collections.sort(keys);
+					for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
 						String flow = iterator.next();
 						flowListModel.add(i++, flow + ":    " + flows.get(flow));
 					}
