@@ -24,16 +24,12 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -51,20 +47,11 @@ public class DimensionSelectionListener implements ListSelectionListener{
 
 	public void valueChanged(ListSelectionEvent e) {
         try {
-        	DefaultListModel codeListModel = new DefaultListModel();
         	String dimension = (String)((JList)e.getSource()).getSelectedValue();
+        	QueryPanel.selectedDimension = dimension;
 			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
-			int i=0;
-			List<String> keys = new ArrayList<String>(); 
-			keys.addAll(codes.keySet());
-			Collections.sort(keys);
-			for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-				String code = iterator.next();
-				codeListModel.add(i++, code + ": " + codes.get(code));
-			}
-			JList codeList = new JList(codeListModel);
-			codeList.addListSelectionListener(new CodeSelectionListener(dimension));
-			QueryPanel.codesPane.getViewport().add(codeList);
+			JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+			codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", codes));
 		} catch (SdmxException ex) {
 			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
 			logger.log(Level.FINER, "", ex);

@@ -26,43 +26,27 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JTable;
 
 public class ProviderActionListener implements ActionListener{
 	
-	private String provider = null;
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public void actionPerformed(ActionEvent ae) {
-		provider = ((JMenuItem)ae.getSource()).getText().split(":")[0];
+		final String provider = ((JMenuItem)ae.getSource()).getText().split(":")[0];
 		QueryPanel.clearViews();
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {		
-				QueryPanel.provider = provider;
+				QueryPanel.selectedProvider = provider;
 				try {
-					DefaultListModel flowListModel = new DefaultListModel();
 					Map<String, String> flows = SdmxClientHandler.getFlows(provider , null);
-					int i=0;
-					List<String> keys = new ArrayList<String>(); 
-					keys.addAll(flows.keySet());
-					Collections.sort(keys);
-					for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-						String flow = iterator.next();
-						flowListModel.add(i++, flow + ":    " + flows.get(flow));
-					}
-					final JList flowList = new JList(flowListModel);
-					flowList.addListSelectionListener(new FlowSelectionListener(provider));
-					QueryPanel.flowsPane.getViewport().add(flowList);
+					JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
+					flowsTable.setModel(new KeyValueTableModel("Code ID", "Code Description", flows));
 				} catch (SdmxException ex) {
 					logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
 					logger.log(Level.FINER, "", ex);

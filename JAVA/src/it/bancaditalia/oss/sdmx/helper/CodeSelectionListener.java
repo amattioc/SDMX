@@ -22,25 +22,24 @@ package it.bancaditalia.oss.sdmx.helper;
 
 import java.util.ArrayList;
 
-import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class CodeSelectionListener implements ListSelectionListener{
 	
-	private String dimension = null;
-	
-	public CodeSelectionListener(String dimension) {
-		super();
-		this.dimension = dimension;
+	public void valueChanged(ListSelectionEvent e) {
+		JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+		ArrayList<String> newCodes = new ArrayList<String>();
+		int[] rowSelected =codesTable.getSelectedRows();
+		//if this is not a clearing
+		if(rowSelected.length != 0){
+			for (int i = 0; i < rowSelected.length; i++) {
+				rowSelected[i] =codesTable.convertRowIndexToModel(rowSelected[i]);
+				newCodes.add(codesTable.getModel().getValueAt(rowSelected[i], 0).toString());
+			}
+		}
+		QueryPanel.setSelection(QueryPanel.selectedDimension, newCodes.toArray());
 	}
 
-	public void valueChanged(ListSelectionEvent e) {
-		Object[] codes = ((JList)e.getSource()).getSelectedValues();
-		ArrayList<String> newCodes = new ArrayList<String>();
-		for (int i = 0; i < codes.length; i++) {
-			newCodes.add(((String)codes[i]).split(":")[0]);
-		}
-		QueryPanel.setSelection(dimension, newCodes.toArray());	
-	}
 }

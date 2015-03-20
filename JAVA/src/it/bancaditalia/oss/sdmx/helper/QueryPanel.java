@@ -21,7 +21,6 @@
 package it.bancaditalia.oss.sdmx.helper;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -32,6 +31,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 
 /**
@@ -46,8 +46,9 @@ public class QueryPanel extends JPanel{
 	static JScrollPane dimensionsPane = new JScrollPane();
 	static JScrollPane codesPane = new JScrollPane();
 	
-	static String provider = null;
-	static String dataflow = null;
+	static String selectedProvider = null;
+	static String selectedDataflow = null;
+	static String selectedDimension = null;
 	static LinkedHashMap<String, Object[]> codeSelections = new LinkedHashMap<String, Object[]>();
 
 
@@ -55,13 +56,22 @@ public class QueryPanel extends JPanel{
 		super(new BorderLayout());
 		
 		JLabel queryLab = new JLabel("Your query:");
-		
 		sdmxQuery.setLineWrap(true);
 		sdmxQuery.setFont(new Font(null, Font.BOLD, 16));
-		sdmxQuery.setForeground(Color.RED);
 		sdmxQuery.setEditable(false);
+		JScrollPane queryPane = new JScrollPane(sdmxQuery);
 		
-		JSplitPane querySplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, queryLab, sdmxQuery);
+		JTable flowsTable = new JTable(new KeyValueTableModel("Flow ID", "Flow Description"));
+		flowsTable.setAutoCreateRowSorter(true);
+		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener());
+		flowsPane.getViewport().add(flowsTable);
+		
+		JTable codesTable = new JTable(new KeyValueTableModel("Code ID", "Code Description"));
+		codesTable.setAutoCreateRowSorter(true);
+		codesTable.getSelectionModel().addListSelectionListener(new CodeSelectionListener());
+		codesPane.getViewport().add(codesTable);
+		
+		JSplitPane querySplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, queryLab, queryPane);
 		querySplit.setResizeWeight(.2d);
 		querySplit.setEnabled(false);
 		
@@ -84,14 +94,18 @@ public class QueryPanel extends JPanel{
 	}
 	
     public static void clearViews(){
-    	flowsPane.getViewport().add(new JList());
+    	JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
+		flowsTable.setModel(new KeyValueTableModel("Flow ID", "Flow Description"));
+		flowsTable.getSelectionModel().clearSelection();
     	dimensionsPane.getViewport().add(new JList());
-    	codesPane.getViewport().add(new JList());
-    	QueryPanel.sdmxQuery.setText("");
+    	JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description"));
+    	codesTable.getSelectionModel().clearSelection();
+    	sdmxQuery.setText("");
     }
     
 	private static String getSDMXQuery(){
-		StringBuffer buf = new StringBuffer(dataflow + "/");
+		StringBuffer buf = new StringBuffer(selectedDataflow + "/");
 		Set<String> dimensions = codeSelections.keySet();
 		int i = 0;
 		for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext(); i++) {

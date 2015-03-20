@@ -33,50 +33,55 @@ import java.util.logging.Logger;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class FlowSelectionListener implements ListSelectionListener{
 
-	private String provider = null;
-	private String dataflow = null;
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public FlowSelectionListener(String provider) {
-		super();
-		this.provider = provider;
-	}
-
 	public void valueChanged(ListSelectionEvent e) {
-		dataflow = ((String)((JList)e.getSource()).getSelectedValue()).split(":")[0];
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {	
-				try {
-					DefaultListModel dimListModel = new DefaultListModel();
-					List<Dimension> dims = SdmxClientHandler.getDimensions(provider, dataflow);
-					int i=0;
-					for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-						Dimension dim = iterator.next();
-						dimListModel.add(i++, dim.getId());
+		JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
+		
+		int rowSelected =flowsTable.getSelectedRow();
+		//if this is not a clearing
+		if(rowSelected != -1){
+			rowSelected =flowsTable.convertRowIndexToModel(rowSelected);
+			final String dataflow = flowsTable.getModel().getValueAt(rowSelected, 0).toString();
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		        public void run() {	
+					try {
+						DefaultListModel dimListModel = new DefaultListModel();
+						List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, dataflow);
+						int i=0;
+						for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
+							Dimension dim = iterator.next();
+							dimListModel.add(i++, dim.getId());
+						}
+						JList dimList = new JList(dimListModel);
+						dimList.addListSelectionListener(new DimensionSelectionListener(QueryPanel.selectedProvider, dataflow));
+						QueryPanel.dimensionsPane.getViewport().add(dimList);
+						initSelections(dataflow,dims);
+					} catch (SdmxException ex) {
+						logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+						logger.log(Level.FINER, "", ex);
 					}
-					JList dimList = new JList(dimListModel);
-					dimList.addListSelectionListener(new DimensionSelectionListener(provider, dataflow));
-					QueryPanel.dimensionsPane.getViewport().add(dimList);
-					initSelections(dataflow,dims);
-				} catch (SdmxException ex) {
-					logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-					logger.log(Level.FINER, "", ex);
-				}
-	        }
-		});
+		        }
+			});
+		}
 	}
 
 	private void initSelections(String dataflow, List<Dimension> dims){
-		QueryPanel.dataflow = dataflow;
+		QueryPanel.selectedDataflow = dataflow;
 		QueryPanel.codeSelections = new LinkedHashMap<String, Object[]>();
 		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
 			Dimension d = (Dimension) iterator.next();
 			QueryPanel.setSelection(d.getId(), null);
 		}
+		//clear codes
+		JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description"));
+    	codesTable.getSelectionModel().clearSelection();
 	}
 }
