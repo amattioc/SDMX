@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 
 /**
  * @author Attilio Mattiocco
@@ -63,6 +64,7 @@ public class QueryPanel extends JPanel{
 		
 		JTable flowsTable = new JTable(new KeyValueTableModel("Flow ID", "Flow Description"));
 		flowsTable.setAutoCreateRowSorter(true);
+		flowsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener());
 		flowsPane.getViewport().add(flowsTable);
 		

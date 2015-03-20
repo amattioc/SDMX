@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -60,6 +61,7 @@ public class FlowSelectionListener implements ListSelectionListener{
 							dimListModel.add(i++, dim.getId());
 						}
 						JList dimList = new JList(dimListModel);
+						dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 						dimList.addListSelectionListener(new DimensionSelectionListener(QueryPanel.selectedProvider, dataflow));
 						QueryPanel.dimensionsPane.getViewport().add(dimList);
 						initSelections(dataflow,dims);
