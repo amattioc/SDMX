@@ -41,6 +41,7 @@ import javax.swing.JTextArea;
 public class QueryPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	
+	static JLabel queryLab = new JLabel();
 	static JTextArea sdmxQuery = new JTextArea();
 	static JScrollPane flowsPane = new JScrollPane();
 	static JScrollPane dimensionsPane = new JScrollPane();
@@ -55,7 +56,6 @@ public class QueryPanel extends JPanel{
 	public QueryPanel() {
 		super(new BorderLayout());
 		
-		JLabel queryLab = new JLabel("Your query:");
 		sdmxQuery.setLineWrap(true);
 		sdmxQuery.setFont(new Font(null, Font.BOLD, 16));
 		sdmxQuery.setEditable(false);
