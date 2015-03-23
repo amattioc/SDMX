@@ -78,10 +78,22 @@ getCodes <- function(provider, flow, dimension){
 }
 
 # call help browser
-sdmxHelp<- function(){
+sdmxHelp<- function(internalJVM=T){
   # fix for #41 on OS X
-  #J("it.bancaditalia.oss.sdmx.helper.SDMXHelper")$start()
-  system(paste0('java -classpath ', file.path(find.package('RJSDMX'), 'java', 'SDMX.jar'), ' it.bancaditalia.oss.sdmx.helper.SDMXHelper'), wait=F)
+  if(internalJVM){
+    J("it.bancaditalia.oss.sdmx.helper.SDMXHelper")$start()
+  }  
+  else{
+    JAVA = Sys.which('java')
+    if(length(JAVA) > 0 && nchar(JAVA[1]) > 0){
+      javaExe = JAVA[1]
+      message(paste0('JVM detected: ', javaExe))
+      system(paste0(javaExe, ' -classpath ', file.path(find.package('RJSDMX'), 'java', 'SDMX.jar'), ' it.bancaditalia.oss.sdmx.helper.SDMXHelper'), wait=F)
+    }
+    else{
+      stop('Could not detect external JVM.')
+    }
+  }
 }
 
 # convert from list of zoo to data.frame
