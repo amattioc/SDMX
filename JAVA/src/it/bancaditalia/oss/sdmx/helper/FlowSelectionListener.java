@@ -48,6 +48,9 @@ public class FlowSelectionListener implements ListSelectionListener{
 		int rowSelected =flowsTable.getSelectedRow();
 		//if this is not a clearing
 		if(rowSelected != -1){
+			QueryPanel.clearDimensions();
+			QueryPanel.clearCodes();
+			QueryPanel.sdmxQuery.setText("");
 			rowSelected =flowsTable.convertRowIndexToModel(rowSelected);
 			final String dataflow = flowsTable.getModel().getValueAt(rowSelected, 0).toString();
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {

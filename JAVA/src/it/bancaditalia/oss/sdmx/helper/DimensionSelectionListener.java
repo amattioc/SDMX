@@ -48,6 +48,7 @@ public class DimensionSelectionListener implements ListSelectionListener{
 	public void valueChanged(ListSelectionEvent e) {
         try {
         	String dimension = (String)((JList)e.getSource()).getSelectedValue();
+        	QueryPanel.clearCodes();
         	QueryPanel.selectedDimension = dimension;
 			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
 			JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);

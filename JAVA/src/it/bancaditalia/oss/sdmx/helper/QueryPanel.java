@@ -144,17 +144,32 @@ public class QueryPanel extends JPanel implements ActionListener{
 		}
     }
     
-    public static void clearViews(){
-    	JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
-		flowsTable.setModel(new KeyValueTableModel("Flow ID", "Flow Description"));
-		flowsTable.getSelectionModel().clearSelection();
-    	dimensionsPane.getViewport().add(new JList());
-    	JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description"));
-    	codesTable.getSelectionModel().clearSelection();
+    public static void clearAllViews(){
+    	clearFlows();
+    	clearDimensions();
+    	clearCodes();
     	sdmxQuery.setText("");
     }
     
+    public static void clearFlows(){
+    	JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
+    	KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description");
+		flowsTable.setModel(m);
+		flowsTable.getSelectionModel().clearSelection();
+		sorter = new TableRowSorter<KeyValueTableModel>(m);
+		flowsTable.setRowSorter(sorter);
+    }
+
+    public static void clearDimensions(){
+    	dimensionsPane.getViewport().add(new JList());
+    }
+    
+    public static void clearCodes(){
+    	JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description"));
+    	codesTable.getSelectionModel().clearSelection();
+    }
+
 	private static String getSDMXQuery(){
 		StringBuffer buf = new StringBuffer(selectedDataflow + "/");
 		Set<String> dimensions = codeSelections.keySet();

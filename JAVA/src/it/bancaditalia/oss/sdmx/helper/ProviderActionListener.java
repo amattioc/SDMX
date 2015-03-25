@@ -39,7 +39,7 @@ public class ProviderActionListener implements ActionListener{
 	
 	public void actionPerformed(ActionEvent ae) {
 		final String provider = ((JMenuItem)ae.getSource()).getText().split(":")[0];
-		QueryPanel.clearViews();
+		QueryPanel.clearAllViews();
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {		
 				QueryPanel.selectedProvider = provider;

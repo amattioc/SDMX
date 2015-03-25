@@ -53,11 +53,11 @@ import javax.swing.text.DefaultEditorKit;
  */
 public class SDMXHelper2 extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private JTextArea sdmxMessages;
-	private HelperHandler textAreaHandler = null;
 	private static Logger logger = Configuration.getSdmxLogger();
 	private boolean exitOnClose = true;
 	static QueryPanel query = new QueryPanel();
+	private JTextArea sdmxMessages;
+	private HelperHandler textAreaHandler = null;
 		
 	public SDMXHelper2(boolean exitOnClose) {
 		super("SDMX Helper Tool");
@@ -128,7 +128,7 @@ public class SDMXHelper2 extends JFrame{
 		menu = new JMenu("Edit");
 		menuBar.add(menu);
 		menuItem = new JMenuItem(new DefaultEditorKit.CopyAction());
-		menuItem.setText("Copy");
+		menuItem.setText("Copy Selection");
 		menuItem.setMnemonic(KeyEvent.VK_C);
 		menu.add(menuItem);
 		
