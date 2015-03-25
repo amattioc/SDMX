@@ -31,16 +31,14 @@ import java.net.URL;
 public class RestQueryBuilder{
 	
 	
-	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end) throws SdmxException{
+	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end, boolean serieskeysonly) throws SdmxException{
 		
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
 				resource!=null && !resource.isEmpty()){
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
-			query += addTime(start, end);
-
-			//query += "?version=2.1";
+			query += addParams(start, end, serieskeysonly);
 			return query;
 		}
 		else{
@@ -111,16 +109,26 @@ public class RestQueryBuilder{
 		}
 	}
 	
-	public static String addTime(String start, String end){
+	public static String addParams(String start, String end, boolean serieskeysonly){
 		String query = "";
-		if((start != null && !start.isEmpty()) || (end != null && !end.isEmpty())){
-			query=query+"?";
+		boolean first = true;
+		if((	start != null && !start.isEmpty()) || 
+				(end != null && !end.isEmpty()) ||
+				serieskeysonly
+			){
 			if(start != null && !start.isEmpty()){
-				query=query+"&startPeriod="+start;
+				query = query + (first ? "?" : "&") + "startPeriod="+start;
+				first = false;
 			}
 			if(end != null && !end.isEmpty()){
-				query=query+"&endPeriod="+end;
+				query = query + (first ? "?" : "&") + "endPeriod="+end;
+				first = false;
 			}
+			if(serieskeysonly){
+				query = query + (first ? "?" : "&") + "detail=serieskeysonly";
+				first = false;
+			}
+
 		}
 		return query;
 	}

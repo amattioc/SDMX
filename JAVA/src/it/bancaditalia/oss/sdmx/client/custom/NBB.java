@@ -20,6 +20,10 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -31,5 +35,10 @@ public class NBB extends DotStat{
 		
 	public NBB() throws MalformedURLException{
 		super("NBB", new URL("http://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
+	}
+	
+	@Override
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
+		return super.buildDataQuery(endpoint, dataflow, resource + "/all", startTime, endTime, serieskeysonly);
 	}
 }

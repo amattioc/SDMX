@@ -52,7 +52,7 @@ public class IMFTest {
 		Map<String, String> f = SdmxClientHandler.getFlows(IMF.class.getSimpleName(), "DM");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("DM");
-		assertEquals("Wrong description for DM", "IMF,DM ; Data Mapper", descr);
+		assertEquals("Wrong description for DM", "Data Mapper", descr);
 	}
 
 	@Test

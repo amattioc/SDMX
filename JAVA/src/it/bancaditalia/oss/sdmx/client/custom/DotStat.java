@@ -168,7 +168,7 @@ public abstract class DotStat extends RestSdmx20Client{
 
 
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
@@ -179,7 +179,7 @@ public abstract class DotStat extends RestSdmx20Client{
 			
 			//query=query+"?";
 			//query += "&format=compact_v2";
-			query += RestQueryBuilder.addTime(startTime, endTime);
+			query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly);
 			return query;
 		}
 		else{

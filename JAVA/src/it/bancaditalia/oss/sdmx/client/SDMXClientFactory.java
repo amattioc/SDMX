@@ -24,8 +24,10 @@ package it.bancaditalia.oss.sdmx.client;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
 
 import java.net.MalformedURLException;
+import java.net.ProxySelector;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -121,9 +123,11 @@ public class SDMXClientFactory {
 		logger.fine("Create an SDMX client for '" + provider + "'");
 		GenericSDMXClient client = null;	
 		Provider p = providers.get(provider);
-
+		String hostname = null; 
+		
 		String errorMsg = "The provider '" + provider + "' is not available in this configuration.";
 		if(p != null && p.getEndpoint() != null){
+			hostname = p.getEndpoint().getHost();
 			if(p.getEndpoint().getProtocol().equals("http")){
 				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
 			}
@@ -150,6 +154,7 @@ public class SDMXClientFactory {
 			try{
 				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.client.custom." + provider);
 				client = (GenericSDMXClient)clazz.newInstance();
+				hostname = client.getEndpoint().getHost();
 			}
 			catch (ClassNotFoundException e) {
 				logger.severe("The provider '" + provider + "' is not available in this configuration.");
@@ -161,6 +166,13 @@ public class SDMXClientFactory {
 				throw new SdmxException(errorMsg);
 			}
 		}
+		
+		// now set default proxy if necessary
+    	ProxySelector ps = ProxySelector.getDefault();
+    	if(ps != null && ps instanceof SdmxProxySelector){
+    		((SdmxProxySelector)ps).addDefaultProxy(hostname);
+    	}
+
 		logger.exiting(sourceClass, sourceMethod);
 		return client;
 	}

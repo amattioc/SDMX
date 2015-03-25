@@ -53,7 +53,7 @@ public class ESTATTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("prc_hicp_midx");
-		assertEquals("Wrong description for prc_hicp_midx", "ESTAT,prc_hicp_midx,1.0 ; HICP (2005 = 100) - monthly data (index)", descr);
+		assertEquals("Wrong description for prc_hicp_midx", "HICP (2005 = 100) - monthly data (index)", descr);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class ESTATTest {
 		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=ESTAT/CL_FREQ/1.0, codes={A=Annual, W=Weekly, H=Semi-annual, Q=Quarterly, D=Daily, M=Monthly}]]";
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=ESTAT/CL_FREQ/1.0, codes={A=Annual, W=Weekly, H=Half-year, S=Semi-annual, Q=Quarterly, D=Daily,";
 		assertEquals("Wrong dimensions for prc_hicp_midx", result,dim.toString().substring(0, result.length()));
 	}
 

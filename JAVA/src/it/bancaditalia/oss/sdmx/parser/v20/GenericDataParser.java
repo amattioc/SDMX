@@ -60,7 +60,7 @@ public class GenericDataParser {
 	private static final String OBS_VALUE = "ObsValue";
 	private static final String ATTRIBUTES = "Attributes";
 
-	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
+	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
@@ -88,7 +88,7 @@ public class GenericDataParser {
 					setSeriesAttributes(ts, eventReader);
 				}
 
-				if (startElement.getName().getLocalPart() == (OBS)) {
+				if (startElement.getName().getLocalPart() == (OBS)  && data) {
 					setSeriesSingleObs(ts, eventReader);
 				}
 				

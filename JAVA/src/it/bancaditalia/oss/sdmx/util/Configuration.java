@@ -152,7 +152,7 @@ public class Configuration {
 		// try configuration class
 		try {
 			Class<?> clazz = Class.forName("sdmx.SdmxConfiguration");
-			Method method = clazz.getMethod("initBI");
+			Method method = clazz.getMethod("init");
 			method.invoke((Object)null);
 			confType = "sdmxclass";
 		} catch( Exception notFound ) {
@@ -220,6 +220,9 @@ public class Configuration {
 					String[] urlList = urls.split(",");
 					proxySelector.addProxy(toks[0], toks[1], urlList);
 					logger.finer("Proxy has been configured: '" + proxy + "' for " + urls);				
+				}
+				else {
+					throw new IllegalArgumentException("Proxy settings must be valid. host: '" + toks[0] + "', port: '" + toks[1] + "'" + ", urls: " + urls);
 				}
 			}
 			else{

@@ -20,12 +20,23 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -33,13 +44,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableRowSorter;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class QueryPanel extends JPanel{
+public class QueryPanel extends JPanel implements ActionListener{
+	private static Logger logger = Configuration.getSdmxLogger();
 	private static final long serialVersionUID = 1L;
 	
 	static JLabel queryLab = new JLabel();
@@ -47,10 +62,14 @@ public class QueryPanel extends JPanel{
 	static JScrollPane flowsPane = new JScrollPane();
 	static JScrollPane dimensionsPane = new JScrollPane();
 	static JScrollPane codesPane = new JScrollPane();
+	static TableRowSorter<KeyValueTableModel> sorter = null;
+	
+	static JTextField flowFilter = new JTextField("");
 	
 	static String selectedProvider = null;
 	static String selectedDataflow = null;
 	static String selectedDimension = null;
+	
 	static LinkedHashMap<String, Object[]> codeSelections = new LinkedHashMap<String, Object[]>();
 
 
@@ -62,20 +81,39 @@ public class QueryPanel extends JPanel{
 		sdmxQuery.setEditable(false);
 		JScrollPane queryPane = new JScrollPane(sdmxQuery);
 		
-		JTable flowsTable = new JTable(new KeyValueTableModel("Flow ID", "Flow Description"));
-		flowsTable.setAutoCreateRowSorter(true);
+		JButton btn = new JButton("Check Query");		
+		btn.addActionListener(this);
+				
+		KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description");
+		JTable flowsTable = new JTable(m);
+		sorter = new TableRowSorter<KeyValueTableModel>(m);
+		flowsTable.setRowSorter(sorter);
 		flowsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener());
 		flowsPane.getViewport().add(flowsTable);
+		
+		JLabel filterLab = new JLabel("Filter flows:", SwingConstants.TRAILING);
+		flowFilter.getDocument().addDocumentListener(new FlowFilterListener());
+		flowFilter.setFont(new Font(null, Font.BOLD, 16));
+		flowFilter.setForeground(Color.RED);
+		JSplitPane filterSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filterLab, flowFilter);
+		filterSplit.setResizeWeight(.05d);
+		filterSplit.setEnabled(false);
+		
+		JSplitPane flowSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, flowsPane, filterSplit);
+		flowSplit.setResizeWeight(.95d);
 		
 		JTable codesTable = new JTable(new KeyValueTableModel("Code ID", "Code Description"));
 		codesTable.setAutoCreateRowSorter(true);
 		codesTable.getSelectionModel().addListSelectionListener(new CodeSelectionListener());
 		codesPane.getViewport().add(codesTable);
 		
-		JSplitPane querySplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, queryLab, queryPane);
-		querySplit.setResizeWeight(.2d);
-		querySplit.setEnabled(false);
+		JSplitPane querySplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, queryLab, queryPane);
+		querySplit1.setResizeWeight(.4d);
+		//querySplit1.setEnabled(false);
+		JSplitPane querySplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, querySplit1, btn);
+		querySplit2.setResizeWeight(.8d);
+		//querySplit2.setEnabled(false);
 		
 		JLabel dimLab = new JLabel("Select Dimensions");
 		JSplitPane dimensionsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, dimLab, dimensionsPane);
@@ -88,13 +126,24 @@ public class QueryPanel extends JPanel{
 		JSplitPane innerSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dimensionsSplit, codesSplit);
 		innerSplit.setResizeWeight(.2d);
 
-		JSplitPane dataSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, flowsPane, innerSplit);
+		JSplitPane dataSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, flowSplit, innerSplit);
 		dataSplit.setResizeWeight(.5d);
 		
-		JSplitPane mainQuerySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, querySplit, dataSplit);
+		JSplitPane mainQuerySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, querySplit2, dataSplit);
 		add(mainQuerySplit);
 	}
 	
+    public void actionPerformed(ActionEvent e) {	
+		try {
+			List<String> result = SdmxClientHandler.getTimeSeriesNames(selectedProvider, sdmxQuery.getText());
+			logger.severe("The query identified: " +  result.size() + " time series.");
+			logger.severe(result.toString());
+		} catch (SdmxException ex) {
+			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+			logger.log(Level.FINER, "", ex);
+		}
+    }
+    
     public static void clearViews(){
     	JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
 		flowsTable.setModel(new KeyValueTableModel("Flow ID", "Flow Description"));

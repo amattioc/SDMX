@@ -37,20 +37,17 @@ public class ISTATTest {
 	}
 
 	@Test
-	public void testGetDimensions() throws SdmxException {
+	public void testGetDimensionsAndCodes() throws SdmxException {
+		Map<String, String> codes = SdmxClientHandler.getCodes("ISTAT", "144_125", "FREQ");
+		assertNotNull("Null getCodes result", codes);
+		assertEquals("Wrong code for FREQ annual", codes.get("A"), "annual");
+
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ISTAT", "144_125");
 		assertNotNull("Null getDimensions result for 144_125", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IT1/CL_FREQ/1.0, codes=null]], Dimension [id=REF_AREA, position=2, codelist=Codelist ";
-		assertEquals("Wrong dimensions for 114_195", result, dim.toString().substring(0, result.length()));
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IT1/CL_FREQ/1.0, codes={W=weekly, A=annual, H=half-yearly, Q=quarterly, E=event (not ";
+		assertEquals("Wrong dimensions for 144_125", result, dim.toString().substring(0, result.length()));
 	}
 	
-	@Test
-	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes("ISTAT", "144_125", "FREQ");
-			assertNotNull("Null getCodes result", codes);
-			assertEquals("Wrong code for FREQ annual", codes.get("A"), "annual");
-	}
-
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
 		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("ISTAT", "115_200_M.*.IT.*.*.N", null, null);

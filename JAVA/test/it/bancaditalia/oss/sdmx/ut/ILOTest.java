@@ -26,7 +26,6 @@ import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
@@ -53,7 +52,7 @@ public class ILOTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("ILO", "*DF_YI_ALL_EMP_TEMP_SEX_AGE_NB*");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
-		assertEquals("Wrong description for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "ILO,DF_YI_ALL_EMP_TEMP_SEX_AGE_NB ; Employment by sex and age", descr);
+		assertEquals("Wrong description for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "Employment by sex and age", descr);
 	}
 
 	@Test

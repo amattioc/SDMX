@@ -73,7 +73,7 @@ public class KeyValueTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		Object result = null;
-		if(rowIndex >= 0 && rowIndex <= getRowCount()){
+		if(rowIndex >= 0 && rowIndex < getRowCount()){
 			if(columnIndex == 0){
 				result = keys[rowIndex];
 			}

@@ -37,36 +37,46 @@ import java.util.logging.Logger;
  */
 public class SdmxProxySelector extends ProxySelector{
 	
-	private ArrayList<Proxy> defaultProxyTable = null;
+	private final String NO_PROXY = "NOPROXY";
+
+	private Proxy defaultProxy = Proxy.NO_PROXY;
 	private Hashtable<String, Proxy> proxyTable = null;
 
 	private static final String sourceClass = SdmxProxySelector.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
-	public SdmxProxySelector(String defaultProxy, int port){
+	public SdmxProxySelector(String defaultProxyHost, int defaultProxyPort){
 		final String sourceMethod = "SdmxProxySelector";
 		logger.entering(sourceClass, sourceMethod);
 
-		defaultProxyTable = new ArrayList<Proxy>();
-		Proxy p = null;
-		if(defaultProxy != null && !defaultProxy.isEmpty()){
-			p = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(defaultProxy,port));
+		if(defaultProxyHost != null && !defaultProxyHost.isEmpty() && !defaultProxyHost.equalsIgnoreCase(NO_PROXY)){
+			defaultProxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(defaultProxyHost,defaultProxyPort));
 		}
-		else{
-			p = Proxy.NO_PROXY;
-		}
-		defaultProxyTable.add(p);
 		
 		proxyTable = new Hashtable<String, Proxy>();
 		
 		logger.exiting(sourceClass, sourceMethod);
 	}
+
+	public void addDefaultProxy(String url){
+		Proxy p = proxyTable.get(url);
+		//add url to default proxy only if proxy not explicitly set at init time
+		if(p == null){
+			proxyTable.put(url, defaultProxy);
+		}
+	}
 	
 	public void addProxy(String host, String port, String[] urls){
 		final String sourceMethod = "addProxy";
 		logger.entering(sourceClass, sourceMethod);
+		Proxy p = null;
 		if(host != null && port != null && !host.isEmpty() && !port.isEmpty()){
-			Proxy p = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(host.trim(),Integer.parseInt(port.trim())));
+			if(!host.equalsIgnoreCase(NO_PROXY)){
+				p = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(host.trim(),Integer.parseInt(port.trim())));
+			}
+			else{
+				p = Proxy.NO_PROXY;
+			}
 			for (int i = 0; i < urls.length; i++) {
 				String url = urls[i].trim();
 				if(url != null && !url.isEmpty()){
@@ -78,6 +88,7 @@ public class SdmxProxySelector extends ProxySelector{
 		else {
 			throw new IllegalArgumentException("Proxy settings must be valid. host: '" + host + "', port: '" + port + "'");
 		}
+
 		logger.exiting(sourceClass, sourceMethod);
 
 	}
@@ -93,13 +104,18 @@ public class SdmxProxySelector extends ProxySelector{
 	@Override
 	public List<Proxy> select(URI arg0) {
 		final String sourceMethod = "select";
-		List<Proxy> res = defaultProxyTable;
+		List<Proxy> res = null;
 		logger.entering(sourceClass, sourceMethod);
-		logger.finer("Getting proxy for host: " + arg0.getHost());	
-		Proxy p = proxyTable.get(arg0.getHost());
+		String target = arg0.getHost();
+		logger.finer("Getting proxy for host: " + target);	
+		Proxy p = proxyTable.get(target);
 		if(p != null){
 			res = new ArrayList<Proxy>();
 			res.add(p);
+		}
+		else{
+			res = new ArrayList<Proxy>();
+			res.add(Proxy.NO_PROXY);
 		}
 		logger.finer("proxy: " + res);
 		logger.exiting(sourceClass, sourceMethod);

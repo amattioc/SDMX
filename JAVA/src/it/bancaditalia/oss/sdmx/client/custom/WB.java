@@ -53,9 +53,9 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
 		String query = endpoint + "/v2/data/" + dataflow.getId() + "/" + resource;
-		query += RestQueryBuilder.addTime(startTime, endTime);
+		query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly);
 		return query;
 	}
 	

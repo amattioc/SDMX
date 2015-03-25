@@ -20,15 +20,12 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -57,8 +54,8 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime){
-		String query = super.buildDataQuery(endpoint, dataflow, resource + "/ABS", null, null);
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
+		String query = super.buildDataQuery(endpoint, dataflow, fixWildcard(resource) + "/ABS", null, null, serieskeysonly);
 		//query += "&format=compact_v2";
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			query += "?";
@@ -70,11 +67,6 @@ public class ABS extends DotStat{
 			}
 		}
 		return query;
-	}
-
-	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
-		return super.getTimeSeries(dataflow, dsd, fixWildcard(resource), startTime, endTime);
 	}
 
 	// https://github.com/amattioc/SDMX/issues/19

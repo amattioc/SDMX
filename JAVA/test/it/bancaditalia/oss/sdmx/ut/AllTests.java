@@ -24,6 +24,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class, 
+						ISTATTest.class, 
 						ECBTest.class, 
 						OECDTest.class, 
 						ESTATTest.class, 

@@ -83,7 +83,7 @@ public class SdmxClientHandler {
 		}
 		if(endpoint == null || endpoint.trim().isEmpty()){
 			logger.severe("The enpoint of the provider cannot be null: " + endpoint);
-			throw new SdmxException("The name of the provider cannot be null: '" + endpoint + "'");
+			throw new SdmxException("The enpoint of the provider cannot be null: '" + endpoint + "'");
 		}
 		URL ep;
 		try {
@@ -123,7 +123,7 @@ public class SdmxClientHandler {
 			Provider p = getProvider(provider);
 			tmp = p.getDSD(fullkeyFamilyKey);
 			if(tmp == null){
-				logger.info("DSD for " + keyF.getFullIdentifier() + " not cached. Call Provider.");
+				logger.finer("DSD for " + keyF.getFullIdentifier() + " not cached. Calling Provider.");
 				tmp = getClient(provider).getDataFlowStructure(keyF, false);
 				if(tmp != null){
 					p.setDSD(fullkeyFamilyKey, tmp);
@@ -150,7 +150,7 @@ public class SdmxClientHandler {
 		DSDIdentifier result = null;
 		result = p.getDSDIdentifier(dataflow);
 		if(result == null){
-			logger.info("DSD identifier for dataflow " + dataflow + " not cached. Call Provider.");
+			logger.finer("DSD identifier for dataflow " + dataflow + " not cached. Calling Provider.");
 			Dataflow df = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
 			if(df != null){
 				p.setFlow(df);
@@ -199,7 +199,7 @@ public class SdmxClientHandler {
 		if(dim != null){
 			codes = dim.getCodeList().getCodes();
 			if(codes == null){ // this is a 2.1 provider
-				logger.info("Codelist for " + provider + ", " + dataflow + ", " + dimension +" not cached.");
+				logger.finer("Codelist for " + provider + ", " + dataflow + ", " + dimension +" not cached.");
 				Codelist codelist = dsd.getDimension(dimension).getCodeList();
 				codes = getClient(provider).getCodes(codelist.getId(), codelist.getAgency(), codelist.getVersion());
 				if(codes != null){
@@ -226,7 +226,7 @@ public class SdmxClientHandler {
 		Provider p = getProvider(provider);
 		Dataflow flow = p.getFlows().get(dataflow);
 		if(flow == null){
-			logger.fine("Dataflow " + dataflow + " not cached. Call Provider.");
+			logger.fine("Dataflow " + dataflow + " not cached. Calling Provider.");
 			flow = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
 			if(flow != null){
 				p.setFlow(flow);
@@ -246,7 +246,7 @@ public class SdmxClientHandler {
 		Provider p = getProvider(provider);
 		flows = p.getFlows();
 		if(flows == null || flows.size() == 0 || !p.isFull()){
-			logger.fine("Flows for " + provider + " not cached. Call Provider.");
+			logger.fine("Flows for " + provider + " not cached. Calling Provider.");
 			flows = getClient(provider).getDataflows();
 			if(flows != null && flows.size() != 0){
 				p.setFlows(flows);
@@ -270,16 +270,37 @@ public class SdmxClientHandler {
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries> ();
 		String[] ids = tsKey.trim().split("\\s*;\\s*");
 		for (int i = 0; i < ids.length; i++) {
-			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime);
+			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime, false);
 			if(tmp != null){
 				ts.addAll(tmp);
 			}
 		}
 		return(ts);
 	}
+	
+	public static List<String> getTimeSeriesNames(String provider, String tsKey) throws SdmxException {
+		if(provider == null || provider.trim().isEmpty()){
+			throw new SdmxException("The name of the provider cannot be null: " + provider);
+		}
+		if(tsKey == null || tsKey.trim().isEmpty()){
+			throw new SdmxException("The tsKey cannot be null: " + tsKey);
+		}
+		List<String> ts = new ArrayList<String> ();
+		String[] ids = tsKey.trim().split("\\s*;\\s*");
+		for (int i = 0; i < ids.length; i++) {
+			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], null, null, true);
+			if(tmp != null){
+				for (Iterator<PortableTimeSeries> iterator = tmp.iterator(); iterator.hasNext();) {
+					PortableTimeSeries portableTimeSeries = (PortableTimeSeries) iterator.next();
+					ts.add(portableTimeSeries.getName());
+				}
+			}
+		}
+		return(ts);
+	}
 
 	public static List<PortableTimeSeries> getSingleTimeSeries(String provider, String tsKey,
-			String startTime, String endTime) throws SdmxException {
+			String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){
 			throw new SdmxException("The name of the provider cannot be null: " + provider);
 		}
@@ -305,7 +326,7 @@ public class SdmxClientHandler {
 
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
-		result = getClient(provider).getTimeSeries(df, dsd, resource, startTime, endTime);
+		result = getClient(provider).getTimeSeries(df, dsd, resource, startTime, endTime, serieskeysonly);
 		if(result == null || result.size() == 0){
 			throw new SdmxException("The query: " + tsKey + " did not match any time series on the provider.");
 		}
@@ -379,7 +400,7 @@ public class SdmxClientHandler {
 		}
 		GenericSDMXClient client = clients.get(provider);
 		if(client == null){
-			logger.info("Client for " + provider + " does not exist. Create it.");
+			logger.finer("Client for " + provider + " does not exist. I will create it.");
 			client = (GenericSDMXClient)SDMXClientFactory.createClient(provider);
 			if(client.needsCredentials()){
 				handlePassword(client, user, password);

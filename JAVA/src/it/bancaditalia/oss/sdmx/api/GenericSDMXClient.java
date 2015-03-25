@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.api;
 
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -90,15 +91,7 @@ public interface GenericSDMXClient {
      * @return the list of {@link PortableTimeSeries }
 	 * @throws SdmxException 
      */
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException;
-	
-	/**
-     * <p>Gets the dimension names for the given dataflow
-     * @param dataflow name of the dataflow
-     * @return the list of dimensions
-	 * @throws SdmxException 
-     */
-	//public List<Dimension> getDimensions(String dataflow) throws SdmxException;
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean seriesKeyOnly) throws SdmxException;
 	
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 
@@ -114,5 +107,12 @@ public interface GenericSDMXClient {
      * @param pw the password
      */
 	public void setCredentials(String user, String pw);
+
+	/**
+     * <p>Gets the URL of the web service for this provider client
+     * @return the endpoint URL
+	 * @throws SdmxException 
+     */
+	public URL getEndpoint() throws SdmxException;
 
 }

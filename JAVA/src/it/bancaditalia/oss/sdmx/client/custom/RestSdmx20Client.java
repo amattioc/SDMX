@@ -29,7 +29,6 @@ import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.IOException;
@@ -185,16 +184,16 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries>();
-		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime);
+		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime, serieskeysonly);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
 				//ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId());
-				ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId());
+				ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);

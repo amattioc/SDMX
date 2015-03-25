@@ -53,7 +53,7 @@ public class ECBTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("ECB", "*Exchange*");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("EXR");
-		assertEquals("Wrong description for EXR", "ECB,EXR,1.0 ; Exchange Rates", descr);
+		assertEquals("Wrong description for EXR", "Exchange Rates", descr);
 	}
 
 	@Test

@@ -211,15 +211,15 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = null;
-		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime);
+		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime, serieskeysonly);
 		xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		if(xmlStream!=null){
 			try {
-				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId());
+				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
 				//ts = GenericDataParser.parse(xml);
 			} catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
@@ -253,6 +253,11 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.containsCredentials=true;
 	}
 	
+	@Override
+	public URL getEndpoint() {
+		return wsEndpoint;
+	}
+
 	protected InputStreamReader runQuery(String query, String acceptHeader) throws SdmxException{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);
@@ -280,39 +285,52 @@ public class RestSdmxClient implements GenericSDMXClient{
 				}
 			}
 			else{
+				// REF: https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf
 				String msg = "Connection failed. HTTP error code : " + code + ", message: "+ conn.getResponseMessage() +"\n";
 				switch (code) {
-				case 400:
-					msg += "SDMX meaning: there is a problem with the syntax of the query";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 403:
-					msg += "SDMX meaning: The syntax of the query is OK but it has no meaning";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 404:
-					msg += "SDMX meaning: No results matching the query.";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 406:
-					msg += "SDMX meaning: Not a supported format.";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 500:
-					msg += "SDMX meaning: Error on the provider side.";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 501:
-					msg += "SDMX meaning: Feature not supported.";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				case 503:
-					msg += "SDMX meaning: Service temporarily unavailable. Please try again later..";
-					logger.severe(msg);
-					throw new SdmxException(msg);
-				default:
-					logger.severe(msg);
-					throw new SdmxException(msg);
+					case 304:
+						msg += "SDMX meaning: No change since the timestamp supplied in the If-Modified-Since header";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 400:
+						msg += "SDMX meaning: There is a problem with the syntax of the query";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 401:
+						msg += "SDMX meaning: Credentials needed";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 403:
+						msg += "SDMX meaning: The syntax of the query is OK but it has no meaning";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 404:
+						msg += "SDMX meaning: No results matching the query.";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 406:
+						msg += "SDMX meaning: Not a supported format.";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 413:
+						msg += "SDMX meaning: Results too large.";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 500:
+						msg += "SDMX meaning: Error on the provider side.";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 501:
+						msg += "SDMX meaning: Feature not supported.";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					case 503:
+						msg += "SDMX meaning: Service temporarily unavailable. Please try again later..";
+						logger.severe(msg);
+						throw new SdmxException(msg);
+					default:
+						logger.severe(msg);
+						throw new SdmxException(msg);
 				}
 			}
 		}
@@ -337,12 +355,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 	}
 
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime) throws SdmxException{
+	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime);
+			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly);
 			return query;
 		}
 		else{
