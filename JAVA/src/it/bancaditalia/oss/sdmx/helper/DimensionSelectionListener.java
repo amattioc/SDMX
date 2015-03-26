@@ -22,7 +22,6 @@ package it.bancaditalia.oss.sdmx.helper;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -46,16 +45,18 @@ public class DimensionSelectionListener implements ListSelectionListener{
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
-        try {
-        	String dimension = (String)((JList)e.getSource()).getSelectedValue();
-        	QueryPanel.clearCodes();
-        	QueryPanel.selectedDimension = dimension;
-			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
-			JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-			codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", codes));
-		} catch (SdmxException ex) {
-			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-			logger.log(Level.FINER, "", ex);
+		if(!e.getValueIsAdjusting()){
+	        try {
+	        	String dimension = (String)((JList)e.getSource()).getSelectedValue();
+	 			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
+	        	QueryPanel.selectedDimension = dimension;
+				JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
+				codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", codes));
+			} catch (Exception ex) {
+	        	QueryPanel.clearCodes();
+				logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+				logger.log(Level.FINER, "", ex);
+			}
 		}
      }
 }

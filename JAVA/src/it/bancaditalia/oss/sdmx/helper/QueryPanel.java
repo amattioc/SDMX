@@ -20,9 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +36,9 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import java.util.List;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -170,7 +170,7 @@ public class QueryPanel extends JPanel implements ActionListener{
     	codesTable.getSelectionModel().clearSelection();
     }
 
-	private static String getSDMXQuery(){
+	public static String getSDMXQuery(){
 		StringBuffer buf = new StringBuffer(selectedDataflow + "/");
 		Set<String> dimensions = codeSelections.keySet();
 		int i = 0;
@@ -191,8 +191,10 @@ public class QueryPanel extends JPanel implements ActionListener{
 	}
 	
     public static void setSelection(String dimension, Object[] codes){
-    	codeSelections.put(dimension, codes);
-    	QueryPanel.sdmxQuery.setText(getSDMXQuery());
+    	if(codes != null && codes.length != 0){
+        	codeSelections.put(dimension, codes);
+        	QueryPanel.sdmxQuery.setText(getSDMXQuery());
+    	}
     }
 
 
