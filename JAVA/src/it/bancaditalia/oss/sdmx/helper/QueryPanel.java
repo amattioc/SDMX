@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -30,15 +28,10 @@ import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import java.util.List;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -54,7 +47,6 @@ import javax.swing.table.TableRowSorter;
  *
  */
 public class QueryPanel extends JPanel implements ActionListener{
-	private static Logger logger = Configuration.getSdmxLogger();
 	private static final long serialVersionUID = 1L;
 	
 	static JLabel queryLab = new JLabel();
@@ -72,7 +64,6 @@ public class QueryPanel extends JPanel implements ActionListener{
 	
 	static LinkedHashMap<String, Object[]> codeSelections = new LinkedHashMap<String, Object[]>();
 
-
 	public QueryPanel() {
 		super(new BorderLayout());
 		
@@ -89,7 +80,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 		sorter = new TableRowSorter<KeyValueTableModel>(m);
 		flowsTable.setRowSorter(sorter);
 		flowsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener());
+		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener(this));
 		flowsPane.getViewport().add(flowsTable);
 		
 		JLabel filterLab = new JLabel("Filter flows:", SwingConstants.TRAILING);
@@ -134,15 +125,25 @@ public class QueryPanel extends JPanel implements ActionListener{
 	}
 	
     public void actionPerformed(ActionEvent e) {	
-		try {
-			List<String> result = SdmxClientHandler.getTimeSeriesNames(selectedProvider, sdmxQuery.getText());
-			logger.severe("The query identified: " +  result.size() + " time series.");
-			logger.severe(result.toString());
-		} catch (SdmxException ex) {
-			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-			logger.log(Level.FINER, "", ex);
-		}
-    }
+//		try {
+//			List<String> result = SdmxClientHandler.getTimeSeriesNames(selectedProvider, sdmxQuery.getText());
+//			logger.severe("The query identified: " +  result.size() + " time series.");
+//			logger.severe(result.toString());
+//		} catch (SdmxException ex) {
+//			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+//			logger.log(Level.FINER, "", ex);
+//		}
+    	final ProgressViewer progress = new ProgressViewer(this);
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	            GetQueryContentTask task = new GetQueryContentTask(progress);
+	        	task.execute();
+	        }
+	    });  
+    	progress.setVisible(true);
+    	progress.setAlwaysOnTop(true);
+
+	}
     
     public static void clearAllViews(){
     	clearFlows();

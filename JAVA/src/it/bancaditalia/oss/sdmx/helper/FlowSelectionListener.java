@@ -20,28 +20,27 @@
  */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.logging.Level;
+import java.awt.Component;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class FlowSelectionListener implements ListSelectionListener{
-
+	private Component parent = null;
 	protected static Logger logger = Configuration.getSdmxLogger();
-	
+
+	public FlowSelectionListener(Component parent) {
+		super();
+		this.parent = parent;
+	}
+
+
 	public void valueChanged(ListSelectionEvent e) {
+		
 		if(!e.getValueIsAdjusting()){
 			JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
 			
@@ -53,38 +52,38 @@ public class FlowSelectionListener implements ListSelectionListener{
 				QueryPanel.sdmxQuery.setText("");
 				rowSelected =flowsTable.convertRowIndexToModel(rowSelected);
 				final String dataflow = flowsTable.getModel().getValueAt(rowSelected, 0).toString();
+				QueryPanel.selectedDataflow = dataflow;
+		    	final ProgressViewer progress = new ProgressViewer(parent);
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			        public void run() {	
-						try {
-							DefaultListModel dimListModel = new DefaultListModel();
-							List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, dataflow);
-							int i=0;
-							for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-								Dimension dim = iterator.next();
-								dimListModel.add(i++, dim.getId());
-							}
-							JList dimList = new JList(dimListModel);
-							dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-							dimList.addListSelectionListener(new DimensionSelectionListener(QueryPanel.selectedProvider, dataflow));
-							QueryPanel.dimensionsPane.getViewport().add(dimList);
-							initSelections(dataflow,dims);
-						} catch (Exception ex) {
-							logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-							logger.log(Level.FINER, "", ex);
-						}
+			        public void run() {
+			        	GetStructureTask task = new GetStructureTask(progress, parent);
+			        	task.execute();
 			        }
-				});
+			    });  
+		    	progress.setVisible(true);
+		    	progress.setAlwaysOnTop(true);
+//				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+//			        public void run() {	
+//						try {
+//							DefaultListModel dimListModel = new DefaultListModel();
+//							List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, dataflow);
+//							int i=0;
+//							for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
+//								Dimension dim = iterator.next();
+//								dimListModel.add(i++, dim.getId());
+//							}
+//							JList dimList = new JList(dimListModel);
+//							dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//							dimList.addListSelectionListener(new DimensionSelectionListener(QueryPanel.selectedProvider, dataflow));
+//							QueryPanel.dimensionsPane.getViewport().add(dimList);
+//							initSelections(dataflow,dims);
+//						} catch (Exception ex) {
+//							logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+//							logger.log(Level.FINER, "", ex);
+//						}
+//			        }
+//				});
 			}
 		}
-	}
-
-	private void initSelections(String dataflow, List<Dimension> dims){
-		QueryPanel.selectedDataflow = dataflow;
-		QueryPanel.codeSelections = new LinkedHashMap<String, Object[]>();
-		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-			Dimension d = (Dimension) iterator.next();
-			QueryPanel.codeSelections.put(d.getId(), new Object[0]);
-		}
-		QueryPanel.sdmxQuery.setText(QueryPanel.getSDMXQuery());
 	}
 }

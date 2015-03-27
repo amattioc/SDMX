@@ -122,7 +122,7 @@ public class SDMXHelper2 extends JFrame{
 			String provider = p.getName() + ": " + p.getDescription();
 			menuItem = new JMenuItem(provider);
 			menu.add(menuItem);
-			menuItem.addActionListener(new ProviderActionListener());
+			menuItem.addActionListener(new ProviderActionListener(this));
 		}
 		
 		menu = new JMenu("Edit");
