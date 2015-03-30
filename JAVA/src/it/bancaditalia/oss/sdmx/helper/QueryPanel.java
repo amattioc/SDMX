@@ -39,7 +39,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.table.TableRowSorter;
 
 /**
@@ -75,7 +74,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 		JButton btn = new JButton("Check Query");		
 		btn.addActionListener(this);
 				
-		KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description");
+		KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description", null);
 		JTable flowsTable = new JTable(m);
 		sorter = new TableRowSorter<KeyValueTableModel>(m);
 		flowsTable.setRowSorter(sorter);
@@ -83,7 +82,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 		flowsTable.getSelectionModel().addListSelectionListener(new FlowSelectionListener(this));
 		flowsPane.getViewport().add(flowsTable);
 		
-		JLabel filterLab = new JLabel("Filter flows:", SwingConstants.TRAILING);
+		JLabel filterLab = new JLabel("Filter flows:");
 		flowFilter.getDocument().addDocumentListener(new FlowFilterListener());
 		flowFilter.setFont(new Font(null, Font.BOLD, 16));
 		flowFilter.setForeground(Color.RED);
@@ -94,7 +93,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 		JSplitPane flowSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, flowsPane, filterSplit);
 		flowSplit.setResizeWeight(.95d);
 		
-		JTable codesTable = new JTable(new KeyValueTableModel("Code ID", "Code Description"));
+		JTable codesTable = new JTable(new KeyValueTableModel("Code ID", "Code Description", null));
 		codesTable.setAutoCreateRowSorter(true);
 		codesTable.getSelectionModel().addListSelectionListener(new CodeSelectionListener());
 		codesPane.getViewport().add(codesTable);
@@ -154,7 +153,7 @@ public class QueryPanel extends JPanel implements ActionListener{
     
     public static void clearFlows(){
     	JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
-    	KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description");
+    	KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description", null);
 		flowsTable.setModel(m);
 		flowsTable.getSelectionModel().clearSelection();
 		sorter = new TableRowSorter<KeyValueTableModel>(m);
@@ -167,7 +166,7 @@ public class QueryPanel extends JPanel implements ActionListener{
     
     public static void clearCodes(){
     	JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description"));
+    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", null));
     	codesTable.getSelectionModel().clearSelection();
     }
 

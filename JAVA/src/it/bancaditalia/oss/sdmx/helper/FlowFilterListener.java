@@ -20,6 +20,8 @@
  */
 package it.bancaditalia.oss.sdmx.helper;
 
+import java.util.regex.Pattern;
+
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -44,7 +46,7 @@ public class FlowFilterListener implements DocumentListener{
 	private void filter(){
 		String pattern = QueryPanel.flowFilter.getText();
 		if(pattern != null){
-			QueryPanel.sorter.setRowFilter(RowFilter.regexFilter("(?i)" + pattern));
+			QueryPanel.sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(pattern)));
         }
 	}
 }

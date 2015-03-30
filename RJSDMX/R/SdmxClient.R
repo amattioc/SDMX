@@ -81,14 +81,14 @@ getCodes <- function(provider, flow, dimension){
 sdmxHelp<- function(internalJVM=T){
   # fix for #41 on OS X
   if(internalJVM){
-    J("it.bancaditalia.oss.sdmx.helper.SDMXHelper2")$start()
+    J("it.bancaditalia.oss.sdmx.helper.SDMXHelper")$start()
   }  
   else{
     JAVA = Sys.which('java')
     if(length(JAVA) > 0 && nchar(JAVA[1]) > 0){
       javaExe = JAVA[1]
       message(paste0('JVM detected: ', javaExe))
-      system(paste0(javaExe, ' -classpath ', file.path(find.package('RJSDMX'), 'java', 'SDMX.jar'), ' it.bancaditalia.oss.sdmx.helper.SDMXHelper2'), wait=F)
+      system(paste0(javaExe, ' -classpath ', file.path(find.package('RJSDMX'), 'java', 'SDMX.jar'), ' it.bancaditalia.oss.sdmx.helper.SDMXHelper'), wait=F)
     }
     else{
       stop('Could not detect external JVM.')

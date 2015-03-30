@@ -62,27 +62,6 @@ public class FlowSelectionListener implements ListSelectionListener{
 			    });  
 		    	progress.setVisible(true);
 		    	progress.setAlwaysOnTop(true);
-//				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-//			        public void run() {	
-//						try {
-//							DefaultListModel dimListModel = new DefaultListModel();
-//							List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, dataflow);
-//							int i=0;
-//							for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-//								Dimension dim = iterator.next();
-//								dimListModel.add(i++, dim.getId());
-//							}
-//							JList dimList = new JList(dimListModel);
-//							dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//							dimList.addListSelectionListener(new DimensionSelectionListener(QueryPanel.selectedProvider, dataflow));
-//							QueryPanel.dimensionsPane.getViewport().add(dimList);
-//							initSelections(dataflow,dims);
-//						} catch (Exception ex) {
-//							logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-//							logger.log(Level.FINER, "", ex);
-//						}
-//			        }
-//				});
 			}
 		}
 	}

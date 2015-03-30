@@ -50,9 +50,8 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 			try {
 				List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries(QueryPanel.selectedProvider, QueryPanel.sdmxQuery.getText(), null, null, false);
 				Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
-				QueryContentDialog wnd = new QueryContentDialog(result);
+				QueryContentFrame wnd = new QueryContentFrame(result);
 				wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
-				//wnd.addList(result);
 				progress.setVisible(false);
 			    wnd.setVisible( true );
 			} catch (SdmxException ex) {

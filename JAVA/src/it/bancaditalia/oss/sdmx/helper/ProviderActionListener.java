@@ -52,21 +52,5 @@ public class ProviderActionListener implements ActionListener{
 	    });  
     	progress.setVisible(true);
     	progress.setAlwaysOnTop(true);
-//		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-//	        public void run() {		
-//				QueryPanel.selectedProvider = provider;
-//				try {
-//					Map<String, String> flows = SdmxClientHandler.getFlows(provider , null);
-//					KeyValueTableModel m = new KeyValueTableModel("Flow ID", "Flow Description", flows);
-//					JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
-//					flowsTable.setModel(m);
-//					QueryPanel.sorter.setModel(m);
-//					QueryPanel.queryLab.setText("Provider: " + QueryPanel.selectedProvider);
-//				} catch (SdmxException ex) {
-//					logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-//					logger.log(Level.FINER, "", ex);
-//				}
-//			}
-//		});
     }
 }

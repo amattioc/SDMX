@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -41,18 +40,14 @@ import javax.swing.table.DefaultTableModel;
  * @author Attilio Mattiocco
  *
  */
-public class QueryContentDialog extends JFrame{
+public class QueryContentFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = Configuration.getSdmxLogger();
-	//private DefaultListModel tsListModel = new DefaultListModel();
 	
-	public QueryContentDialog(List<PortableTimeSeries> tslist) {
-		setSize(400, 300);
+	public QueryContentFrame(List<PortableTimeSeries> tslist) {
+		setSize(800, 600);
 		this.setLocationRelativeTo(this.getContentPane());
-        //this.setModal(true);
 		JScrollPane tsPane = new JScrollPane();
-		//JList tsList = new JList(tsListModel);
-		//tsPane.getViewport().add(tsList);
 		int nTs = tslist.size();
 		if(nTs > 0 ){
 			ArrayList<String> colNames = new ArrayList<String>();
@@ -101,23 +96,4 @@ public class QueryContentDialog extends JFrame{
 			}
 		}
 	}
-	
-//	public void addList(){
-//		int i=0;
-//		for (Iterator<String> iterator = tslist.iterator(); iterator.hasNext(); i++) {
-//			String ts = (String) iterator.next();
-//			tsListModel.add(i, ts);
-//		}
-//	}
-	
-//	public static void main(String[] args) {
-//		List<PortableTimeSeries> a;
-//		try {
-//			a = SdmxClientHandler.getTimeSeries("ECB", "EXR.A|M.USD.EUR.SP00.A", null, null);
-//			new QueryContentDialog(a);
-//		} catch (SdmxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
 }

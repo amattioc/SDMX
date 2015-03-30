@@ -53,18 +53,5 @@ public class DimensionSelectionListener implements ListSelectionListener{
 	    	progress.setVisible(true);
 	    	progress.setAlwaysOnTop(true);
 		}
-//		if(!e.getValueIsAdjusting()){
-//	        try {
-//	        	String dimension = (String)((JList)e.getSource()).getSelectedValue();
-//	        	QueryPanel.selectedDimension = dimension;
-//	 			Map<String, String> codes = SdmxClientHandler.getCodes(provider, dataflow, dimension);
-//				JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-//				codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", codes));
-//			} catch (Exception ex) {
-//	        	QueryPanel.clearCodes();
-//				logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-//				logger.log(Level.FINER, "", ex);
-//			}
-//		}
      }
 }

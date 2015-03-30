@@ -20,67 +20,36 @@
  */
 package it.bancaditalia.oss.sdmx.helper;
 
+import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class KeyValueTableModel extends AbstractTableModel {
+public class KeyValueTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 3265022631397431923L;
-	private Object[] keys = null;
-	private Object[] values = null;
-	private String keyName = null; 
-	private String valueName = null;
-
-	public KeyValueTableModel(String keyName, String valueName) {
-		super();
-		this.keyName = keyName;
-		this.valueName = valueName;
-	}
+	
 	public KeyValueTableModel(String keyName, String valueName, Map<String, String> items) {
 		super();
-		this.keyName = keyName;
-		this.valueName = valueName;
-		keys = items.keySet().toArray(); //ids
-		values = items.values().toArray(); //descriptions
-	}
-
-	@Override
-	public int getRowCount() {
-		return (keys == null ? 0 : keys.length);
-	}
-
-	@Override
-	public int getColumnCount() {
-		return 2;
-	}
-
-	public String getColumnName(int col) {
-		String name = "";
-		if(col == 0){
-			name = keyName;
-		}
-		if(col == 1){
-			name = valueName;
-		}
-		return name;
-	}
-
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		Object result = null;
-		if(rowIndex >= 0 && rowIndex < getRowCount()){
-			if(columnIndex == 0){
-				result = keys[rowIndex];
-			}
-			else if(columnIndex == 1){
-				result = values[rowIndex];
+		super.setColumnCount(2);
+		super.setColumnIdentifiers(new Object[] {keyName, valueName});
+		if(items != null && items.size() > 0){
+			super.setNumRows(items.size());
+			int row = 0;
+			for (Iterator<String> iterator = items.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				String value = items.get(key);
+				super.setValueAt(key, row, 0);
+				super.setValueAt(value, row, 1);
+				row++;
 			}
 		}
-		return result;
+		else{
+			super.setRowCount(0);
+		}
 	}
 }

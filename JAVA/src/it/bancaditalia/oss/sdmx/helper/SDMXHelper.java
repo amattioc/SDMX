@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -43,83 +44,53 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class SDMXHelper extends JFrame {
+public class SDMXHelper extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private JTree tree;
-	private DefaultTreeModel treeModel;
+	private static Logger logger = Configuration.getSdmxLogger();
+	private boolean exitOnClose = true;
+	static QueryPanel query = new QueryPanel();
 	private JTextArea sdmxMessages;
 	private HelperHandler textAreaHandler = null;
-	private boolean exitOnClose = true;
-	private Logger logger = Configuration.getSdmxLogger();
-	
+		
 	public SDMXHelper(boolean exitOnClose) {
 		super("SDMX Helper Tool");
 		this.exitOnClose = exitOnClose;
 	}
 	
 	public void init(){
+		try {
+			 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ex) {
+			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+			logger.log(Level.FINER, "", ex);
+		}
+
 		setSize(800, 600);
 		
-		// for future use (e.g. flows filtering)
-		setJMenuBar(createMenuBar());
+		setJMenuBar(createMenus());
 				
 		//Create a scrolled text area for the logging output 
         sdmxMessages = new JTextArea();
         sdmxMessages.setEditable(false);
         sdmxMessages.setBackground(Color.LIGHT_GRAY);
         textAreaHandler = new HelperHandler(sdmxMessages);
-        JScrollPane p = new JScrollPane(sdmxMessages);
-        
-		// immediately populate the first level with the list of SDMX data providers
-		// get providers and transfom into nodes
-        ProviderNode node;
-		List<Provider> providers = new ArrayList<Provider>(SDMXClientFactory.getProviders().values());		
-		List<ProviderNode> providerNodes = new ArrayList<ProviderNode>();	
-		for (Iterator<Provider> iterator = providers.iterator(); iterator.hasNext();) {
-			Provider provider = (Provider) iterator.next();
-			node = new ProviderNode(provider.getName(), provider.getDescription(), true);			
-			providerNodes.add(node);
-		}
-		//sort by id
-		Collections.sort(providerNodes, new NodeComparator());
-        // now add to top node 
-		DefaultMutableTreeNode n;
-		// the top node is just for description
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(new SdmxNode("SDMX", "List of SDMX Data Providers", true));
-		for (Iterator<ProviderNode> iterator = providerNodes.iterator(); iterator.hasNext();) {
-			ProviderNode pn = (ProviderNode) iterator.next();
-			n = new DefaultMutableTreeNode(pn);			
-			n.add(new DefaultMutableTreeNode(new SdmxNode("Calling provider, please wait......", "", false)));
-			top.add(n);
-		}
-
-		treeModel = new DefaultTreeModel(top);
-		tree = new JTree(treeModel);
-		TreeCellRenderer renderer = new DefaultTreeCellRenderer();
-		tree.setCellRenderer(renderer);
-		tree.addTreeExpansionListener(new SdmxExpansionListener(treeModel));
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
-		// now design overall graphic structure, split horizontally and add a scroll  
-		JScrollPane scroll = new JScrollPane();
-		scroll.getViewport().add(tree);
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll, p);
-		splitPane.setOneTouchExpandable(true);
-		getContentPane().add(splitPane, BorderLayout.CENTER);
-		
 		logger.addHandler(textAreaHandler);
+		JScrollPane msg = new JScrollPane(sdmxMessages);
+		msg.setAutoscrolls(true);
+        
+		// now design overall graphic structure  
+		JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, query, msg);
+		mainSplit.setResizeWeight(.5d);
+		getContentPane().add(mainSplit, BorderLayout.CENTER);
 		
+		// manage window close ops
 		WindowListener closer = new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				JFrame frame = (JFrame)e.getSource();
@@ -134,32 +105,51 @@ public class SDMXHelper extends JFrame {
 		};
 		addWindowListener(closer);
 		setVisible(true);
-
 	}
 	
-    private JMenuBar createMenuBar() {
+    private JMenuBar createMenus() {
         JMenuBar menuBar;
         JMenu menu;
         JMenuItem menuItem;
 
-        //Create the menu bar. Useless for now
         menuBar = new JMenuBar();
-
-        menu = new JMenu("Actions");
+        menu = new JMenu("Providers");
         menuBar.add(menu);
-        menuItem = new JMenuItem("Test", KeyEvent.VK_T);
+ 		List<Provider> providers = new ArrayList<Provider>(SDMXClientFactory.getProviders().values());		
+		Collections.sort(providers, new ProviderComparator());
+		for (Iterator<Provider> iterator = providers.iterator(); iterator.hasNext();) {
+			Provider p = iterator.next();
+			String provider = p.getName() + ": " + p.getDescription();
+			menuItem = new JMenuItem(provider);
+			menu.add(menuItem);
+			menuItem.addActionListener(new ProviderActionListener(this));
+		}
+		
+		menu = new JMenu("Edit");
+		menuBar.add(menu);
+		menuItem = new JMenuItem(new DefaultEditorKit.CopyAction());
+		menuItem.setText("Copy Selection");
+		menuItem.setMnemonic(KeyEvent.VK_C);
 		menu.add(menuItem);
-
+		
         return menuBar;
     }
     
     public static void start(){
-		SDMXHelper h = new SDMXHelper(false);
-		h.init();
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	    		SDMXHelper h = new SDMXHelper(false);
+	    		h.init();
+	        }
+	    });
     }
 
 	public static void main(String argv[]) {
-		SDMXHelper h = new SDMXHelper(true);
-		h.init();
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+				SDMXHelper h = new SDMXHelper(true);
+				h.init();
+	        }
+	    });
 	}
 }
