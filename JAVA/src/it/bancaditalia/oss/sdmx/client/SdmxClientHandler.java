@@ -261,6 +261,11 @@ public class SdmxClientHandler {
 
 	public static List<PortableTimeSeries> getTimeSeries(String provider, String tsKey,
 			String startTime, String endTime) throws SdmxException {
+		return getTimeSeries(provider, tsKey, startTime, endTime, false);
+	}
+	
+	public static List<PortableTimeSeries> getTimeSeries(String provider, String tsKey,
+			String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){
 			throw new SdmxException("The name of the provider cannot be null: " + provider);
 		}
@@ -270,35 +275,15 @@ public class SdmxClientHandler {
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries> ();
 		String[] ids = tsKey.trim().split("\\s*;\\s*");
 		for (int i = 0; i < ids.length; i++) {
-			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime, false);
+			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime, serieskeysonly);
 			if(tmp != null){
 				ts.addAll(tmp);
 			}
 		}
 		return(ts);
 	}
-	
-	public static List<String> getTimeSeriesNames(String provider, String tsKey) throws SdmxException {
-		if(provider == null || provider.trim().isEmpty()){
-			throw new SdmxException("The name of the provider cannot be null: " + provider);
-		}
-		if(tsKey == null || tsKey.trim().isEmpty()){
-			throw new SdmxException("The tsKey cannot be null: " + tsKey);
-		}
-		List<String> ts = new ArrayList<String> ();
-		String[] ids = tsKey.trim().split("\\s*;\\s*");
-		for (int i = 0; i < ids.length; i++) {
-			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], null, null, true);
-			if(tmp != null){
-				for (Iterator<PortableTimeSeries> iterator = tmp.iterator(); iterator.hasNext();) {
-					PortableTimeSeries portableTimeSeries = (PortableTimeSeries) iterator.next();
-					ts.add(portableTimeSeries.getName());
-				}
-			}
-		}
-		return(ts);
-	}
 
+	
 	public static List<PortableTimeSeries> getSingleTimeSeries(String provider, String tsKey,
 			String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){

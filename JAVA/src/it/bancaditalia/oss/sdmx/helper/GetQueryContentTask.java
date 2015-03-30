@@ -20,6 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
@@ -46,11 +48,12 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 	@Override
 	protected Void doInBackground() throws Exception {
 			try {
-				List<String> result = SdmxClientHandler.getTimeSeriesNames(QueryPanel.selectedProvider, QueryPanel.sdmxQuery.getText());
+				List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries(QueryPanel.selectedProvider, QueryPanel.sdmxQuery.getText(), null, null, false);
+				Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
+				QueryContentDialog wnd = new QueryContentDialog(result);
+				wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
+				//wnd.addList(result);
 				progress.setVisible(false);
-				QueryContentDialog wnd = new QueryContentDialog();
-				wnd.setTitle(result.size() + " results" + "( " + QueryPanel.selectedProvider + " - " + QueryPanel.sdmxQuery.getText() + " )");
-				wnd.addList(result);
 			    wnd.setVisible( true );
 			} catch (SdmxException ex) {
 				logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
