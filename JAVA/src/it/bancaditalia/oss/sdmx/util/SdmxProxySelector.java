@@ -59,11 +59,15 @@ public class SdmxProxySelector extends ProxySelector{
 	}
 
 	public void addDefaultProxy(String url){
+		final String sourceMethod = "addProxy";
+		logger.entering(sourceClass, sourceMethod);
 		Proxy p = proxyTable.get(url);
 		//add url to default proxy only if proxy not explicitly set at init time
 		if(p == null){
+			logger.finer("Proxy has been added: '" + defaultProxy.address().toString() + "' for " + url);		
 			proxyTable.put(url, defaultProxy);
 		}
+		logger.exiting(sourceClass, sourceMethod);
 	}
 	
 	public void addProxy(String host, String port, String[] urls){
