@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -124,14 +125,6 @@ public class QueryPanel extends JPanel implements ActionListener{
 	}
 	
     public void actionPerformed(ActionEvent e) {	
-//		try {
-//			List<String> result = SdmxClientHandler.getTimeSeriesNames(selectedProvider, sdmxQuery.getText());
-//			logger.severe("The query identified: " +  result.size() + " time series.");
-//			logger.severe(result.toString());
-//		} catch (SdmxException ex) {
-//			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-//			logger.log(Level.FINER, "", ex);
-//		}
     	final ProgressViewer progress = new ProgressViewer(this);
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {
@@ -191,7 +184,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 	}
 	
     public static void setSelection(String dimension, Object[] codes){
-    	if(codes != null && codes.length != 0){
+    	if(codes != null){
         	codeSelections.put(dimension, codes);
         	QueryPanel.sdmxQuery.setText(getSDMXQuery());
     	}

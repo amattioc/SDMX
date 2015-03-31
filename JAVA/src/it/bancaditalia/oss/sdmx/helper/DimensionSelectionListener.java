@@ -42,6 +42,7 @@ public class DimensionSelectionListener implements ListSelectionListener{
 	public void valueChanged(ListSelectionEvent e) {
 		String dimension = (String)((JList)e.getSource()).getSelectedValue();
 		QueryPanel.selectedDimension = dimension;
+		QueryPanel.clearCodes();
 		if(!e.getValueIsAdjusting()){
 			final ProgressViewer progress = new ProgressViewer(parent);
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -33,14 +33,17 @@ public class CodeSelectionListener implements ListSelectionListener{
 			JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
 			ArrayList<String> newCodes = new ArrayList<String>();
 			int[] rowSelected =codesTable.getSelectedRows();
-			//if this is not a clearing
 			if(rowSelected.length != 0){
 				for (int i = 0; i < rowSelected.length; i++) {
 					rowSelected[i] =codesTable.convertRowIndexToModel(rowSelected[i]);
 					newCodes.add(codesTable.getModel().getValueAt(rowSelected[i], 0).toString());
 				}
+				QueryPanel.setSelection(QueryPanel.selectedDimension, newCodes.toArray());
 			}
-			QueryPanel.setSelection(QueryPanel.selectedDimension, newCodes.toArray());
+			else if (e.getFirstIndex() != -1) {
+				//handle dimension switch
+				QueryPanel.setSelection(QueryPanel.selectedDimension, newCodes.toArray());
+			}
 		}
 	}
 

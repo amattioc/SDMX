@@ -52,4 +52,9 @@ public class KeyValueTableModel extends DefaultTableModel {
 			super.setRowCount(0);
 		}
 	}
+	
+	@Override
+	public boolean isCellEditable(int row, int column) {
+		return false;
+	}
 }
