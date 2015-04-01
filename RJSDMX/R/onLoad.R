@@ -19,6 +19,6 @@
 # permissions and limitations under the Licence.
 #
 .onLoad <- function(libname, pkgname) {
-	if (Sys.getenv("SDMX_CONF")=="") Sys.setenv(SDMX_CONF=file.path(find.package("RJSDMX"), "inst", "configuration.properties"))
+	if (Sys.getenv("SDMX_CONF")=="") Sys.setenv(SDMX_CONF=file.path(find.package("RJSDMX"), "configuration.properties"))
 	.jpackage(pkgname, lib.loc = libname)
 }

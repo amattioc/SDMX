@@ -19,18 +19,23 @@
 
 sdmxTS2DF <- function(SDMXTS,provider,timevar="date",numeric=TRUE) {
     require(reshape2)
+    require(dplyr)
+    require(tidyr)
     id <- sapply(strsplit(names(SDMXTS[1]), "[.]"), "[[", 1)
     dimnames <- names(getDimensions(provider, id))
-    SDMXTS <- do.call("merge.zoo", SDMXTS)
-    SDMXTS.df <- as.data.frame(SDMXTS)
-    ## add functions to convert date to R date format
-    SDMXTS.df[[timevar]] <- rownames(SDMXTS.df)
-    if (numeric==TRUE) SDMXTS.df[[timevar]] <- as.numeric(SDMXTS.df[[timevar]])
-    SDMXTS.df.m <- suppressWarnings(melt(SDMXTS.df, id.vars = c(timevar)))
-    X <- strsplit(as.character(SDMXTS.df.m$variable), "[.]")
-    for (d in seq(along = dimnames)) {
-        SDMXTS.df.m[dimnames[d]]  <- sapply(X, '[[', d+1)
+    if (length(SDMXTS) > 1) {
+        SDMXTS <- do.call("merge.zoo", SDMXTS)
     }
-    SDMXTS.df.m <- SDMXTS.df.m[,!colnames(SDMXTS.df.m)=="variable"]
+    SDMXTS.df <- as.data.frame(SDMXTS)
+    SDMXTS.df[[timevar]] <- rownames(SDMXTS.df)
+    if (numeric == TRUE)
+        SDMXTS.df[[timevar]] <- as.numeric(SDMXTS.df[[timevar]])
+    SDMXTS.df.m <- suppressWarnings(melt(SDMXTS.df, id.vars = c(timevar)))
+    ## X <- strsplit(as.character(SDMXTS.df.m$variable), "[.]")
+    ## for (d in seq(along = dimnames)) {
+    ##     SDMXTS.df.m[dimnames[d]] <- sapply(X, "[[", d + 1)
+    ## }
+    ## SDMXTS.df.m <- SDMXTS.df.m[, !colnames(SDMXTS.df.m) == "variable"]
+    SDMXTS.df.m <- SDMXTS.df.m %>% separate(variable, c("id", dimnames), "[.]")
     return(SDMXTS.df.m)
 }
