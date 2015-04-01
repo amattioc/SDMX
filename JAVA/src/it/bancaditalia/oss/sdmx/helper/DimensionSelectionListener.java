@@ -26,6 +26,7 @@ import java.awt.Component;
 import java.util.logging.Logger;
 
 import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -42,17 +43,23 @@ public class DimensionSelectionListener implements ListSelectionListener{
 	public void valueChanged(ListSelectionEvent e) {
 		String dimension = (String)((JList)e.getSource()).getSelectedValue();
 		QueryPanel.selectedDimension = dimension;
-		QueryPanel.clearCodes();
 		if(!e.getValueIsAdjusting()){
-			final ProgressViewer progress = new ProgressViewer(parent);
-			javax.swing.SwingUtilities.invokeLater(new Runnable() {
-		        public void run() {
-		        	GetCodesTask task = new GetCodesTask(progress);
-		        	task.execute();
-		        }
-		    });  
-	    	progress.setVisible(true);
-	    	progress.setAlwaysOnTop(true);
+			QueryPanel.clearCodes();
+			JTable table = QueryPanel.codeTables.get(dimension);
+			if(table == null){
+				final ProgressViewer progress = new ProgressViewer(parent);
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			        public void run() {
+			        	GetCodesTask task = new GetCodesTask(progress);
+			        	task.execute();
+			        }
+			    });  
+		    	progress.setVisible(true);
+		    	progress.setAlwaysOnTop(true);
+			}
+			else{
+				QueryPanel.codesPane.getViewport().add(table);
+			}
 		}
      }
 }

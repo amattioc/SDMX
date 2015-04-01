@@ -47,10 +47,12 @@ class GetCodesTask extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
         try {
  			Map<String, String> codes = SdmxClientHandler.getCodes(QueryPanel.selectedProvider, QueryPanel.selectedDataflow, QueryPanel.selectedDimension);
-			JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-			codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", codes));
+ 			JTable codesTable = new JTable(new KeyValueTableModel("Code ID", "Code Description", codes));
+ 			codesTable.setAutoCreateRowSorter(true);
+ 			codesTable.getSelectionModel().addListSelectionListener(new CodeSelectionListener());
+ 			QueryPanel.codesPane.getViewport().add(codesTable);
+ 			QueryPanel.codeTables.put(QueryPanel.selectedDimension, codesTable);
 		} catch (Exception ex) {
-        	QueryPanel.clearCodes();
 			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
 			logger.log(Level.FINER, "", ex);
 		} finally {

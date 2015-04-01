@@ -26,7 +26,6 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.awt.Component;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,7 +64,9 @@ class GetStructureTask extends SwingWorker<Void, Void> {
 			dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			dimList.addListSelectionListener(new DimensionSelectionListener(parent));
 			QueryPanel.dimensionsPane.getViewport().add(dimList);
-			initSelections(QueryPanel.selectedDataflow,dims);
+			String query = QueryPanel.getSDMXQuery();
+			QueryPanel.sdmxQuery.setText(query);
+			//initSelections(QueryPanel.selectedDataflow,dims);
 		} catch (Exception ex) {
 			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
 			logger.log(Level.FINER, "", ex);
@@ -75,13 +76,13 @@ class GetStructureTask extends SwingWorker<Void, Void> {
         return null;
 	}
 	
-	private void initSelections(String dataflow, List<Dimension> dims){
-		QueryPanel.selectedDataflow = dataflow;
-		QueryPanel.codeSelections = new LinkedHashMap<String, Object[]>();
-		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-			Dimension d = (Dimension) iterator.next();
-			QueryPanel.codeSelections.put(d.getId(), new Object[0]);
-		}
-		QueryPanel.sdmxQuery.setText(QueryPanel.getSDMXQuery());
-	}
+//	private void initSelections(String dataflow, List<Dimension> dims){
+//		QueryPanel.selectedDataflow = dataflow;
+//		QueryPanel.codeSelections = new LinkedHashMap<String, Object[]>();
+//		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
+//			Dimension d = (Dimension) iterator.next();
+//			QueryPanel.codeSelections.put(d.getId(), new Object[0]);
+//		}
+//		QueryPanel.sdmxQuery.setText(QueryPanel.getSDMXQuery());
+//	}
 }

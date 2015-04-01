@@ -20,16 +20,19 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.List;
 
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -55,6 +58,7 @@ public class QueryPanel extends JPanel implements ActionListener{
 	static JScrollPane dimensionsPane = new JScrollPane();
 	static JScrollPane codesPane = new JScrollPane();
 	static TableRowSorter<KeyValueTableModel> sorter = null;
+	static Hashtable<String, JTable> codeTables = new Hashtable<String, JTable>();
 	
 	static JTextField flowFilter = new JTextField("");
 	
@@ -62,8 +66,6 @@ public class QueryPanel extends JPanel implements ActionListener{
 	static String selectedDataflow = null;
 	static String selectedDimension = null;
 	
-	static LinkedHashMap<String, Object[]> codeSelections = new LinkedHashMap<String, Object[]>();
-
 	public QueryPanel() {
 		super(new BorderLayout());
 		
@@ -101,10 +103,8 @@ public class QueryPanel extends JPanel implements ActionListener{
 		
 		JSplitPane querySplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, queryLab, queryPane);
 		querySplit1.setResizeWeight(.4d);
-		//querySplit1.setEnabled(false);
 		JSplitPane querySplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, querySplit1, btn);
 		querySplit2.setResizeWeight(.8d);
-		//querySplit2.setEnabled(false);
 		
 		JLabel dimLab = new JLabel("Select Dimensions");
 		JSplitPane dimensionsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, dimLab, dimensionsPane);
@@ -154,41 +154,38 @@ public class QueryPanel extends JPanel implements ActionListener{
     }
 
     public static void clearDimensions(){
+    	codeTables = new Hashtable<String, JTable>();
     	dimensionsPane.getViewport().add(new JList());
     }
     
     public static void clearCodes(){
-    	JTable codesTable = (JTable)QueryPanel.codesPane.getViewport().getComponent(0);
-    	codesTable.setModel(new KeyValueTableModel("Code ID", "Code Description", null));
-    	codesTable.getSelectionModel().clearSelection();
+    	codesPane.getViewport().removeAll();
+    	QueryPanel.codesPane.getViewport().repaint();
     }
-
-	public static String getSDMXQuery(){
-		StringBuffer buf = new StringBuffer(selectedDataflow + "/");
-		Set<String> dimensions = codeSelections.keySet();
+    
+	public static String getSDMXQuery() throws SdmxException{
+		StringBuffer buf = new StringBuffer(QueryPanel.selectedDataflow + "/");
+		List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
 		int i = 0;
-		for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext(); i++) {
-			if(i != 0)
+		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext(); i++) {
+			if(i != 0){
 				buf.append(".");
-			String dim = iterator.next();
-			Object[] codes = (Object[]) codeSelections.get(dim);
-			if(codes != null){
-				for (int j = 0; j < codes.length; j++) {
-					if(j != 0)
+			}
+			Dimension dim = (Dimension) iterator.next();
+			JTable table = QueryPanel.codeTables.get(dim.getId());
+			if(table != null){
+				int[] rowSelected =table.getSelectedRows();
+				for (int j = 0; j < rowSelected.length; j++) {
+					if(j != 0){
 						buf.append("+");
-					buf.append((String)codes[j]);
+					}
+					int convertedIndex = table.convertRowIndexToModel(rowSelected[j]);
+					String code = table.getModel().getValueAt(convertedIndex, 0).toString();
+					buf.append(code);
 				}
 			}
 		}
 		return buf.toString();
 	}
-	
-    public static void setSelection(String dimension, Object[] codes){
-    	if(codes != null){
-        	codeSelections.put(dimension, codes);
-        	QueryPanel.sdmxQuery.setText(getSDMXQuery());
-    	}
-    }
-
 
 }

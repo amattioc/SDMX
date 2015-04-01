@@ -45,7 +45,7 @@ public class FlowSelectionListener implements ListSelectionListener{
 			JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
 			
 			int rowSelected =flowsTable.getSelectedRow();
-			//if this is not a clearing
+			//if this is not a provider switch
 			if(rowSelected != -1){
 				QueryPanel.clearDimensions();
 				QueryPanel.clearCodes();
