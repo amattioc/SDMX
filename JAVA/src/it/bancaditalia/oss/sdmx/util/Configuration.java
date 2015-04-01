@@ -195,7 +195,9 @@ public class Configuration {
 		String defaultproxy = props.getProperty(PROXY_DEFAULT);
 		String defaultHost = null;
 		int defaultPort = 0;
+		boolean useProxy = false;
 		if(defaultproxy != null && !defaultproxy.isEmpty()){
+			useProxy = true;
 			String[] toks = defaultproxy.split(":");
 			if(toks.length != 2  || toks[0] == null || toks[0].isEmpty() || toks[1] == null || toks[1].isEmpty()){
 				throw new IllegalArgumentException("Proxy settings must be valid. found: '" + defaultproxy + "'");
@@ -209,6 +211,7 @@ public class Configuration {
 			//property: http.proxy.name_n
 			String proxy = props.getProperty(PROXY_NAME + i);
 			if (proxy != null && ! proxy.isEmpty()){
+				useProxy = true;
 				String[] toks = null;
 				toks = proxy.split(":");
 				if(toks == null || toks.length != 2  || toks[0] == null || toks[0].isEmpty() || toks[1] == null || toks[1].isEmpty()){
@@ -230,9 +233,10 @@ public class Configuration {
 			}
 		}
 		
-        ProxySelector.setDefault(proxySelector);
+		if(useProxy)
+			ProxySelector.setDefault(proxySelector);
 
-		if(props != null){
+		if(props != null && useProxy){
 			//get authentication preferences
 			String proxyAuth = props.getProperty(HTTP_AUTH_PREF);
 			if(proxyAuth != null){ 
