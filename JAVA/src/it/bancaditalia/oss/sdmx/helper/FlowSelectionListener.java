@@ -45,11 +45,11 @@ public class FlowSelectionListener implements ListSelectionListener{
 			JTable flowsTable = (JTable)QueryPanel.flowsPane.getViewport().getComponent(0);
 			
 			int rowSelected =flowsTable.getSelectedRow();
+			QueryPanel.clearDimensions();
+			QueryPanel.clearCodes();
+			QueryPanel.sdmxQuery.setText("");
 			//if this is not a provider switch
 			if(rowSelected != -1){
-				QueryPanel.clearDimensions();
-				QueryPanel.clearCodes();
-				QueryPanel.sdmxQuery.setText("");
 				rowSelected =flowsTable.convertRowIndexToModel(rowSelected);
 				final String dataflow = flowsTable.getModel().getValueAt(rowSelected, 0).toString();
 				QueryPanel.selectedDataflow = dataflow;

@@ -125,11 +125,14 @@ public class SDMXHelper extends JFrame{
 			menuItem.addActionListener(new ProviderActionListener(this));
 		}
 		
-		menu = new JMenu("Edit");
+		menu = new JMenu("Actions");
 		menuBar.add(menu);
 		menuItem = new JMenuItem(new DefaultEditorKit.CopyAction());
 		menuItem.setText("Copy Selection");
 		menuItem.setMnemonic(KeyEvent.VK_C);
+		menu.add(menuItem);
+		menuItem = new JMenuItem("Build commands");
+		menuItem.addActionListener(new BuildCommandActionListener(this));
 		menu.add(menuItem);
 		
         return menuBar;

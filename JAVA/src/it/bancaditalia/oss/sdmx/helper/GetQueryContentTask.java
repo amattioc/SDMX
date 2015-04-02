@@ -47,19 +47,23 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-			try {
-				List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries(QueryPanel.selectedProvider, QueryPanel.sdmxQuery.getText(), null, null, false);
-				Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
-				QueryContentFrame wnd = new QueryContentFrame(result);
-				wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
-				progress.setVisible(false);
-			    wnd.setVisible( true );
-			} catch (SdmxException ex) {
-				logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-				logger.log(Level.FINER, "", ex);
-			} finally {
-				progress.setVisible(false);
+		String query = QueryPanel.sdmxQuery.getText();
+		try {
+			if(query == null || query.isEmpty()){
+				throw new SdmxException("The sdmx query is not valid yet: '" + query + "'");
 			}
+			List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries(QueryPanel.selectedProvider, query, null, null, true);
+			Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
+			QueryContentFrame wnd = new QueryContentFrame(result);
+			wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
+			progress.setVisible(false);
+		    wnd.setVisible( true );
+		} catch (SdmxException ex) {
+			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+			logger.log(Level.FINER, "", ex);
+		} finally {
+			progress.setVisible(false);
+		}
 
         return null;
 	}
