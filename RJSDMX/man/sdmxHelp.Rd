@@ -25,11 +25,18 @@
 \description{
   This function opens a small sdmx metadata browser that can be helpful when building queries.
 }
+\arguments{
+  \item{internalJVM}{true (default) if the GUI has to live in the R JVM. Set this to false in MAC, to avoid issue #41}
+}
 \usage{
-  sdmxHelp()
+  sdmxHelp(internalJVM = T)
 }
 \examples{
 # not run
-# sdmxHelp()
+# opens the helper in the R JVM
+# sdmxHelp() 
+# opens the helper in an external JVM
+# sdmxHelp(F) 
+
 }
 \author{Attilio Mattiocco}

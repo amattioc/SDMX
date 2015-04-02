@@ -9,17 +9,21 @@
 	<property name="dist"  location="dist"/>
 	<property name="rjsdmx"  location="../RJSDMX/inst/java"/>
 	<property name="matlab"  location="../MATLAB/lib"/>
+	<property name="sas"  location="../SAS/lib"/>
 
 	<target name="init">
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
 	</target>
+
+	<target name="sdmxtest" depends="init" description="compile the test source ">
+		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the CP -->
+		<javac srcdir="${test}" destdir="${build}"/>
+	</target>
 	
-	<target name="SDMX"  depends="init"
-	    description="compile the source " >
+	<target name="SDMX"  depends="init" description="compile the source" >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}"/>
-		<javac srcdir="${test}" destdir="${build}"/>
 	</target>
 
 	<target name="dist" depends="SDMX"  description="generate the distribution" >
@@ -30,6 +34,7 @@
 		<!-- Now distribute the jar file to the plugins -->
 		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${matlab}"/>
+		<copy file="${dist}/lib/SDMX.jar" todir="${sas}"/>
 	</target>
 	
 	<target name="clean"
@@ -39,5 +44,6 @@
 		<delete dir="${dist}"/>
 		<delete file="${rjsdmx}/SDMX.jar"/>
 		<delete file="${matlab}/SDMX.jar"/>
+		<delete file="${sas}/SDMX.jar"/>
 	</target>
 </project>
