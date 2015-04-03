@@ -37,7 +37,7 @@ public class NBB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
-		return super.buildDataQuery(dataflow, resource + "/all", startTime, endTime, serieskeysonly);
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
+		return super.buildDataQuery(dataflow, resource + "/all", startTime, endTime, serieskeysonly, null, false);
 	}
 }

@@ -31,26 +31,31 @@ import java.net.URL;
 public class RestQueryBuilder{
 	
 	
-	public static String getDataQuery(URL endpoint, String dataflow, String resource, String start, String end, boolean serieskeysonly) throws SdmxException{
+	public static String getDataQuery(URL endpoint, String dataflow, String resource, 
+			String start, String end, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
 		
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
 				resource!=null && !resource.isEmpty()){
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
-			query += addParams(start, end, serieskeysonly);
+			query += addParams(start, end, serieskeysonly, updatedAfter, includeHistory);
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: dataflow=" + 
+					dataflow + " resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
 	
-	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
+	public static String getStructureQuery(URL endpoint, String dsd, 
+			String agency, String version) throws SdmxException{
 		return getStructureQuery(endpoint, dsd, agency, version, false);
 	}
 
-	public static String getStructureQuery(URL endpoint, String dsd, String agency, String version, boolean full) throws SdmxException{
+	public static String getStructureQuery(URL endpoint, String dsd, 
+			String agency, String version, boolean full) throws SdmxException{
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
@@ -64,11 +69,13 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: agency=" + 
+					agency + " dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
 
-	public static String getDataflowQuery(URL endpoint, String dataflow, String agency, String version) throws SdmxException{
+	public static String getDataflowQuery(URL endpoint, String dataflow, 
+			String agency, String version) throws SdmxException{
 		if( endpoint!=null || dataflow != null){
 			String dataflowKey = dataflow;
 			if(agency != null){
@@ -87,11 +94,13 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: dataflow: " + 
+					dataflow + ", endpoint=" + endpoint);
 		}
 	}
 
-	public static String getCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
+	public static String getCodelistQuery(URL endpoint, String codeList, 
+			String agency, String version) throws SdmxException {
 		if( endpoint!=null &&
 			codeList!=null && !codeList.isEmpty()){
 				String codelistKey = codeList; 
@@ -105,30 +114,34 @@ public class RestQueryBuilder{
 				return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
+			throw new SdmxException("Invalid query parameters: codeList=" + 
+					codeList  + " endpoint=" + endpoint);
 		}
 	}
 	
-	public static String addParams(String start, String end, boolean serieskeysonly){
+	public static String addParams(String start, String end, boolean serieskeysonly, 
+			String updatedAfter, boolean includeHistory){
 		String query = "";
 		boolean first = true;
-		if((	start != null && !start.isEmpty()) || 
-				(end != null && !end.isEmpty()) ||
-				serieskeysonly
-			){
-			if(start != null && !start.isEmpty()){
-				query = query + (first ? "?" : "&") + "startPeriod="+start;
-				first = false;
-			}
-			if(end != null && !end.isEmpty()){
-				query = query + (first ? "?" : "&") + "endPeriod="+end;
-				first = false;
-			}
-			if(serieskeysonly){
-				query = query + (first ? "?" : "&") + "detail=serieskeysonly";
-				first = false;
-			}
-
+		if(start != null && !start.isEmpty()){
+			query = query + (first ? "?" : "&") + "startPeriod="+start;
+			first = false;
+		}
+		if(end != null && !end.isEmpty()){
+			query = query + (first ? "?" : "&") + "endPeriod="+end;
+			first = false;
+		}
+		if(serieskeysonly){
+			query = query + (first ? "?" : "&") + "detail=serieskeysonly";
+			first = false;
+		}
+		if(includeHistory){
+			query = query + (first ? "?" : "&") + "includeHistory=true";
+			first = false;
+		}
+		if(updatedAfter != null && !updatedAfter.isEmpty()){
+			query = query + (first ? "?" : "&") + "updatedAfter=" + updatedAfter;
+			first = false;
 		}
 		return query;
 	}

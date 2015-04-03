@@ -33,6 +33,8 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -126,7 +128,7 @@ public class SdmxInterfaceTest {
 
 	@Test
 	public void testGetDimensions() throws SdmxException {
-		List<Dimension> dim = SdmxClientHandler.getDimensions(OECD.class.getSimpleName(), "QNA");
+		List<Dimension> dim = SdmxClientHandler.getDimensions("OECD", "QNA");
 		assertNotNull("Null getDimensions result QNA", dim);	
 		String result = "[Dimension [id=LOCATION, position=1, codelist=Codelist [id=OECD/CL_QNA_LOCATION, codes={CHE=Switzerland, OECDE=O";
 		assertEquals("Wrong dimensions for QNA", result, dim.toString().substring(0, result.length()));
@@ -202,5 +204,30 @@ public class SdmxInterfaceTest {
 		//zero time series, 2.0 provider
 		SdmxClientHandler.getTimeSeries("IMF", "PGI.CA.BIS.FOSLB.A.L_M", null, null);
 	}
+	@Test
+	public void testGetTimeSeriesNames() throws SdmxException {
+		List<PortableTimeSeries> ts = SdmxClientHandler.getTimeSeriesNames("ECB", "EXR.A.USD.EUR.SP00.A");
+		assertNotNull("Null gettimeseries result", ts);	
+		assertEquals(true, ts.size() > 0);
+		PortableTimeSeries ts1 = ts.get(0);
+		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
+		assertEquals(true, ts1.getObservations().size() == 0 && ts1.getTimeSlots().size() == 0);
+	}
+	@Test
+	public void testGetTimeSeriesRevisions() throws SdmxException {
+		List<PortableTimeSeries> tslist1 = SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.A.USD.EUR.SP00.A", null, null, null, true);
+		assertNotNull("Null gettimeseries result", tslist1);	
+		assertEquals(true, tslist1.size() > 0);
+		PortableTimeSeries ts1 = tslist1.get(0);
+		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
+		assertEquals(true, ts1.getObservations().size() > 0 && ts1.getTimeSlots().size() > 0);
+		List<PortableTimeSeries> tslist2 = SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.A.USD.EUR.SP00.A", null, null, "2015-01-01", true);
+		assertNotNull("Null gettimeseries result", tslist2);	
+		assertEquals(true, tslist2.size() > 0);
+		PortableTimeSeries ts2 = tslist2.get(0);
+		assertEquals("EXR.A.USD.EUR.SP00.A", ts2.getName());
+		assertEquals(true, ts2.getObservations().size() > 0 && ts2.getTimeSlots().size() > 0);
+		assertEquals(true, tslist1.size() > tslist2.size());
 
+	}
 }

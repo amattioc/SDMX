@@ -87,7 +87,9 @@ public class INEGI extends RestSdmx20Client{
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
 		if( endpoint!=null && 
 				dataflow!=null && 
 				resource!=null && !resource.isEmpty()){
@@ -97,7 +99,7 @@ public class INEGI extends RestSdmx20Client{
 			
 			//query=query+"?";
 			//query += "&format=compact_v2";
-			query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly);
+			query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly, null, false);
 			return query;
 		}
 		else{

@@ -211,11 +211,13 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = null;
-		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly);
+		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		if(xmlStream!=null){
 			try {
@@ -259,8 +261,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
-	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly) throws SdmxException {
-		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly);
+	public String buildDataURL(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException {
+		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory);
 	}
 
 	protected InputStreamReader runQuery(String query, String acceptHeader) throws SdmxException{
@@ -360,16 +364,20 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 	}
 
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
+	protected String buildDataQuery(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly);
+			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + 
+					" resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
 	
@@ -382,7 +390,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			return query;
 		}
 		else{
-			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
+			throw new RuntimeException("Invalid query parameters: agency=" + 
+					agency + " dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
 	

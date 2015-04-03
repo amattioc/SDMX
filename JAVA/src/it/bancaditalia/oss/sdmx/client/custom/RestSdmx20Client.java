@@ -184,11 +184,11 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries>();
-		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly);
+		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {

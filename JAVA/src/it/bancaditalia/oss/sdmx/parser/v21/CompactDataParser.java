@@ -56,8 +56,11 @@ public class CompactDataParser {
 	private static final String MESSAGE = "Message";
 	private static final String CODE = "code";
 	private static final String SEVERITY = "severity";
-	private static final String TEXT = "Text";
-
+	
+	private static final String DATASET = "DataSet";
+	private static final String ACTION = "action";
+	private static final String VALID_FROM = "validFromDate";
+	private static final String VALID_TO = "validToDate";
 	private static final String SERIES = "Series";
 	private static final String OBS = "Obs";
 
@@ -71,6 +74,9 @@ public class CompactDataParser {
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		PortableTimeSeries ts = null;
+		String currentAction = null;
+		String currentValidFromDate = null;
+		String currentValidToDate = null;
 
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
@@ -78,6 +84,29 @@ public class CompactDataParser {
 			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
+
+				if (startElement.getName().getLocalPart() == (DATASET)) {
+					logger.finer("Got new dataset");
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					while (attributes.hasNext()) {
+						Attribute attr = attributes.next();
+						String id = attr.getName().getLocalPart().toString();
+						String value = attr.getValue();
+						if(id.equalsIgnoreCase(ACTION)){
+							logger.finer("action: " + value);
+							currentAction = value;
+						}
+						else if(id.equalsIgnoreCase(VALID_FROM)){
+							logger.finer("VALID_FROM: " + value);
+							currentValidFromDate = value;
+						}
+						else if(id.equalsIgnoreCase(VALID_TO)){
+							logger.finer("VALID_TO: " + value);
+							currentValidToDate = value;
+						}
+					}
+				}
 
 				if (startElement.getName().getLocalPart() == (MESSAGE)) {
 					String errorCode = null;
@@ -105,9 +134,10 @@ public class CompactDataParser {
 					logger.finer("Got new time series");
 					ts = new PortableTimeSeries();
 					ts.setDataflow(dataflow);
+					
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
-					setMetadata(ts, dsd, attributes);
+					setMetadata(ts, dsd, attributes, currentAction, currentValidFromDate, currentValidToDate);
 				}
 
 				if (startElement.getName().getLocalPart().equals(OBS) && data) {
@@ -153,9 +183,19 @@ public class CompactDataParser {
 		return tsList;
 	}
 
-	private static void setMetadata(PortableTimeSeries ts, DataFlowStructure dsd, Iterator<Attribute> attributes) {
+	private static void setMetadata(PortableTimeSeries ts, DataFlowStructure dsd, Iterator<Attribute> attributes, 
+			String action, String validFrom, String validTo) {
 		final String sourceMethod = "setMetadata";
 		logger.entering(sourceClass, sourceMethod);
+		if(action != null){
+			ts.addAttribute(ACTION + "=" + action);
+		}
+		if(validFrom != null){
+			ts.addAttribute(VALID_FROM + "=" + validFrom);
+		}
+		if(validTo != null){
+			ts.addAttribute(VALID_TO + "=" + validTo);
+		}
 		String[] dimensions = new String[dsd.getDimensions().size()];
 		while (attributes.hasNext()) {
 			Attribute attr = attributes.next();

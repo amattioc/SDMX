@@ -87,10 +87,14 @@ public interface GenericSDMXClient {
      * @param dataflow the dataflow of the time series to be gathered
      * @param dsd the structure of the dataflow of the time series to be gathered
      * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
+     * @param updatedAfter if set, only data updated after the given date will be retrieved (e.g. '2014-01-01')
+     * @param includeHistory boolean flag for enabling getting the history of revisions
      * @return the list of {@link PortableTimeSeries }
 	 * @throws SdmxException 
      */
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean seriesKeyOnly) throws SdmxException;
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
+			String startTime, String endTime, 
+			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;
 	
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 
@@ -124,6 +128,8 @@ public interface GenericSDMXClient {
      * @return the query URL for the endpoint
 	 * @throws SdmxException 
      */
-	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly) throws SdmxException;
+	public String buildDataURL(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;
 
 }

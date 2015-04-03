@@ -128,8 +128,6 @@ public class PortableTimeSeries {
 	public void setDataflow(String dataflow) {
 		this.dataflow = dataflow;
 	}
-
-
 	
 	public void reverse(){
 		Collections.reverse(this.observations);

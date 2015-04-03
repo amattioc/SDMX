@@ -51,8 +51,16 @@ getDimensions <- function(provider, dataflow) {
 }
 
 # get the time series matching the parameters
-getTimeSeries <- function(provider, id, start='', end='') {		
+getTimeSeries <- function(provider, id, start='', end='') {  	
   getSDMX(provider, id, start, end)
+}
+
+# get the time series matching the parameters
+getTimeSeriesRevisions <- function(provider, id, start='', end='', updatedAfter='', includeHistory=T) {  	
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesRevisions(provider, id, start, end, updatedAfter, includeHistory)
+  #convert to an R list
+  res = convertTSList(res)
+  return(res) 
 }
 
 # get the time series matching the parameters

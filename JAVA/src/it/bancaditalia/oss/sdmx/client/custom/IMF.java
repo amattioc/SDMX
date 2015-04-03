@@ -60,7 +60,9 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){

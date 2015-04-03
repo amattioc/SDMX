@@ -50,22 +50,6 @@ public class ILO extends RestSdmx20Client {
 		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false);
 	}
 
-
-//	@Override
-//	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
-//		agency = (agency == null) ? "ALL" : agency;
-//		version = (version == null) ? "latest" : version;
-//		if( endpoint!=null  &&
-//				flow!=null && !flow.isEmpty()){
-//	
-//			String query = endpoint + "/dataflow/ILO/" + flow;
-//			return query;
-//		}
-//		else{
-//			throw new RuntimeException("Invalid query parameters: dataflow=" + flow + " endpoint=" + endpoint);
-//		}
-//	}
-
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
@@ -124,7 +108,9 @@ public class ILO extends RestSdmx20Client {
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
@@ -135,7 +121,7 @@ public class ILO extends RestSdmx20Client {
 			
 			//query=query+"?";
 			//query += "&format=compact_v2";
-			query += RestQueryBuilder.addParams(startTime, endTime,serieskeysonly);
+			query += RestQueryBuilder.addParams(startTime, endTime,serieskeysonly, null, false);
 			return query;
 		}
 		else{

@@ -54,8 +54,10 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
-		String query = super.buildDataQuery(dataflow, fixWildcard(resource) + "/ABS", null, null, serieskeysonly);
+	protected String buildDataQuery(Dataflow dataflow, String resource, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
+		String query = super.buildDataQuery(dataflow, fixWildcard(resource) + "/ABS", null, null, false, null, false);
 		//query += "&format=compact_v2";
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			query += "?";
