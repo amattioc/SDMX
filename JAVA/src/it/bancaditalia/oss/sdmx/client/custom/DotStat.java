@@ -59,7 +59,7 @@ public abstract class DotStat extends RestSdmx20Client{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Dataflow result = null;
-		query = buildFlowQuery(wsEndpoint, dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -105,7 +105,7 @@ public abstract class DotStat extends RestSdmx20Client{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		query = buildFlowQuery(wsEndpoint, "ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -149,13 +149,13 @@ public abstract class DotStat extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version)  throws SdmxException{
-		return(buildDSDQuery(endpoint, flow, agency, version));
+	protected String buildFlowQuery(String flow, String agency, String version)  throws SdmxException{
+		return(buildDSDQuery(flow, agency, version));
 	}
 
 
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
 	
 			String query = endpoint + "/GetDataStructure/" + dsd;
@@ -168,7 +168,7 @@ public abstract class DotStat extends RestSdmx20Client{
 
 
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){

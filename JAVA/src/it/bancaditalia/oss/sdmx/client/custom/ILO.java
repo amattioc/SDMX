@@ -74,7 +74,7 @@ public class ILO extends RestSdmx20Client {
 		// 'ALL_MULTI' queries for dataflows
 		for (Iterator<String> iterator = collections.keySet().iterator(); iterator.hasNext();) {
 			String coll = (String) iterator.next();
-			String query = wsEndpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
+			String query = endpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
 			InputStreamReader xmlStream = null;
 			xmlStream = runQuery(query, null);				
 			if(xmlStream!=null){
@@ -111,7 +111,7 @@ public class ILO extends RestSdmx20Client {
 	}
 
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		agency = "ILO";
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
 
@@ -124,7 +124,7 @@ public class ILO extends RestSdmx20Client {
 	}
 
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){

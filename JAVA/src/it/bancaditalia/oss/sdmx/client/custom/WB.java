@@ -41,7 +41,7 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			String query = endpoint + "/KeyFamily?id=" + dsd;
@@ -53,10 +53,25 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
-		String query = endpoint + "/v2/data/" + dataflow.getId() + "/" + resource;
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+		String query = endpoint + "/v2/data/" + dataflow.getId() + "/" + fixKey(resource);
 		query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly);
 		return query;
+	}
+	
+	// https://github.com/amattioc/SDMX/issues/19
+	private static String fixKey(String resource) {
+		// the WB provider is BETA and it handles data queries in an unconventional way
+		// WDI : freq.series.area  --> area.series
+		String[] items = resource.split("\\.", -1);
+		if (items.length != 3) {
+			return resource;
+		}
+		StringBuilder result = new StringBuilder();
+		result.append(items[2]);
+		result.append(".");
+		result.append(items[1]);
+		return result.toString();
 	}
 	
 }

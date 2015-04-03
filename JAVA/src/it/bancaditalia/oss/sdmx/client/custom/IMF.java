@@ -42,7 +42,7 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			String query = null;
@@ -60,7 +60,7 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){

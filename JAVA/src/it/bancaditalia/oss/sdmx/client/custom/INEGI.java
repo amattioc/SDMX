@@ -42,7 +42,7 @@ public class INEGI extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildCodelistQuery(URL endpoint, String codeList, String agency, String version) throws SdmxException {
+	protected String buildCodelistQuery(String codeList, String agency, String version) throws SdmxException {
 		if( endpoint!=null &&
 				codeList!=null && !codeList.isEmpty()){
 					String query = endpoint + "/Codelist/" + "ALL/" + codeList + "/ALL";
@@ -54,7 +54,7 @@ public class INEGI extends RestSdmx20Client{
 	}
 
 	@Override
-	protected String buildFlowQuery(URL endpoint, String flow, String agency, String version) throws SdmxException{
+	protected String buildFlowQuery(String flow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
 			agency = (agency == null) || agency.equals("all") ? "ALL" : agency;
 			version = "ALL";
@@ -74,7 +74,7 @@ public class INEGI extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		// it seems that the only accepted version is 'ALL' in the query
 		version = "ALL";
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
@@ -87,7 +87,7 @@ public class INEGI extends RestSdmx20Client{
 	}
 
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly){
 		if( endpoint!=null && 
 				dataflow!=null && 
 				resource!=null && !resource.isEmpty()){

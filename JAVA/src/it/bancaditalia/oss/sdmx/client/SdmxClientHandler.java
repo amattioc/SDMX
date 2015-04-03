@@ -283,8 +283,24 @@ public class SdmxClientHandler {
 		return(ts);
 	}
 
-	
-	public static List<PortableTimeSeries> getSingleTimeSeries(String provider, String tsKey,
+	public static String getDataURL(String provider, String tsKey, String start, String end, boolean seriesKeysOnly) throws SdmxException {
+		if(provider == null || provider.trim().isEmpty()){
+			throw new SdmxException("The name of the provider cannot be null: " + provider);
+		}
+		if(tsKey == null || tsKey.trim().isEmpty()){
+			throw new SdmxException("The tsKey cannot be null: " + tsKey);
+		}
+		
+		String[] tokens = extractFlowAndResource(tsKey);
+		String dataflow = tokens[0];
+		String resource = tokens[1];
+		Dataflow df = getFlow(provider, dataflow);
+		
+		String result = getClient(provider).buildDataURL(df, resource, start, end, seriesKeysOnly);
+		return(result);
+	}
+
+	private static List<PortableTimeSeries> getSingleTimeSeries(String provider, String tsKey,
 			String startTime, String endTime, boolean serieskeysonly) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){
 			throw new SdmxException("The name of the provider cannot be null: " + provider);
@@ -292,22 +308,10 @@ public class SdmxClientHandler {
 		if(tsKey == null || tsKey.trim().isEmpty()){
 			throw new SdmxException("The tsKey cannot be null: " + tsKey);
 		}		List<PortableTimeSeries> result = null;
-		String dataflow = null;
-		String resource = null;
-		tsKey = tsKey.trim();
-		String delims = "[ /]";
-		String[] tokens = tsKey.split(delims, 2);
-		if(tokens.length == 2){
-			dataflow = tokens[0];
-			resource = tokens[1];
-		}
-		else {
-			// legacy mode: flow.tskey
-			tokens = translateLegacyTSQuery(tsKey);
-			dataflow = tokens[0];
-			resource = tokens[1];
-		}
 		
+		String[] tokens = extractFlowAndResource(tsKey);
+		String dataflow = tokens[0];
+		String resource = tokens[1];
 
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
@@ -464,6 +468,20 @@ public class SdmxClientHandler {
 			logger.severe("Error in query string format: '" + tsKey + "'. Could not get dataflow id.");
 		}
 		return newKey;
+	}
+	
+	private static String[] extractFlowAndResource(String tsKey) throws SdmxException{
+		tsKey = tsKey.trim();
+		String delims = "[ /]";
+		String[] tokens = tsKey.split(delims, 2);
+		if(tokens.length != 2){
+			// legacy mode: flow.tskey
+			tokens = translateLegacyTSQuery(tsKey);
+			if(tokens.length != 2){
+				throw new SdmxException("Malformed time series key: " + tsKey);
+			}
+		}
+		return tokens;
 	}
 	
 }

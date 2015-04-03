@@ -42,8 +42,8 @@ public interface GenericSDMXClient {
 	/**
 	 * <p>Gets the dataflow information for the given dataflow id
 	 * @param dataFlow name of the dataflow
-	 * @param agency TODO
-	 * @param version TODO
+	 * @param agency name of the agency
+	 * @param version dataflow version
 	 * @return the dsd identifier (id, agency, version)
 	 * @throws SdmxException 
 	 */
@@ -53,7 +53,7 @@ public interface GenericSDMXClient {
 	 * <p>Gets the basic dsd structure for the given dataflow
 	 * @param dsd the dsd identification
 	 * @param full if true, for 2.1 providers it retrieves the full dsd, with all the codelists.
-	 * @return the dimensions and code lists
+	 * @return the dimensions and (if configured) code lists
 	 * @throws SdmxException 
 	 */
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException;
@@ -62,9 +62,9 @@ public interface GenericSDMXClient {
 	/**
 	 * <p>Gets all the codes from this provider for the specified codelist
 	 * 
-	 * @param codeList
-	 * @param agency
-	 * @param version
+	 * @param codeList name of the codelist to get
+	 * @param agency agency of the codelist to get
+	 * @param version version of the codelist to get
 	 * @return
 	 * @throws SdmxException
 	 */
@@ -77,17 +77,16 @@ public interface GenericSDMXClient {
      * 
      * <p>e.g.
      *
-     *<p>		'EXR.M.USD.EUR.SP00.A'		or
-     *<p>		'EXR.*.*.EUR.SP00.A'		for ECB
-     *<p>		'REFSERIES.AUS.PPPGDP.A' 	or
-     *<p>		'REFSERIES.*.PPPGDP.A' 	for OECD
-     *
-     *
+     *<p>		'EXR.M.USD.EUR.SP00.A' or 'EXR/M.USD.EUR.SP00.A'
+     *<p>		'EXR.*.*.EUR.SP00.A' or 'EXR...EUR.SP00.A' or 'EXR/..EUR.SP00.A'
+     *<p>		'EXR.A|M.USD.EUR.SP00.A' or 'EXR.A+M.USD.EUR.SP00.A' or 'EXR/A+M.USD.EUR.SP00.A'
      * 
-     * 
-     * @param id the id of the time series
+     * @param resource the id of the time series
      * @param startTime start time of the observations to be gathered
      * @param endTime end time of the observations to be gathered
+     * @param dataflow the dataflow of the time series to be gathered
+     * @param dsd the structure of the dataflow of the time series to be gathered
+     * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
      * @return the list of {@link PortableTimeSeries }
 	 * @throws SdmxException 
      */
@@ -114,5 +113,17 @@ public interface GenericSDMXClient {
 	 * @throws SdmxException 
      */
 	public URL getEndpoint() throws SdmxException;
+
+	/**
+     * <p>Gets the exact URL corresponding to the data query in input for this client 
+     * @param resource the id of the time series
+     * @param startTime start time of the observations to be gathered
+     * @param endTime end time of the observations to be gathered
+     * @param dataflow the dataflow of the time series to be gathered
+     * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
+     * @return the query URL for the endpoint
+	 * @throws SdmxException 
+     */
+	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly) throws SdmxException;
 
 }

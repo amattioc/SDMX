@@ -115,6 +115,7 @@ public class PortableTimeSeries {
 		}
 		return name;
 	}
+	
 	public String getFrequency() {
 		return frequency;
 	}

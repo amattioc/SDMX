@@ -41,7 +41,7 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			// agency=all is not working. we always use ABS
@@ -54,8 +54,8 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(URL endpoint, Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
-		String query = super.buildDataQuery(endpoint, dataflow, fixWildcard(resource) + "/ABS", null, null, serieskeysonly);
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly) throws SdmxException{
+		String query = super.buildDataQuery(dataflow, fixWildcard(resource) + "/ABS", null, null, serieskeysonly);
 		//query += "&format=compact_v2";
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			query += "?";

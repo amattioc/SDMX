@@ -52,7 +52,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		query = buildFlowQuery(wsEndpoint, "ALL", null, null);
+		query = buildFlowQuery("ALL", null, null);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -90,7 +90,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Dataflow df = null;
-		query = buildFlowQuery(wsEndpoint, dataflow, agency, version);
+		query = buildFlowQuery(dataflow, agency, version);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -126,7 +126,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		InputStreamReader xmlStream = null;
 		DataFlowStructure str = new DataFlowStructure();
 		if(dsd!=null){
-			query = buildDSDQuery(wsEndpoint, dsd.getId(), dsd.getAgency(), dsd.getVersion());
+			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion());
 			xmlStream = runQuery(query, null);
 			if(xmlStream!=null){
 				try {
@@ -159,7 +159,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		Map<String, String> result = null;
-		query = buildCodelistQuery(wsEndpoint, codeList, agency, version);
+		query = buildCodelistQuery(codeList, agency, version);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -188,7 +188,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		String query=null;
 		InputStreamReader xmlStream = null;
 		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries>();
-		query = buildDataQuery(wsEndpoint, dataflow, resource, startTime, endTime, serieskeysonly);
+		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly);
 		xmlStream = runQuery(query, null);
 		if(xmlStream!=null){
 			try {
@@ -212,8 +212,8 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		return ts;
 	}
 	
-	protected String buildDSDQuery(URL endpoint, String dsd, String agency, String version) throws SdmxException{
-		return super.buildDSDQuery(endpoint, dsd, agency, version, false);
+	protected String buildDSDQuery(String dsd, String agency, String version) throws SdmxException{
+		return super.buildDSDQuery(dsd, agency, version, false);
 	}
 		
 }
