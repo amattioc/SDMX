@@ -67,6 +67,8 @@ public class BuildCommandContentFrame extends JFrame{
 		buf.append(	"result = getTimeSeries('" + QueryPanel.selectedProvider + "', '" + query + "');\n\n");
 		buf.append(	"SAS COMMAND:\n");
 		buf.append(	"%gettimeseries(provider=\"" + QueryPanel.selectedProvider + "\", tsKey=\"" + query + "\", metadata=1);\n\n");
+		buf.append(	"STATA COMMAND:\n");
+		buf.append(	"getTimeSeries " + QueryPanel.selectedProvider + " " + query + " \"\" \"\" 0 0\n\n");
 		buf.append(	"URL:\n");
 		buf.append(	SdmxClientHandler.getDataURL(QueryPanel.selectedProvider, query, null, null, false, null, false));
 		

@@ -59,6 +59,10 @@ public class SDMXHelper extends JFrame{
 	private JTextArea sdmxMessages;
 	private HelperHandler textAreaHandler = null;
 		
+	public SDMXHelper() {
+		super("SDMX Helper Tool");
+	}
+
 	public SDMXHelper(boolean exitOnClose) {
 		super("SDMX Helper Tool");
 		this.exitOnClose = exitOnClose;

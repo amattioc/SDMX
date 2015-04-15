@@ -170,7 +170,7 @@ public class SDMXClientFactory {
 		// now set default proxy if necessary
     	ProxySelector ps = ProxySelector.getDefault();
     	if(ps != null && ps instanceof SdmxProxySelector){
-    		((SdmxProxySelector)ps).addDefaultProxy(hostname);
+    		((SdmxProxySelector)ps).addToDefaultProxy(hostname);
     	}
 
 		logger.exiting(sourceClass, sourceMethod);

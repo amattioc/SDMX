@@ -23,17 +23,16 @@ package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SASClientHandler;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.client.custom.OECD;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -228,6 +227,32 @@ public class SdmxInterfaceTest {
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts2.getName());
 		assertEquals(true, ts2.getObservations().size() > 0 && ts2.getTimeSlots().size() > 0);
 		assertEquals(true, tslist1.size() > tslist2.size());
+
+	}
+	
+	@Test
+	public void testSASHandler() throws SdmxException {
+		int result = SASClientHandler.makeGetTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", null, null);
+		assertTrue(result > 0);
+		int data1 = SASClientHandler.getNumberOfData();
+		assertTrue(data1 > 0);
+		for (int i = 0; i < SASClientHandler.getNumberOfData(); i++) {
+			assertNotNull(SASClientHandler.getDataName(i));
+			assertNotNull(SASClientHandler.getDataTimestamp(i));
+			assertNotNull(SASClientHandler.getDataObservation(i));
+			assertNotNull(SASClientHandler.getDataStatus(i));
+		}
+		result = SASClientHandler.getNumberOfMeta();
+		assertTrue(result > 0);
+		for (int i = 0; i < SASClientHandler.getNumberOfMeta(); i++) {
+			assertNotNull(SASClientHandler.getMetaName(i));
+			assertNotNull(SASClientHandler.getMetaKey(i));
+			assertNotNull(SASClientHandler.getMetaValue(i));
+			assertNotNull(SASClientHandler.getMetaType(i));
+		}
+		SASClientHandler.makeGetTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", "2000", "2001");
+		int data2 = SASClientHandler.getNumberOfData();
+		assertTrue(data1 > data2);
 
 	}
 }

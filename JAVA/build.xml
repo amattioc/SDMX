@@ -4,24 +4,26 @@
     </description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src"/>
+	<property name="stata_src" location="stata_src"/>
 	<property name="test" location="test"/>
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 	<property name="rjsdmx"  location="../RJSDMX/inst/java"/>
 	<property name="matlab"  location="../MATLAB/lib"/>
 	<property name="sas"  location="../SAS/lib"/>
-
+	<property name="stata"  location="../STATA/jar"/>
+	
 	<target name="init">
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
 	</target>
 
-	<target name="sdmxtest" depends="init" description="compile the test source ">
-		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the CP -->
+	<target name="sdmxtest" depends="SDMX" description="compile the test source ">
+		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the classpath -->
 		<javac srcdir="${test}" destdir="${build}"/>
 	</target>
 	
-	<target name="SDMX"  depends="init" description="compile the source" >
+	<target name="SDMX"  depends="clean, init" description="compile the source for base java lib" >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}"/>
 	</target>
@@ -36,7 +38,14 @@
 		<copy file="${dist}/lib/SDMX.jar" todir="${matlab}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${sas}"/>
 	</target>
-	
+
+	<target name="STATA"  depends="dist" description="compile the source for stata java lib" >
+		<!-- Compile the java code from ${src} into ${build} stata java libs (stata-sfi.jar) are needed in the classpath -->
+		<javac srcdir="${stata_src}" destdir="${build}"/>
+		<!-- Create the stata enabled jar in the stata plugin jar directory -->
+		<jar jarfile="${stata}/SDMX.jar" basedir="${build}"/>
+	</target>
+
 	<target name="clean"
         description="clean up" >
 		<!-- Delete the ${build} and ${dist} directory trees -->
@@ -45,5 +54,6 @@
 		<delete file="${rjsdmx}/SDMX.jar"/>
 		<delete file="${matlab}/SDMX.jar"/>
 		<delete file="${sas}/SDMX.jar"/>
+		<delete file="${stata}/SDMX.jar"/>
 	</target>
 </project>

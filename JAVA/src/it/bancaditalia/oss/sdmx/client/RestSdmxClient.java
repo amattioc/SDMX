@@ -344,7 +344,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			}
 		}
 		catch (IOException e) {
-			logger.severe("Exception caught calling provider " + name);
+			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "Exception: ", e);
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		}
