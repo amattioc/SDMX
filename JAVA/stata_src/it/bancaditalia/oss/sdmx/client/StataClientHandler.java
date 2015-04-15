@@ -115,6 +115,7 @@ public class StataClientHandler {
 				Data.setObsCount(dataLength);
 				Data.addVarStr("TSNAME", 10);
 				name = Data.getVarIndex("TSNAME") ;
+				int lastPos = name;
 				if(processData){
 					SFIToolkit.displayln("The query returned " + dataLength + " observations.");
 					Data.addVarStr("DATE", 5);
@@ -123,6 +124,7 @@ public class StataClientHandler {
 					date = Data.getVarIndex("DATE") ;
 					val = Data.getVarIndex("VALUE") ;
 					stat = Data.getVarIndex("STATUS") ;
+					lastPos = stat;
 				}
 				
 				int i = 0;
@@ -135,7 +137,6 @@ public class StataClientHandler {
 						List<String> tsstat = ts.getStatus();
 						int j = 0;
 						for (Iterator<Double> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
-					
 							Data.storeStr(name, i+1, tsname);
 							Data.storeNum(val, i+1, iterator2.next());
 							Data.storeStr(date, i+1, tsdates.get(j));
@@ -145,7 +146,6 @@ public class StataClientHandler {
 							j++;
 							
 							if(processMeta){
-								int lastPos = stat;
 								List<String> dimensions = ts.getDimensions();
 								List<String> attributes = ts.getAttributes();
 								attributes.addAll(dimensions);
@@ -159,7 +159,7 @@ public class StataClientHandler {
 										if(attrPos > lastPos){
 											lastPos = attrPos;
 											//not set yet
-											Data.addVarStr(key, 10);
+											Data.addVarStr(key, value.length());
 										}
 										Data.storeStr(attrPos, i+1, value);
 									}
@@ -170,7 +170,6 @@ public class StataClientHandler {
 					}
 					else{
 						Data.storeStr(name, i+1, tsname);
-						int lastPos = name;
 						List<String> dimensions = ts.getDimensions();
 						List<String> attributes = ts.getAttributes();
 						attributes.addAll(dimensions);
