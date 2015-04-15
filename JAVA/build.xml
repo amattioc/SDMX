@@ -32,7 +32,11 @@
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}/lib"/>
 		<!-- Put everything in ${build} into the jar file -->
-		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}"/>
+		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}">
+		<manifest>
+			<attribute name="Main-Class" value="it.bancaditalia.oss.sdmx.helper.SDMXHelper"/>
+			</manifest>
+		</jar>
 		<!-- Now distribute the jar file to the plugins -->
 		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${matlab}"/>
@@ -43,7 +47,11 @@
 		<!-- Compile the java code from ${src} into ${build} stata java libs (stata-sfi.jar) are needed in the classpath -->
 		<javac srcdir="${stata_src}" destdir="${build}"/>
 		<!-- Create the stata enabled jar in the stata plugin jar directory -->
-		<jar jarfile="${stata}/SDMX.jar" basedir="${build}"/>
+		<jar jarfile="${stata}/SDMX.jar" basedir="${build}">
+		<manifest>
+			<attribute name="Main-Class" value="it.bancaditalia.oss.sdmx.helper.SDMXHelper"/>
+			</manifest>
+		</jar>
 	</target>
 
 	<target name="clean"
