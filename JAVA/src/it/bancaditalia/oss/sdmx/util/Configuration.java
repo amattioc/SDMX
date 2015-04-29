@@ -105,7 +105,7 @@ public class Configuration {
 		
 		//normal configuration steps:
 		// 1 init logger
-		// 2 search configuration in this order: local, global, Configuration class 
+		// 2 search configuration in this order: Configuration class, local, global  
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
 		//for Matlab: to avoid being considered a browser
@@ -113,55 +113,59 @@ public class Configuration {
 		
 		String confType = null;
 		
+		// try configuration class. 
+		try {
+			Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
+			Method method = clazz.getMethod("init");
+			method.invoke((Object)null);
+			confType = clazz.getCanonicalName();
+			SDMX_LOGGER.info("Reading " + confType + " configuration.");
+		} catch( Exception notFound ) {
+		}
+
 		InputStream is1 = null;
 		InputStream is2 = null;
-		// try local configuration
+		// try local configuration and global configuration. If found they will be
+		// applied on top of class configuration
 		if(new File(CONFIGURATION_FILE).exists()){
 			try {
 				is1 = new FileInputStream(CONFIGURATION_FILE);
 				is2 = new FileInputStream(CONFIGURATION_FILE);
 				init(is1, is2);
-				confType = "local";
-				SDMX_LOGGER.info("Using " + confType + " configuration.");
-				return;
+				confType = System.getProperty("user.dir") + File.separator + CONFIGURATION_FILE;
+				SDMX_LOGGER.info("Configuration file: " + confType );
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
-		// try global configuration
-		//get central configuration file location
-		String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
-		if( 	central != null && 
-				!central.isEmpty()){
-			if(new File(central).exists()){
-				try {
-					is1 = new FileInputStream(central);
-					is2 = new FileInputStream(central);
-					init(is1, is2);
-					confType = "global";
-					SDMX_LOGGER.info("Using " + confType + " configuration.");
-					return;
-				} 
-				catch (Exception e) {
+		else {
+			String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
+			if( 	central != null && 
+					!central.isEmpty()){
+				if(new File(central).exists()){
+					try {
+						is1 = new FileInputStream(central);
+						is2 = new FileInputStream(central);
+						init(is1, is2);
+						confType = CENTRAL_CONFIGURATION_FILE_PROP;
+						SDMX_LOGGER.info("Configuration file: " + confType );
+					} 
+					catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
-		
-		// try configuration class
-		try {
-			Class<?> clazz = Class.forName("sdmx.SdmxConfiguration");
-			Method method = clazz.getMethod("init");
-			method.invoke((Object)null);
-			confType = "sdmxclass";
-		} catch( Exception notFound ) {
-			confType = "default";
+
+		// no class or file configuration found
+		if(confType == null){
 			ConsoleHandler handler = new ConsoleHandler();
 			handler.setLevel(Level.INFO);
 			SDMX_LOGGER.addHandler(handler);
+			confType = "default";
+			SDMX_LOGGER.info("No configuration found. Apply defaults.");
 		}
-		SDMX_LOGGER.info("Using " + confType + " configuration.");
 	}
 	
 	public static void init(InputStream is1, InputStream is2) throws SecurityException, IOException {

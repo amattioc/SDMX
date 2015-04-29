@@ -111,7 +111,6 @@ public class StataClientHandler {
 				int name = 0;
 				int date = 0;
 				int val = 0;
-				int stat = 0;
 				Data.setObsCount(dataLength);
 				Data.addVarStr("TSNAME", 10);
 				name = Data.getVarIndex("TSNAME") ;
@@ -120,31 +119,23 @@ public class StataClientHandler {
 					SFIToolkit.displayln("The query returned " + dataLength + " observations.");
 					Data.addVarStr("DATE", 5);
 					Data.addVarDouble("VALUE");
-					Data.addVarStr("STATUS", 1);
 					date = Data.getVarIndex("DATE") ;
 					val = Data.getVarIndex("VALUE") ;
-					stat = Data.getVarIndex("STATUS") ;
-					lastPos = stat;
+					lastPos = val;
 				}
 				
-				int i = 0;
+				int i = 0; // time series counter
 				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
 					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
 					String tsname = ts.getName();
 					if(processData){
 						List<Double> tsobs = ts.getObservations();
 						List<String> tsdates = ts.getTimeSlots();
-						List<String> tsstat = ts.getStatus();
-						int j = 0;
+						int j = 0; // observation counter
 						for (Iterator<Double> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
-							Data.storeStr(name, i+1, tsname);
-							Data.storeNum(val, i+1, iterator2.next());
-							Data.storeStr(date, i+1, tsdates.get(j));
-							if(tsstat != null && j < tsstat.size()){
-								Data.storeStr(stat, i+1, tsstat.get(j));
-							}
-							j++;
-							
+							Data.storeStr(name, i+j+1, tsname);
+							Data.storeNum(val, i+j+1, iterator2.next());
+							Data.storeStr(date, i+j+1, tsdates.get(j));
 							if(processMeta){
 								List<String> dimensions = ts.getDimensions();
 								List<String> attributes = ts.getAttributes();
@@ -161,12 +152,27 @@ public class StataClientHandler {
 											//not set yet
 											Data.addVarStr(key, value.length());
 										}
-										Data.storeStr(attrPos, i+1, value);
+										Data.storeStr(attrPos, i+j+1, value);
+									}
+								}
+								List<String> obsAttrNames = ts.getObsLevelAttributesNames();
+								for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
+									String attrName = (String) iterator3.next();
+									List<String> obsAttr = ts.getObsLevelAttributes(attrName);
+									if(obsAttr != null && !obsAttr.isEmpty()){
+										int attrPos = Data.getVarIndex(attrName) ;
+										if(attrPos > lastPos){
+											lastPos = attrPos;
+											//not set yet
+											Data.addVarStr(attrName, 1);
+										}
+										Data.storeStr(attrPos, i+j+1, obsAttr.get(j));
 									}
 								}
 							}
-							i++;						
+							j++;
 						}
+						i++;						
 					}
 					else{
 						Data.storeStr(name, i+1, tsname);

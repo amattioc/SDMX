@@ -126,14 +126,18 @@ convertSingleTS<-function(ttss){
   timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
                      evalString = TRUE);
   observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
-  status = .jcall(s,"[Ljava/lang/String;","getStatusArray", evalArray = TRUE,
-                  evalString = TRUE);
   numOfObs = length(observationsJ);
   numOfTimes = length(timeSlots);
   if( numOfObs > 0 && numOfObs == numOfTimes){
+    obsAttrNames = .jcall(s,"[Ljava/lang/String;","getObsLevelAttributesNamesArray", evalArray = TRUE,
+                          evalString = TRUE);
+    obsAttr= list()
+    for(x in obsAttrNames){
+      obsAttr[[x]] =  .jcall(s,"[Ljava/lang/String;","getObsLevelAttributesArray", x)
+    }
     observations = sapply(observationsJ, .jcall,"D","doubleValue")
 
-    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, status);
+    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, obsAttr);
   }
   else{
     message(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
@@ -150,7 +154,7 @@ convertSingleTS<-function(ttss){
 # series_attr_values= list of values of series attributes
 # status= list of values of status attribute
 # convert the frequency from SDMX-like codelist to numeric, e.g. 'M'-> 12 etc..
-makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, status) {
+makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAttr) {
 
 	if(length(values > 0)) {
 
@@ -180,7 +184,9 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, status
 
   	# define ts attributes
 	attr(tmp_ts,"ID") <- tsname
-	attr(tmp_ts,"STATUS") <- status
+	for(x in names(obsAttr)){
+	  attr(tmp_ts, x) <- obsAttr[[x]]
+	}
 
   	# define the timeseries attributes (dimensions + attributes)
 	if (length(series_dims) >0){

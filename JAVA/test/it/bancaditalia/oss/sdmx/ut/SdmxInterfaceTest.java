@@ -31,6 +31,7 @@ import it.bancaditalia.oss.sdmx.client.SASClientHandler;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -213,6 +214,21 @@ public class SdmxInterfaceTest {
 		assertEquals(true, ts1.getObservations().size() == 0 && ts1.getTimeSlots().size() == 0);
 	}
 	@Test
+	public void testGetTimeSeries() throws SdmxException {
+		List<PortableTimeSeries> ts = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", "2000", "2010");
+		assertNotNull("Null gettimeseries result", ts);	
+		assertEquals(true, ts.size() == 1);
+		PortableTimeSeries ts1 = ts.get(0);
+		assertEquals("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB.YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", ts1.getName());
+		int nobs = ts1.getObservations().size();
+		assertEquals(true,  nobs == ts1.getTimeSlots().size());
+		for (Iterator<String> iterator = ts1.getObsLevelAttributesNames().iterator(); iterator.hasNext();) {
+			String name = (String) iterator.next();
+			List<String> att = ts1.getObsLevelAttributes(name);
+			assertEquals(true,  nobs == att.size());
+		}
+	}
+	@Test
 	public void testGetTimeSeriesRevisions() throws SdmxException {
 		List<PortableTimeSeries> tslist1 = SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.A.USD.EUR.SP00.A", null, null, null, true);
 		assertNotNull("Null gettimeseries result", tslist1);	
@@ -228,6 +244,13 @@ public class SdmxInterfaceTest {
 		assertEquals(true, ts2.getObservations().size() > 0 && ts2.getTimeSlots().size() > 0);
 		assertEquals(true, tslist1.size() > tslist2.size());
 
+	}
+	
+	@Test
+	public void testGetTimeSeriesList() throws SdmxException {
+		List<PortableTimeSeries> tslist1 = SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A ; EXR.M.USD.EUR.SP00.A", null, null);
+		assertNotNull("Null gettimeseries result", tslist1);	
+		assertEquals(true, tslist1.size() == 2);
 	}
 	
 	@Test

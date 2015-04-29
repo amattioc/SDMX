@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -147,21 +148,22 @@ public class CompactDataParser {
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String time = null;
 					String obs_val = null;
-					String obs_stat = "";
+					Hashtable<String, String> obs_attr = new Hashtable<String, String>();
 					while (attributes.hasNext()) {
 						Attribute attribute = attributes.next();
-						if (attribute.getName().toString().equals(dsd.getTimeDimension())) {
+						String name = attribute.getName().toString();
+						if (name.equals(dsd.getTimeDimension())) {
 							time=attribute.getValue();
 						}
-						else if (attribute.getName().toString().equals(dsd.getObsStatus())) {
-							obs_stat=attribute.getValue();
-						}
-						else if (attribute.getName().toString().equals(dsd.getMeasure())) {
+						else if (name.equals(dsd.getMeasure())) {
 							obs_val=attribute.getValue();
+						}
+						else{
+							obs_attr.put(name, attribute.getValue());
 						}
 					}
 					if(time!= null && !time.isEmpty() && obs_val!= null && !obs_val.isEmpty() ){
-						ts.addObservation(new Double(obs_val), time, obs_stat);
+						ts.addObservation(new Double(obs_val), time, obs_attr);
 					}
 					else{
 						throw new RuntimeException("Error during CompactData Parsing. Invalid Observation Time: " + time + " or value: " + obs_val);

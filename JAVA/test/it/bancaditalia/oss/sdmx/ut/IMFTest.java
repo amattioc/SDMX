@@ -76,7 +76,7 @@ public class IMFTest {
 		assertNotNull("Null time series result", res);
 		//warning: they depend on eventual order
 		String annual = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "DM.111.BCA_NGDPD.WEO.B.A", annual);
+		assertEquals("Wrong name for first time series", "DM.111.BCA.WEO.C.A", annual);
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "2000", start);
 		//System.out.println(res);
