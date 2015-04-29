@@ -29,20 +29,22 @@ sdmxzoo2df <- function (tts, meta) {
     time=as.character(index(tts))
     data=as.numeric(tts)
     id=rep(attr(tts, 'ID'), n)
-    status=attr(tts, 'STATUS')
     header=c('ID', 'TIME', 'OBS')
-    if(length(status) == n){
-      ddf=data.frame(id, time, data, status)
-      header=append(header, 'STATUS')
-    }
-    else{
-      ddf=data.frame(id, time, data)
-    }
+    ddf=data.frame(id, time, data)
     if(meta){
       for(x in names(attributes(tts))){
-        if(x != 'ID' && x != 'class' && x != 'frequency' && x != 'index' && x != 'STATUS'){
-          ddf = cbind(ddf, rep(attr(tts, x), n))
-          header=append(header, x)
+        if(x != 'ID' && x != 'class' && x != 'frequency' && x != 'index'){
+          val = attr(tts, x)
+          if(length(val) == 1){
+            # ts level attributes
+            ddf = cbind(ddf, rep(attr(tts, x), n))
+            header=append(header, x)
+          }
+          else if(length(val) == n){
+            # obs level attributes
+            ddf = cbind(ddf, val)
+            header=append(header, x)
+          }
         }
       }
     }
