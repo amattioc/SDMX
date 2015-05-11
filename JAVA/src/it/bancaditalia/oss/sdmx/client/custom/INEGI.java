@@ -38,7 +38,7 @@ public class INEGI extends RestSdmx20Client{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public INEGI() throws MalformedURLException{
-		super("INEGI", new URL("http://www.snieg.mx/opendata/NSIRestService"), false);
+		super("INEGI", new URL("http://www.snieg.mx/opendata/NSIRestService"), false, null, null);
 	}
 	
 	@Override
@@ -98,8 +98,7 @@ public class INEGI extends RestSdmx20Client{
 			query += resource + "/" + name + "/";
 			
 			//query=query+"?";
-			//query += "&format=compact_v2";
-			query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly, null, false);
+			query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly, null, false, format);
 			return query;
 		}
 		else{

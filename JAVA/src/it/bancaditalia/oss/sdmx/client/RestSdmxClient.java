@@ -395,7 +395,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 				resource!=null && !resource.isEmpty()){
 
 			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
 			return query;
 		}
 		else{

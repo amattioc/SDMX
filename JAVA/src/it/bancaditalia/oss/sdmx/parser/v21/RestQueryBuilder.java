@@ -33,14 +33,14 @@ public class RestQueryBuilder{
 	
 	public static String getDataQuery(URL endpoint, String dataflow, String resource, 
 			String start, String end, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException{
 		
 		if( endpoint!=null && 
 				dataflow!=null && !dataflow.isEmpty() &&
 				resource!=null && !resource.isEmpty()){
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
-			query += addParams(start, end, serieskeysonly, updatedAfter, includeHistory);
+			query += addParams(start, end, serieskeysonly, updatedAfter, includeHistory, format);
 			return query;
 		}
 		else{
@@ -120,7 +120,7 @@ public class RestQueryBuilder{
 	}
 	
 	public static String addParams(String start, String end, boolean serieskeysonly, 
-			String updatedAfter, boolean includeHistory){
+			String updatedAfter, boolean includeHistory, String format){
 		String query = "";
 		boolean first = true;
 		if(start != null && !start.isEmpty()){
@@ -141,6 +141,10 @@ public class RestQueryBuilder{
 		}
 		if(updatedAfter != null && !updatedAfter.isEmpty()){
 			query = query + (first ? "?" : "&") + "updatedAfter=" + updatedAfter;
+			first = false;
+		}
+		if(format != null && !format.isEmpty()){
+			query = query + (first ? "?" : "&") + "format=" + format;
 			first = false;
 		}
 		return query;

@@ -23,7 +23,6 @@ package it.bancaditalia.oss.sdmx.client.custom;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
@@ -47,7 +46,7 @@ public class ILO extends RestSdmx20Client {
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ILO() throws MalformedURLException{
-		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false);
+		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
 	}
 
 	@Override
@@ -88,44 +87,44 @@ public class ILO extends RestSdmx20Client {
 				}
 			}
 			else{
-				throw new SdmxException("The query returned anull stream");
+				throw new SdmxException("The query returned a null stream");
 			}
 		}
 		return result;
 	}
 
-	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version){
-		agency = "ILO";
-		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+//	@Override
+//	protected String buildDSDQuery(String dsd, String agency, String version){
+//		agency = "ILO";
+//		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+//
+//			String query = endpoint + "/datastructure/" + agency + "/" + dsd;
+//			return query;
+//		}
+//		else{
+//			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
+//		}
+//	}
 
-			String query = endpoint + "/datastructure/" + agency + "/" + dsd;
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
-		}
-	}
-
-	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
-			String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
-		if( endpoint!=null && 
-				dataflow!=null &&
-				resource!=null && !resource.isEmpty()){
-
-			// for ILO use the simple DF id
-			String query = endpoint + "/data/" + dataflow.getFullIdentifier() + "/";
-			query += resource ;
-			
-			//query=query+"?";
-			//query += "&format=compact_v2";
-			query += RestQueryBuilder.addParams(startTime, endTime,serieskeysonly, null, false);
-			return query;
-		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
-		}
-	}
+//	@Override
+//	protected String buildDataQuery(Dataflow dataflow, String resource, 
+//			String startTime, String endTime, 
+//			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
+//		if( endpoint!=null && 
+//				dataflow!=null &&
+//				resource!=null && !resource.isEmpty()){
+//
+//			// for ILO use the simple DF id
+//			String query = endpoint + "/data/" + dataflow.getFullIdentifier() + "/";
+//			query += resource ;
+//			
+//			//query=query+"?";
+//			//query += "&format=compact_v2";
+//			query += RestQueryBuilder.addParams(startTime, endTime,serieskeysonly, null, false);
+//			return query;
+//		}
+//		else{
+//			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+//		}
+//	}
 }

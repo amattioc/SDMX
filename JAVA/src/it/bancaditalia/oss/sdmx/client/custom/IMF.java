@@ -71,7 +71,7 @@ public class IMF extends DotStat{
 			String query = endpoint + "/GetData?dataflow=" + dataflow.getId() + "&key=";
 			query += resource ;
 			
-			//query += "&format=compact_v2";
+			query += "&format=" + format;
 			if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 				if(startTime != null){
 					query=query+"&startTime="+startTime;

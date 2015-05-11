@@ -48,8 +48,8 @@
 		<javac srcdir="${stata_src}" destdir="${build}"/>
 		<!-- Create the stata enabled jar in the stata plugin jar directory -->
 		<jar jarfile="${stata}/SDMX.jar" basedir="${build}">
-		<manifest>
-			<attribute name="Main-Class" value="it.bancaditalia.oss.sdmx.helper.SDMXHelper"/>
+			<manifest>
+				<attribute name="Main-Class" value="it.bancaditalia.oss.sdmx.helper.SDMXHelper"/>
 			</manifest>
 		</jar>
 	</target>

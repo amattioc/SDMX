@@ -48,8 +48,11 @@ public abstract class DotStat extends RestSdmx20Client{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
+	public DotStat(String name, URL endpoint, boolean needsCredentials, String format) throws MalformedURLException{
+		super(name, endpoint, needsCredentials, null, format);
+	}
 	public DotStat(String name, URL endpoint, boolean needsCredentials) throws MalformedURLException{
-		super(name, endpoint, needsCredentials);
+		super(name, endpoint, needsCredentials, null, "compact_v2");
 	}
 
 
@@ -166,7 +169,6 @@ public abstract class DotStat extends RestSdmx20Client{
 		}
 	}
 
-
 	@Override
 	protected String buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
@@ -182,7 +184,7 @@ public abstract class DotStat extends RestSdmx20Client{
 			//query=query+"?";
 			//query += "&format=compact_v2";
 			query += RestQueryBuilder.addParams(startTime, endTime, 
-					serieskeysonly, updatedAfter, includeHistory);
+					serieskeysonly, updatedAfter, includeHistory, format);
 			return query;
 		}
 		else{
