@@ -176,6 +176,13 @@ public class CompactDataParser {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (SERIES)) {
 					logger.finer("Adding time series " + ts);
+					List<String> dates = ts.getTimeSlots();
+					int n = dates.size();
+					if(dates.size() > 1){
+						if(dates.get(n-1).compareToIgnoreCase(dates.get(0)) < 0){
+							ts.reverse();
+						}
+					}
 					tsList.add(ts);
 				}
 			}
