@@ -178,7 +178,7 @@ public class CompactDataParser {
 					logger.finer("Adding time series " + ts);
 					List<String> dates = ts.getTimeSlots();
 					int n = dates.size();
-					if(dates.size() > 1){
+					if(n > 1){
 						if(dates.get(n-1).compareToIgnoreCase(dates.get(0)) < 0){
 							ts.reverse();
 						}
@@ -217,7 +217,7 @@ public class CompactDataParser {
 				}
 			}
 			else{
-				ts.addAttribute(attr.toString());
+				ts.addAttribute(id+"="+value);
 			}
 			ts.setDimensions(Arrays.asList(dimensions));
 		}

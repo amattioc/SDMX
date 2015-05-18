@@ -28,15 +28,17 @@
   'meta' parameter.
 }
 \usage{
-  sdmxdf(tslist, meta=F)
+  sdmxdf(tslist, meta = F, id = T)
 }
 \arguments{
   \item{tslist}{the list of time series to be converted}
-  \item{meta}{set this to TRUE if you want metadata to be included (this may increase the size of the result quite a bit)}
+  \item{meta}{set this to TRUE if you want metadata to be included (default: F, as this may increase the size of the result quite a bit)}
+  \item{id}{set this to FALSE if you do not want the time series id to be included (default: T) }
 }
 \examples{
 # not run
 # a=getSDMX('ECB', 'EXR.A|Q|M|D.USD.EUR.SP00.A')
 # ddf = sdmxdf(a)
+# ddf = sdmxdf(a, meta=T)
 }
 \author{Attilio Mattiocco}

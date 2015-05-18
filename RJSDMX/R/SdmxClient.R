@@ -105,10 +105,10 @@ sdmxHelp<- function(internalJVM=T){
 }
 
 # convert from list of zoo to data.frame
-sdmxdf<- function(tslist, meta=F){
+sdmxdf<- function(tslist, meta=F, id=T){
   ddf = NULL
   if(!missing(tslist) && length(tslist) != 0 && is.list(tslist)){
-    dflist=lapply(tslist, sdmxzoo2df, meta)
+    dflist=lapply(tslist, sdmxzoo2df, id, meta)
     ddf=Reduce(function(x, y) merge(x, y, all=TRUE), dflist)
     rownames(ddf)<-NULL
   }

@@ -22,31 +22,39 @@
 # Basic class for converting from Java objects to R
 
 # convert a zoo to a df
-sdmxzoo2df <- function (tts, meta) {
+sdmxzoo2df <- function (tts, setId, setMeta) {
   ddf = NULL
   if(!missing(tts) && length(tts) != 0 && is.zoo(tts)){
     n = length(tts)
     time=as.character(index(tts))
     data=as.numeric(tts)
-    id=rep(attr(tts, 'ID'), n)
-    header=c('ID', 'TIME', 'OBS')
-    ddf=data.frame(id, time, data)
-    if(meta){
+    header=c('TIME', 'OBS')
+    ddf=data.frame(time, data)      
+    if(setMeta){
+      metaddf = data.frame(row.names = 1:n)
+      metaheader = NULL
       for(x in names(attributes(tts))){
         if(x != 'ID' && x != 'class' && x != 'frequency' && x != 'index'){
           val = attr(tts, x)
           if(length(val) == 1){
-            # ts level attributes
-            ddf = cbind(ddf, rep(attr(tts, x), n))
-            header=append(header, x)
+            # ts level attributes go close to id
+            metaddf = cbind(metaddf, rep(attr(tts, x), n))
+            metaheader=c(metaheader, x)
           }
           else if(length(val) == n){
-            # obs level attributes
-            ddf = cbind(ddf, val)
-            header=append(header, x)
+            # obs level attributes go close to data
+            ddf = cbind(val, ddf)
+            header=c(x, header)
           }
         }
       }
+      ddf = cbind(metaddf, ddf)
+      header=c(metaheader, header)
+    }
+    if(setId){
+      id=rep(attr(tts, 'ID'), n)
+      ddf=cbind(id, ddf)
+      header=c('ID', header)
     }
     colnames(ddf) = header
   }
