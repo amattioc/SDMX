@@ -125,6 +125,7 @@ public class StataClientHandler {
 				}
 				
 				int i = 0; // time series counter
+				int rowOffset = 0; //row counter
 				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
 					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
 					String tsname = ts.getName();
@@ -133,9 +134,9 @@ public class StataClientHandler {
 						List<String> tsdates = ts.getTimeSlots();
 						int j = 0; // observation counter
 						for (Iterator<Double> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
-							Data.storeStr(name, i+j+1, tsname);
-							Data.storeNum(val, i+j+1, iterator2.next());
-							Data.storeStr(date, i+j+1, tsdates.get(j));
+							Data.storeStr(name, rowOffset+j+1, tsname);
+							Data.storeNum(val, rowOffset+j+1, iterator2.next());
+							Data.storeStr(date, rowOffset+j+1, tsdates.get(j));
 							if(processMeta){
 								List<String> dimensions = ts.getDimensions();
 								List<String> attributes = ts.getAttributes();
@@ -152,27 +153,29 @@ public class StataClientHandler {
 											//not set yet
 											Data.addVarStr(key, value.length());
 										}
-										Data.storeStr(attrPos, i+j+1, value);
+										Data.storeStr(attrPos, rowOffset+j+1, value);
 									}
 								}
-								List<String> obsAttrNames = ts.getObsLevelAttributesNames();
-								for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
-									String attrName = (String) iterator3.next();
-									List<String> obsAttr = ts.getObsLevelAttributes(attrName);
-									if(obsAttr != null && !obsAttr.isEmpty()){
-										int attrPos = Data.getVarIndex(attrName) ;
-										if(attrPos > lastPos){
-											lastPos = attrPos;
-											//not set yet
-											Data.addVarStr(attrName, 1);
+								if(processMeta){
+									List<String> obsAttrNames = ts.getObsLevelAttributesNames();
+									for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
+										String attrName = (String) iterator3.next();
+										List<String> obsAttr = ts.getObsLevelAttributes(attrName);
+										if(obsAttr != null && !obsAttr.isEmpty()){
+											int attrPos = Data.getVarIndex(attrName) ;
+											if(attrPos > lastPos){
+												lastPos = attrPos;
+												//not set yet
+												Data.addVarStr(attrName, 1);
+											}
+											Data.storeStr(attrPos, rowOffset+j+1, obsAttr.get(j));
 										}
-										Data.storeStr(attrPos, i+j+1, obsAttr.get(j));
 									}
 								}
 							}
 							j++;
 						}
-						i++;						
+						rowOffset = j;
 					}
 					else{
 						Data.storeStr(name, i+1, tsname);
@@ -194,8 +197,8 @@ public class StataClientHandler {
 								Data.storeStr(attrPos, i+1, value);
 							}
 						}
-						i++;
 					}
+					i++;
 				}
 			}
 			else{
@@ -216,6 +219,7 @@ public class StataClientHandler {
 		return 0;
 	}
 }
+
 
 
 

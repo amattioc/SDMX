@@ -179,6 +179,12 @@ public class PortableTimeSeries {
 	public void reverse(){
 		Collections.reverse(this.observations);
 		Collections.reverse(this.timeSlots);
+		for (Iterator<String> iterator = obsLevelAttributes.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			ArrayList<String> attrs = obsLevelAttributes.get(key);
+			Collections.reverse(attrs);
+			obsLevelAttributes.put(key, attrs);
+		}
 	}
 	
 	public String toString(){
