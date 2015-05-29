@@ -156,26 +156,24 @@ public class StataClientHandler {
 										Data.storeStr(attrPos, rowOffset+j+1, value);
 									}
 								}
-								if(processMeta){
-									List<String> obsAttrNames = ts.getObsLevelAttributesNames();
-									for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
-										String attrName = (String) iterator3.next();
-										List<String> obsAttr = ts.getObsLevelAttributes(attrName);
-										if(obsAttr != null && !obsAttr.isEmpty()){
-											int attrPos = Data.getVarIndex(attrName) ;
-											if(attrPos > lastPos){
-												lastPos = attrPos;
-												//not set yet
-												Data.addVarStr(attrName, 1);
-											}
-											Data.storeStr(attrPos, rowOffset+j+1, obsAttr.get(j));
+								List<String> obsAttrNames = ts.getObsLevelAttributesNames();
+								for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
+									String attrName = (String) iterator3.next();
+									List<String> obsAttr = ts.getObsLevelAttributes(attrName);
+									if(obsAttr != null && !obsAttr.isEmpty()){
+										int attrPos = Data.getVarIndex(attrName) ;
+										if(attrPos > lastPos){
+											lastPos = attrPos;
+											//not set yet
+											Data.addVarStr(attrName, 1);
 										}
+										Data.storeStr(attrPos, rowOffset+j+1, obsAttr.get(j));
 									}
 								}
 							}
 							j++;
 						}
-						rowOffset = j;
+						rowOffset += j;
 					}
 					else{
 						Data.storeStr(name, i+1, tsname);
