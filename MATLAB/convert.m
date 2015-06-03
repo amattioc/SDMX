@@ -90,10 +90,10 @@ function ts = convertSeries(series)
             ts = timeseries(arrayObservations, arrayTimeSlots);
             ts.timeinfo.startdate = arrayTimeSlots(1,:);
         else
-            error(['Time series:', char(name), '. Number of samples different from number of timeslots']);
+            error(['Time series: ', char(name), '. Number of samples different from number of timeslots']);
         end   %if 
     else
-        warning(['Time series:', char(name), '. No observations found']);
+        warning(['Time series: ', char(name), '. No observations found']);
         ts = timeseries();
     end
     
@@ -106,13 +106,23 @@ end
 
 function dates = convertDates(freq, dates)
 	if(strcmp(freq, 'Q'))
-		dates=regexprep(dates, 'Q1', '03');
-		dates=regexprep(dates, 'Q2', '06');
-		dates=regexprep(dates, 'Q3', '09');
-		dates=regexprep(dates, 'Q4', '12');   
+		dates=regexprep(dates, 'Q1', '03-31');
+		dates=regexprep(dates, 'Q2', '06-30');
+		dates=regexprep(dates, 'Q3', '09-30');
+		dates=regexprep(dates, 'Q4', '12-31');   
 		dates=(cell2mat(dates));
 	elseif(strcmp(freq, 'A'))
 		dates=strcat(cell2mat(dates), '-12-31');
+	elseif(strcmp(freq, 'H'))
+		dates=regexprep(dates, 'S1', '06-30');   
+		dates=regexprep(dates, 'S2', '12-31'); 
+		dates=(cell2mat(dates));
+	elseif(strcmp(freq, 'W'))
+		n = size(dates);
+		for i = 1 : n
+			dates{i} = char(it.bancaditalia.oss.sdmx.util.WeekConverter.convert(dates{i}));
+		end
+		dates=(cell2mat(dates));
 	else
 		dates=(cell2mat(dates));
 	end
