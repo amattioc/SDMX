@@ -24,21 +24,26 @@
 %
 getProviders
 
-getFlows('ECB')
-ans.keys
+flows = getFlows('ECB')
+flows.keys
+flows.values
+flows('EXR')
 
 getDimensions('ECB', 'EXR')
 
-getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A')
-plot(ans{1})
+tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A')
+tts.UserData
+tts.UserData('TITLE_COMPL')
+plot(tts)
 
-getFlows('EUROSTAT')
-ans.keys
+flows = getFlows('EUROSTAT')
+flows.keys
+flows.values
 
 getDimensions('EUROSTAT', 'prc_hicp_midx')
 
-getTimeSeries('EUROSTAT', 'prc_hicp_midx/..CP00.EU+DE+FR')
-plot(ans{1})
+tts = getTimeSeries('EUROSTAT', 'prc_hicp_midx/..CP00.EU+DE+FR')
+plot(tts)
 
 sdmxHelp
 
