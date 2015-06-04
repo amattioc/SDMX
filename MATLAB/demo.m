@@ -32,9 +32,9 @@ flows('EXR')
 getDimensions('ECB', 'EXR')
 
 tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A')
-tts.UserData
-tts.UserData('TITLE_COMPL')
-plot(tts)
+tts{1}.UserData
+tts{1}.UserData('TITLE_COMPL')
+plot(tts{1})
 
 flows = getFlows('EUROSTAT')
 flows.keys
@@ -43,7 +43,7 @@ flows.values
 getDimensions('EUROSTAT', 'prc_hicp_midx')
 
 tts = getTimeSeries('EUROSTAT', 'prc_hicp_midx/..CP00.EU+DE+FR')
-plot(tts)
+plot(tts{1})
 
 sdmxHelp
 
