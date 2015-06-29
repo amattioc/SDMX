@@ -56,6 +56,9 @@ public class DataStructureParser {
 	static final String CODELISTS = "CodeLists";
 	static final String CODELIST = "CodeList";
 	static final String CODELIST2 = "codelist";
+        
+	static final String CONCEPTS = "Concepts";
+	static final String CONCEPT = "Concept";
 
 	static final String COMPONENTS = "Components";
 	static final String NAME = "Name";
@@ -79,6 +82,7 @@ public class DataStructureParser {
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
+		Map<String, String> concepts = null;
 		DataFlowStructure currentStructure = null;
 
 		LocalizedText currentName = new LocalizedText(Configuration.getLang());
@@ -91,6 +95,9 @@ public class DataStructureParser {
 				
 				if (startElement.getName().getLocalPart() == (CODELISTS)) {
 					codelists = getCodelists(eventReader);
+				}
+                                else if (startElement.getName().getLocalPart() == (CONCEPTS)) {
+					concepts = getConcepts(eventReader);
 				}
 				else if (startElement.getName().getLocalPart() == (DATASTRUCTURE)) {
 					currentStructure = new DataFlowStructure();
@@ -119,7 +126,7 @@ public class DataStructureParser {
 				}				
 				else if (startElement.getName().getLocalPart().equals(COMPONENTS)) {
 					if(currentStructure != null){
-						setStructureDimensionsAndAttributes(currentStructure, eventReader, codelists);
+						setStructureDimensionsAndAttributes(currentStructure, eventReader, codelists, concepts);
 					}
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Null current structure.");
@@ -140,7 +147,7 @@ public class DataStructureParser {
 	}
 
 	private static void setStructureDimensionsAndAttributes(
-			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists) throws XMLStreamException {
+			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException {
 		final String sourceMethod = "setStructureDimensions";
 		logger.entering(sourceClass, sourceMethod);
 		
@@ -175,6 +182,9 @@ public class DataStructureParser {
 					
 					if(id!= null && !id.isEmpty()){
 						currentDimension.setId(id);
+                                                if (concepts != null) {
+                                                    currentDimension.setName(concepts.get(agency + "/" + id));
+                                                }
 					}
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Invalid id: " + id);
@@ -276,6 +286,64 @@ public class DataStructureParser {
 		return(codelists);
 	}
 	
+	private static Map<String, String> getConcepts(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+		Map<String, String> concepts = new Hashtable<String, String>();
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
 
+				if (startElement.getName().getLocalPart().equals(CONCEPT)) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String id = null;
+					String agency = null;
+					String conceptName = "";
+					while (attributes.hasNext()) {
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(ID)) {
+							id = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(AGENCYID)) {
+							agency = attr.getValue();
+						}
+					}
+					conceptName = agency + "/" + id;
+					logger.finer("Got concept: " + conceptName);
+					concepts.put(conceptName, getConceptName(eventReader));	
+				}
+			}
+			if (event.isEndElement()) {
+				if (event.asEndElement().getName().getLocalPart().equals(CONCEPTS)) {
+					break;
+				}
+			}
+		}
+		return(concepts);
+	}
+
+	private static String getConceptName(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+		LocalizedText value = new LocalizedText(Configuration.getLang());
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+				if (startElement.getName().getLocalPart() == ("Name")) {
+					value.setText(startElement, eventReader);
+				}
+				
+			}
+			
+			if (event.isEndElement()) {
+				String eventName=event.asEndElement().getName().getLocalPart();
+				if (eventName.equals(CONCEPT)) {
+                                    break;
+				}
+			}
+		}
+		return value.getText();
+        }
 	
 } 
