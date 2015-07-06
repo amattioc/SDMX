@@ -141,10 +141,6 @@ public class DataFlowStructure {
 		return builder.toString();
 	}
 
-	public String getObsStatus() {
-		return "OBS_STATUS";
-	}
-	
 	public String getMeasure() {
 		return "OBS_VALUE";
 	}

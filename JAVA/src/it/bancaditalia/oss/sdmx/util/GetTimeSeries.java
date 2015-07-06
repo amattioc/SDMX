@@ -22,22 +22,16 @@ package it.bancaditalia.oss.sdmx.util;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 
-import java.io.IOException;
-
 /**
  * @author Attilio Mattiocco
  *
  */
 public class GetTimeSeries {
 
-	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws SdmxException 
-	 */
-	public static void main(String[] args) throws IOException, SdmxException {
+	public static void main(String[] args){
 		if(args.length < 2 || args.length > 6 || args.length == 5){
-			System.out.println("usage: GetTimeSeries <provider> <query> [start] [end] [username password]");
+			System.err.println("usage: GetTimeSeries <provider> <query> [start] [end] [username password]");
+			System.exit(-1); // wrong number of arguments
 		}
 		else{
 			String provider = args[0].toUpperCase();
@@ -51,12 +45,23 @@ public class GetTimeSeries {
 			if(args.length > 3){
 				end = args[3];
 			}
-			if(args.length > 4){
+			if(args.length == 6){
 				String user = args[4];
 				String pw = args[5];
-				SdmxClientHandler.setCredentials(provider, user, pw);
+				try {
+					SdmxClientHandler.setCredentials(provider, user, pw);
+				} catch (SdmxException e) {
+					System.err.println(e.toString());
+					System.exit(-2); // exception setting credentials
+				}
 			}
-			System.out.println(SdmxClientHandler.dumpTimeSeries(provider, query, start, end));
+			try {
+				String result = SdmxClientHandler.dumpTimeSeries(provider, query, start, end);
+				System.out.println(result);
+			} catch (SdmxException e) {
+				System.err.println(e.toString());
+				System.exit(-3); // exception calling get method
+			}
 		}
 
 	}

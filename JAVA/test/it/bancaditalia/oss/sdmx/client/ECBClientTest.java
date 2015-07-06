@@ -33,7 +33,9 @@ public class ECBClientTest {
 //		
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
+//		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
+		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, "2015-01-01", true));
+//		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, null, true));
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));

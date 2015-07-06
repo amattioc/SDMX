@@ -35,10 +35,11 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
+// This proxy selector simulates prvides for an explicit or default proxy handling. If not 
+// explicitly configured, the default proxy is Proxy.NO_PROXY (DIRECT). See alse: the ClientFactory.createClient. 
+// This type of selection startegy is necessary for handling authenticating proxies, that often redirect to themselves 
 public class SdmxProxySelector extends ProxySelector{
-	
 	private final String NO_PROXY = "NOPROXY";
-
 	private Proxy defaultProxy = Proxy.NO_PROXY;
 	private Hashtable<String, Proxy> proxyTable = null;
 
@@ -58,18 +59,20 @@ public class SdmxProxySelector extends ProxySelector{
 		logger.exiting(sourceClass, sourceMethod);
 	}
 
-	public void addDefaultProxy(String url){
+	// the host will be configured for using the default proxy (or DIRECT if not configured)
+	public void addToDefaultProxy(String url){
 		final String sourceMethod = "addProxy";
 		logger.entering(sourceClass, sourceMethod);
 		Proxy p = proxyTable.get(url);
 		//add url to default proxy only if proxy not explicitly set at init time
 		if(p == null){
-			logger.finer("Proxy has been added: '" + defaultProxy.address().toString() + "' for " + url);		
+			logger.finer("Default proxy has been added for " + url);		
 			proxyTable.put(url, defaultProxy);
 		}
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
+	//add a proxy entry for the given URLs 
 	public void addProxy(String host, String port, String[] urls){
 		final String sourceMethod = "addProxy";
 		logger.entering(sourceClass, sourceMethod);
@@ -108,20 +111,25 @@ public class SdmxProxySelector extends ProxySelector{
 	@Override
 	public List<Proxy> select(URI arg0) {
 		final String sourceMethod = "select";
-		List<Proxy> res = null;
+		List<Proxy> res = new ArrayList<Proxy>();
 		logger.entering(sourceClass, sourceMethod);
 		String target = arg0.getHost();
-		logger.finer("Getting proxy for host: " + target);	
-		Proxy p = proxyTable.get(target);
-		if(p != null){
-			res = new ArrayList<Proxy>();
-			res.add(p);
+		if(target != null){
+			logger.finer("Getting proxy for host: " + target);	
+			Proxy p = proxyTable.get(target);
+			if(p != null){
+				res.add(p);
+			}
+			else{
+				//if no proxy has been found in the table for this URL, then go DIRECT
+				res.add(Proxy.NO_PROXY);
+			}
+			logger.finer("proxy: " + res);
 		}
 		else{
-			res = new ArrayList<Proxy>();
+			logger.warning("No host component found for " + arg0);
 			res.add(Proxy.NO_PROXY);
 		}
-		logger.finer("proxy: " + res);
 		logger.exiting(sourceClass, sourceMethod);
 		return res;
 	}

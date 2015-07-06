@@ -60,18 +60,13 @@ function ts = convertSeries(series)
         error('SDMX convertSeries(series) error: input list must be of class it.bancaditalia.oss.sdmx.api.PortableTimeSeries.');
     end
     
-    % get frequency
+	% get frequency
 	freq = series.getFrequency();
 
-	% get all attributes and put them to DataInfo.UserData field
-	attrs = series.getAttributesArray();
-	cArrayAttrs = cell(attrs);
+	% get all attributes and put them to DataInfo.UserData field as a map
+	cArrayMap= getMetaData(series);
 
-	% get all dimensions and put them to UserData property
-	dims = series.getDimensionsArray();
-	cArrayDims = cell(dims);
-
-	% now set time and values
+   	% now set time and values
 	timeSlots = series.getTimeSlotsArray();
 	cArrayTimeSlots = cell(timeSlots);
 	arrayTimeSlots = convertDates(freq, cArrayTimeSlots);
@@ -90,31 +85,75 @@ function ts = convertSeries(series)
             ts = timeseries(arrayObservations, arrayTimeSlots);
             ts.timeinfo.startdate = arrayTimeSlots(1,:);
         else
-            error(['Time series:', char(name), '. Number of samples different from number of timeslots']);
+            error(['Time series: ', char(name), '. Number of samples different from number of timeslots']);
         end   %if 
     else
-        warning(['Time series:', char(name), '. No observations found']);
+        warning(['Time series: ', char(name), '. No observations found']);
         ts = timeseries();
     end
     
     %add metadata
-	ts.DataInfo.UserData = cArrayAttrs;
-	set(ts, 'UserData', cArrayDims);
+	set(ts, 'UserData', cArrayMap);
 	ts.timeinfo.units='days';
 	set(ts, 'Name', char(name));
 end
 
 function dates = convertDates(freq, dates)
 	if(strcmp(freq, 'Q'))
-		dates=regexprep(dates, 'Q1', '03');
-		dates=regexprep(dates, 'Q2', '06');
-		dates=regexprep(dates, 'Q3', '09');
-		dates=regexprep(dates, 'Q4', '12');   
+		dates=regexprep(dates, 'Q1', '03-31');
+		dates=regexprep(dates, 'Q2', '06-30');
+		dates=regexprep(dates, 'Q3', '09-30');
+		dates=regexprep(dates, 'Q4', '12-31');   
 		dates=(cell2mat(dates));
 	elseif(strcmp(freq, 'A'))
 		dates=strcat(cell2mat(dates), '-12-31');
+	elseif(strcmp(freq, 'H'))
+		dates=regexprep(dates, 'S1', '06-30');   
+		dates=regexprep(dates, 'S2', '12-31'); 
+		dates=(cell2mat(dates));
+	elseif(strcmp(freq, 'W'))
+		for i = 1 : length(dates)
+			dates{i} = char(it.bancaditalia.oss.sdmx.util.WeekConverter.convert(dates{i}));
+		end
+		dates=(cell2mat(dates));
 	else
 		dates=(cell2mat(dates));
 	end
 end
 
+function metadata = getMetaData(ts)
+    metadata = containers.Map;
+
+    % get all dimensions
+    tsdims = cell(ts.getDimensionsArray());
+    for i=1:length(tsdims)
+        keys = strsplit(tsdims{i}, '=');  
+        if size(keys) ~= 2
+            warning(['Dimension: ', tsdims{i}, 'is malformed. Skipping.']);
+        else
+            metadata(keys{1}) = keys{2};
+        end
+    end 
+    
+    % get all ts level attributes 
+    tsattrs = cell(ts.getAttributesArray());
+    for i=1:length(tsattrs)
+        keys = strsplit(tsattrs{i}, '=');  
+        if size(keys) ~= 2
+            warning(['Attribute: ', tsattrs{i}, 'is malformed. Skipping.']);
+        else
+            metadata(keys{1}) = keys{2};
+        end
+    end 
+    
+    % get all ts level attributes 
+    obsattrs = cell(ts.getObsLevelAttributesNamesArray);
+    for i=1:length(obsattrs)
+        attrval = ts.getObsLevelAttributesArray(obsattrs{i});
+        if size(attrval) ~= ts.getObservationsArray().size()
+            warning(['Attribute: ', obsattrs{i}, 'is malformed. Skipping.']);
+        else
+            metadata(obsattrs{i}) = cell(attrval);
+        end
+    end 
+end

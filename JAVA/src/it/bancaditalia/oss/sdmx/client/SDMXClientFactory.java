@@ -78,7 +78,7 @@ public class SDMXClientFactory {
 	    //add internal 2.0 providers
 	    addProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development");
 	    addProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS");
-	    addProvider("ILO", null, false, false, false, "International Labour Office");
+	    addProvider("ILO", null, false, false, false, "International Labour Organization");
 	    addProvider("IMF", null, false, false, false, "International Monetary Fund");
 	    addProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia");
 	    addProvider("ABS", null, false, false, false, "Australian Bureau of Statistics");
@@ -170,7 +170,7 @@ public class SDMXClientFactory {
 		// now set default proxy if necessary
     	ProxySelector ps = ProxySelector.getDefault();
     	if(ps != null && ps instanceof SdmxProxySelector){
-    		((SdmxProxySelector)ps).addDefaultProxy(hostname);
+    		((SdmxProxySelector)ps).addToDefaultProxy(hostname);
     	}
 
 		logger.exiting(sourceClass, sourceMethod);

@@ -72,7 +72,7 @@ public class WBTest {
 
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(WB.class.getSimpleName(), "WDI.usa.sp_pop_totl", "2000", "2010");
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(WB.class.getSimpleName(), "WDI.A.SP_POP_TOTL.US", "2000", "2010");
 		assertNotNull("Null time series result", res);
 		String annual = res.get(0).getName();
 		assertEquals("Wrong name for first time series", "WDI.A.SP_POP_TOTL.US", annual);

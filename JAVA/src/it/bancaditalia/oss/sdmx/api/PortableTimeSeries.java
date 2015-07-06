@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,11 +40,13 @@ public class PortableTimeSeries {
 	private String dataflow = null;
 	
 	private List<String> attributes = null;
-	//note that the mimensions have to be ordered as prescribed by the DSD
+	//note that the dimensions have to be ordered as prescribed by the DSD
 	private List<String> dimensions = null;
 	private List<String> timeSlots = null;
 	private List<Double> observations = null;
+	//left here for backward compatibility
 	private List<String> status = null;
+	private Hashtable<String, ArrayList<String>> obsLevelAttributes = null;
 	
 	public PortableTimeSeries() {
 		super();
@@ -52,6 +55,7 @@ public class PortableTimeSeries {
 		this.timeSlots = new ArrayList<String>();
 		this.observations = new ArrayList<Double>();
 		this.status = new ArrayList<String>();
+		this.obsLevelAttributes = new Hashtable<String, ArrayList<String>>();
 	}
 	public List<String> getAttributes() {
 		return attributes;
@@ -77,10 +81,35 @@ public class PortableTimeSeries {
 	public void addDimension(String dimension) {
 		this.dimensions.add(dimension);
 	}
-	public void addObservation(Double observation, String timeSlot, String status) {
+	public void addObservation(Double observation, String timeSlot, Hashtable<String, String> attributes) {
 		this.observations.add(observation);
 		this.timeSlots.add(timeSlot);
-		this.status.add(status);
+		for (Iterator<String> iterator = attributes.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			//backward compatibility, to be removed in a couple of versions
+			if(key.equals("OBS_STATUS")){
+				this.status.add(attributes.get(key));
+			}
+			if(obsLevelAttributes.containsKey(key)){
+				obsLevelAttributes.get(key).add(attributes.get(key));
+			}
+			else{
+				//new attribute
+				ArrayList<String> newattr = new ArrayList<String>();
+				for (int i = 0; i < timeSlots.size() - 1; i++) {
+					newattr.add("");
+				}
+				newattr.add(attributes.get(key));
+				obsLevelAttributes.put(key, newattr);
+			}
+		}
+		//now add empty slots for all attributes that are not present
+		for (Iterator<ArrayList<String>> iterator = obsLevelAttributes.values().iterator(); iterator.hasNext();) {
+			ArrayList<String> tmp = (ArrayList<String>) iterator.next();
+			if(tmp.size() < timeSlots.size()){
+				tmp.add("");
+			}
+		}
 	}
 	public List<Double> getObservations() {
 		return observations;
@@ -94,11 +123,29 @@ public class PortableTimeSeries {
 	public String[] getTimeSlotsArray() {
 		return timeSlots.toArray(new String[0]);
 	}
+	@Deprecated
 	public List<String> getStatus() {
 		return this.status;
 	}
+	@Deprecated
 	public String[] getStatusArray() {
 		return this.status.toArray(new String[0]);
+	}
+	
+	public List<String> getObsLevelAttributesNames() {
+		return Collections.list(obsLevelAttributes.keys());
+	}
+
+	public String[] getObsLevelAttributesNamesArray() {
+		return getObsLevelAttributesNames().toArray(new String[0]);
+	}
+
+	public List<String> getObsLevelAttributes(String attributeName) {
+		return obsLevelAttributes.get(attributeName);
+	}
+	
+	public String[] getObsLevelAttributesArray(String attributeName) {
+		return getObsLevelAttributes(attributeName).toArray(new String[0]);
 	}
 	
 	public String getName() {
@@ -115,6 +162,7 @@ public class PortableTimeSeries {
 		}
 		return name;
 	}
+	
 	public String getFrequency() {
 		return frequency;
 	}
@@ -127,12 +175,16 @@ public class PortableTimeSeries {
 	public void setDataflow(String dataflow) {
 		this.dataflow = dataflow;
 	}
-
-
 	
 	public void reverse(){
 		Collections.reverse(this.observations);
 		Collections.reverse(this.timeSlots);
+		for (Iterator<String> iterator = obsLevelAttributes.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			ArrayList<String> attrs = obsLevelAttributes.get(key);
+			Collections.reverse(attrs);
+			obsLevelAttributes.put(key, attrs);
+		}
 	}
 	
 	public String toString(){
@@ -145,8 +197,8 @@ public class PortableTimeSeries {
 		buffer += observations;
 		buffer += "\nTIMES:";
 		buffer += timeSlots;
-		buffer += "\nSTATUS:";
-		buffer += status;
+		buffer += "\nOBSERVATION ATTRIBUTES:";
+		buffer += obsLevelAttributes;
 		
 		return buffer;
 	}

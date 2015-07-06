@@ -52,7 +52,7 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 			if(query == null || query.isEmpty()){
 				throw new SdmxException("The sdmx query is not valid yet: '" + query + "'");
 			}
-			List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeries(QueryPanel.selectedProvider, query, null, null, true);
+			List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeriesNames(QueryPanel.selectedProvider, query);
 			Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
 			QueryContentFrame wnd = new QueryContentFrame(result);
 			wnd.setTitle(result.size() + " results" + " - " + df.getDescription());

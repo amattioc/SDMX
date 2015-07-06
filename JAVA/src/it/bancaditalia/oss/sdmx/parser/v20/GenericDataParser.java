@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -59,6 +60,7 @@ public class GenericDataParser {
 	private static final String OBS_TIME = "Time";
 	private static final String OBS_VALUE = "ObsValue";
 	private static final String ATTRIBUTES = "Attributes";
+	private static final String ATTRIBUTEVALUE = "Value";
 
 	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -187,6 +189,7 @@ public class GenericDataParser {
 	private static void setSeriesSingleObs(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
 		String time = null;
 		String val = null;
+		Hashtable<String, String> obs_attr = new Hashtable<String, String>();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -198,15 +201,20 @@ public class GenericDataParser {
 				if (startElement.getName().getLocalPart() == (OBS_VALUE)) {
 					val = startElement.getAttributeByName(new QName(VALUE)).getValue();
 				}
+				if (startElement.getName().getLocalPart() == (ATTRIBUTEVALUE)) {
+					String name = startElement.getAttributeByName(new QName(CONCEPT)).getValue();
+					String value = startElement.getAttributeByName(new QName(VALUE)).getValue();
+					obs_attr.put(name, value);
+				}
 			}
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (OBS)) {
 					try {
-						ts.addObservation(new Double(val), time, "");
+						ts.addObservation(new Double(val), time,  obs_attr);
 					} catch (NumberFormatException  e) {
 						logger.warning("Invalid observation: '" + val + "' for ts " + ts.getName() + ". Setting NaN.");
-						ts.addObservation(new Double("NaN"), time, "");
+						ts.addObservation(new Double("NaN"), time,  obs_attr);
 					}
 					
 					break;
