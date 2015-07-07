@@ -24,6 +24,7 @@ import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.InputStreamReader;
@@ -55,6 +56,9 @@ public class DataStructureParser {
 	static final String CODELISTS = "Codelists";
 	static final String CODELIST = "Codelist";
 
+	static final String CONCEPTS = "Concepts";
+	static final String CONCEPT = "Concept";
+        
 	static final String DIMENSIONLIST = "DimensionList";
 	static final String GROUP = "Group";
 	static final String ATTRIBUTELIST = "AttributeList";
@@ -79,6 +83,7 @@ public class DataStructureParser {
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
+		Map<String, String> concepts = null;
 		DataFlowStructure currentStructure = null;
 
 		while (eventReader.hasNext()) {
@@ -90,6 +95,9 @@ public class DataStructureParser {
 				
 				if (startElement.getName().getLocalPart() == (CODELISTS)) {
 					codelists = getCodelists(eventReader);
+				}
+                                else if (startElement.getName().getLocalPart() == (CONCEPTS)) {
+					concepts = getConcepts(eventReader);
 				}
 
 				if (startElement.getName().getLocalPart() == (DATASTRUCTURE)) {
@@ -120,7 +128,7 @@ public class DataStructureParser {
 				
 				if (startElement.getName().getLocalPart().equals(DIMENSIONLIST)) {
 					if(currentStructure != null){
-						setStructureDimensions(currentStructure, eventReader, codelists);
+						setStructureDimensions(currentStructure, eventReader, codelists, concepts);
 					}
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Null current structure.");
@@ -152,7 +160,7 @@ public class DataStructureParser {
 	}
 
 	private static void setStructureDimensions(
-			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists) throws XMLStreamException {
+			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException {
 		final String sourceMethod = "setStructureDimensions";
 		logger.entering(sourceClass, sourceMethod);
 		
@@ -234,6 +242,12 @@ public class DataStructureParser {
 						Map<String,String> codes = codelists.get(cl.getFullIdentifier());
 						cl.setCodes(codes);
 					}
+				}
+				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity"))) {
+					logger.finer("Got concept identity");
+                                        if (concepts != null) {
+                                            currentDimension.setName(getConceptName(concepts, eventReader));
+                                        }
 				}
 				
 			}
@@ -407,5 +421,116 @@ public class DataStructureParser {
 		}
 		return(codelists);
 	}
+	
+	private static Map<String, String> getConcepts(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+		Map<String, String> codelists = new Hashtable<String, String>();
+		String agency = "";
+		String version = "";
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+
+				if (startElement.getName().getLocalPart().equals("ConceptScheme")) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					while (attributes.hasNext()) {
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(AGENCYID)) {
+							agency = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(VERSION)) {
+							version = attr.getValue();
+						}
+					}
+                                }                               
+                                else if (startElement.getName().getLocalPart().equals(CONCEPT)) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String id = null;
+					String conceptName = "";
+					while (attributes.hasNext()) {
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(ID)) {
+							id = attr.getValue();
+						}
+					}
+					conceptName = agency + "/" + id + "/" + version;
+					logger.finer("Got concept: " + conceptName);
+					codelists.put(conceptName, getConceptName(eventReader));	
+				}
+			}
+			if (event.isEndElement()) {
+				if (event.asEndElement().getName().getLocalPart().equals(CONCEPTS)) {
+					break;
+				}
+			}
+		}
+		return(codelists);
+	}
+
+	private static String getConceptName(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+		LocalizedText value = new LocalizedText(Configuration.getLang());
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+				if (startElement.getName().getLocalPart() == ("Name")) {
+					value.setText(startElement, eventReader);
+				}
+				
+			}
+			
+			if (event.isEndElement()) {
+				String eventName=event.asEndElement().getName().getLocalPart();
+				if (eventName.equals(CONCEPT)) {
+                                    break;
+				}
+			}
+		}
+		return value.getText();
+        }
+        
+	private static String getConceptName(Map<String, String> concepts, XMLEventReader eventReader) throws XMLStreamException{
+		String name = null;
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+				if (startElement.getName().getLocalPart() == (REF)) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String id = null;
+					String version = "";
+					String agency = "";
+					while (attributes.hasNext()) {
+						Attribute attribute = attributes.next();
+						if (attribute.getName().toString().equals(ID)) {
+							id=attribute.getValue();
+						}
+						else if (attribute.getName().toString().equals(AGENCYID)) {
+							agency=attribute.getValue();
+						}
+						else if (attribute.getName().toString().equals("maintainableParentVersion")) {
+							version=attribute.getValue();
+						}
+					}
+                                        name = concepts.get(agency + "/" + id + "/" + version);
+				}
+				
+			}
+			
+			if (event.isEndElement()) {
+				String eventName=event.asEndElement().getName().getLocalPart();
+				if (eventName.equals("ConceptIdentity")) {
+                                    break;
+				}
+			}
+		}            
+                return name;
+        }
 	
 } 
