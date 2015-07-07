@@ -224,7 +224,7 @@ public class GenericDataParser {
 	}
 	
 	// some 2.0 providers are apparently adding a BOM
-	private static BufferedReader skipBOM(InputStreamReader xmlBuffer) throws SdmxException{
+	public static BufferedReader skipBOM(InputStreamReader xmlBuffer) throws SdmxException{
 		BufferedReader br = new BufferedReader(xmlBuffer);
 		logger.fine(xmlBuffer.getEncoding());
 		try {

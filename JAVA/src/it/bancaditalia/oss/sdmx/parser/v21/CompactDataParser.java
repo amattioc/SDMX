@@ -25,10 +25,12 @@ package it.bancaditalia.oss.sdmx.parser.v21;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -71,8 +73,9 @@ public class CompactDataParser {
 		
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
 		//InputStream in = new ByteArrayInputStream(xmlBuffer);
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 		PortableTimeSeries ts = null;
 		String currentAction = null;
