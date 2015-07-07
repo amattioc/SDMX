@@ -27,6 +27,7 @@ public class Dimension {
 	private String id = null;
 	private int position;
 	private Codelist  codeList = null;
+	private String name;
 	
 	public Dimension(String id, int position, Codelist codeList) {
 		super();
@@ -57,6 +58,14 @@ public class Dimension {
 		this.codeList = codeList;
 	}
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+        
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
