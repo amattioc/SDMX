@@ -1,4 +1,4 @@
-Sdmx Connectors for Statistical Software
+Sdmx Connectors
 ====
 
 ![My image](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx.png)
