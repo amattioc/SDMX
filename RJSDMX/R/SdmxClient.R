@@ -125,11 +125,11 @@ getDimensions <- function(provider, dataflow) {
 #' @export
 #' @examples
 #' \dontrun{
-#' ## get single time series: EXR.A.USD.EUR.SP00.A (alternatively: EXR/A+M.USD.EUR.SP00.A)
+#' ## get single time series: EXR.A.USD.EUR.SP00.A (or: EXR/A+M.USD.EUR.SP00.A)
 #' my_ts=getTimeSeries('ECB','EXR.A.USD.EUR.SP00.A')
-#' ## get monthly and annual frequency: 'EXR.A|M.USD.EUR.SP00.A' (alternatively: EXR/A+M.USD.EUR.SP00.A)
+#' ## get monthly and annual frequency: 'EXR.A|M.USD.EUR.SP00.A' (or: EXR/A+M.USD.EUR.SP00.A)
 #' my_ts=getTimeSeries('ECB','EXR.A|M.USD.EUR.SP00.A')
-#' ## get all available frequencies: 'EXR.*.USD.EUR.SP00.A' (alternatively: EXR/.USD.EUR.SP00.A)
+#' ## get all available frequencies: 'EXR.*.USD.EUR.SP00.A' (or: EXR/.USD.EUR.SP00.A)
 #' my_ts=getTimeSeries('ECB','EXR.*.USD.EUR.SP00.A')
 #' }
 getTimeSeries <- function(provider, id, start='', end='') {
@@ -160,9 +160,9 @@ getTimeSeries <- function(provider, id, start='', end='') {
 #' # get single time series with history: 
 #' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', includeHistory=T)
 #' # get single time series (only observations updated after january 1st 2015): 
-#' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015-01-01', includeHistory=F)
+#' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=F)
 #' # get single time series (full revision history starting from january 1st 2015): 
-#' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015-01-01', includeHistory=T)
+#' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=T)
 #' }
 getTimeSeriesRevisions <- function(provider, id, start='', end='', updatedAfter='', includeHistory=T) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesRevisions(provider, id, start, end, updatedAfter, includeHistory)
@@ -185,11 +185,11 @@ getTimeSeriesRevisions <- function(provider, id, start='', end='', updatedAfter=
 #' @export
 #' @examples
 #' \dontrun{
-#' ## get single time series: EXR.A.USD.EUR.SP00.A (alternatively: EXR/A+M.USD.EUR.SP00.A)
+#' ## get single time series: EXR.A.USD.EUR.SP00.A (or: EXR/A+M.USD.EUR.SP00.A)
 #' my_ts=getSDMX('ECB','EXR.A.USD.EUR.SP00.A')
-#' ## get monthly and annual frequency: 'EXR.A|M.USD.EUR.SP00.A' (alternatively: EXR/A+M.USD.EUR.SP00.A)
+#' ## get monthly and annual frequency: 'EXR.A|M.USD.EUR.SP00.A' (or: EXR/A+M.USD.EUR.SP00.A)
 #' my_ts=getSDMX('ECB','EXR.A|M.USD.EUR.SP00.A')
-#' ## get all available frequencies: 'EXR.*.USD.EUR.SP00.A' (alternatively: EXR/.USD.EUR.SP00.A)
+#' ## get all available frequencies: 'EXR.*.USD.EUR.SP00.A' (or: EXR/.USD.EUR.SP00.A)
 #' my_ts=getSDMX('ECB','EXR.*.USD.EUR.SP00.A')
 #' }
 getSDMX <- function(provider, id, start='', end='') {

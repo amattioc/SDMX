@@ -40,9 +40,9 @@ updatedAfter, includeHistory)
 # get single time series with history:
 my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', includeHistory=T)
 # get single time series (only observations updated after january 1st 2015):
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015-01-01', includeHistory=F)
+my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=F)
 # get single time series (full revision history starting from january 1st 2015):
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015-01-01', includeHistory=T)
+my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=T)
 }
 }
 
