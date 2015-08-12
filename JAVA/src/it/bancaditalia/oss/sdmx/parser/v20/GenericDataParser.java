@@ -186,7 +186,7 @@ public class GenericDataParser {
 		}
 	}
 
-	private static void setSeriesSingleObs(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
+	private static void setSeriesSingleObs(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException, SdmxException {
 		String time = null;
 		String val = null;
 		Hashtable<String, String> obs_attr = new Hashtable<String, String>();
@@ -210,13 +210,7 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (OBS)) {
-					try {
-						ts.addObservation(new Double(val), time,  obs_attr);
-					} catch (NumberFormatException  e) {
-						logger.warning("Invalid observation: '" + val + "' for ts " + ts.getName() + ". Setting NaN.");
-						ts.addObservation(new Double("NaN"), time,  obs_attr);
-					}
-					
+					ts.addObservation(val, time,  obs_attr);
 					break;
 				}
 			}

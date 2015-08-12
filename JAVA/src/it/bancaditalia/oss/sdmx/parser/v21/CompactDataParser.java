@@ -158,6 +158,10 @@ public class CompactDataParser {
 						if (name.equals(dsd.getTimeDimension())) {
 							time=attribute.getValue();
 						}
+						//workaround for some flows (e.g. in OECD) that do not respect the declared time dimension
+						else if (name.equals("TIME") && time == null) {
+							time=attribute.getValue();
+						}
 						else if (name.equals(dsd.getMeasure())) {
 							obs_val=attribute.getValue();
 						}
@@ -165,12 +169,7 @@ public class CompactDataParser {
 							obs_attr.put(name, attribute.getValue());
 						}
 					}
-					if(time!= null && !time.isEmpty() && obs_val!= null && !obs_val.isEmpty() ){
-						ts.addObservation(new Double(obs_val), time, obs_attr);
-					}
-					else{
-						throw new RuntimeException("Error during CompactData Parsing. Invalid Observation Time: " + time + " or value: " + obs_val);
-					}
+					ts.addObservation(obs_val, time, obs_attr);
 					continue;
 				}
 			}

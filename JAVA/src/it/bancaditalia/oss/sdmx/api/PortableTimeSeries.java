@@ -20,11 +20,15 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This is a Java container for a Time Series. It will be transformed by a converter in the various 
@@ -36,6 +40,8 @@ import java.util.List;
 
 public class PortableTimeSeries {
 	
+	protected static Logger logger = Configuration.getSdmxLogger();
+
 	private String frequency = null;
 	private String dataflow = null;
 	
@@ -81,9 +87,22 @@ public class PortableTimeSeries {
 	public void addDimension(String dimension) {
 		this.dimensions.add(dimension);
 	}
-	public void addObservation(Double observation, String timeSlot, Hashtable<String, String> attributes) {
-		this.observations.add(observation);
+	public void addObservation(String observation, String timeSlot, Hashtable<String, String> attributes) throws SdmxException {
+		if(observation == null || observation.isEmpty()){
+			throw new SdmxException(getName() + ": missing observation for time: " + timeSlot + ".");
+		}
+		try {
+			this.observations.add(new Double(observation));
+		} catch (NumberFormatException  e) {
+			logger.warning(getName() + ": found invalid observation for time: " + timeSlot + ", setting NaN.");
+			this.observations.add(new Double("NaN"));
+		}
+		
+		if(timeSlot == null || timeSlot.isEmpty()){
+			logger.fine(getName() + ": a time slot is missing. This is not a well formed time series, you may want to try the 'getData' command instead...");
+		}
 		this.timeSlots.add(timeSlot);
+		
 		for (Iterator<String> iterator = attributes.keySet().iterator(); iterator.hasNext();) {
 			String key = (String) iterator.next();
 			//backward compatibility, to be removed in a couple of versions

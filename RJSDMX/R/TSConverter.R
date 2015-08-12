@@ -28,7 +28,7 @@ sdmxzoo2df <- function (tts, setId, setMeta) {
     n = length(tts)
     time=as.character(index(tts))
     data=as.numeric(tts)
-    header=c('TIME', 'OBS')
+    header=c('TIME_PERIOD', 'OBS_VALUE')
     ddf=data.frame(time, data)      
     if(setMeta){
       metaddf = data.frame(row.names = 1:n)
@@ -169,7 +169,7 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAtt
 	if(length(values > 0)) {
 
 		if (is.null(freq)) {
-			message ("Frequency is NULL. Irregular timeseries defined\n")
+			message (paste0(tsname, ": frequency is NULL. Irregular timeseries defined"))     
 			tmp_ts <- zoo(values, order.by=times)
 		}
 		else {
