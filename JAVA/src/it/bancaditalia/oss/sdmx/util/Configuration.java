@@ -86,6 +86,10 @@ public class Configuration {
 		return SDMX_LOGGER;
 	}
 	
+	public static Properties getConfiguration(){
+		return props;
+	}
+	
 	public static boolean isSSLCertificatesDisabled(){
 		return props.getProperty(SSL_DISABLE_CERT_CHECK, "FALSE").equalsIgnoreCase("TRUE");
 	}

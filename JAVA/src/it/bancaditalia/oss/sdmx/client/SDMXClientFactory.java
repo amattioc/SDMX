@@ -23,12 +23,8 @@ package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import static it.bancaditalia.oss.sdmx.util.Configuration.CONFIGURATION_FILE;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
@@ -37,7 +33,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,20 +48,11 @@ public class SDMXClientFactory {
 	private static final String ECB_PROVIDER = "http://sdw-wsrest.ecb.europa.eu/service";
 	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
 	private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
-        private static final Properties providersProperties = new Properties();
 
 	//read the configuration file
 	static {
 		providers = new HashMap<String, Provider>();
 		Configuration.init();
-                if(new File(CONFIGURATION_FILE).exists()){
-                    try {
-                        providersProperties.load(new FileInputStream(CONFIGURATION_FILE));
-                    } catch (IOException ex) {
-                        Logger.getLogger(SDMXClientFactory.class.getName()).
-                            log(Level.SEVERE, null, ex);
-                    }
-                }
 		initBuiltInProviders();
 	}
 
@@ -123,13 +109,13 @@ public class SDMXClientFactory {
          */
         private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description) {
             try {
-                final String providerName = providersProperties.getProperty("providers." + name + ".name", name);
-                final String providerEndpoint = providersProperties.getProperty("providers." + name + ".endpoint", endpoint);
+                final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
+                final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
                 final URL providerURL = null != providerEndpoint ? new URL(providerEndpoint) : null;
-                final boolean provdiderNeedsCredentials = Boolean.parseBoolean(providersProperties.getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
-                final boolean providerNeedsURLEncoding = Boolean.parseBoolean(providersProperties.getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
-                final boolean providerSupportsCompression = Boolean.parseBoolean(providersProperties.getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
-                final String providerDescription = providersProperties.getProperty("providers." + name + ".description", description);
+                final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
+                final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
+                final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
+                final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
 
                 addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
             } catch (final MalformedURLException e) {
