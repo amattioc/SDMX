@@ -138,7 +138,13 @@ public class SDMXHelper extends JFrame{
 		menuItem = new JMenuItem("Build commands");
 		menuItem.addActionListener(new BuildCommandActionListener(this));
 		menu.add(menuItem);
-		
+
+		menu = new JMenu("Help");
+		menuBar.add(menu);
+		menuItem = new JMenuItem("About SDMX Connectors...");
+		menuItem.addActionListener(new AboutActionListener(this));
+		menu.add(menuItem);
+
         return menuBar;
     }
     
