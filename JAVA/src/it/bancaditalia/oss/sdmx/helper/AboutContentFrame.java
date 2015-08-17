@@ -20,11 +20,14 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import java.io.File;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -36,6 +39,7 @@ import javax.swing.JTextArea;
  */
 public class AboutContentFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
+	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public AboutContentFrame(){
 		setSize(800, 600);
@@ -49,9 +53,9 @@ public class AboutContentFrame extends JFrame{
 		
 		String buildID = "NOT FOUND";
 		try {
-			Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
-			while (resources.hasMoreElements()) {
-				URL tmp = resources.nextElement();
+			Enumeration<URL> mfs = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+			while (mfs.hasMoreElements()) {
+				URL tmp = mfs.nextElement();
 				if(tmp.getPath().contains("SDMX.jar")){
 					Manifest manifest = new Manifest(tmp.openStream());
 					String build = manifest.getMainAttributes().getValue("BUILD");
@@ -60,8 +64,10 @@ public class AboutContentFrame extends JFrame{
 					}
 				}
 			}
-		} catch (IOException E) {
-			// handle
+		} catch (IOException e) {
+			logger.severe("Exception. Class: " + e.getClass().getName() + 
+					" .Message: " + e.getMessage());
+			logger.log(Level.FINER, "", e);
 		}
 
 		buf.append(	"Build ID: <b>" + buildID + "</b><br><br>");
