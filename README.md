@@ -19,7 +19,7 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki) <br>
 
 **Available functions**
 
-![Functions](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmxtable.png)
+![Functions](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmxtable.png) 
 
 ====
 
