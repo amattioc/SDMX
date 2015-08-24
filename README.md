@@ -1,7 +1,7 @@
 Sdmx Connectors
 ====
 
-Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki) <br><br>
+Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki), latest **stable release**: [1.4](https://github.com/amattioc/SDMX/releases/tag/v1.4) <br><br>
 
 
 ![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx.png)
