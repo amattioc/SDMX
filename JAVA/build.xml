@@ -9,30 +9,44 @@
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 	<property name="build_file"  location="../BUILD"/>
+	
 	<property name="rjsdmx_libdir"  location="../RJSDMX/inst/java"/>
 	<property name="matlab_libdir"  location="../MATLAB/lib"/>
 	<property name="sas_libdir"  location="../SAS/lib"/>
 	<property name="stata_libdir"  location="../STATA/jar"/>
+	<property name="excel_libdir"  location="../EXCEL/lib"/>
+	
+	<property name="matlab_dir"  location="../MATLAB"/>
+	<property name="sas_dir"  location="../SAS"/>
+	<property name="stata_dir"  location="../STATA"/>
+	<property name="excel_dir"  location="../EXCEL"/>
 	
 	<target name="init">
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${rjsdmx_libdir}"/>
+		<mkdir dir="${matlab_libdir}"/>
+		<mkdir dir="${sas_libdir}"/>
+		<mkdir dir="${stata_libdir}"/>
+		<mkdir dir="${excel_libdir}"/>
+
 		<tstamp/>
 		<property name="build_id" value="${DSTAMP}-${TSTAMP}"/>
 		<echo message="${build_id}" file="${build_file}" />
 	</target>
 
-	<target name="sdmxtest" depends="SDMX" description="compile the test source ">
-		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the classpath -->
-		<javac srcdir="${test}" destdir="${build}"/>
-	</target>
-	
-	<target name="SDMX"  depends="clean, init" description="compile the source for base java lib" >
+	<target name="compile"  depends="clean, init" description="compile the source for base java lib" >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}"/>
 	</target>
 
-	<target name="dist" depends="SDMX"  description="generate the distribution" >
+	<target name="sdmxunittest" depends="compile" description="compile the test source ">
+		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the classpath -->
+		<javac srcdir="${test}" destdir="${build}"/>
+	</target>
+
+	<target name="dist" depends="compile"  description="generate the distribution" >
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}/lib"/>
 		<!-- Put everything in ${build} into the jar file -->
@@ -46,6 +60,7 @@
 		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${matlab_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${sas_libdir}"/>
+		<copy file="${dist}/lib/SDMX.jar" todir="${excel_libdir}"/>
 	</target>
 
 	<target name="STATA"  depends="dist" description="compile the source for stata java lib" >
@@ -60,6 +75,21 @@
 		</jar>
 	</target>
 
+	<target name="release"  depends="dist, STATA" description="create release packages" >
+		<tar destfile="${dist}/statasdmx.tar" basedir="${stata_dir}"/>
+		<gzip destfile="${dist}/statasdmx.tar.gz" src="${dist}/statasdmx.tar"/>
+		<delete file="${dist}/statasdmx.tar"/>
+		<tar destfile="${dist}/excelsdmx.tar" basedir="${excel_dir}"/>
+		<gzip destfile="${dist}/excelsdmx.tar.gz" src="${dist}/excelsdmx.tar"/>
+		<delete file="${dist}/excelsdmx.tar"/>
+		<tar destfile="${dist}/sassdmx.tar" basedir="${sas_dir}"/>
+		<gzip destfile="${dist}/sassdmx.tar.gz" src="${dist}/sassdmx.tar"/>
+		<delete file="${dist}/sassdmx.tar"/>
+		<tar destfile="${dist}/matlabsdmx.tar" basedir="${matlab_dir}"/>
+		<gzip destfile="${dist}/matlabsdmx.tar.gz" src="${dist}/matlabsdmx.tar"/>
+		<delete file="${dist}/matlabsdmx.tar"/>
+	</target>
+
 	<target name="clean"
         description="clean up" >
 		<!-- Delete the ${build} and ${dist} directory trees -->
@@ -69,5 +99,6 @@
 		<delete file="${matlab_libdir}/SDMX.jar"/>
 		<delete file="${sas_libdir}/SDMX.jar"/>
 		<delete file="${stata_libdir}/SDMX.jar"/>
+		<delete file="${excel_libdir}/SDMX.jar"/>
 	</target>
 </project>
