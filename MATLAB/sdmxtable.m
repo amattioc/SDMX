@@ -33,6 +33,11 @@ function tstable = sdmxtable(tslist, meta)
 	% permissions and limitations under the Licence.
 	%
     
+    %deal with version
+    if verLessThan('matlab', '8.2.0')
+        error('This function is not supported in MATLAB versions lower than 2013B.');
+    end 
+    
     %deal with arguments
     if nargin <1
         error([ 'Usage: sdmxtable(tslist, meta)\n ' ...
