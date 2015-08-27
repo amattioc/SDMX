@@ -48,6 +48,7 @@ public class SDMXClientFactory {
 	private static final String ECB_PROVIDER = "http://sdw-wsrest.ecb.europa.eu/service";
 	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
 	private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
+	private static final String INSEE_PROVIDER = "http://www.bdm.insee.fr/series/sdmx";
 
 	//read the configuration file
 	static {
@@ -66,9 +67,10 @@ public class SDMXClientFactory {
      *
      */
 	private static void initBuiltInProviders(){
-            addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank");
-            addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, true, "Eurostat");
-            addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica");
+        addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank");
+        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, true, "Eurostat");
+        addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica");
+        addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies");
 
 
 	    //add internal 2.0 providers

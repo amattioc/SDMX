@@ -32,6 +32,7 @@ import org.junit.runners.Suite;
 						IMFTest.class, 
 						InegiTest.class, 
 						WBTest.class,
+						INSEETest.class,
 						NBBTest.class})
 public class AllTests {
 }
