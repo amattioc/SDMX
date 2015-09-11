@@ -36,6 +36,9 @@ function list = getTimeSeries(provider, id, startTime, endTime)
 	%
     
     %deal with arguments
+    
+    initClasspath;
+    
     if nargin <2
         error([ 'Usage: getTimeSeries(provider, id, startTime, endTime)\n' ...
                     'Arguments\n' ...

@@ -30,6 +30,8 @@ function dimensions = getDimensions(provider, dataflow)
 	% permissions and limitations under the Licence.
 	% 
     
+    initClasspath;
+    
     if nargin <2
 		error([ 'Usage: getDimensions(provider, dataflow)\n' ...
                         'Arguments\n' ...

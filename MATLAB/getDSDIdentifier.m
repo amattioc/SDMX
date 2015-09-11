@@ -30,6 +30,8 @@ function dsd = getDSDIdentifier(provider, dataflow)
 	% permissions and limitations under the Licence.
 	% 
 
+    initClasspath;
+    
     if nargin <2
     error([ 'Usage: getDSDIdentifier(provider, dataflow)\n' ...
                     'Arguments\n' ...

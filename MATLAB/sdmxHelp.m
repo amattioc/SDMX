@@ -25,6 +25,8 @@ function sdmxHelp()
 	% permissions and limitations under the Licence.
 	%
     
+    initClasspath;
+    
     %try java code
     try
         it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();

@@ -1,5 +1,5 @@
 % Toolbox MatSDMX
-% Version 1.4.1
+% Version 1.4.2
 % MATLAB interface to SDMX Web Services
 %
 % Files 
@@ -9,6 +9,8 @@
 %	getDimensions - get the list of dimensions for the input dataflow
 %	getDSDIdentifier - get the name of the DSD for the input dataflow
 %	getTimeSeries - get the list of time series that match the input query
+%	sdmxtable - converts the results of the getTimeSeries call from a cell
+%	array of timeseries to a table
 %	sdmxHelp - opena graphical metadata browser that helps building  data queries
 %
 % #############################################################################################

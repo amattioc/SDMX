@@ -31,6 +31,8 @@ function flows = getFlows(provider, pattern)
 	% permissions and limitations under the Licence.
 	%
     
+    initClasspath;
+    
     if nargin == 0
 		error([ 'Usage: getFlows(provider, pattern)\n' ...
                         'Arguments\n' ...
