@@ -68,7 +68,7 @@ public class SDMXClientFactory {
      */
 	private static void initBuiltInProviders(){
         addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank");
-        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, true, "Eurostat");
+        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat");
         addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica");
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies");
 
