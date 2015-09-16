@@ -40,12 +40,15 @@ function list = getTimeSeries(provider, id, startTime, endTime)
     initClasspath;
     
     if nargin <2
-        error([ 'Usage: getTimeSeries(provider, id, startTime, endTime)\n' ...
+        error(sprintf(['Usage: getTimeSeriesTable(provider, id, startTime, endTime)\n' ...
                     'Arguments\n' ...
                     'provider: the name of the SDMX data provider\n' ...
                     'id:   the key of the time series ' ...
                     '(can contain wildcards, ' ...
-                    'e.g. "EXR.M.USD.EUR.SP00.A" or "EXR.M:*:EUR:SP00:A")']);
+                    'e.g. "EXR.M.USD.EUR.SP00.A" or "EXR.M:*:EUR:SP00:A") \n'...
+                    'startTime:   the desired start time  \n' ...
+                    'endTime:   the desired ending time ' ...      
+                    ]));
     end    
     if nargin < 4
         endTime = '';
@@ -57,14 +60,14 @@ function list = getTimeSeries(provider, id, startTime, endTime)
     %check providers
     providers=getProviders();
     if (~ (providers.contains(provider)))
-       error(['Allowed providers are:\n' char(providers.toString)]);
+       error(sprintf('Allowed providers are:\n %s', char(providers.toString)));
     end
     
     %try java code
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries(provider, id, startTime, endTime); 
 	catch mexp
-        error(['SDMX getTimeSeries() error:\n' mexp.message]);            
+        error(sprintf('SDMX getTimeSeries() error:\n %s', mexp.message));      
     end
     
     %verify returned class type

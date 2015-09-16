@@ -152,7 +152,7 @@ public class Configuration {
 						is1 = new FileInputStream(central);
 						is2 = new FileInputStream(central);
 						init(is1, is2);
-						confType = CENTRAL_CONFIGURATION_FILE_PROP;
+						confType = central;
 						SDMX_LOGGER.info("Configuration file: " + confType );
 					} 
 					catch (Exception e) {

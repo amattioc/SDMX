@@ -18,7 +18,7 @@ getTimeSeriesRevisions(provider, id, start = "", end = "",
   has to be in the form: 'YYYY-MM-DD'}
 
   \item{includeHistory}{boolean parameter - optional. If
-  TRUE the full list of revisions will be returned}
+  true the full list of revisions will be returned}
 }
 \description{
 Extract a list of time series starting from a specific
@@ -40,7 +40,7 @@ updatedAfter, includeHistory)
 # get single time series with history:
 my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', includeHistory=TRUE)
 # get single time series (only observations updated after january 1st 2015):
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=FALSE)
+my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=F)
 # get single time series (full revision history starting from january 1st 2015):
 my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=TRUE)
 }

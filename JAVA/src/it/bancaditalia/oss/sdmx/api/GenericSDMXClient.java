@@ -71,7 +71,7 @@ public interface GenericSDMXClient {
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException;
 
 	/**
-     * <p>Gets a time series with the specified classification keys. The id is in a dot separated
+     * <p>Gets a time series list with the specified classification keys. The id is in a dot separated
      * form, where the first token is the name of  the dataflow. Note that single keys can be 
      * wildcarded.
      * 

@@ -106,22 +106,37 @@ convertHashTable <- function (javaList) {
 
 # convert a java List<PortableTimeSeries>
 convertTSList <- function (javaList) {
-
 	rList = as.list(javaList);
 	numOfTS = length(rList);
-	#message(paste("Found ", numOfTS, " timeseries\n"));
-	#result = list();
 	names = lapply(X=rList, FUN=getNames)
 	result = lapply(X=rList, FUN=convertSingleTS)
-  names(result) <- names
-	#if( numOfTS > 0 ) {
+  	names(result) <- names
 	return(result);
+}
+
+# convert a java PortableDataSet
+convertTSDF <- function (jtable) {
+  time = .jcall(jtable,"[Ljava/lang/String;","getTimeStamps", evalString = TRUE, evalArray = TRUE)
+  values = .jcall(jtable,"[Ljava/lang/Double;","getObservations", evalArray = TRUE)
+  values = sapply(values, .jcall,"D","doubleValue")
+  metaNames = .jcall(jtable,"[Ljava/lang/String;","getMetadataNames", evalString = TRUE, evalArray = TRUE)
+  metaList = lapply(metaNames, getMeta, jtable = jtable)
+  names(metaList) = metaNames
+  result = as.data.frame(metaList)
+  result = cbind('OBS_VALUE'=values, result)
+  result = cbind('TIME_PERIOD'=time, result)
+  return(result);
 }
 
 getNames<-function(ttss){
   s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
   name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
   return(name)
+}
+
+getMeta<-function(metaName, jtable){
+  meta = .jcall(jtable,"[Ljava/lang/String;","getMetadata", metaName, evalString = TRUE, evalArray = TRUE)
+  return(meta)
 }
 
 convertSingleTS<-function(ttss){

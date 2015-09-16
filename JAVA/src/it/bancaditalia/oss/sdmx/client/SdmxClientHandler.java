@@ -26,6 +26,7 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.PortableDataSet;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LoginDialog;
@@ -274,6 +275,11 @@ public class SdmxClientHandler {
 		return filterFlows(flows, pattern);
 	}
 
+	public static PortableDataSet getTimeSeriesTable(String provider, String tsKey,
+			String startTime, String endTime) throws SdmxException {
+		return new PortableDataSet(getTimeSeries(provider, tsKey, startTime, endTime, false, null, false));
+	}
+	
 	public static List<PortableTimeSeries> getTimeSeries(String provider, String tsKey,
 			String startTime, String endTime) throws SdmxException {
 		return getTimeSeries(provider, tsKey, startTime, endTime, false, null, false);

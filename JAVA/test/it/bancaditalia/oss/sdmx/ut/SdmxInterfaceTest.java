@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableDataSet;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SASClientHandler;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
@@ -252,7 +253,21 @@ public class SdmxInterfaceTest {
 		assertNotNull("Null gettimeseries result", tslist1);	
 		assertEquals(true, tslist1.size() == 2);
 	}
-	
+
+	@Test
+	public void testGetTimeSeriesTable() throws SdmxException {
+		PortableDataSet tstable = SdmxClientHandler.getTimeSeriesTable("ECB", "EXR.A.USD.EUR.SP00.A", null, null);
+		assertNotNull("Null getTimeSeriesTable result", tstable);	
+		assertTrue("No columns", tstable.getColumnCount() > 0);
+		assertTrue("No rows", tstable.getRowCount() > 0);
+		assertEquals("Error TIME_PERIOD", tstable.getColumnName(0), "TIME_PERIOD");
+		assertEquals("Error OBS_VALUE", tstable.getColumnName(1), "OBS_VALUE");
+		assertEquals("Error OBS_VALUE position", tstable.getColumnIndex("OBS_VALUE"), 1);
+		assertEquals("Error TIME_PERIOD position", tstable.getColumnIndex("TIME_PERIOD"), 0);
+		assertTrue("Error OBS_VALUE value", ((Double) tstable.getValueAt(0, 1)) > 0);
+		
+	}
+
 	@Test
 	public void testSASHandler() throws SdmxException {
 		int result = SASClientHandler.makeGetTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", null, null);

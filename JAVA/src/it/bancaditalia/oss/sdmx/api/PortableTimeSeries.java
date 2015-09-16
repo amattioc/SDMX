@@ -63,6 +63,7 @@ public class PortableTimeSeries {
 		this.status = new ArrayList<String>();
 		this.obsLevelAttributes = new Hashtable<String, ArrayList<String>>();
 	}
+
 	public List<String> getAttributes() {
 		return attributes;
 	}
@@ -168,15 +169,18 @@ public class PortableTimeSeries {
 	}
 	
 	public String getName() {
-		String name = this.dataflow + ".";
-		String delims = "[ =]";
-		for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
-			String dim = (String) iterator.next();
-			String[] tokens = dim.split(delims);
-			String value = tokens[1];
-			name += value;
-			if(iterator.hasNext()){
-				name += ".";
+		String name = null;
+		if(dataflow != null && !dataflow.isEmpty()){
+			name = this.dataflow + ".";
+			String delims = "[ =]";
+			for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
+				String dim = (String) iterator.next();
+				String[] tokens = dim.split(delims);
+				String value = tokens[1];
+				name += value;
+				if(iterator.hasNext()){
+					name += ".";
+				}
 			}
 		}
 		return name;
