@@ -41,37 +41,34 @@ import javax.swing.JFrame;
  *
  */
 public class Configuration {
-	private static final String sourceClass = Configuration.class.getSimpleName();
 	
-	public static final String CONFIGURATION_FILE = "configuration.properties";
+	protected static Logger SDMX_LOGGER = null;
+	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
+	protected static final String PROXY_AUTH_DIGEST = "digest";
+	protected static final String PROXY_AUTH_BASIC = "basic";
+	protected static final String JAVA_SECURITY_KERBEROS_PROP = "java.security.krb5.conf";	
+	protected static final String JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP = "java.security.auth.login.config"; 
+	protected static final String HTTP_AUTH_PREF_PROP = "http.auth.preference";
+	protected static final String SSL_DISABLE_CERT_CHECK_PROP = "ssl.disable.cert.check";  
+	protected static final String SSL_TRUSTSTORE_PROP = "javax.net.ssl.trustStore";
+
 	private static final String CENTRAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
-
-	private static final String PROXY_NAME = "http.proxy.name";
-	private static final String PROXY_DEFAULT = "http.proxy.default";
-		
-	private static final String HTTP_AUTH_USER = "http.auth.user";
-	private static final String PROXY_AUTH_PW = "http.auth.pw";  
-
+	private static final String EXTERNAL_PROVIDERS_PROP = "external.providers";
+	private static final String PROXY_NAME_PROP = "http.proxy.name";
+	private static final String PROXY_DEFAULT_PROP = "http.proxy.default";
+	private static final String HTTP_AUTH_USER_PROP = "http.auth.user";
+	private static final String PROXY_AUTH_PW_PROP = "http.auth.pw";  
 	private static final String REVERSE_DUMP_PROP = "reverse.dump";  
-	private static boolean REVERSE_DUMP = false;
-	
 	private static final String SDMX_LANG_PROP = "sdmx.lang";  
+
+	private static boolean REVERSE_DUMP_DEFAULT = false;
 	private static String SDMX_LANG = "en";  
 	private static final String SDMX_DEFAULT_LANG = "en";  
+	private static final String LOGGER_NAME = "SDMX";
+	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
 
+	private static final String sourceClass = Configuration.class.getSimpleName();
 	private static Properties props = new Properties();
-
-	protected static final String LOGGER_NAME = "SDMX";
-	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";;
-	protected static final String PROXY_AUTH_DIGEST = "digest";;
-	protected static final String PROXY_AUTH_BASIC = "basic";;
-	protected static final String JAVA_SECURITY_KERBEROS_CONF = "java.security.krb5.conf";	
-	protected static final String JAVA_SECURITY_AUTH_LOGIN_CONFIG = "java.security.auth.login.config"; 
-	protected static final String HTTP_AUTH_PREF = "http.auth.preference";
-	protected static final String SSL_DISABLE_CERT_CHECK = "ssl.disable.cert.check";  
-	protected static final String SSL_TRUSTSTORE = "javax.net.ssl.trustStore";
-
-	protected static Logger SDMX_LOGGER = null;
 
 	protected static void setSdmxLogger(){
 		if(SDMX_LOGGER == null){
@@ -91,16 +88,21 @@ public class Configuration {
 	}
 	
 	public static boolean isSSLCertificatesDisabled(){
-		return props.getProperty(SSL_DISABLE_CERT_CHECK, "FALSE").equalsIgnoreCase("TRUE");
+		return props.getProperty(SSL_DISABLE_CERT_CHECK_PROP, "FALSE").equalsIgnoreCase("TRUE");
 	}
 
 	public static boolean isReverse(){
-		return REVERSE_DUMP;
+		return REVERSE_DUMP_DEFAULT;
+	}
+
+	public static String getExternalProviders(){
+		return props.getProperty(Configuration.EXTERNAL_PROVIDERS_PROP);
 	}
 
 	public static String getLang(){
 		return SDMX_LANG;
 	}
+
 	public static void setLang(String lang){
 		SDMX_LANG = lang;
 	}
@@ -131,12 +133,12 @@ public class Configuration {
 		InputStream is2 = null;
 		// try local configuration and global configuration. If found they will be
 		// applied on top of class configuration
-		if(new File(CONFIGURATION_FILE).exists()){
+		if(new File(CONFIGURATION_FILE_NAME).exists()){
 			try {
-				is1 = new FileInputStream(CONFIGURATION_FILE);
-				is2 = new FileInputStream(CONFIGURATION_FILE);
+				is1 = new FileInputStream(CONFIGURATION_FILE_NAME);
+				is2 = new FileInputStream(CONFIGURATION_FILE_NAME);
 				init(is1, is2);
-				confType = System.getProperty("user.dir") + File.separator + CONFIGURATION_FILE;
+				confType = System.getProperty("user.dir") + File.separator + CONFIGURATION_FILE_NAME;
 				SDMX_LOGGER.info("Configuration file: " + confType );
 			} 
 			catch (Exception e) {
@@ -180,15 +182,15 @@ public class Configuration {
 		is2.close();
 		
 		//configure SSL
-		String tStore = props.getProperty(SSL_TRUSTSTORE);
+		String tStore = props.getProperty(SSL_TRUSTSTORE_PROP);
 		if(tStore != null && !tStore.isEmpty()){
-			System.setProperty(SSL_TRUSTSTORE, tStore);
+			System.setProperty(SSL_TRUSTSTORE_PROP, tStore);
 		}
 		
 		//configure default language if not already set explicitly
 		SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
 		//configure dump format
-		REVERSE_DUMP = props.getProperty(REVERSE_DUMP_PROP, "TRUE").equalsIgnoreCase("TRUE");
+		REVERSE_DUMP_DEFAULT = props.getProperty(REVERSE_DUMP_PROP, "TRUE").equalsIgnoreCase("TRUE");
 		
 		configureProxy(props);
 
@@ -200,7 +202,7 @@ public class Configuration {
 		logger.entering(sourceClass, sourceMethod);
 		
 		//property: http.proxy.default
-		String defaultproxy = props.getProperty(PROXY_DEFAULT);
+		String defaultproxy = props.getProperty(PROXY_DEFAULT_PROP);
 		String defaultHost = null;
 		int defaultPort = 0;
 		boolean useProxy = false;
@@ -217,7 +219,7 @@ public class Configuration {
 		
 		for (int i = 0; ; i++) {
 			//property: http.proxy.name_n
-			String proxy = props.getProperty(PROXY_NAME + i);
+			String proxy = props.getProperty(PROXY_NAME_PROP + i);
 			if (proxy != null && ! proxy.isEmpty()){
 				useProxy = true;
 				String[] toks = null;
@@ -226,7 +228,7 @@ public class Configuration {
 					throw new IllegalArgumentException("Proxy settings must be valid. host: '" + toks[0] + "', port: '" + toks[1] + "'");
 				}
 				//property: http.proxy.name_n.list
-				String urls = props.getProperty(PROXY_NAME + i + ".urls");
+				String urls = props.getProperty(PROXY_NAME_PROP + i + ".urls");
 				if(urls != null && !urls.isEmpty()){
 					String[] urlList = urls.split(",");
 					proxySelector.addProxy(toks[0], toks[1], urlList);
@@ -246,16 +248,16 @@ public class Configuration {
 
 		if(props != null && useProxy){
 			//get authentication preferences
-			String proxyAuth = props.getProperty(HTTP_AUTH_PREF);
+			String proxyAuth = props.getProperty(HTTP_AUTH_PREF_PROP);
 			if(proxyAuth != null){ 
 				proxyAuth = proxyAuth.trim();
-				System.setProperty(HTTP_AUTH_PREF, proxyAuth);
+				System.setProperty(HTTP_AUTH_PREF_PROP, proxyAuth);
 				logger.finer(proxyAuth + " authentication enabled.");
 				
 				if(proxyAuth.equalsIgnoreCase(PROXY_AUTH_KERBEROS)){
 					//set properties for JAAS
-					String conf = props.getProperty(JAVA_SECURITY_KERBEROS_CONF);
-					String login = props.getProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG);
+					String conf = props.getProperty(JAVA_SECURITY_KERBEROS_PROP);
+					String login = props.getProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP);
 			    	String krbccname = System.getenv().get("KRB5CCNAME");
 		
 			    	if(krbccname != null && login != null && conf != null){
@@ -264,22 +266,22 @@ public class Configuration {
 			    		conf = conf.trim();
 			    		System.setProperty("user.krb5cc", krbccname);
 				    	System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
-				    	System.setProperty(JAVA_SECURITY_KERBEROS_CONF, conf);
-				    	System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG, login);	    	
-				    	logger.finer(JAVA_SECURITY_KERBEROS_CONF + " = " + conf);
-			    		logger.finer(JAVA_SECURITY_AUTH_LOGIN_CONFIG + " = " + login);
+				    	System.setProperty(JAVA_SECURITY_KERBEROS_PROP, conf);
+				    	System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP, login);	    	
+				    	logger.finer(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
+			    		logger.finer(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
 			    		logger.finer("Environment variable KRB5CCNAME = " + krbccname);
 			    	}
 			    	else{
 			    		logger.warning("Kerberos ticket cache not configured because one of the parameters is not set.");
-			    		logger.warning(JAVA_SECURITY_KERBEROS_CONF + " = " + conf);
-			    		logger.warning(JAVA_SECURITY_AUTH_LOGIN_CONFIG + " = " + login);
+			    		logger.warning(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
+			    		logger.warning(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
 			    		logger.warning("Environment variable KRB5CCNAME = " + krbccname);
 			    	}   	    	
 				}
 				else if(proxyAuth.equalsIgnoreCase(PROXY_AUTH_BASIC)){
-					String username = props.getProperty(HTTP_AUTH_USER);
-					String password = props.getProperty(PROXY_AUTH_PW);
+					String username = props.getProperty(HTTP_AUTH_USER_PROP);
+					String password = props.getProperty(PROXY_AUTH_PW_PROP);
 					setCredentials(proxyAuth, username, password);
 				}
 				else{
@@ -295,7 +297,7 @@ public class Configuration {
 	
 	private static void setCredentials(String scheme, String username, String password){
 		//Logger logger = SDMX_LOGGER;
-		System.setProperty(HTTP_AUTH_PREF, scheme);
+		System.setProperty(HTTP_AUTH_PREF_PROP, scheme);
 		if(username == null || password == null){
 			//logger.warning("Proxy User and password not found.");
 			final JFrame frame = new JFrame("Proxy Authentication");

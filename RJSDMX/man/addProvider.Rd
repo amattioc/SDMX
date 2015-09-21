@@ -2,8 +2,8 @@
 \alias{addProvider}
 \title{add new provider}
 \usage{
-addProvider(name, endpoint, needsCredentials = FALSE,
-  needsURLEncoding = FALSE, supportsCompression = TRUE, description = "")
+addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
+  supportsCompression = TRUE, description = "")
 }
 \arguments{
   \item{name}{the name of the provider}
@@ -32,7 +32,7 @@ addProvider(name, agency, endpoint, needsCredentials)
 }
 \examples{
 \dontrun{
-addProvider('pname', 'pendpoint', F)
+addProvider('pname', 'pendpoint', FALSE)
 }
 }
 

@@ -54,16 +54,18 @@ public class SDMXClientFactory {
 	static {
 		providers = new HashMap<String, Provider>();
 		Configuration.init();
+		logger = Configuration.getSdmxLogger();
 		initBuiltInProviders();
+		initExternalProviders();
 	}
 
 	private static final String sourceClass = SDMXClientFactory.class.getSimpleName();
-	protected static Logger logger = Configuration.getSdmxLogger();
+	protected static Logger logger;
 	private static Map<String, Provider> providers;
 
 
 	/**
-     * Initialize the sdmx providers
+     * Initialize the internal sdmx providers
      *
      */
 	private static void initBuiltInProviders(){
@@ -90,6 +92,20 @@ public class SDMXClientFactory {
             addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName());
         }
 	}
+	
+	/**
+     * Initialize the sdmx providers from the configuration file
+     */
+	private static void initExternalProviders(){
+	    //external providers set in the configuration file
+	    String external = Configuration.getExternalProviders();
+	    if(external != null && !external.isEmpty()){
+	    	String[] ids = external.trim().split("\\s*,\\s*");
+	    	for (int i = 0; i < ids.length; i++) {
+				addExternalProvider(ids[i]);
+			}
+	    }
+	}
 
 	/**
      * General method for creating an SdmxClient.
@@ -106,25 +122,49 @@ public class SDMXClientFactory {
     	providers.put(name, p);
 	}
 
-        /**
-         * Add a builtin provider and check whether the default values need to be overwritten with values defined in the configuration file.
-         */
-        private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description) {
-            try {
-                final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
-                final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
-                final URL providerURL = null != providerEndpoint ? new URL(providerEndpoint) : null;
-                final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
-                final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
-                final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
-                final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
-
-                addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
-            } catch (final MalformedURLException e) {
-                logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
-		logger.log(Level.FINER, "", e);
-            }
+    /**
+     * Add a builtin provider and check whether the default values need to be overwritten with values defined in the configuration file.
+     */
+    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description) {
+        try {
+            final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
+            final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
+            final URL providerURL = null != providerEndpoint ? new URL(providerEndpoint) : null;
+            final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
+            final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
+            final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
+            final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
+            addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
+        } catch (final MalformedURLException e) {
+            logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
+            logger.log(Level.FINER, "", e);
         }
+    }
+
+    /**
+     * Add a external provider and check whether the default values need to be overwritten with values defined in the configuration file.
+     */
+    private static void addExternalProvider(final String id) {
+        try {
+            final String providerName = Configuration.getConfiguration().getProperty("providers." + id + ".name", id);
+            final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + id + ".endpoint");
+            if(providerEndpoint != null && !providerEndpoint.isEmpty()){
+            	final URL providerURL = new URL(providerEndpoint);
+		        final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsCredentials", "false"));
+		        final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsURLEncoding", "false"));
+		        final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".supportsCompression", "false"));
+		        final String providerDescription = Configuration.getConfiguration().getProperty("providers." + id + ".description", id);
+		        addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
+            }
+            else{
+            	logger.warning("No URL has been configured for the external provider: '" + id + "'. It will be skipped.");
+            	return;
+            }
+        } catch (final MalformedURLException e) {
+            logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
+            logger.log(Level.FINER, "", e);
+        }
+    }
 
 	/**
      * General method for creating an SdmxClient.

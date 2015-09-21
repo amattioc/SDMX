@@ -5,8 +5,8 @@
 sdmxHelp(internalJVM = T)
 }
 \arguments{
-  \item{internalJVM}{true (default) if the GUI has to live
-  in the R JVM. Set this to false in MAC, to avoid issue
+  \item{internalJVM}{TRUE (default) if the GUI has to live
+  in the R JVM. Set this to FALSE in MAC, to avoid issue
   #41}
 }
 \description{
@@ -22,7 +22,7 @@ sdmxHelp()
 #opens the helper in the R JVM
 sdmxHelp()
 #opens the helper in an external JVM
-sdmxHelp(F)
+sdmxHelp(FALSE)
 }
 }
 
