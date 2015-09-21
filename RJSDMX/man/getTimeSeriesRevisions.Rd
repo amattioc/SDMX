@@ -37,12 +37,16 @@ updatedAfter, includeHistory)
 }
 \examples{
 \dontrun{
-# get single time series with history:
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', includeHistory=TRUE)
-# get single time series (only observations updated after january 1st 2015):
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=FALSE)
-# get single time series (full revision history starting from january 1st 2015):
-my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=TRUE)
+  # get single time series with history:
+  my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', includeHistory=TRUE)
+
+  # get single time series (only observations updated after january 1st 2015):
+  my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A',
+                   updatedAfter='2015', includeHistory=FALSE)
+
+  # get single time series (full revision history starting from january 1st 2015):
+  my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', 
+                   updatedAfter='2015', includeHistory=TRUE)
 }
 }
 

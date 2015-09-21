@@ -25,7 +25,7 @@ sdmxdf()
 }
 \examples{
 \dontrun{
-# a=getSDMX('ECB', 'EXR.A|Q|M|D.USD.EUR.SP00.A')
+a=getSDMX('ECB', 'EXR.A|Q|M|D.USD.EUR.SP00.A')
 ddf = sdmxdf(a)
 ddf = sdmxdf(a, meta=TRUE)
 }

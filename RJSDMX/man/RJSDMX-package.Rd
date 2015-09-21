@@ -46,8 +46,9 @@ In particular, all information related to configuration (network, tracing, secur
 \keyword{package}
 \seealso{\bold{getProviders, getTimeSeries, sdmxHelp}}
 \examples{
-# not run
-# my_ts = getTimeSeries('ECB','EXR.M.USD.EUR.SP00.A')
+\dontrun{
+ my_ts = getTimeSeries('ECB','EXR.M.USD.EUR.SP00.A')
+}
 }
 \author{Attilio Mattiocco, Diana Nicoletti, Bank of Italy, IT Support for the Economic Research 
 \email{attilio.mattiocco@bancaditalia.it, diana.nicoletti@bancaditalia.it}}

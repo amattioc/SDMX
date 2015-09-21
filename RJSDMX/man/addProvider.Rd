@@ -27,12 +27,10 @@ Configure a new data provider (only SDMX 2.1 REST providers
 are supported). This function can be used to configure a
 new (SDMX 2.1 compliant, REST based) data provider.
 }
-\details{
-addProvider(name, agency, endpoint, needsCredentials)
-}
 \examples{
 \dontrun{
-addProvider('pname', 'pendpoint', FALSE)
+addProvider('test', 'http://sdw-wsrest.ecb.europa.eu/service', FALSE)
+getProviders()
 }
 }
 
