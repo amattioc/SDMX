@@ -91,13 +91,18 @@ function tstable = sdmxtable(tslist, meta)
                     value = tslist{i}.UserData(key);
                 catch exception
                     % attribute not present, set empty
-                    value = ' ';
+                    value = '';
                 end
                 
                 % check if this is a ts level attribute. If so, repeat it
                 % for every observation
                 if ~iscell(value)
-                    value = cellstr(repmat(value, [nobs 1]));
+                    if isempty(value)
+                        % workaround...
+                        value = cellstr(repmat({''}, [nobs 1]));
+                    else
+                        value = cellstr(repmat(value, [nobs 1]));
+                    end
                 end
                 varNames{3 + j} = key;
                 varValues{3 + j} = value;
