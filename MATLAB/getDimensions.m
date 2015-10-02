@@ -40,7 +40,12 @@ function dimensions = getDimensions(provider, dataflow)
     end
     %try java call
     try
-        dimensions = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDimensions(provider, dataflow);
+        dim = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDimensions(provider, dataflow);
+        dim = cell(dim.toArray);
+        dimensions = cell(1,length(dim));
+        for i=1:length(dim)
+            dimensions{i} = char(dim{i}.getId);
+        end
     catch mexp
         error(['SDMX getDimension() error:\n' mexp.message]);             
     end

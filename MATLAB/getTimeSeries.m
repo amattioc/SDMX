@@ -57,12 +57,6 @@ function list = getTimeSeries(provider, id, startTime, endTime)
         startTime = '';
     end
     
-    %check providers
-    providers=getProviders();
-    if (~ (providers.contains(provider)))
-       error(sprintf('Allowed providers are:\n %s', char(providers.toString)));
-    end
-    
     %try java code
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries(provider, id, startTime, endTime); 
