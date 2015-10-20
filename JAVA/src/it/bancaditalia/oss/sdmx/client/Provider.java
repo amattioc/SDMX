@@ -36,13 +36,14 @@ public class Provider {
 	private boolean needsURLEncoding;
 	private boolean supportsCompression;
 	private boolean full = false;
+	private boolean isCustom = false;
 
 	// key: flow id (simple) --> flow
 	private Map<String, Dataflow> flows; 
 	// key: dsd id (full) --> structure
 	private Hashtable<String, DataFlowStructure> dsdNameToStructureCache = null;
 
-	public Provider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description) {
+	public Provider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) {
 		super();
 		this.name = name;
 		this.endpoint = endpoint;
@@ -52,6 +53,7 @@ public class Provider {
 		this.needsCredentials = needsCredentials;
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
+		this.isCustom = isCustom;
 	}
 
 	public String getName() {
@@ -137,6 +139,14 @@ public class Provider {
 
 	public void setSupportsCompression(boolean supportsCompression) {
 		this.supportsCompression = supportsCompression;
+	}
+
+	public void setCustom(boolean isCustom) {
+		this.isCustom = isCustom;
+	}
+
+	public boolean isCustom() {
+		return isCustom;
 	}
 
 }

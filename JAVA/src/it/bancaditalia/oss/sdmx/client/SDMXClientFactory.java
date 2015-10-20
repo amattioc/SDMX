@@ -69,27 +69,27 @@ public class SDMXClientFactory {
      *
      */
 	private static void initBuiltInProviders(){
-        addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank");
-        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat");
-        addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica");
-        addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies");
+        addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false);
+        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
+        addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica", false);
+        addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
 
 
 	    //add internal 2.0 providers
-	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development");
-	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS");
-	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization");
-	    addBuiltInProvider("IMF", null, false, false, false, "International Monetary Fund");
-	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia");
-	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics");
-	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)");
-	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium");
-	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics");
+	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true);
+	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
+	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization", true);
+	    addBuiltInProvider("IMF", null, false, false, false, "International Monetary Fund", true);
+	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true);
+	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
+	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)", true);
+	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
+	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
         for (GenericSDMXClient provider : ldr) {
-            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName());
+            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName(), true);
         }
 	}
 	
@@ -117,15 +117,15 @@ public class SDMXClientFactory {
 	 * @param supportsCompression
 	 * @param description
 	 */
-	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description){
-		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description);
+	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom){
+		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
 	}
 
     /**
      * Add a builtin provider and check whether the default values need to be overwritten with values defined in the configuration file.
      */
-    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description) {
+    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description, boolean isCustom) {
         try {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
@@ -134,7 +134,7 @@ public class SDMXClientFactory {
             final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
             final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
             final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
-            addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
+            addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom);
         } catch (final MalformedURLException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
@@ -154,7 +154,7 @@ public class SDMXClientFactory {
 		        final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsURLEncoding", "false"));
 		        final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".supportsCompression", "false"));
 		        final String providerDescription = Configuration.getConfiguration().getProperty("providers." + id + ".description", id);
-		        addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription);
+		        addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, false);
             }
             else{
             	logger.warning("No URL has been configured for the external provider: '" + id + "'. It will be skipped.");
@@ -184,7 +184,7 @@ public class SDMXClientFactory {
 		String hostname = null;
 
 		String errorMsg = "The provider '" + provider + "' is not available in this configuration.";
-		if(p != null && p.getEndpoint() != null){
+		if(p != null && !p.isCustom()){
 			hostname = p.getEndpoint().getHost();
 			if(p.getEndpoint().getProtocol().equals("http")){
 				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
@@ -212,6 +212,11 @@ public class SDMXClientFactory {
 			try{
 				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.client.custom." + provider);
 				client = (GenericSDMXClient)clazz.newInstance();
+				// apply customizations eventually added by user in configuration file
+				// for now only endpoint can be overridden
+				if(p.getEndpoint() != null){
+					client.setEndpoint(p.getEndpoint());
+				}	
 				hostname = client.getEndpoint().getHost();
 			}
 			catch (ClassNotFoundException e) {

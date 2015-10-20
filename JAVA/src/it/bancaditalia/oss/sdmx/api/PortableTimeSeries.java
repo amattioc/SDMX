@@ -89,18 +89,22 @@ public class PortableTimeSeries {
 		this.dimensions.add(dimension);
 	}
 	public void addObservation(String observation, String timeSlot, Hashtable<String, String> attributes) throws SdmxException {
+		// we'll be very easy here. 
 		if(observation == null || observation.isEmpty()){
-			throw new SdmxException(getName() + ": missing observation for time: " + timeSlot + ".");
-		}
-		try {
-			this.observations.add(new Double(observation));
-		} catch (NumberFormatException  e) {
-			logger.warning(getName() + ": found invalid observation for time: " + timeSlot + ", setting NaN.");
+			logger.info(getName() + ": missing observation for time slot: " + timeSlot + ", I'll set a NaN.");
 			this.observations.add(new Double("NaN"));
 		}
-		
+		else{
+			try {
+				this.observations.add(new Double(observation));
+			} catch (NumberFormatException  e) {
+				logger.info(getName() + ": found invalid observation for time slot: " + timeSlot + ", I'll set a NaN.");
+				this.observations.add(new Double("NaN"));
+			}
+		}
 		if(timeSlot == null || timeSlot.isEmpty()){
-			logger.fine(getName() + ": a time slot is missing. This is not a well formed time series, you may want to try the 'getData' command instead...");
+			logger.info(getName() + ": a time slot is missing. This is not a well formed time series. I'll set a blank character.");
+			timeSlot = "";
 		}
 		this.timeSlots.add(timeSlot);
 		

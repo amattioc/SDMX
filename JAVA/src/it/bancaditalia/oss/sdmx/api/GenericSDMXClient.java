@@ -119,6 +119,11 @@ public interface GenericSDMXClient {
 	public URL getEndpoint() throws SdmxException;
 
 	/**
+     * <p>Sets the URL of the web service for this provider client
+     */
+	public void setEndpoint(URL endpoint);
+
+	/**
      * <p>Gets the exact URL corresponding to the data query in input for this client 
      * @param resource the id of the time series
      * @param startTime start time of the observations to be gathered

@@ -93,7 +93,7 @@ public class SdmxClientHandler {
 		try {
 			ep = new URL(endpoint);
 			SDMXClientFactory.addProvider(name, ep, needsCredentials, needsURLEncoding, 
-					supportsCompression, description);
+					supportsCompression, description, false);
 		} catch (MalformedURLException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + 
 					" .Message: " + e.getMessage());

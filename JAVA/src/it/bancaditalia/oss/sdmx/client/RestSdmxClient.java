@@ -284,6 +284,11 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 
 	@Override
+	public void setEndpoint(URL endpoint) {
+		this.endpoint = endpoint;		
+	}
+
+	@Override
 	public String buildDataURL(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException {
