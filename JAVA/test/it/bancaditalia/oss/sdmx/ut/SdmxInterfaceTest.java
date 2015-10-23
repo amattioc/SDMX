@@ -278,7 +278,6 @@ public class SdmxInterfaceTest {
 			assertNotNull(SASClientHandler.getDataName(i));
 			assertNotNull(SASClientHandler.getDataTimestamp(i));
 			assertNotNull(SASClientHandler.getDataObservation(i));
-			assertNotNull(SASClientHandler.getDataStatus(i));
 		}
 		result = SASClientHandler.getNumberOfMeta();
 		assertTrue(result > 0);
@@ -287,6 +286,14 @@ public class SdmxInterfaceTest {
 			assertNotNull(SASClientHandler.getMetaKey(i));
 			assertNotNull(SASClientHandler.getMetaValue(i));
 			assertNotNull(SASClientHandler.getMetaType(i));
+		}
+		result = SASClientHandler.getNumberOfObsMeta();
+		assertTrue(result > 0);
+		for (int i = 0; i < SASClientHandler.getNumberOfObsMeta(); i++) {
+			assertNotNull(SASClientHandler.getObsMetaName(i));
+			assertNotNull(SASClientHandler.getObsMetaKey(i));
+			assertNotNull(SASClientHandler.getObsMetaValue(i));
+			assertNotNull(SASClientHandler.getObsMetaDate(i));
 		}
 		SASClientHandler.makeGetTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", "2000", "2001");
 		int data2 = SASClientHandler.getNumberOfData();

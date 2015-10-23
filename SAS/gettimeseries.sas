@@ -1,6 +1,6 @@
 /* Copyright 2010,2014 Bank Of Italy
 *
-* Licensed under the EUPL, Version 1.1 or – as soon they
+* Licensed under the EUPL, Version 1.1 or - as soon they
 * will be approved by the European Commission - subsequent
 * versions of the EUPL (the "Licence");
 * You may not use this work except in compliance with the
@@ -38,12 +38,14 @@
 	%if ( &metadata = 0 ) %then %do;
 		%put 'INFO: the metadata retrieval is disabled (default)';
 		%let sdmxmetadata = ;
+		%let sdmxobservationsmetadata = ;
 	%end;
 	%else %do;
 		%let sdmxmetadata = sdmxmetadata;
+		%let sdmxobservationsmetadata = sdmxobservationsmetadata;
 	%end;
 	
-	data sdmxdata &sdmxmetadata;
+	data sdmxdata &sdmxmetadata &sdmxobservationsmetadata;
 		keep TS_NAME OBS_TIME OBS_VALUE OBS_STATUS META_KEY META_VALUE META_TYPE;
 		length nSeries 8.;
 
@@ -100,19 +102,10 @@
 					end;
 					jClient.exceptionclear();
 					
-					jClient.callStaticStringMethod( 'getDataStatus' , num, stat );
-					jClient.exceptioncheck(e);
-					if (e) then do;
-						put 'ERROR: exception in calling getDataStatus';
-						stop;
-					end;
-					jClient.exceptionclear();
-					
 					*put tsName= period= obs= stat= ;
 					TS_NAME = tsName;
 					OBS_TIME = period;
 					OBS_VALUE = obs;
-					OBS_STATUS = stat;
 					output sdmxdata;
 				end;
 			end;
@@ -124,6 +117,8 @@
 			if( &metadata ) then do;			
 				/* call the handler to get the size of the internal metadata section */
 				length nMeta 8.;
+
+				/* time series metadata */
 				jClient.callStaticIntMethod('getNumberOfMeta', nMeta );
 				put  'INFO: processing ' nMeta ' metadata rows';
 
@@ -175,7 +170,61 @@
 						output &sdmxmetadata;
 					end; 	/* end for */
 				end; 	/* end if nMeta > 0*/
-			end;	/* end if outmeta enabled */
+
+				/* observation level metadata */
+				jClient.callStaticIntMethod('getNumberOfObsMeta', nMeta );
+				put  'INFO: processing ' nMeta ' observation level metadata rows';
+
+				if (nMeta > 0) then do;
+					length metaKey $ 35;
+					length metaValue $ 250;
+					length metaDate $ 18;
+					do num=0 to  nMeta-1;
+						/* call the client to get series name, metadata name, value, type */
+						jClient.callStaticStringMethod('getObsMetaName', num, tsName );
+						jClient.exceptioncheck(e);
+						if (e) then do;
+							put 'ERROR: exception in calling getObsMetaName';
+							stop;
+						end;
+						jClient.exceptionclear();
+
+						jClient.callStaticStringMethod('getObsMetaKey', num, metaKey );
+						jClient.exceptioncheck(e);
+						if (e) then do;
+							put 'ERROR: exception in calling getObsMetaKey' e;
+							stop;
+						end;
+						jClient.exceptionclear();
+						
+						
+						jClient.callStaticStringMethod( 'getObsMetaValue' , num, metaValue );
+						jClient.exceptioncheck(e);
+						if (e) then do;
+							put 'ERROR: exception in calling getObsMetaValue';
+							stop;
+						end;
+						jClient.exceptionclear();
+						
+						jClient.callStaticStringMethod('getObsMetaDate', num, metaDate );
+						jClient.exceptioncheck(e);
+						if (e) then do;
+							put 'ERROR: exception in calling getMetaType';
+							stop;
+						end;
+						jClient.exceptionclear();
+						
+
+						*put tsName= metaKey= metaValue= metaType= ;
+						TS_NAME = tsName;
+						META_KEY = metaKey;
+						META_VALUE = metaValue;
+						OBS_TIME = metaDate;
+						output &sdmxobservationsmetadata;
+					end; 	/* end for */
+				end; 	/* end if nMeta > 0*/
+
+			end;	/* end if metadata enabled */
 		end;	/* end if at least one series returned */
 		else do;
 			put  'INFO: no time series to be processed';
@@ -188,7 +237,11 @@
 	%if( &metadata ^= 0 ) %then %do;
 		data &sdmxmetadata;
 			set &sdmxmetadata;
-			drop  OBS_TIME OBS_VALUE OBS_STATUS;
+			drop  OBS_TIME OBS_VALUE;
+		run;
+		data &sdmxobservationsmetadata;
+			set &sdmxobservationsmetadata;
+			drop  OBS_VALUE META_TYPE;
 		run;
 	%end;
 	
@@ -201,5 +254,5 @@
 %mend gettimeseries;
 
 /* example
-*  %gettimeseries(provider="ECB", tsKey="EXR.A.USD.EUR.SP00.A");
+*  %gettimeseries(provider="ECB", tsKey="EXR.A.USD.EUR.SP00.A", metadata=1);
 */

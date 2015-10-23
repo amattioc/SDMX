@@ -33,13 +33,19 @@ public class SASHandlerTest {
 			System.out.println();
 			for (int i = 0; i < SASClientHandler.getNumberOfData(); i++) {
 					System.out.println(SASClientHandler.getDataName(i) + " , " + SASClientHandler.getDataTimestamp(i) + " , " + 
-							SASClientHandler.getDataObservation(i) + " , " + SASClientHandler.getDataStatus(i));
+							SASClientHandler.getDataObservation(i));
 			}
 			for (int i = 0; i < SASClientHandler.getNumberOfMeta(); i++) {
 				System.out.println(SASClientHandler.getMetaName(i) + " , " + 
 									SASClientHandler.getMetaKey(i) + " , " + 
 									SASClientHandler.getMetaValue(i) + " , " + 
 									SASClientHandler.getMetaType(i));
+			}
+			for (int i = 0; i < SASClientHandler.getNumberOfObsMeta(); i++) {
+				System.out.println(SASClientHandler.getObsMetaName(i) + " , " + 
+									SASClientHandler.getObsMetaKey(i) + " , " + 
+									SASClientHandler.getObsMetaValue(i) + " , " + 
+									SASClientHandler.getObsMetaDate(i));
 			}
 		} catch (SdmxException e) {
 			// TODO Auto-generated catch block
