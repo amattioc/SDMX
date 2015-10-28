@@ -14,6 +14,7 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki), lat
 
 * [Shiny SDMX Browser](https://rjsdmx.shinyapps.io/sdmxBrowser/) (code [here](https://github.com/bowerth/sdmxBrowser))
 * [TSsdmx on CRAN](http://cran.us.r-project.org/web/packages/TSsdmx/index.html) (code [here](http://tsdbi.r-forge.r-project.org/))
+* [GETDATA on SSC for STATA](http://econpapers.repec.org/software/bocbocode/S458093.htm)
 
 ====
 
