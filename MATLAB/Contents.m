@@ -1,5 +1,5 @@
 % Toolbox MatSDMX
-% Version 1.4.2
+% Version 1.5
 % MATLAB interface to SDMX Web Services
 %
 % Files 
