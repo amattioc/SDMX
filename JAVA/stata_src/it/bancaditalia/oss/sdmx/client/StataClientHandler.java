@@ -216,6 +216,44 @@ public class StataClientHandler {
 		SDMXHelper.start();
 		return 0;
 	}
+	
+	public static int addProvider(String[] args){
+		int returnCode = 0;
+		if(args.length < 2){
+			SFIToolkit.displayln("The provider name and endpoint are required.");
+			return -1;
+		}
+		String name = args[0];
+		String endpoint = args[1];
+		
+		boolean needsCredentials = false;
+		boolean needsURLEncoding = false;
+		boolean supportsCompression = false;
+		String description = "";
+		
+		if(args.length >= 3 && !args[2].isEmpty()){
+			needsCredentials = args[2].equalsIgnoreCase("1") ? true : false;
+		}
+		if(args.length >= 4 && !args[3].isEmpty()){
+			needsURLEncoding = args[3].equalsIgnoreCase("1") ? true : false;
+		}
+		if(args.length >= 5 && !args[4].isEmpty()){
+			supportsCompression = args[4].equalsIgnoreCase("1") ? true : false;
+		}
+		if(args.length >= 6 && !args[5].isEmpty()){
+			description = args[5];
+		}
+		
+		try{
+			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description);
+		} catch (Exception e) {
+			SFIToolkit.displayln("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			logger.log(Level.FINER, "", e);
+			returnCode = -1;
+		}
+	
+		return returnCode;
+	}
 }
 
 
