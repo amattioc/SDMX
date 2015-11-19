@@ -23,6 +23,7 @@ package it.bancaditalia.oss.sdmx.client.custom;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
@@ -91,6 +92,11 @@ public class ILO extends RestSdmx20Client {
 			}
 		}
 		return result;
+	}
+	
+	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ILO", version);
+		return query;
 	}
 
 //	@Override
