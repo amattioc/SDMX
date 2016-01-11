@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
@@ -72,6 +73,11 @@ public class ILO extends RestSdmx20Client {
 							tmp.setName(dsd.getName());
 							tmp.setAgency(dsd.getAgency());
 							tmp.setVersion(dsd.getVersion());					
+							DSDIdentifier dsdId = new  DSDIdentifier();
+							dsdId.setAgency(dsd.getAgency());
+							dsdId.setId(dsd.getId());
+							dsdId.setVersion(dsd.getVersion());
+							tmp.setDsdIdentifier(dsdId);
 							result.put(tmp.getId(), tmp);
 						}
 					}
