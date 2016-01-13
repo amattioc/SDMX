@@ -56,8 +56,10 @@ public class DataStructureParser {
 	static final String CODELISTS = "CodeLists";
 	static final String CODELIST = "CodeList";
 	static final String CODELIST2 = "codelist";
+	static final String CODELISTAGENCY = "codelistAgency";
         
 	static final String CONCEPTS = "Concepts";
+	static final String CONCEPTSCHEME = "ConceptScheme";
 	static final String CONCEPT = "Concept";
 
 	static final String COMPONENTS = "Components";
@@ -166,6 +168,7 @@ public class DataStructureParser {
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
 					String codelistID = null;
+					String codelistAgency = null;
 					currentDimension = new Dimension();
 					// in sdmx2.0 this position is not set, we rely on the order of the DSD
 					position++;
@@ -177,6 +180,9 @@ public class DataStructureParser {
 						}
 						else if (attribute.getName().toString().equals(CODELIST2)) {
 							codelistID=attribute.getValue();
+						}
+						else if (attribute.getName().toString().equals(CODELISTAGENCY)) {
+							codelistAgency=attribute.getValue();
 						}
 					}
 					
@@ -190,7 +196,7 @@ public class DataStructureParser {
 						throw new RuntimeException("Error during Structure Parsing. Invalid id: " + id);
 					}
 					if(codelistID!= null && !codelistID.isEmpty()){
-						Codelist cl = new  Codelist(codelistID, agency, null);
+						Codelist cl = new  Codelist(codelistID, codelistAgency != null ? codelistAgency : agency, null);
 						if(codelists != null){
 						Map<String, String> codes = codelists.get(cl.getFullIdentifier());
 							cl.setCodes(codes);
@@ -288,13 +294,25 @@ public class DataStructureParser {
 	
 	private static Map<String, String> getConcepts(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
 		Map<String, String> concepts = new Hashtable<String, String>();
+		String conceptSchemeAgency = null;
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 
-				if (startElement.getName().getLocalPart().equals(CONCEPT)) {
+				if (startElement.getName().getLocalPart().equals(CONCEPTSCHEME)) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					conceptSchemeAgency = null;
+					while (attributes.hasNext()) {
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(AGENCYID)) {
+							conceptSchemeAgency = attr.getValue();
+						}
+					}
+					logger.finer("Got conceptSchemeAgency: " + conceptSchemeAgency);
+				} else if (startElement.getName().getLocalPart().equals(CONCEPT)) {
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
@@ -309,6 +327,9 @@ public class DataStructureParser {
 							agency = attr.getValue();
 						}
 					}
+					if (agency == null && conceptSchemeAgency != null) {
+						agency = conceptSchemeAgency;
+                                        }
 					conceptName = agency + "/" + id;
 					logger.finer("Got concept: " + conceptName);
 					concepts.put(conceptName, getConceptName(eventReader));	
