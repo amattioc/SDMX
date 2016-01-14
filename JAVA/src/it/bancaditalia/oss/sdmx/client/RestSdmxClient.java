@@ -312,9 +312,11 @@ public class RestSdmxClient implements GenericSDMXClient{
 			handleHttpHeaders(conn, acceptHeader);
 	
 			int code = conn.getResponseCode();
+			String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
+			
 			if (code == 200) {
 				logger.fine("Connection opened. Code: " +code);
-				if(supportsCompression){
+				if(supportsCompression || encoding.equalsIgnoreCase("gzip")){
 					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()), "UTF-8");
 				}
 				else{
