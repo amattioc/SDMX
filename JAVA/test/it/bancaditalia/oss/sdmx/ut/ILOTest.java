@@ -31,14 +31,9 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ILOTest {
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void getDSDIdentifier() throws SdmxException {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_FRA_EMP_TEMP_SEX_AGE_NB");

@@ -31,15 +31,9 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class InegiTest {
-	
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("INEGI", "DF_STEI");
@@ -62,7 +56,7 @@ public class InegiTest {
 		assertEquals("Wrong code for REF_AREA MEX",  "Mexico", codes.get("MX"));
 		List<Dimension> dim = SdmxClientHandler.getDimensions("INEGI", "DF_STEI");
 		assertNotNull("Null getDimensions result DF_STEI", dim);
-		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=INEGI/CL_AREA, codes={TL=Timor-Leste, TK=Tokelau, TJ=Tajikistan, TH=Thailand, TG=Togo, TF=French Southern Territories, GY=Guyana, TD=Chad,";
+		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=SDMX/CL_AREA, codes={TL=Timor-Leste, TK=Tokelau, TJ=Tajikistan, TH=Thailand, TG=Togo, TF=French Southern Territories, GY=Guyana, TD=Chad,";
 		assertEquals("Wrong dimensions for DF_STEI", result, dim.toString().substring(0, result.length()));
 	}
 	

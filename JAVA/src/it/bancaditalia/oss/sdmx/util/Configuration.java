@@ -60,6 +60,7 @@ public class Configuration {
 	private static final String PROXY_AUTH_PW_PROP = "http.auth.pw";  
 	private static final String REVERSE_DUMP_PROP = "reverse.dump";  
 	private static final String SDMX_LANG_PROP = "sdmx.lang";  
+	private static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
 
 	private static boolean REVERSE_DUMP_DEFAULT = false;
 	private static String SDMX_LANG = "en";  
@@ -101,6 +102,10 @@ public class Configuration {
 
 	public static String getLang(){
 		return SDMX_LANG;
+	}
+
+	public static String getLateResponseRetries(int defaultRetries){
+		return props.getProperty(Configuration.LATE_RESP_RETRIES_PROP, Integer.toString(defaultRetries));
 	}
 
 	public static void setLang(String lang){

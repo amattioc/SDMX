@@ -11,16 +11,9 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ISTATTest {
-	//private static SdmxClientHandler handler= SdmxClientHandler.getInstance();
-	
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("ISTAT", "144_125");
@@ -50,12 +43,12 @@ public class ISTATTest {
 	
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("ISTAT", "115_200_M.*.IT.*.*.N", null, null);
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("ISTAT", "115_362/M....", null, null);
 		assertNotNull("Null time series result", res);
 		
 		//warning: they depend on eventual order
 		String monthly = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "115_200_M.M.IT.CONS_PROD.F.N", monthly);
+		assertEquals("Wrong name for first time series", "115_362.M.F.N.IT.CONS_PROD", monthly);
 		//System.out.println(res);
 	}
 

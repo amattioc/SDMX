@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 public class SDMXClientFactory {
 
 	private static final String ECB_PROVIDER = "http://sdw-wsrest.ecb.europa.eu/service";
-	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
 	private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
 	private static final String INSEE_PROVIDER = "http://www.bdm.insee.fr/series/sdmx";
 
@@ -70,7 +69,7 @@ public class SDMXClientFactory {
      */
 	private static void initBuiltInProviders(){
         addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false);
-        addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
+        //addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
         addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Istituto nazionale di statistica", false);
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
 
@@ -85,6 +84,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
+	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
 
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);

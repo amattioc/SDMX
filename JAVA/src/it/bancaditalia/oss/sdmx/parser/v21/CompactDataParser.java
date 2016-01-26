@@ -28,6 +28,7 @@ import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
+import it.bancaditalia.oss.sdmx.util.ResponseTooLargeException;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.BufferedReader;
@@ -116,6 +117,7 @@ public class CompactDataParser {
 					String errorCode = null;
 					String errorSeverity = null;
 					LocalizedText errorMsg = new LocalizedText(Configuration.getLang());
+					LocalizedText url = new LocalizedText(Configuration.getLang());
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
@@ -129,9 +131,11 @@ public class CompactDataParser {
 							errorSeverity = value;
 						}
 					}
-					eventReader.nextEvent();
+					eventReader.nextEvent(); // error msg
 					errorMsg.setText(startElement, eventReader);
-					throw new SdmxException("SDMX Error received. Code: " + errorCode + "; Severity: " + errorSeverity + ". Message: " + errorMsg.getText());
+					eventReader.nextEvent(); // url of the response (for Eurostat only...)
+					url.setText(startElement, eventReader);
+					throw new ResponseTooLargeException("SDMX Error received. Code: " + errorCode + "; Severity: " + errorSeverity + ". Message: " + errorMsg.getText(), url.getText());
 				}
 
 				if (startElement.getName().getLocalPart() == (SERIES)) {

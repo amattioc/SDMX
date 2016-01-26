@@ -32,14 +32,9 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ECBTest {
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void getDSDIdentifier() throws SdmxException {
 		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("ECB", "EXR");

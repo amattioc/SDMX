@@ -36,14 +36,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SdmxInterfaceTest {
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void testGetAddProvider() throws SdmxException {
 		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, "test provider");

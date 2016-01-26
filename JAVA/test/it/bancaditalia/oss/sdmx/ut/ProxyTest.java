@@ -30,14 +30,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ProxyTest {
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
-
 	@Test
 	public void testProxyConfiguration() throws URISyntaxException {
 		SdmxProxySelector noDefault = new SdmxProxySelector(null, 0);

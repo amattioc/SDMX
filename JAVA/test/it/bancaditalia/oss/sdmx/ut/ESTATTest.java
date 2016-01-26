@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
@@ -31,15 +32,10 @@ import it.bancaditalia.oss.sdmx.util.SdmxException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 
 public class ESTATTest {
-	
-	@BeforeClass
-	public static void setUp() throws Exception {
-	}
 	
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
@@ -83,6 +79,9 @@ public class ESTATTest {
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "2000-01", start);
 		//System.out.println(res);
+		res = SdmxClientHandler.getTimeSeries("EUROSTAT","lfsa_pgaied/.....", null, null);
+		assertNotNull("Null time series result", res);
+		assertTrue("Zero time series returned", res.size() > 0);
 	}
 
 }

@@ -246,6 +246,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			else{
 				throw new SdmxException("The query returned a null stream");
 			}
+		} catch (SdmxException se) {
+			throw se;
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
