@@ -105,7 +105,7 @@ Public Sub getTimeSeries()
         i = 0
         Do While i < tsSize
             Dim fields As Variant
-            fields = Split(rows(i), ",", -1)
+            fields = Split(rows(i), ";", -1)
             Dim fieldSize As Integer
             fieldSize = UBound(fields) + 1
             Dim j As Integer

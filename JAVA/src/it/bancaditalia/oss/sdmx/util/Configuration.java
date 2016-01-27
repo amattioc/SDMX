@@ -61,8 +61,10 @@ public class Configuration {
 	private static final String REVERSE_DUMP_PROP = "reverse.dump";  
 	private static final String SDMX_LANG_PROP = "sdmx.lang";  
 	private static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
+	private static final String TABLE_DUMP_PROP = "table.dump";  
 
-	private static boolean REVERSE_DUMP_DEFAULT = false;
+	private static String REVERSE_DUMP_DEFAULT = "FALSE";
+	private static String TABLE_DUMP_DEFAULT = "FALSE";
 	private static String SDMX_LANG = "en";  
 	private static final String SDMX_DEFAULT_LANG = "en";  
 	private static final String LOGGER_NAME = "SDMX";
@@ -93,7 +95,11 @@ public class Configuration {
 	}
 
 	public static boolean isReverse(){
-		return REVERSE_DUMP_DEFAULT;
+		return props.getProperty(REVERSE_DUMP_PROP, REVERSE_DUMP_DEFAULT).equalsIgnoreCase("TRUE");
+	}
+
+	public static boolean isTable(){
+		return props.getProperty(TABLE_DUMP_PROP, TABLE_DUMP_DEFAULT).equalsIgnoreCase("TRUE");
 	}
 
 	public static String getExternalProviders(){
@@ -194,8 +200,6 @@ public class Configuration {
 		
 		//configure default language if not already set explicitly
 		SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
-		//configure dump format
-		REVERSE_DUMP_DEFAULT = props.getProperty(REVERSE_DUMP_PROP, "TRUE").equalsIgnoreCase("TRUE");
 		
 		configureProxy(props);
 

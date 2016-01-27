@@ -370,42 +370,47 @@ public class SdmxClientHandler {
 		if(id == null || id.trim().isEmpty()){
 			throw new SdmxException("The id cannot be null: " + id);
 		}
-		StringBuffer result = new StringBuffer("");
-		List<PortableTimeSeries> ts = getTimeSeries(provider, id, startTime, endTime);
-		
-		// create header row 
-		// and get maximum ts size
-		
-		int maxSize = 0;
-		for (Iterator<PortableTimeSeries> iterator = ts.iterator(); iterator.hasNext();) {
-			PortableTimeSeries series = (PortableTimeSeries) iterator.next();
-			result.append(",").append(series.getName());
-			int size = series.getObservations().size();
-			if(size > maxSize) maxSize = size;
-			if(iterator.hasNext()){
-				result.append(",");
-			}
-			if(Configuration.isReverse()){
-				//reverse the time series for user friendliness
-				series.reverse();
-			}
+		if(!SDMXClientFactory.getProviders().containsKey(provider)){
+			throw new SdmxException("The provider : " + id + " does not exist.");
 		}
-		result.append("\n");
-		for (int i = 0; i < maxSize; i++) {
-			for (int j = 0; j < ts.size(); j++) {
-				if(i < ts.get(j).getObservations().size()){
-					result.append(ts.get(j).getTimeSlots().get(i)).append(",");
-					result.append(ts.get(j).getObservations().get(i));
-					
+		StringBuffer result = new StringBuffer("");
+		if(!Configuration.isTable()){
+			// Do it as a list of time series
+			List<PortableTimeSeries> ts = getTimeSeries(provider, id, startTime, endTime);
+			int maxSize = 0;
+			for (Iterator<PortableTimeSeries> iterator = ts.iterator(); iterator.hasNext();) {
+				PortableTimeSeries series = (PortableTimeSeries) iterator.next();
+				result.append(";").append(series.getName());
+				int size = series.getObservations().size();
+				if(size > maxSize) maxSize = size;
+				if(iterator.hasNext()){
+					result.append(";");
 				}
-				else{
-					result.append(",");
-				}
-				if(j+1<ts.size()){
-					result.append(",");
+				if(Configuration.isReverse()){
+					//reverse the time series for user friendliness
+					series.reverse();
 				}
 			}
 			result.append("\n");
+			for (int i = 0; i < maxSize; i++) {
+				for (int j = 0; j < ts.size(); j++) {
+					if(i < ts.get(j).getObservations().size()){
+						result.append(ts.get(j).getTimeSlots().get(i)).append(";");
+						result.append(ts.get(j).getObservations().get(i));
+					}
+					else{
+						result.append(";");
+					}
+					if(j+1<ts.size()){
+						result.append(";");
+					}
+				}
+				result.append("\n");
+			}
+		}
+		else{
+			// do it as a table
+			result.append(getTimeSeriesTable(provider, id, startTime, endTime).toString());
 		}
 		return result.toString();
 	}
