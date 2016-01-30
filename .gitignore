@@ -1,6 +1,10 @@
-SCALA/.ensime
-SCALA/project/.ensime
+SCALA/project/target
 SCALA/project/EnsimeProjectSettings.scala
-SCALA/.gitignore
+SCALA/project/.ensime
+SCALA/target
 SCALA/.ensime_cache
+
+SCALA/.ensime
+SCALA/.gitignore
+
 *.*~
