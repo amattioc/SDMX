@@ -77,9 +77,9 @@ Public Sub getTimeSeries()
         
 '## build the command
     Dim command As String
-    command = "cmd /c """ & SDMX_JAVA & """ " & SDMX_LIB & " it.bancaditalia.oss.sdmx.util.GetTimeSeries " _
+    command = "cmd /c " & SDMX_JAVA & " " & SDMX_LIB & " it.bancaditalia.oss.sdmx.util.GetTimeSeries " _
                 & " " & provider & " " & query & " " _
-                & startTime & " " & endTime & " " & user & " " & pw
+                & """" & startTime & """" & " " & """" & endTime & """" & " " & user & " " & pw
     
 '## execute the command
     Dim wsh As Object
