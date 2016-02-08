@@ -52,23 +52,23 @@ public class Configuration {
 	protected static final String SSL_DISABLE_CERT_CHECK_PROP = "ssl.disable.cert.check";  
 	protected static final String SSL_TRUSTSTORE_PROP = "javax.net.ssl.trustStore";
 
-	private static final String CENTRAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
-	private static final String EXTERNAL_PROVIDERS_PROP = "external.providers";
-	private static final String PROXY_NAME_PROP = "http.proxy.name";
-	private static final String PROXY_DEFAULT_PROP = "http.proxy.default";
-	private static final String HTTP_AUTH_USER_PROP = "http.auth.user";
-	private static final String PROXY_AUTH_PW_PROP = "http.auth.pw";  
-	private static final String REVERSE_DUMP_PROP = "reverse.dump";  
-	private static final String SDMX_LANG_PROP = "sdmx.lang";  
-	private static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
-	private static final String TABLE_DUMP_PROP = "table.dump";  
+	protected static final String CENTRAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
+	protected static final String EXTERNAL_PROVIDERS_PROP = "external.providers";
+	protected static final String PROXY_NAME_PROP = "http.proxy.name";
+	protected static final String PROXY_DEFAULT_PROP = "http.proxy.default";
+	protected static final String HTTP_AUTH_USER_PROP = "http.auth.user";
+	protected static final String PROXY_AUTH_PW_PROP = "http.auth.pw";  
+	protected static final String REVERSE_DUMP_PROP = "reverse.dump";  
+	protected static final String SDMX_LANG_PROP = "sdmx.lang";  
+	protected static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
+	protected static final String TABLE_DUMP_PROP = "table.dump";  
 
-	private static String REVERSE_DUMP_DEFAULT = "FALSE";
-	private static String TABLE_DUMP_DEFAULT = "FALSE";
-	private static String SDMX_LANG = "en";  
+	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
+	private static final String TABLE_DUMP_DEFAULT = "FALSE";
 	private static final String SDMX_DEFAULT_LANG = "en";  
 	private static final String LOGGER_NAME = "SDMX";
 	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
+	private static  String SDMX_LANG = "en";  
 
 	private static final String sourceClass = Configuration.class.getSimpleName();
 	private static Properties props = new Properties();

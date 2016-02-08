@@ -34,6 +34,7 @@ import org.junit.runners.Suite;
 						WBTest.class,
 						INSEETest.class,
 						NBBTest.class,
+						UNDATATest.class,
 						ProxyTest.class})
 public class AllTests {
 }
