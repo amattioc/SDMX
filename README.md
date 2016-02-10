@@ -23,6 +23,9 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 
 ![Functions](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmxtable.png) 
 
+**Note 1:** In Windows the helper can be launched just double clicking the SDMX.jar <br>
+**Note 2:** New Providers can be added by means of the configuration file <br>
+
 ====
 
 **NEW: The SDMX helper can be used from within any statistical tool or as a standalone application (just double click the SDMX.jar)**
