@@ -310,6 +310,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			URL url = new URL(query);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
+			conn.setReadTimeout(Configuration.getReadTimeout(this.getClass().getSimpleName()));
+			conn.setConnectTimeout(Configuration.getReadTimeout(this.getClass().getSimpleName()));
 			
 			handleHttpHeaders(conn, acceptHeader);
 	

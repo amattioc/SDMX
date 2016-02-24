@@ -62,10 +62,13 @@ public class Configuration {
 	protected static final String SDMX_LANG_PROP = "sdmx.lang";  
 	protected static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
 	protected static final String TABLE_DUMP_PROP = "table.dump";  
+	protected static final String READ_TIMEOUT_PROP = "read.timeout";  
+	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";  
 
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
 	private static final String SDMX_DEFAULT_LANG = "en";  
+	private static final String SDMX_DEFAULT_TIMEOUT = "0";  
 	private static final String LOGGER_NAME = "SDMX";
 	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static  String SDMX_LANG = "en";  
@@ -104,6 +107,22 @@ public class Configuration {
 
 	public static String getExternalProviders(){
 		return props.getProperty(Configuration.EXTERNAL_PROVIDERS_PROP);
+	}
+
+	public static int getReadTimeout(String provider){
+		String timeout = props.getProperty(provider + "." + Configuration.READ_TIMEOUT_PROP, null);
+		if(timeout == null){
+			timeout = props.getProperty(Configuration.READ_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
+		}
+		return Integer.parseInt(timeout);	
+	}
+	
+	public static String getConnectTimeout(String provider){
+		String timeout = props.getProperty(provider + "." + Configuration.CONNECT_TIMEOUT_PROP, null);
+		if(timeout == null){
+			timeout = props.getProperty(Configuration.CONNECT_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
+		}
+		return timeout;	
 	}
 
 	public static String getLang(){
