@@ -61,6 +61,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected String user = null;
 	protected String pw = null;
 	protected HttpURLConnection conn = null;
+	protected int readTimeout = Configuration.getReadTimeout(this.getClass().getSimpleName());
+	protected int connectTimeout = Configuration.getConnectTimeout(this.getClass().getSimpleName());
 	
 	private static final String sourceClass = RestSdmxClient.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
@@ -73,7 +75,15 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.supportsCompression=supportsCompression;
 	}
 
-	@Override
+	public void setReadTimeout(int timeout) {
+		this.readTimeout = timeout;
+	}
+
+	public void setConnectTimeout(int timeout) {
+		this.connectTimeout = timeout;    
+	}
+
+        @Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
@@ -310,8 +320,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			URL url = new URL(query);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
-			conn.setReadTimeout(Configuration.getReadTimeout(this.getClass().getSimpleName()));
-			conn.setConnectTimeout(Configuration.getReadTimeout(this.getClass().getSimpleName()));
+			conn.setReadTimeout(readTimeout);
+			conn.setConnectTimeout(connectTimeout);
 			
 			handleHttpHeaders(conn, acceptHeader);
 	

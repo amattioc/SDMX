@@ -117,12 +117,12 @@ public class Configuration {
 		return Integer.parseInt(timeout);	
 	}
 	
-	public static String getConnectTimeout(String provider){
+	public static int getConnectTimeout(String provider){
 		String timeout = props.getProperty(provider + "." + Configuration.CONNECT_TIMEOUT_PROP, null);
 		if(timeout == null){
 			timeout = props.getProperty(Configuration.CONNECT_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
 		}
-		return timeout;	
+		return Integer.parseInt(timeout);	
 	}
 
 	public static String getLang(){
