@@ -25,6 +25,7 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.ResponseTooLargeException;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
@@ -51,6 +52,12 @@ public class EUROSTAT extends RestSdmxClient{
 
 	public EUROSTAT() throws MalformedURLException{
 		super("Eurostat", new URL(EUROSTAT_PROVIDER), false, false, false);
+	}
+
+	@Override
+	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ESTAT", version);
+		return query;
 	}
 	
 	@Override
