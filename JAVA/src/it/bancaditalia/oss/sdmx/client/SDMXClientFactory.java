@@ -52,6 +52,7 @@ public class SDMXClientFactory {
 	private static final String ISTAT_PROVIDER_IND = "http://sdmx.istat.it/WS_CIS/rest";
 	private static final String INSEE_PROVIDER = "http://www.bdm.insee.fr/series/sdmx";
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
+	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
 	
 	//read the configuration file
 	static {
@@ -80,6 +81,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("ISTAT_CENSUS_IND", ISTAT_PROVIDER_IND, false, false, false, "ISTAT - Industry and services census 2011", false);
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
         addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false);
+        addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
 
 
 	    //add internal 2.0 providers

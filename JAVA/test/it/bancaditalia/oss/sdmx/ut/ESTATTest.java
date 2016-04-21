@@ -75,7 +75,7 @@ public class ESTATTest {
 		
 		//warning: they depend on eventual order
 		String monthly = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "prc_hicp_midx.M.I15.CP00.DE", monthly);
+		assertEquals("Wrong name for first time series", "prc_hicp_midx.M.I05.CP00.DE", monthly);
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "2000-01", start);
 		//check delayed response
