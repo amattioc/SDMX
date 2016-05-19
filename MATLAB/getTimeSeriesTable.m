@@ -41,8 +41,8 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     initClasspath;
     
     if nargin <2
-        error(sprintf(['Usage: getTimeSeriesTable(provider, id, startTime, endTime)\n' ...
-                    'Arguments\n' ...
+        error(sprintf(['\nUsage: getTimeSeriesTable(provider, id, startTime, endTime)\n\n' ...
+                    'Arguments\n\n' ...
                     'provider: the name of the SDMX data provider\n' ...
                     'id:   the key of the time series ' ...
                     '(can contain wildcards, ' ...
@@ -57,13 +57,7 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     if nargin < 3
         startTime = '';
     end
-    
-    %check providers
-    providers=getProviders();
-    if (~ (providers.contains(provider)))
-       error(sprintf('Allowed providers are:\n %s', char(providers.toString)));
-    end
-    
+       
     %try java code
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, id, startTime, endTime); 
