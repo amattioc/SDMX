@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.parser.v20;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
@@ -62,11 +63,12 @@ public class GenericDataParser {
 	private static final String ATTRIBUTES = "Attributes";
 	private static final String ATTRIBUTEVALUE = "Value";
 
-	public static List<PortableTimeSeries> parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
+	public static DataParsingResult parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
+		DataParsingResult result = new DataParsingResult();
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
 		PortableTimeSeries ts = null;
 
@@ -102,7 +104,8 @@ public class GenericDataParser {
 				}
 			}
 		}
-		return tsList;
+		result.setData(tsList);
+		return result;
 	}
 
 	private static void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader, DataFlowStructure dsd) throws XMLStreamException {

@@ -24,9 +24,11 @@ import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
@@ -238,20 +240,28 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 		return result;
 	}
-
+	
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
+		DataParsingResult ts = getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		return ts.getData();
+	}
+
+	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		String query=null;
 		InputStreamReader xmlStream = null;
-		List<PortableTimeSeries> ts = null;
+		DataParsingResult ts = new DataParsingResult();
 		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		try {
 			xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 			if(xmlStream!=null){
 				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-				//ts = GenericDataParser.parse(xml);
+				Message msg = ts.getMessage();
+				if(msg != null){
+					logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
+				}
 			}
 			else{
 				throw new SdmxException("The query returned a null stream");

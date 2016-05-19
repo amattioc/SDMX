@@ -351,7 +351,7 @@ public class Configuration {
 				logger.finer("Requesting Protocol: " + getRequestingProtocol());
 				logger.finer("Requesting Scheme : " + getRequestingScheme());
 				
-				logger.entering(sourceClass, sourceMethod);
+				logger.exiting(sourceClass, sourceMethod);
 				return p;
 			}
         }); 
