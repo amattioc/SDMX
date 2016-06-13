@@ -32,14 +32,15 @@ Public Sub getTimeSeries()
     
     SDMX_LIB = Environ("SDMX_LIB")
     If SDMX_LIB <> "" Then
-       SDMX_LIB = "-cp " & SDMX_LIB
+       'the path to the jar hs to be quoted, for avoiding problems with spaces
+       SDMX_LIB = "-cp """ & SDMX_LIB & """"
     End If
     
     Dim ws As Excel.Worksheet
     Set ws = Excel.ActiveSheet
     
 '## clean-up sheet
-    With Sheets(ws.name)
+    With Sheets(ws.Name)
         .rows(2 & ":" & .rows.Count).ClearContents
     End With
     
