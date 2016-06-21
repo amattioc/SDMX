@@ -105,6 +105,40 @@ public class ILO extends RestSdmx20Client {
 		return query;
 	}
 
+	@Override
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
+		String query=null;
+		InputStreamReader xmlStream = null;
+		DataFlowStructure str = new DataFlowStructure();
+		if(dsd!=null){
+			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
+			xmlStream = runQuery(query, null);
+			if(xmlStream!=null){
+				try {
+					str = DataStructureParser.parse(xmlStream).get(0);
+				} catch (Exception e) {
+					logger.severe("Exception caught parsing results from call to provider " + name);
+					logger.log(Level.FINER, "Exception: ", e);
+					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+				} finally{
+					try {
+						xmlStream.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
+					}
+				}
+			}
+			else{
+				throw new SdmxException("The query returned a null stream");
+			}
+		}
+		else{
+			throw new SdmxException("Null dsd in input");
+		}
+		return str;
+	
+	}
+
 //	@Override
 //	protected String buildDSDQuery(String dsd, String agency, String version){
 //		agency = "ILO";
