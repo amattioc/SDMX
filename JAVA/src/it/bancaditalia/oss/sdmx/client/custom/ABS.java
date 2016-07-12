@@ -41,7 +41,7 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			// agency=all is not working. we always use ABS

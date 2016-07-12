@@ -104,39 +104,4 @@ public class ILO extends RestSdmx20Client {
 		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ILO", version);
 		return query;
 	}
-
-//	@Override
-//	protected String buildDSDQuery(String dsd, String agency, String version){
-//		agency = "ILO";
-//		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
-//
-//			String query = endpoint + "/datastructure/" + agency + "/" + dsd;
-//			return query;
-//		}
-//		else{
-//			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
-//		}
-//	}
-
-//	@Override
-//	protected String buildDataQuery(Dataflow dataflow, String resource, 
-//			String startTime, String endTime, 
-//			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
-//		if( endpoint!=null && 
-//				dataflow!=null &&
-//				resource!=null && !resource.isEmpty()){
-//
-//			// for ILO use the simple DF id
-//			String query = endpoint + "/data/" + dataflow.getFullIdentifier() + "/";
-//			query += resource ;
-//			
-//			//query=query+"?";
-//			//query += "&format=compact_v2";
-//			query += RestQueryBuilder.addParams(startTime, endTime,serieskeysonly, null, false);
-//			return query;
-//		}
-//		else{
-//			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
-//		}
-//	}
 }

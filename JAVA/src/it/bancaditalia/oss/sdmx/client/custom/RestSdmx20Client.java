@@ -133,7 +133,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		InputStreamReader xmlStream = null;
 		DataFlowStructure str = new DataFlowStructure();
 		if(dsd!=null){
-			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion());
+			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			xmlStream = runQuery(query, null);
 			if(xmlStream!=null){
 				try {
@@ -229,10 +229,6 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		return ts;
 	}
 
-	protected String buildDSDQuery(String dsd, String agency, String version) throws SdmxException{
-		return super.buildDSDQuery(dsd, agency, version, false);
-	}
-	
 	@Override
 	protected String buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
