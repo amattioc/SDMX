@@ -164,12 +164,13 @@ public class QueryPanel extends JPanel implements ActionListener{
     }
     
 	public static String getSDMXQuery() throws SdmxException{
-		StringBuffer buf = new StringBuffer(QueryPanel.selectedDataflow + "/");
+		String buf = QueryPanel.selectedDataflow + "/";
+		StringBuffer query = new StringBuffer("");
 		List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
 		int i = 0;
 		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext(); i++) {
 			if(i != 0){
-				buf.append(".");
+				query.append(".");
 			}
 			Dimension dim = (Dimension) iterator.next();
 			JTable table = QueryPanel.codeTables.get(dim.getId());
@@ -177,15 +178,23 @@ public class QueryPanel extends JPanel implements ActionListener{
 				int[] rowSelected =table.getSelectedRows();
 				for (int j = 0; j < rowSelected.length; j++) {
 					if(j != 0){
-						buf.append("+");
+						query.append("+");
 					}
 					int convertedIndex = table.convertRowIndexToModel(rowSelected[j]);
 					String code = table.getModel().getValueAt(convertedIndex, 0).toString();
-					buf.append(code);
+					query.append(code);
 				}
 			}
 		}
-		return buf.toString();
+		
+		// temporary workaround for issue #94. 
+		// The '..' path breaks some providers and the 'all' keyword is a good replacement, 
+		// but it is not accepted by the Eurostat provider (that anyway is able to handle the '..' path
+		if(query.toString().equals("..") && !QueryPanel.selectedProvider.equalsIgnoreCase("EUROSTAT")){
+			query = new StringBuffer("all");
+		}
+		buf += query.toString();
+		return buf;
 	}
 
 }

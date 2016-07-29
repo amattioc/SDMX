@@ -329,7 +329,7 @@ public class DataStructureParser {
 					}
 					if (agency == null && conceptSchemeAgency != null) {
 						agency = conceptSchemeAgency;
-                                        }
+                    }
 					conceptName = agency + "/" + id;
 					logger.finer("Got concept: " + conceptName);
 					concepts.put(conceptName, getConceptName(eventReader));	

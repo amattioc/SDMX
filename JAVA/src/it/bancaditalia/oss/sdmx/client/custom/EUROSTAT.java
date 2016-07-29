@@ -22,11 +22,13 @@ package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.ResponseTooLargeException;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.IOException;
@@ -52,6 +54,12 @@ public class EUROSTAT extends RestSdmxClient{
 	public EUROSTAT() throws MalformedURLException{
 		super("Eurostat", new URL(EUROSTAT_PROVIDER), false, false, false);
 	}
+
+	@Override
+	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ESTAT", version);
+		return query;
+	}
 	
 	@Override
 	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow,
@@ -59,42 +67,41 @@ public class EUROSTAT extends RestSdmxClient{
 							String endTime, boolean serieskeysonly, String updatedAfter,
 							boolean includeHistory) throws SdmxException {
 		
-		List<PortableTimeSeries> ts = null;
+		DataParsingResult data = null;
 		InputStreamReader isr = null;
-		HttpURLConnection conn = null;
-		try{
-			ts = super.getTimeSeries(dataflow, dsd, resource, startTime, endTime,
-										serieskeysonly, updatedAfter, includeHistory);
-		}
-		catch (ResponseTooLargeException re){
-			isr = pollLateResponse(re);
-			if(isr != null){
-				try{
-					ts = CompactDataParser.parse(isr, dsd, dataflow.getId(), !serieskeysonly);
-				} catch (Exception e) {
-					logger.severe("Exception caught parsing results from call to provider " + name);
-					logger.log(Level.FINER, "Exception: ", e);
-					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		List<PortableTimeSeries> ts = null;
+		data = getData(dataflow, dsd, resource, startTime, endTime,
+									serieskeysonly, updatedAfter, includeHistory);
+		ts = data.getData();
+		if(ts == null || ts.size() == 0){
+			Message msg = data.getMessage();
+			if(msg != null && msg.getCode() != null && msg.getCode().equalsIgnoreCase("413") && msg.getUrl() != null){
+				isr = pollLateResponse(msg.getUrl());
+				if(isr != null){
+					try{
+						data = CompactDataParser.parse(isr, dsd, dataflow.getId(), !serieskeysonly);
+					} catch (Exception e) {
+						logger.severe("Exception caught parsing results from call to provider " + name);
+						logger.log(Level.FINER, "Exception: ", e);
+						throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+					}
 				}
+				if(isr != null){
+					try {
+						isr.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
+					}
+				}
+				if (conn != null) {
+			        conn.disconnect();
+			    }
 			}
 		}
-		finally{
-			if(isr != null){
-				try {
-					isr.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
-			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
-		}
-		return ts;
+		return data.getData();
 	}
 	
-	private InputStreamReader pollLateResponse(ResponseTooLargeException re) throws SdmxException{
-		String urlStr = re.getUrl();
+	private InputStreamReader pollLateResponse(String urlStr) throws SdmxException{
 		InputStreamReader isr = null;
 		if(urlStr != null && !urlStr.isEmpty()){
 			try {
@@ -123,7 +130,6 @@ public class EUROSTAT extends RestSdmxClient{
 				}
 			} catch (MalformedURLException e) {
 				logger.warning("URL for late retrieval is not valid: " + urlStr);
-				throw re;
 			} catch (Exception e) {
 				logger.severe("Exception during late retrieval. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 				logger.log(Level.FINER, "Exception: ", e);
@@ -133,7 +139,6 @@ public class EUROSTAT extends RestSdmxClient{
 		}
 		else{
 			logger.warning("URL for late retrieval is not valid: " + urlStr);
-			throw re;
 		}
 		return isr;
 	}

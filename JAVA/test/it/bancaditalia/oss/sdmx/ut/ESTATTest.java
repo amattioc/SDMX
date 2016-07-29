@@ -49,7 +49,7 @@ public class ESTATTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("prc_hicp_midx");
-		assertEquals("Wrong description for prc_hicp_midx", "HICP (2005 = 100) - monthly data (index)", descr);
+		assertEquals("Wrong description for prc_hicp_midx", "HICP (2015 = 100) - monthly data (index)", descr);
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class ESTATTest {
 		assertEquals("Wrong name for first time series", "prc_hicp_midx.M.I05.CP00.DE", monthly);
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "2000-01", start);
-		//System.out.println(res);
+		//check delayed response
 		res = SdmxClientHandler.getTimeSeries("EUROSTAT","lfsa_pgaied/.....", null, null);
 		assertNotNull("Null time series result", res);
 		assertTrue("Zero time series returned", res.size() > 0);
