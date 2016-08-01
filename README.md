@@ -18,6 +18,7 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 * [TSsdmx on CRAN](http://cran.us.r-project.org/web/packages/TSsdmx/index.html) (code [here](http://tsdbi.r-forge.r-project.org/))
 * [GETDATA](http://econpapers.repec.org/software/bocbocode/S458093.htm)  on SSC for STATA
 * [DotStat extension for JDemetra+](https://github.com/nbbrd/jdemetra-dotstat) 
+* [Pentaho Data Integration SDMX Plugin](https://github.com/andtorg/sdmx-kettle) with some [context](http://andtorg.github.io/bi/2016/06/14/pentaho-sdmx-step-plugin)
 
 ====
 

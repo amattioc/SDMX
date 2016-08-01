@@ -153,12 +153,12 @@ public abstract class DotStat extends RestSdmx20Client{
 	
 	@Override
 	protected String buildFlowQuery(String flow, String agency, String version)  throws SdmxException{
-		return(buildDSDQuery(flow, agency, version));
+		return(buildDSDQuery(flow, agency, version, false));
 	}
 
 
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version){
+	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
 	
 			String query = endpoint + "/GetDataStructure/" + dsd;
