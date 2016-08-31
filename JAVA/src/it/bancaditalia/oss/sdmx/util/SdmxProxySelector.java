@@ -88,7 +88,7 @@ public class SdmxProxySelector extends ProxySelector{
 				String url = urls[i].trim();
 				if(url != null && !url.isEmpty()){
 					proxyTable.put(url, p);
-					logger.finer("Proxy has been added: '" + p.address().toString() + "' for " + url);				
+					logger.finer("Proxy has been added: '" + p + "' for " + url);				
 				}
 			}
 		}

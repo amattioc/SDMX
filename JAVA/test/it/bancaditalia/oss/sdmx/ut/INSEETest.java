@@ -58,7 +58,7 @@ public class INSEETest {
 		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("INSEE", "IPI-1970-DET");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=FR1/CL_FREQ/1.0, codes={A=Annual, I=Irregular, T=Quarterly, S=Semi-annual, Q=Quarterly, B=Two-monthly, M=Monthly}]], Dimension [id=BRANCHE, position=2, codelist=Codelist [id=FR1/CL_NI00054/1.0, codes=null]], Dimension [id=NATURE, position=3, codelist=Codelist [id=FR1/CL_NATURE/1.0, codes=null]]]";
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=FR1/CL_FREQ/1.0, codes={A=Annual, T=Quarterly, I=Irregular, S=Semi-annual, Q=Quarterly, M=Monthly, B=Two-monthly}]], Dimension [id=BRANCHE, position=2, codelist=Codelist [id=FR1/CL_NI00054/1.0, codes=null]], Dimension [id=NATURE, position=3, codelist=Codelist [id=FR1/CL_NATURE/1.0, codes=null]]]";
 		assertEquals("Wrong dimensions for IPI-1970-DET", result, dim.toString().substring(0, result.length()));
 	}
 

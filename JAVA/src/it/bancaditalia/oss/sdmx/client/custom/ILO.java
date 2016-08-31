@@ -48,6 +48,7 @@ public class ILO extends RestSdmx20Client {
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ILO() throws MalformedURLException{
+		//the ILO providers supports https but it gets errors with java 1.6
 		super("ILO", new URL("http://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
 	}
 
