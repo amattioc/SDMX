@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class SDMXClientFactory {
 
-	private static final String ECB_PROVIDER = "http://sdw-wsrest.ecb.europa.eu/service";
+	private static final String ECB_PROVIDER = "https://sdw-wsrest.ecb.europa.eu/service";
 	private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
 	private static final String ISTAT_PROVIDER_POP = "http://sdmx.istat.it/WS_CENSPOP/rest";
 	private static final String ISTAT_PROVIDER_AGR = "http://sdmx.istat.it/WS_CENSAGR/rest";
@@ -95,6 +95,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
+	    addBuiltInProvider("IMF2", null, false, false, false, "New IMF endpoint", true);
 
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
