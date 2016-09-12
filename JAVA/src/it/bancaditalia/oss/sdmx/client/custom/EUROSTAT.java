@@ -29,6 +29,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.DisconnectOnCloseReader;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.io.IOException;
@@ -93,17 +94,14 @@ public class EUROSTAT extends RestSdmxClient{
 						logger.severe("Exception caught closing stream.");
 					}
 				}
-				if (conn != null) {
-			        conn.disconnect();
-			    }
 			}
 		}
 		return data.getData();
 	}
 	
 	private InputStreamReader pollLateResponse(String urlStr) throws SdmxException{
-		InputStreamReader isr = null;
 		if(urlStr != null && !urlStr.isEmpty()){
+			HttpURLConnection conn = null;
 			try {
 				URL url = new URL(urlStr);
 				ZipInputStream zis = null;
@@ -120,26 +118,25 @@ public class EUROSTAT extends RestSdmxClient{
 						zis = new ZipInputStream(conn.getInputStream());
 						ZipEntry e = zis.getNextEntry(); // the archie just contains one file
 						if(e != null){
-							isr = new InputStreamReader(zis);
-		                    break;
+							return DisconnectOnCloseReader.of(zis, null, conn);
 						}
 					}
-					else if (code == 404){
-						continue;
-					}
+					conn.disconnect();
 				}
 			} catch (MalformedURLException e) {
 				logger.warning("URL for late retrieval is not valid: " + urlStr);
 			} catch (Exception e) {
 				logger.severe("Exception during late retrieval. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 				logger.log(Level.FINER, "Exception: ", e);
+				if (conn != null) {
+					conn.disconnect();
+				}
 				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-	
 			}
 		}
 		else{
 			logger.warning("URL for late retrieval is not valid: " + urlStr);
 		}
-		return isr;
+		return null;
 	}
 }

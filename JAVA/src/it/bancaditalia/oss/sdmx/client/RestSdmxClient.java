@@ -33,13 +33,16 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.DisconnectOnCloseReader;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 import it.bancaditalia.oss.sdmx.util.SdmxResponseException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +66,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected boolean containsCredentials = false;
 	protected String user = null;
 	protected String pw = null;
-	protected HttpURLConnection conn = null;
 	protected int readTimeout = Configuration.getReadTimeout(this.getClass().getSimpleName());
 	protected int connectTimeout = Configuration.getConnectTimeout(this.getClass().getSimpleName());
 	
@@ -117,9 +119,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -151,9 +150,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -181,9 +177,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 						logger.severe("Exception caught closing stream.");
 					}
 				}
-				if (conn != null) {
-			        conn.disconnect();
-			    }
 			}
 		}
 			
@@ -215,9 +208,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -256,9 +246,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return ts;
 	}
@@ -308,7 +295,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			query = query.replace("|", "%2B");
 			query = query.replace("+", "%2B");
 		}
-		
+
+		HttpURLConnection conn = null;
 		logger.info("Contacting web service with query: " + query);
 		try {
 			URL url = new URL(query);
@@ -324,22 +312,23 @@ public class RestSdmxClient implements GenericSDMXClient{
 			
 			if (code == 200) {
 				logger.fine("Connection opened. Code: " +code);
-				if(supportsCompression || encoding.equalsIgnoreCase("gzip")){
-					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()), "UTF-8");
-				}
-				else{
-					return new InputStreamReader(conn.getInputStream(), "UTF-8");
-				}
+				InputStream stream = conn.getInputStream();
+				boolean gzip = supportsCompression || encoding.equalsIgnoreCase("gzip");
+				return DisconnectOnCloseReader.of(gzip ? new GZIPInputStream(stream) : stream, UTF_8, conn);
 			}
 			else{
 				SdmxResponseException ex = SdmxResponseException.of(code, conn.getResponseMessage());
 				logger.severe(ex.getMessage());
+				conn.disconnect();
 				throw ex;
 			}
 		}
 		catch (IOException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "Exception: ", e);
+			if (conn != null) {
+				conn.disconnect();
+			}
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		}
 	}
@@ -399,5 +388,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 		return query;
 	}
 
-
+	// will be replaced by StandardCharsets#UTF_8 in JDK7
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 }
