@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
@@ -118,7 +119,7 @@ public class EUROSTAT extends RestSdmxClient{
 						zis = new ZipInputStream(conn.getInputStream());
 						ZipEntry e = zis.getNextEntry(); // the archie just contains one file
 						if(e != null){
-							return DisconnectOnCloseReader.of(zis, null, conn);
+							return DisconnectOnCloseReader.of(zis, UTF_8, conn);
 						}
 					}
 					conn.disconnect();
@@ -139,4 +140,7 @@ public class EUROSTAT extends RestSdmxClient{
 		}
 		return null;
 	}
+
+	// will be replaced by StandardCharsets#UTF_8 in JDK7
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 }
