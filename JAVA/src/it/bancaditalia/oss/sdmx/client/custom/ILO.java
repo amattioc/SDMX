@@ -63,39 +63,34 @@ public class ILO extends RestSdmx20Client {
 			String query = endpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
 			InputStreamReader xmlStream = null;
 			xmlStream = runQuery(query, null);				
-			if(xmlStream!=null){
-				try {
-					List<DataFlowStructure> dfs = DataStructureParser.parse(xmlStream);
-					if(dfs.size() > 0){
-						for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) {
-							DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
-							Dataflow tmp = new Dataflow();
-							tmp.setId("DF_" + dsd.getId());
-							tmp.setName(dsd.getName());
-							tmp.setAgency(dsd.getAgency());
-							tmp.setVersion(dsd.getVersion());					
-							DSDIdentifier dsdId = new  DSDIdentifier();
-							dsdId.setAgency(dsd.getAgency());
-							dsdId.setId(dsd.getId());
-							dsdId.setVersion(dsd.getVersion());
-							tmp.setDsdIdentifier(dsdId);
-							result.put(tmp.getId(), tmp);
-						}
-					}
-				} catch (Exception e) {
-					logger.severe("Exception caught parsing results from call to provider " + name);
-					logger.log(Level.FINER, "Exception: ", e);
-					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-				} finally{
-					try {
-						xmlStream.close();
-					} catch (IOException e) {
-						logger.severe("Exception caught closing stream.");
+			try {
+				List<DataFlowStructure> dfs = DataStructureParser.parse(xmlStream);
+				if(dfs.size() > 0){
+					for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) {
+						DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
+						Dataflow tmp = new Dataflow();
+						tmp.setId("DF_" + dsd.getId());
+						tmp.setName(dsd.getName());
+						tmp.setAgency(dsd.getAgency());
+						tmp.setVersion(dsd.getVersion());					
+						DSDIdentifier dsdId = new  DSDIdentifier();
+						dsdId.setAgency(dsd.getAgency());
+						dsdId.setId(dsd.getId());
+						dsdId.setVersion(dsd.getVersion());
+						tmp.setDsdIdentifier(dsdId);
+						result.put(tmp.getId(), tmp);
 					}
 				}
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
+			} catch (Exception e) {
+				logger.severe("Exception caught parsing results from call to provider " + name);
+				logger.log(Level.FINER, "Exception: ", e);
+				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
 			}
 		}
 		return result;

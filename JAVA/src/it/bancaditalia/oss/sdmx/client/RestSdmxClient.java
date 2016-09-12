@@ -94,21 +94,16 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				List<Dataflow> flows = DataflowParser.parse(xmlStream);
-				if(flows.size() > 0){
-					result = new HashMap<String, Dataflow>();
-					for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
-						Dataflow dataflow = (Dataflow) iterator.next();
-						result.put(dataflow.getId(), dataflow);
-					}
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
+			List<Dataflow> flows = DataflowParser.parse(xmlStream);
+			if(flows.size() > 0){
+				result = new HashMap<String, Dataflow>();
+				for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
+					Dataflow dataflow = (Dataflow) iterator.next();
+					result.put(dataflow.getId(), dataflow);
 				}
 			}
 			else{
-				throw new SdmxException("The query returned a null stream");
+				throw new SdmxException("The query returned zero dataflows");
 			}
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
@@ -137,17 +132,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildFlowQuery(dataflow, agency, version);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				List<Dataflow> flows = DataflowParser.parse(xmlStream);
-				if(flows.size() >= 1){
-					result = flows.get(0);
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
+			List<Dataflow> flows = DataflowParser.parse(xmlStream);
+			if(flows.size() >= 1){
+				result = flows.get(0);
 			}
 			else{
-				throw new SdmxException("The query returned a null stream");
+				throw new SdmxException("The query returned zero dataflows");
 			}
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
@@ -177,12 +167,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			try {
 				xmlStream = runQuery(query, null);
-				if(xmlStream!=null){
-					str = DataStructureParser.parse(xmlStream).get(0);
-				}
-				else{
-					throw new SdmxException("The query returned a null stream");
-				}
+				str = DataStructureParser.parse(xmlStream).get(0);
 			}
 			catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
@@ -217,12 +202,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildCodelistQuery(codeList, agency, version);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				result = CodelistParser.parse(xmlStream);
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
-			}
+			result = CodelistParser.parse(xmlStream);
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
@@ -257,15 +237,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		try {
 			xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
-			if(xmlStream!=null){
-				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-				Message msg = ts.getMessage();
-				if(msg != null){
-					logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
-				}
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
+			ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
+			Message msg = ts.getMessage();
+			if(msg != null){
+				logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
 			}
 		} catch (SdmxException se) {
 			throw se;
@@ -318,6 +293,14 @@ public class RestSdmxClient implements GenericSDMXClient{
 		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory);
 	}
 
+	/**
+	 * Returns a reader over the result of an http query.
+	 *
+	 * @param query a non-null query
+	 * @param acceptHeader a nullable accept header
+	 * @return a non-null reader
+	 * @throws SdmxException 
+	 */
 	protected InputStreamReader runQuery(String query, String acceptHeader) throws SdmxException{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);

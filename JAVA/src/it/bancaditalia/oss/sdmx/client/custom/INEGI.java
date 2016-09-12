@@ -103,23 +103,18 @@ public class INEGI extends RestSdmx20Client{
 		if(dsd!=null){
 			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
+			try {
+				str = DataStructureParser.parse(xmlStream).get(0);
+			} catch (Exception e) {
+				logger.severe("Exception caught parsing results from call to provider " + name);
+				logger.log(Level.FINER, "Exception: ", e);
+				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
 				try {
-					str = DataStructureParser.parse(xmlStream).get(0);
-				} catch (Exception e) {
-					logger.severe("Exception caught parsing results from call to provider " + name);
-					logger.log(Level.FINER, "Exception: ", e);
-					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-				} finally{
-					try {
-						xmlStream.close();
-					} catch (IOException e) {
-						logger.severe("Exception caught closing stream.");
-					}
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
 				}
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
 			}
 		}
 		else{
