@@ -34,6 +34,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.SdmxResponseException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -348,53 +349,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 				}
 			}
 			else{
-				// REF: https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf
-				String msg = "Connection failed. HTTP error code : " + code + ", message: "+ conn.getResponseMessage() +"\n";
-				switch (code) {
-					case 304:
-						msg += "SDMX meaning: No change since the timestamp supplied in the If-Modified-Since header";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 400:
-						msg += "SDMX meaning: There is a problem with the syntax of the query";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 401:
-						msg += "SDMX meaning: Credentials needed";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 403:
-						msg += "SDMX meaning: The syntax of the query is OK but it has no meaning";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 404:
-						msg += "SDMX meaning: No results matching the query.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 406:
-						msg += "SDMX meaning: Not a supported format.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 413:
-						msg += "SDMX meaning: Results too large.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 500:
-						msg += "SDMX meaning: Error on the provider side.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 501:
-						msg += "SDMX meaning: Feature not supported.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 503:
-						msg += "SDMX meaning: Service temporarily unavailable. Please try again later..";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					default:
-						logger.severe(msg);
-						throw new SdmxException(msg);
-				}
+				SdmxResponseException ex = SdmxResponseException.of(code, conn.getResponseMessage());
+				logger.severe(ex.getMessage());
+				throw ex;
 			}
 		}
 		catch (IOException e) {
