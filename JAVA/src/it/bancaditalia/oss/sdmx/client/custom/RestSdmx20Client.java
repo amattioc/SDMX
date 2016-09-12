@@ -193,11 +193,13 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 			logger.log(Level.INFO, "Exception: ", e);
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}			
+			if (xmlStream != null) {
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
+			}
 		}
 		return ts;
 	}
