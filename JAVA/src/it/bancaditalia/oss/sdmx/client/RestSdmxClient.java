@@ -33,12 +33,16 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.DisconnectOnCloseReader;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.util.SdmxResponseException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +66,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected boolean containsCredentials = false;
 	protected String user = null;
 	protected String pw = null;
-	protected HttpURLConnection conn = null;
 	protected int readTimeout = Configuration.getReadTimeout(this.getClass().getSimpleName());
 	protected int connectTimeout = Configuration.getConnectTimeout(this.getClass().getSimpleName());
 	
@@ -93,21 +96,16 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				List<Dataflow> flows = DataflowParser.parse(xmlStream);
-				if(flows.size() > 0){
-					result = new HashMap<String, Dataflow>();
-					for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
-						Dataflow dataflow = (Dataflow) iterator.next();
-						result.put(dataflow.getId(), dataflow);
-					}
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
+			List<Dataflow> flows = DataflowParser.parse(xmlStream);
+			if(flows.size() > 0){
+				result = new HashMap<String, Dataflow>();
+				for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
+					Dataflow dataflow = (Dataflow) iterator.next();
+					result.put(dataflow.getId(), dataflow);
 				}
 			}
 			else{
-				throw new SdmxException("The query returned a null stream");
+				throw new SdmxException("The query returned zero dataflows");
 			}
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
@@ -121,9 +119,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -136,17 +131,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildFlowQuery(dataflow, agency, version);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				List<Dataflow> flows = DataflowParser.parse(xmlStream);
-				if(flows.size() >= 1){
-					result = flows.get(0);
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
+			List<Dataflow> flows = DataflowParser.parse(xmlStream);
+			if(flows.size() >= 1){
+				result = flows.get(0);
 			}
 			else{
-				throw new SdmxException("The query returned a null stream");
+				throw new SdmxException("The query returned zero dataflows");
 			}
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
@@ -160,9 +150,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -176,12 +163,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			try {
 				xmlStream = runQuery(query, null);
-				if(xmlStream!=null){
-					str = DataStructureParser.parse(xmlStream).get(0);
-				}
-				else{
-					throw new SdmxException("The query returned a null stream");
-				}
+				str = DataStructureParser.parse(xmlStream).get(0);
 			}
 			catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
@@ -195,9 +177,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 						logger.severe("Exception caught closing stream.");
 					}
 				}
-				if (conn != null) {
-			        conn.disconnect();
-			    }
 			}
 		}
 			
@@ -216,12 +195,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildCodelistQuery(codeList, agency, version);
 		try {
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
-				result = CodelistParser.parse(xmlStream);
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
-			}
+			result = CodelistParser.parse(xmlStream);
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
@@ -234,9 +208,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return result;
 	}
@@ -256,15 +227,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		try {
 			xmlStream = runQuery(query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
-			if(xmlStream!=null){
-				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-				Message msg = ts.getMessage();
-				if(msg != null){
-					logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
-				}
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
+			ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
+			Message msg = ts.getMessage();
+			if(msg != null){
+				logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
 			}
 		} catch (SdmxException se) {
 			throw se;
@@ -280,9 +246,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 					logger.severe("Exception caught closing stream.");
 				}
 			}
-			if (conn != null) {
-		        conn.disconnect();
-		    }
 		}
 		return ts;
 	}
@@ -317,6 +280,14 @@ public class RestSdmxClient implements GenericSDMXClient{
 		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory);
 	}
 
+	/**
+	 * Returns a reader over the result of an http query.
+	 *
+	 * @param query a non-null query
+	 * @param acceptHeader a nullable accept header
+	 * @return a non-null reader
+	 * @throws SdmxException 
+	 */
 	protected InputStreamReader runQuery(String query, String acceptHeader) throws SdmxException{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);
@@ -324,7 +295,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			query = query.replace("|", "%2B");
 			query = query.replace("+", "%2B");
 		}
-		
+
+		HttpURLConnection conn = null;
 		logger.info("Contacting web service with query: " + query);
 		try {
 			URL url = new URL(query);
@@ -340,66 +312,23 @@ public class RestSdmxClient implements GenericSDMXClient{
 			
 			if (code == 200) {
 				logger.fine("Connection opened. Code: " +code);
-				if(supportsCompression || encoding.equalsIgnoreCase("gzip")){
-					return new InputStreamReader(new GZIPInputStream(conn.getInputStream()), "UTF-8");
-				}
-				else{
-					return new InputStreamReader(conn.getInputStream(), "UTF-8");
-				}
+				InputStream stream = conn.getInputStream();
+				boolean gzip = supportsCompression || encoding.equalsIgnoreCase("gzip");
+				return DisconnectOnCloseReader.of(gzip ? new GZIPInputStream(stream) : stream, UTF_8, conn);
 			}
 			else{
-				// REF: https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf
-				String msg = "Connection failed. HTTP error code : " + code + ", message: "+ conn.getResponseMessage() +"\n";
-				switch (code) {
-					case 304:
-						msg += "SDMX meaning: No change since the timestamp supplied in the If-Modified-Since header";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 400:
-						msg += "SDMX meaning: There is a problem with the syntax of the query";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 401:
-						msg += "SDMX meaning: Credentials needed";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 403:
-						msg += "SDMX meaning: The syntax of the query is OK but it has no meaning";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 404:
-						msg += "SDMX meaning: No results matching the query.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 406:
-						msg += "SDMX meaning: Not a supported format.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 413:
-						msg += "SDMX meaning: Results too large.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 500:
-						msg += "SDMX meaning: Error on the provider side.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 501:
-						msg += "SDMX meaning: Feature not supported.";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					case 503:
-						msg += "SDMX meaning: Service temporarily unavailable. Please try again later..";
-						logger.severe(msg);
-						throw new SdmxException(msg);
-					default:
-						logger.severe(msg);
-						throw new SdmxException(msg);
-				}
+				SdmxResponseException ex = SdmxResponseException.of(code, conn.getResponseMessage());
+				logger.severe(ex.getMessage());
+				conn.disconnect();
+				throw ex;
 			}
 		}
 		catch (IOException e) {
 			logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "Exception: ", e);
+			if (conn != null) {
+				conn.disconnect();
+			}
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		}
 	}
@@ -459,5 +388,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 		return query;
 	}
 
-
+	// will be replaced by StandardCharsets#UTF_8 in JDK7
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 }

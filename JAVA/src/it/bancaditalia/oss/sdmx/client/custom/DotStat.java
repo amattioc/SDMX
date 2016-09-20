@@ -64,39 +64,34 @@ public abstract class DotStat extends RestSdmx20Client{
 		Dataflow result = null;
 		query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
-		if(xmlStream!=null){
-			try {
-				List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
-				if(dsds.size() > 0){
-					DataFlowStructure dsd = dsds.get(0);
-					result = new Dataflow();
-					result.setAgency(dsd.getAgency());
-					result.setId(dsd.getId());
-					result.setVersion(dsd.getVersion());
-					result.setName(dsd.getName());
-					DSDIdentifier dsdId = new  DSDIdentifier();
-					dsdId.setAgency(dsd.getAgency());
-					dsdId.setId(dsd.getId());
-					dsdId.setVersion(dsd.getVersion());
-					result.setDsdIdentifier(dsdId);
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
+		try {
+			List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
+			if(dsds.size() > 0){
+				DataFlowStructure dsd = dsds.get(0);
+				result = new Dataflow();
+				result.setAgency(dsd.getAgency());
+				result.setId(dsd.getId());
+				result.setVersion(dsd.getVersion());
+				result.setName(dsd.getName());
+				DSDIdentifier dsdId = new  DSDIdentifier();
+				dsdId.setAgency(dsd.getAgency());
+				dsdId.setId(dsd.getId());
+				dsdId.setVersion(dsd.getVersion());
+				result.setDsdIdentifier(dsdId);
 			}
-		}
-		else{
-			throw new SdmxException("The query returned a null stream");
+			else{
+				throw new SdmxException("The query returned zero dataflows");
+			}
+		} catch (Exception e) {
+			logger.severe("Exception caught parsing results from call to provider " + name);
+			logger.log(Level.FINER, "Exception: ", e);
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} finally{
+			try {
+				xmlStream.close();
+			} catch (IOException e) {
+				logger.severe("Exception caught closing stream.");
+			}
 		}
 		return result;
 
@@ -110,43 +105,38 @@ public abstract class DotStat extends RestSdmx20Client{
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
 		query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
-		if(xmlStream!=null){
-			try {
-				List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
-				if(dsds.size() > 0){
-					result = new HashMap<String, Dataflow>();
-					for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) {
-						DataFlowStructure dsd = (DataFlowStructure) iterator.next();
-						Dataflow df = new Dataflow();
-						df.setAgency(dsd.getAgency());
-						df.setId(dsd.getId());
-						df.setVersion(dsd.getVersion());
-						df.setName(dsd.getName());
-						DSDIdentifier dsdId = new  DSDIdentifier();
-						dsdId.setAgency(dsd.getAgency());
-						dsdId.setId(dsd.getId());
-						dsdId.setVersion(dsd.getVersion());
-						df.setDsdIdentifier(dsdId);
-						result.put(dsd.getId(), df);
-					}
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
+		try {
+			List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
+			if(dsds.size() > 0){
+				result = new HashMap<String, Dataflow>();
+				for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) {
+					DataFlowStructure dsd = (DataFlowStructure) iterator.next();
+					Dataflow df = new Dataflow();
+					df.setAgency(dsd.getAgency());
+					df.setId(dsd.getId());
+					df.setVersion(dsd.getVersion());
+					df.setName(dsd.getName());
+					DSDIdentifier dsdId = new  DSDIdentifier();
+					dsdId.setAgency(dsd.getAgency());
+					dsdId.setId(dsd.getId());
+					dsdId.setVersion(dsd.getVersion());
+					df.setDsdIdentifier(dsdId);
+					result.put(dsd.getId(), df);
 				}
 			}
-		}
-		else{
-			throw new SdmxException("The query returned a null stream");
+			else{
+				throw new SdmxException("The query returned zero dataflows");
+			}
+		} catch (Exception e) {
+			logger.severe("Exception caught parsing results from call to provider " + name);
+			logger.log(Level.FINER, "Exception: ", e);
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} finally{
+			try {
+				xmlStream.close();
+			} catch (IOException e) {
+				logger.severe("Exception caught closing stream.");
+			}
 		}
 		return result;
 	}

@@ -61,33 +61,28 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
 		query = buildFlowQuery("ALL", null, null);
 		xmlStream = runQuery(query, null);
-		if(xmlStream!=null){
-			try {
-				List<Dataflow> dfs = DataflowParser.parse(xmlStream);
-				if(dfs.size() > 0){
-					result = new HashMap<String, Dataflow>();
-					for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
-						Dataflow df = (Dataflow) iterator.next();
-						result.put(df.getId(), df);
-					}
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
+		try {
+			List<Dataflow> dfs = DataflowParser.parse(xmlStream);
+			if(dfs.size() > 0){
+				result = new HashMap<String, Dataflow>();
+				for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
+					Dataflow df = (Dataflow) iterator.next();
+					result.put(df.getId(), df);
 				}
 			}
-		}
-		else{
-			throw new SdmxException("The query returned anull stream");
+			else{
+				throw new SdmxException("The query returned zero dataflows");
+			}
+		} catch (Exception e) {
+			logger.severe("Exception caught parsing results from call to provider " + name);
+			logger.log(Level.FINER, "Exception: ", e);
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} finally{
+			try {
+				xmlStream.close();
+			} catch (IOException e) {
+				logger.severe("Exception caught closing stream.");
+			}
 		}
 		return result;
 	}
@@ -99,30 +94,24 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		Dataflow df = null;
 		query = buildFlowQuery(dataflow, agency, version);
 		xmlStream = runQuery(query, null);
-		if(xmlStream!=null){
-			try {
-				List<Dataflow> flows = DataflowParser.parse(xmlStream);
-				if(flows.size() >= 1){
-					df = flows.get(0);
-				}
-				else{
-					throw new SdmxException("The query returned zero dataflows");
-				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
+		try {
+			List<Dataflow> flows = DataflowParser.parse(xmlStream);
+			if(flows.size() >= 1){
+				df = flows.get(0);
 			}
-
-		}
-		else{
-			throw new SdmxException("The query returned a null stream");
+			else{
+				throw new SdmxException("The query returned zero dataflows");
+			}
+		} catch (Exception e) {
+			logger.severe("Exception caught parsing results from call to provider " + name);
+			logger.log(Level.FINER, "Exception: ", e);
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} finally{
+			try {
+				xmlStream.close();
+			} catch (IOException e) {
+				logger.severe("Exception caught closing stream.");
+			}
 		}
 		return df;
 	}
@@ -135,23 +124,18 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		if(dsd!=null){
 			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			xmlStream = runQuery(query, null);
-			if(xmlStream!=null){
+			try {
+				str = DataStructureParser.parse(xmlStream).get(0);
+			} catch (Exception e) {
+				logger.severe("Exception caught parsing results from call to provider " + name);
+				logger.log(Level.FINER, "Exception: ", e);
+				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} finally{
 				try {
-					str = DataStructureParser.parse(xmlStream).get(0);
-				} catch (Exception e) {
-					logger.severe("Exception caught parsing results from call to provider " + name);
-					logger.log(Level.FINER, "Exception: ", e);
-					throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-				} finally{
-					try {
-						xmlStream.close();
-					} catch (IOException e) {
-						logger.severe("Exception caught closing stream.");
-					}
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
 				}
-			}
-			else{
-				throw new SdmxException("The query returned a null stream");
 			}
 		}
 		else{
@@ -168,24 +152,18 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		Map<String, String> result = null;
 		query = buildCodelistQuery(codeList, agency, version);
 		xmlStream = runQuery(query, null);
-		if(xmlStream!=null){
+		try {
+			result = CodelistParser.parse(xmlStream);
+		} catch (Exception e) {
+			logger.severe("Exception caught parsing results from call to provider " + name);
+			logger.log(Level.FINER, "Exception: ", e);
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} finally{
 			try {
-				result = CodelistParser.parse(xmlStream);
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
+				xmlStream.close();
+			} catch (IOException e) {
+				logger.severe("Exception caught closing stream.");
 			}
-			
-		}
-		else{
-			throw new SdmxException("The query returned a null stream");
 		}
 		return result;
 	}
@@ -203,28 +181,25 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		try {
 			xmlStream = runQuery(query, acceptHdr);
-			if(xmlStream!=null){
-				if(format != null){
-					ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-				}
-				else{
-					// just for WB, to be removed ASAP
-					ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-				}
+			if(format != null){
+				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
 			}
 			else{
-				throw new SdmxException("The query returned a null stream");
+				// just for WB, to be removed ASAP
+				ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
 			}
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.INFO, "Exception: ", e);
 			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}			
+			if (xmlStream != null) {
+				try {
+					xmlStream.close();
+				} catch (IOException e) {
+					logger.severe("Exception caught closing stream.");
+				}
+			}
 		}
 		return ts;
 	}
