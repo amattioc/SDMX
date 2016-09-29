@@ -53,6 +53,7 @@ public class SDMXClientFactory {
 	private static final String INSEE_PROVIDER = "http://www.bdm.insee.fr/series/sdmx";
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
+	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
 	
 	//read the configuration file
 	static {
@@ -82,6 +83,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
         addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false);
         addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
+        addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
 
 
 	    //add internal 2.0 providers
@@ -89,7 +91,6 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
 	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization", true);
 	    addBuiltInProvider("IMF", null, false, false, false, "International Monetary Fund", true);
-	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true);
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);

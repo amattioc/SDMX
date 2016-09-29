@@ -56,7 +56,7 @@ public class InegiTest {
 		assertEquals("Wrong code for REF_AREA MEX",  "Mexico", codes.get("MX"));
 		List<Dimension> dim = SdmxClientHandler.getDimensions("INEGI", "DF_STEI");
 		assertNotNull("Null getDimensions result DF_STEI", dim);
-		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=SDMX/CL_AREA, codes={TL=Timor-Leste, TK=Tokelau, TJ=Tajikistan, TH=Thailand, TG=Togo, TF=French Southern Territories, GY=Guyana, TD=Chad,";
+		String result = "[Dimension [id=REF_AREA, position=1, codelist=Codelist [id=SDMX/CL_AREA/1.0, codes={TL=Timor-Leste, TK=Tokelau, TJ=Tajikistan, TH=Thailand, TG=Togo, TF=French Southern Territories, GY=Guyana, TD=C";
 		assertEquals("Wrong dimensions for DF_STEI", result, dim.toString().substring(0, result.length()));
 	}
 	
