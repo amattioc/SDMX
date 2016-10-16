@@ -27,6 +27,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -80,7 +81,9 @@ public class DataStructureParser {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
+		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
+
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;

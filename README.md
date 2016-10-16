@@ -14,7 +14,7 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 **Known applications:**
 
 * [Shiny SDMX Browser](https://rjsdmx.shinyapps.io/sdmxBrowser/) (code [here](https://github.com/bowerth/sdmxBrowser))
-* [Scala SDMX Play application](http://sdmx.rdata.work) (code [here](https://github.com/bowerth/sdmxPlay))
+* [Scala SDMX Play application](https://boiling-lake-45550.herokuapp.com/) (code [here](https://github.com/bowerth/sdmxPlay))
 * [TSsdmx on CRAN](http://cran.us.r-project.org/web/packages/TSsdmx/index.html) (code [here](http://tsdbi.r-forge.r-project.org/))
 * [GETDATA](http://econpapers.repec.org/software/bocbocode/S458093.htm)  on SSC for STATA
 * [DotStat extension for JDemetra+](https://github.com/nbbrd/jdemetra-dotstat) 

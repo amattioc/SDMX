@@ -33,7 +33,7 @@ import java.net.URL;
 public class NBB extends DotStat{
 		
 	public NBB() throws MalformedURLException{
-		super("NBB", new URL("http://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
+		super("NBB", new URL("https://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
 	}
 	
 	@Override

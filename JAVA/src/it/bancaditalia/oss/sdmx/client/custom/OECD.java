@@ -30,6 +30,6 @@ import java.net.URL;
 public class OECD extends DotStat{
 		
 	public OECD() throws MalformedURLException{
-		super("OECD", new URL("http://stats.oecd.org/restsdmx/sdmx.ashx/"), false);
+		super("OECD", new URL("https://stats.oecd.org/restsdmx/sdmx.ashx"), false);
 	}
 }
