@@ -105,7 +105,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 		} finally{
 			try {
 				xmlStream.close();

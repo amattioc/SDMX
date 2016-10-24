@@ -26,9 +26,12 @@ public class SdmxException extends Exception{
 		super(message);
 	}
 
+	public SdmxException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-
 }

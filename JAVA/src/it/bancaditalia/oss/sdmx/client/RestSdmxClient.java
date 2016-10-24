@@ -110,7 +110,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 		} finally{
 			if(xmlStream != null){
 				try {
@@ -141,7 +141,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 		} finally{
 			if(xmlStream != null){
 				try {
@@ -168,7 +168,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			catch (Exception e) {
 				logger.severe("Exception caught parsing results from call to provider " + name);
 				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 			} finally{
 				if(xmlStream != null){
 					try {
@@ -199,7 +199,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 		} finally{
 			if(xmlStream != null){
 				try {
@@ -237,7 +237,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		} catch (Exception e) {
 			logger.severe("Exception caught parsing results from call to provider " + name);
 			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage(), e);
 		} finally{
 			if(xmlStream != null){
 				try {
