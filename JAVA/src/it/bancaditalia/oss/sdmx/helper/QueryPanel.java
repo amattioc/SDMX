@@ -22,7 +22,7 @@ package it.bancaditalia.oss.sdmx.helper;
 
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

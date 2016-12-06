@@ -20,14 +20,13 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -40,11 +39,11 @@ public class CodelistParser {
 	static final String ID = "value";
 	static final String DESCRIPTION = "Description";
 
-	public static Map<String,String> parse(InputStreamReader xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
 	}
 	
-	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException {
 		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.getCodes(eventReader, CODELIST, CODE, ID, DESCRIPTION);
 	}
 } 

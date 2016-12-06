@@ -21,7 +21,7 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
@@ -32,8 +32,8 @@ public class WBClientTest {
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("WB", "WDI"));
 //		System.err.println(SdmxClientHandler.getDimensions("WB", "WDI"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("WB", "WDI"));
-		System.err.println(SdmxClientHandler.getCodes("WB", "WDI", "REF_AREA"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("WB", "WDI.usa.sp_pop_totl", "2003", "2005"));
+//		System.err.println(SdmxClientHandler.getCodes("WB", "WDI", "REF_AREA"));
+		System.err.println(SdmxClientHandler.getTimeSeries("WB", "WDI.usa.sp_pop_totl", "2003", "2005"));
 
 	}
 }

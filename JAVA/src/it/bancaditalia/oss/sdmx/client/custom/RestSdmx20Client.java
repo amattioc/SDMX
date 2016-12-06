@@ -20,11 +20,25 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.net.URL;
+import java.security.InvalidParameterException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
+
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
@@ -32,16 +46,6 @@ import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 
 public abstract class RestSdmx20Client extends RestSdmxClient{
 	
@@ -57,7 +61,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
 		query = buildFlowQuery("ALL", null, null);
 		xmlStream = runQuery(query, null);
@@ -71,12 +75,10 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				}
 			}
 			else{
-				throw new SdmxException("The query returned zero dataflows");
+				throw new SdmxXmlContentException("The query returned zero dataflows");
 			}
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		} finally{
 			try {
 				xmlStream.close();
@@ -90,22 +92,25 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		Dataflow df = null;
 		query = buildFlowQuery(dataflow, agency, version);
 		xmlStream = runQuery(query, null);
 		try {
 			List<Dataflow> flows = DataflowParser.parse(xmlStream);
 			if(flows.size() >= 1){
-				df = flows.get(0);
+				for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
+					Dataflow item = (Dataflow) iterator.next();
+					if(item.getId().equalsIgnoreCase(dataflow)){
+						df = item;
+					}
+				}
 			}
 			else{
-				throw new SdmxException("The query returned zero dataflows");
+				throw new SdmxXmlContentException("The query returned zero dataflows");
 			}
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		} finally{
 			try {
 				xmlStream.close();
@@ -119,17 +124,15 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		DataFlowStructure str = new DataFlowStructure();
 		if(dsd!=null){
 			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			xmlStream = runQuery(query, null);
 			try {
 				str = DataStructureParser.parse(xmlStream).get(0);
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+			} catch (XMLStreamException e) {
+				throw SdmxExceptionFactory.wrap(e);
 			} finally{
 				try {
 					xmlStream.close();
@@ -139,7 +142,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 			}
 		}
 		else{
-			throw new SdmxException("Null dsd in input");
+			throw new InvalidParameterException("Null dsd in input");
 		}
 		return str;
 	
@@ -148,16 +151,14 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException {
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		Map<String, String> result = null;
 		query = buildCodelistQuery(codeList, agency, version);
 		xmlStream = runQuery(query, null);
 		try {
 			result = CodelistParser.parse(xmlStream);
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		} finally{
 			try {
 				xmlStream.close();
@@ -176,7 +177,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		DataParsingResult ts = new DataParsingResult();
 		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		try {
@@ -188,10 +189,8 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				// just for WB, to be removed ASAP
 				ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
 			}
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.INFO, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		} finally{
 			if (xmlStream != null) {
 				try {
@@ -205,9 +204,8 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
-			String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
+	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){

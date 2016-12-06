@@ -20,9 +20,10 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.net.URL;
+
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 
 /**
  * @author Attilio Mattiocco
@@ -35,17 +36,15 @@ public class RestQueryBuilder{
 			String start, String end, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException{
 		
-		if( endpoint!=null && 
-				dataflow!=null && !dataflow.isEmpty() &&
-				resource!=null && !resource.isEmpty()){
+		if( endpoint!=null && dataflow!=null && !dataflow.isEmpty() && resource!=null && !resource.isEmpty())
+		{
 			String query = endpoint + "/data/" + dataflow + "/";
 			query += resource ;
 			query += addParams(start, end, serieskeysonly, updatedAfter, includeHistory, format);
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: dataflow=" + 
-					dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
 	
@@ -69,8 +68,7 @@ public class RestQueryBuilder{
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: agency=" + 
-					agency + " dsd=" + dsd + " endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 		}
 	}
 
@@ -89,13 +87,12 @@ public class RestQueryBuilder{
 				query += "/" + dataflowKey;
 			}
 			else{
-				throw new SdmxException("Invalid query parameters: dataflow=" + dataflowKey);
+				throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflowKey);
 			}
 			return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: dataflow: " + 
-					dataflow + ", endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 		}
 	}
 
@@ -114,8 +111,7 @@ public class RestQueryBuilder{
 				return query;
 		}
 		else{
-			throw new SdmxException("Invalid query parameters: codeList=" + 
-					codeList  + " endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
 		}
 	}
 	

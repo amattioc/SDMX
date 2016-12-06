@@ -23,8 +23,8 @@ package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +40,207 @@ import java.util.logging.Logger;
  *
  */
 public class SASClientHandler extends SdmxClientHandler{
+	
+	private static class SdmxSASException extends SdmxException {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public SdmxSASException(String message) {
+			super("SAS connector error: " + message, null);
+		}
 		
+	}
+		
+	private static class DataCache 
+	{
+		private static final int NAME_COL = 0;
+		private static final int TIME_COL = 1;
+		private static final int OBS_COL = 2;
+		
+		Object [][] data = null;
+		
+		DataCache(int size) {
+			super();
+			this.data = new Object[size][3];
+		}
+		
+		void setRow(int rowIndex, String name, String time, double obs) throws SdmxException{
+			if( data!= null && rowIndex < data.length ){
+				data[rowIndex][NAME_COL] = name;
+				data[rowIndex][TIME_COL] = time;
+				data[rowIndex][OBS_COL] = new Double(obs);
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Row index exceeds data size");
+			}
+		}
+		double getObservation(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return ((Double)data[rowIndex][OBS_COL]).doubleValue();
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getName(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][NAME_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getTimestamp(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][TIME_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
+			}
+		}
+		
+		int size(){
+			if(data != null)
+				return data.length; 
+			else
+				return -1;
+		}
+	}
+
+	private static class MetadataCache {
+		private static final int NAME_COL = 0;
+		private static final int KEY_COL = 1;
+		private static final int VALUE_COL = 2;
+		private static final int TYPE_COL = 3;
+		
+		String [][] data = null;
+		
+		MetadataCache(int size) {
+			super();
+			this.data = new String[size][4];
+		}
+		
+		void setRow(int rowIndex, String name, String key, String value, String type) throws SASClientHandler.SdmxSASException {
+			if( data!= null && rowIndex < data.length ){
+				data[rowIndex][NAME_COL] = name;
+				data[rowIndex][KEY_COL] = key;
+				data[rowIndex][VALUE_COL] = value;
+				data[rowIndex][TYPE_COL] = type;
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Row index exceeds metadata size");
+			}
+		}
+		String getName(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][NAME_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getKey(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][KEY_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getValue(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][VALUE_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getType(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][TYPE_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		
+		int size(){
+			if(data != null)
+				return data.length; 
+			else
+				return -1;
+		}
+
+
+	}
+
+	private static class ObservationMetadataCache {
+		private static final int NAME_COL = 0;
+		private static final int KEY_COL = 1;
+		private static final int VALUE_COL = 2;
+		private static final int DATE_COL = 3;
+		
+		String [][] data = null;
+		
+		ObservationMetadataCache(int size) {
+			super();
+			this.data = new String[size][4];
+		}
+		
+		void setRow(int rowIndex, String name, String key, String value, String date) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				data[rowIndex][NAME_COL] = name;
+				data[rowIndex][KEY_COL] = key;
+				data[rowIndex][VALUE_COL] = value;
+				data[rowIndex][DATE_COL] = date;
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Row index exceeds metadata size");
+			}
+		}
+		String getName(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][NAME_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getKey(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][KEY_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getValue(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][VALUE_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		String getDate(int rowIndex) throws SASClientHandler.SdmxSASException{
+			if( data!= null && rowIndex < data.length ){
+				return (String) data[rowIndex][DATE_COL];
+			}
+			else{
+				throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
+			}
+		}
+		
+		int size(){
+			if(data != null)
+				return data.length; 
+			else
+				return -1;
+		}
+	}
+
 	protected static Logger logger = Configuration.getSdmxLogger();
 	private static DataCache data = null; 
 	private static MetadataCache metadata = null; 
@@ -124,27 +324,26 @@ public class SASClientHandler extends SdmxClientHandler{
 					for (int i = 0; i < timeSlots.length; i++) {
 						String time = (String) timeSlots[i];
 						Double obs = (Double) observations[i];
-						if(dataRowIndex <= data.size()){
-							data.setRow(dataRowIndex, name, time, obs);
-							
-							// now set obs level metadata
-							List<String> obsAttributes = ts.getObsLevelAttributesNames();
-							for (Iterator<String> iterator2 = obsAttributes.iterator(); iterator2.hasNext();) {
-								String obsAttrName = (String) iterator2.next();
-								String[] obsAttrs = ts.getObsLevelAttributesArray(obsAttrName);
-								if(timeSlots.length != obsAttrs.length){
-									logger.warning("The observation level attributes: " + obsAttrName + " for time series " + name + " are not well set. Skip them.");
-									break;
-								}
-								String obsAttrVal = obsAttrs[i];
-								obsmetadata.setRow(obsMetaRowIndex, name, obsAttrName, obsAttrVal, time);						
-								obsMetaRowIndex++;
-							}
 
+						if(dataRowIndex > data.size())
+							throw new SASClientHandler.SdmxSASException("Trying to process more data than available");
+
+						data.setRow(dataRowIndex, name, time, obs);
+						
+						// now set obs level metadata
+						List<String> obsAttributes = ts.getObsLevelAttributesNames();
+						for (Iterator<String> iterator2 = obsAttributes.iterator(); iterator2.hasNext();) {
+							String obsAttrName = (String) iterator2.next();
+							String[] obsAttrs = ts.getObsLevelAttributesArray(obsAttrName);
+							if(timeSlots.length != obsAttrs.length){
+								logger.warning("The observation level attributes: " + obsAttrName + " for time series " + name + " are not well set. Skip them.");
+								break;
+							}
+							String obsAttrVal = obsAttrs[i];
+							obsmetadata.setRow(obsMetaRowIndex, name, obsAttrName, obsAttrVal, time);						
+							obsMetaRowIndex++;
 						}
-						else{
-							throw new SdmxException("Unexpected error during Time Series pocessing in SasHandler.");
-						}
+
 						dataRowIndex++;
 					}
 				}
@@ -162,61 +361,61 @@ public class SASClientHandler extends SdmxClientHandler{
 		
 	}
 	
-	public static String getMetaName(double index) throws SdmxException {
+	public static String getMetaName(double index) throws SASClientHandler.SdmxSASException {
 		if(metadata != null && index <= metadata.size()){
 			return metadata.getName((int)index);
 		}
 		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
-	public static String getMetaKey(double index) throws SdmxException {
+	public static String getMetaKey(double index) throws SASClientHandler.SdmxSASException {
 		if(metadata != null && index <= metadata.size()){
 			return metadata.getKey((int)index);
 		}
 		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
-	public static String getMetaValue(double index) throws SdmxException {
+	public static String getMetaValue(double index) throws SASClientHandler.SdmxSASException {
 		if(metadata != null && index <= metadata.size()){
 			return metadata.getValue((int)index);
 		}
 		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
-	public static String getMetaType(double index) throws SdmxException {
+	public static String getMetaType(double index) throws SASClientHandler.SdmxSASException {
 		if(metadata != null && index <= metadata.size()){
 			return metadata.getType((int)index);
 		}
 		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
 	
-	public static double getDataObservation(double index) throws SdmxException {
+	public static double getDataObservation(double index) throws SASClientHandler.SdmxSASException {
 		if(data != null && index <= data.size()){
 			return data.getObservation((int)index);
 		}
 		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
 		}
 	}
-	public static String getDataTimestamp(double index) throws SdmxException {
+	public static String getDataTimestamp(double index) throws SASClientHandler.SdmxSASException {
 		if(data != null && index <= data.size()){
 			return data.getTimestamp((int)index);
 		}
 		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
 		}
 	}
-	public static String getDataName(double index) throws SdmxException {
+	public static String getDataName(double index) throws SASClientHandler.SdmxSASException {
 		if(data != null && index <= data.size()){
 			return data.getName((int)index);
 		}
 		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Data cache error: cache is null or index exceeds size.");
 		}
 	}
 	public static int getNumberOfMeta() {
@@ -238,230 +437,41 @@ public class SASClientHandler extends SdmxClientHandler{
 			return 0;
 	}
 
-	public static String getObsMetaName(double index) throws SdmxException {
+	public static String getObsMetaName(double index) throws SASClientHandler.SdmxSASException {
 		if(obsmetadata != null && index <= obsmetadata.size()){
 			return obsmetadata.getName((int)index);
 		}
 		else{
-			throw new SdmxException("Observation level Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Observation level Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
 
-	public static String getObsMetaKey(double index) throws SdmxException {
+	public static String getObsMetaKey(double index) throws SASClientHandler.SdmxSASException {
 		if(obsmetadata != null && index <= obsmetadata.size()){
 			return obsmetadata.getKey((int)index);
 		}
 		else{
-			throw new SdmxException("Observation level  cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Observation level  cache error: cache is null or index exceeds size.");
 		}
 	}
 
-	public static String getObsMetaValue(double index) throws SdmxException {
-		if(obsmetadata != null && index <= obsmetadata.size()){
-			return obsmetadata.getValue((int)index);
-		}
+	public static String getObsMetaValue(double index) throws SASClientHandler.SdmxSASException {
+                if(obsmetadata != null && index <= obsmetadata.size()){
+                        return obsmetadata.getValue((int)index);
+                }
 		else{
-			throw new SdmxException("Observation level  cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Observation level  cache error: cache is null or index exceeds size.");
 		}
 	}
 
-	public static String getObsMetaDate(double index) throws SdmxException {
+	public static String getObsMetaDate(double index) throws SASClientHandler.SdmxSASException {
 		if(obsmetadata != null && index <= obsmetadata.size()){
 			return obsmetadata.getDate((int)index);
 		}
 		else{
-			throw new SdmxException("Observation level  cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Observation level  cache error: cache is null or index exceeds size.");
 		}
 	}
 	
 }
-
-class DataCache {
-	private static final int NAME_COL = 0;
-	private static final int TIME_COL = 1;
-	private static final int OBS_COL = 2;
-	
-	Object [][] data = null;
-	
-	DataCache(int size) {
-		super();
-		this.data = new Object[size][3];
-	}
-	
-	void setRow(int rowIndex, String name, String time, double obs) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			data[rowIndex][NAME_COL] = name;
-			data[rowIndex][TIME_COL] = time;
-			data[rowIndex][OBS_COL] = new Double(obs);
-		}
-		else{
-			throw new SdmxException("Row index exceeds data size");
-		}
-	}
-	double getObservation(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return ((Double)data[rowIndex][OBS_COL]).doubleValue();
-		}
-		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getName(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][NAME_COL];
-		}
-		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getTimestamp(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][TIME_COL];
-		}
-		else{
-			throw new SdmxException("Data cache error: cache is null or index exceeds size.");
-		}
-	}
-	
-	int size(){
-		if(data != null)
-			return data.length; 
-		else
-			return -1;
-	}
-
-}
-
-class MetadataCache {
-	private static final int NAME_COL = 0;
-	private static final int KEY_COL = 1;
-	private static final int VALUE_COL = 2;
-	private static final int TYPE_COL = 3;
-	
-	String [][] data = null;
-	
-	MetadataCache(int size) {
-		super();
-		this.data = new String[size][4];
-	}
-	
-	void setRow(int rowIndex, String name, String key, String value, String type) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			data[rowIndex][NAME_COL] = name;
-			data[rowIndex][KEY_COL] = key;
-			data[rowIndex][VALUE_COL] = value;
-			data[rowIndex][TYPE_COL] = type;
-		}
-		else{
-			throw new SdmxException("Row index exceeds metadata size");
-		}
-	}
-	String getName(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][NAME_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getKey(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][KEY_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getValue(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][VALUE_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getType(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][TYPE_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	
-	int size(){
-		if(data != null)
-			return data.length; 
-		else
-			return -1;
-	}
-
-
-}
-
-class ObservationMetadataCache {
-	private static final int NAME_COL = 0;
-	private static final int KEY_COL = 1;
-	private static final int VALUE_COL = 2;
-	private static final int DATE_COL = 3;
-	
-	String [][] data = null;
-	
-	ObservationMetadataCache(int size) {
-		super();
-		this.data = new String[size][4];
-	}
-	
-	void setRow(int rowIndex, String name, String key, String value, String date) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			data[rowIndex][NAME_COL] = name;
-			data[rowIndex][KEY_COL] = key;
-			data[rowIndex][VALUE_COL] = value;
-			data[rowIndex][DATE_COL] = date;
-		}
-		else{
-			throw new SdmxException("Row index exceeds metadata size");
-		}
-	}
-	String getName(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][NAME_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getKey(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][KEY_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getValue(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][VALUE_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	String getDate(int rowIndex) throws SdmxException{
-		if( data!= null && rowIndex < data.length ){
-			return (String) data[rowIndex][DATE_COL];
-		}
-		else{
-			throw new SdmxException("Metadata cache error: cache is null or index exceeds size.");
-		}
-	}
-	
-	int size(){
-		if(data != null)
-			return data.length; 
-		else
-			return -1;
-	}
-}
-
 

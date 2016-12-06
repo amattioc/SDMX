@@ -21,7 +21,7 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 

@@ -20,8 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +53,8 @@ public class PortableTimeSeries {
 	//left here for backward compatibility
 	private List<String> status = null;
 	private Hashtable<String, ArrayList<String>> obsLevelAttributes = null;
+
+	private String name;
 	
 	public PortableTimeSeries() {
 		super();
@@ -67,6 +69,21 @@ public class PortableTimeSeries {
 	public List<String> getAttributes() {
 		return attributes;
 	}
+	public String getAttributeValue(String code){
+		String value = null;
+		for (Iterator<String> iterator = attributes.iterator(); iterator.hasNext();) {
+			String attr = (String) iterator.next();
+			String[] tokens = attr.split("\\s*=\\s*");
+			String key = tokens[0];
+			String tmp = tokens[1];
+			if(key != null && !key.isEmpty() && tmp != null && key.equals(code)){
+				value = tmp;
+				break;
+			}		
+		}
+		return value;
+	}
+
 	public String[] getAttributesArray() {
 		return attributes.toArray(new String[0]);
 	}
@@ -79,6 +96,20 @@ public class PortableTimeSeries {
 	public List<String> getDimensions() {
 		return dimensions;
 	}
+	public String getDimensionValue(String code){
+		String value = null;
+		for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
+			String dim = (String) iterator.next();
+			String[] tokens = dim.split("\\s*=\\s*");
+			String key = tokens[0];
+			String tmp = tokens[1];
+			if(key != null && !key.isEmpty() && tmp != null && key.equals(code)){
+				value = tmp;
+				break;
+			}
+		}
+		return value;
+	}
 	public String[] getDimensionsArray() {
 		return dimensions.toArray(new String[0]);
 	}
@@ -88,7 +119,7 @@ public class PortableTimeSeries {
 	public void addDimension(String dimension) {
 		this.dimensions.add(dimension);
 	}
-	public void addObservation(String observation, String timeSlot, Hashtable<String, String> attributes) throws SdmxException {
+	public void addObservation(String observation, String timeSlot, Hashtable<String, String> attributes){
 		// we'll be very easy here. 
 		if(observation == null || observation.isEmpty()){
 			logger.info(getName() + ": missing observation for time slot: " + timeSlot + ", I'll set a NaN.");
@@ -108,31 +139,43 @@ public class PortableTimeSeries {
 		}
 		this.timeSlots.add(timeSlot);
 		
-		for (Iterator<String> iterator = attributes.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-			//backward compatibility, to be removed in a couple of versions
-			if(key.equals("OBS_STATUS")){
-				this.status.add(attributes.get(key));
-			}
-			if(obsLevelAttributes.containsKey(key)){
-				obsLevelAttributes.get(key).add(attributes.get(key));
-			}
-			else{
-				//new attribute
-				ArrayList<String> newattr = new ArrayList<String>();
-				for (int i = 0; i < timeSlots.size() - 1; i++) {
-					newattr.add("");
+		if(attributes != null){
+			for (Iterator<String> iterator = attributes.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				//backward compatibility, to be removed in a couple of versions
+				if(key.equals("OBS_STATUS")){
+					this.status.add(attributes.get(key));
 				}
-				newattr.add(attributes.get(key));
-				obsLevelAttributes.put(key, newattr);
+				if(obsLevelAttributes.containsKey(key)){
+					obsLevelAttributes.get(key).add(attributes.get(key));
+				}
+				else{
+					//new attribute
+					ArrayList<String> newattr = new ArrayList<String>();
+					for (int i = 0; i < timeSlots.size() - 1; i++) {
+						newattr.add("");
+					}
+					newattr.add(attributes.get(key));
+					obsLevelAttributes.put(key, newattr);
+				}
 			}
 		}
 		//now add empty slots for all attributes that are not present
-		for (Iterator<ArrayList<String>> iterator = obsLevelAttributes.values().iterator(); iterator.hasNext();) {
-			ArrayList<String> tmp = (ArrayList<String>) iterator.next();
-			if(tmp.size() < timeSlots.size()){
-				tmp.add("");
+		if(obsLevelAttributes != null){
+			for (Iterator<ArrayList<String>> iterator = obsLevelAttributes.values().iterator(); iterator.hasNext();) {
+				ArrayList<String> tmp = (ArrayList<String>) iterator.next();
+				if(tmp.size() < timeSlots.size()){
+					tmp.add("");
+				}
 			}
+		}
+	}
+	public void setObservations(List<Double> obs) throws DataStructureException{
+		if(obs.size() == this.timeSlots.size()){
+			this.observations = obs;
+		}
+		else{
+			throw new DataStructureException("Error setting data in time series. Wrong observation number.");
 		}
 	}
 	public List<Double> getObservations() {
@@ -140,6 +183,14 @@ public class PortableTimeSeries {
 	}
 	public Double[] getObservationsArray() {
 		return observations.toArray(new Double[0]);
+	}
+	public void setTimeSlots(List<String> dates) throws DataStructureException{
+		if(dates.size() == this.observations.size()){
+			this.timeSlots = dates;
+		}
+		else{
+			throw new DataStructureException("Error setting dates in time series. Wrong dates number.");
+		}
 	}
 	public List<String> getTimeSlots() {
 		return timeSlots;
@@ -172,18 +223,30 @@ public class PortableTimeSeries {
 		return getObsLevelAttributes(attributeName).toArray(new String[0]);
 	}
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	public String getName() {
-		String name = null;
-		if(dataflow != null && !dataflow.isEmpty()){
-			name = this.dataflow + ".";
-			String delims = "[ =]";
-			for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
-				String dim = (String) iterator.next();
-				String[] tokens = dim.split(delims);
-				String value = tokens[1];
-				name += value;
-				if(iterator.hasNext()){
-					name += ".";
+		String name = this.name;
+		if(name == null || name.isEmpty()){
+			// we determine the name in the SDMX way
+			if(dimensions.size() > 0){
+				if(dataflow != null && !dataflow.isEmpty()){
+					name = this.dataflow + ".";
+				}
+				else{
+					name = "";
+				}
+				String delims = "[ =]";
+				for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
+					String dim = (String) iterator.next();
+					String[] tokens = dim.split(delims);
+					String value = tokens[1];
+					name += value;
+					if(iterator.hasNext()){
+						name += ".";
+					}
 				}
 			}
 		}

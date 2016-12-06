@@ -21,18 +21,18 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
 public class ILOClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("ILO", null));
+//		System.err.println(SdmxClientHandler.getFlows("ILO", null));
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 //		System.err.println(SdmxClientHandler.getCodes("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "COUNTRY"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null));
+		System.err.println(SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null));
 //		System.err.println(SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB"));
 	}
 }

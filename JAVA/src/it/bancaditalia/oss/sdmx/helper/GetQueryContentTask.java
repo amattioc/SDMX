@@ -23,8 +23,9 @@ package it.bancaditalia.oss.sdmx.helper;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -50,7 +51,7 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 		String query = QueryPanel.sdmxQuery.getText();
 		try {
 			if(query == null || query.isEmpty()){
-				throw new SdmxException("The sdmx query is not valid yet: '" + query + "'");
+				throw new SdmxInvalidParameterException("The sdmx query is not valid yet: '" + query + "'");
 			}
 			List<PortableTimeSeries> result = SdmxClientHandler.getTimeSeriesNames(QueryPanel.selectedProvider, query);
 			Dataflow df = SdmxClientHandler.getFlow(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);

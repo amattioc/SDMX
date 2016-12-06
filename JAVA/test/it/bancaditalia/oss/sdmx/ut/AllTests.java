@@ -30,6 +30,7 @@ import org.junit.runners.Suite;
 						ESTATTest.class, 
 						ILOTest.class, 
 						IMFTest.class, 
+						IMF2Test.class, 
 						InegiTest.class, 
 						WBTest.class,
 						INSEETest.class,

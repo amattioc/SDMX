@@ -18,20 +18,11 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bancaditalia.oss.sdmx.client;
+package it.bancaditalia.oss.sdmx.exceptions;
 
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-
-
-
-public class IstatClientTest {
-	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("ISTAT", null));
-		System.err.println(SdmxClientHandler.getDSDIdentifier("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getDimensions("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ISTAT", "115_200_M.M.IT.CONS_PROD.F.N", null, null));
-		
+public class DataStructureException extends Exception {
+	public DataStructureException(String message) {
+		super(message);
 	}
+	private static final long serialVersionUID = 1L;
 }

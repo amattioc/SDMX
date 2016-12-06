@@ -23,11 +23,12 @@ package it.bancaditalia.oss.sdmx.parser.v20;
 
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.BufferedReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -58,10 +59,12 @@ public class DataflowParser {
 	private static final String KF_AGID = "KeyFamilyAgencyID";
 	private static final String KF_VER = "Version";
 
-	public static List<Dataflow> parse(InputStreamReader xmlBuffer) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
+		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
+
+		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 		Dataflow df = null;
 
@@ -74,6 +77,7 @@ public class DataflowParser {
 				StartElement startElement = event.asStartElement();
 
 				if (startElement.getName().getLocalPart() == (DATAFLOW)) {
+
 					df = new Dataflow();
 					currentName.clear();
 					@SuppressWarnings("unchecked")

@@ -21,13 +21,7 @@
 
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LocalizedText;
-
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +34,11 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
  * @author Attilio Mattiocco
@@ -55,7 +54,7 @@ public class DataflowParser {
 	private static final String NAME = "Name";
 	private static final String REF = "Ref";
 
-	public static List<Dataflow> parse(InputStreamReader xmlBuffer) throws XMLStreamException, UnsupportedEncodingException {
+	public static List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);

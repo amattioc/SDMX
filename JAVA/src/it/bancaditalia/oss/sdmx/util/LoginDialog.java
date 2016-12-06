@@ -94,6 +94,8 @@ public class LoginDialog extends JDialog {
 		pack();
 		setResizable(false);
 		setLocationRelativeTo(parentFrame);
+		
+		getRootPane().setDefaultButton(loginButton);
 	}
 
 	public String getUsername() {

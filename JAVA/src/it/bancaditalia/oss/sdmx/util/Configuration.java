@@ -28,12 +28,22 @@ import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.ProxySelector;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.swing.JFrame;
 
 /**
@@ -41,6 +51,9 @@ import javax.swing.JFrame;
  *
  */
 public class Configuration {
+	
+	// TODO: will be replaced by StandardCharsets#UTF_8 in Java 7
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
 	
 	protected static Logger SDMX_LOGGER = null;
 	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
@@ -75,6 +88,7 @@ public class Configuration {
 
 	private static final String sourceClass = Configuration.class.getSimpleName();
 	private static Properties props = new Properties();
+	private static boolean inited = false;
 
 	protected static void setSdmxLogger(){
 		if(SDMX_LOGGER == null){
@@ -93,10 +107,6 @@ public class Configuration {
 		return props;
 	}
 	
-	public static boolean isSSLCertificatesDisabled(){
-		return props.getProperty(SSL_DISABLE_CERT_CHECK_PROP, "FALSE").equalsIgnoreCase("TRUE");
-	}
-
 	public static boolean isReverse(){
 		return props.getProperty(REVERSE_DUMP_PROP, REVERSE_DUMP_DEFAULT).equalsIgnoreCase("TRUE");
 	}
@@ -139,9 +149,11 @@ public class Configuration {
 
 	public static void init() {
 		
+		if(inited) return; else inited = true;
+		
 		//normal configuration steps:
 		// 1 init logger
-		// 2 search configuration in this order: Configuration class, local, global  
+		// 2 search configuration in this order: local, global, Configuration class   
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
 		//for Matlab: to avoid being considered a browser
@@ -149,52 +161,54 @@ public class Configuration {
 		
 		String confType = null;
 		
-		// try configuration class. 
-		try {
-			Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
-			Method method = clazz.getMethod("init");
-			method.invoke((Object)null);
-			confType = clazz.getCanonicalName();
-			SDMX_LOGGER.info("Reading " + confType + " configuration.");
-		} catch( Exception notFound ) {
-		}
-
 		InputStream is1 = null;
 		InputStream is2 = null;
-		// try local configuration and global configuration. If found they will be
-		// applied on top of class configuration
+		// try local configuration. If found apply and exit
 		if(new File(CONFIGURATION_FILE_NAME).exists()){
 			try {
 				is1 = new FileInputStream(CONFIGURATION_FILE_NAME);
 				is2 = new FileInputStream(CONFIGURATION_FILE_NAME);
 				init(is1, is2);
 				confType = System.getProperty("user.dir") + File.separator + CONFIGURATION_FILE_NAME;
-				SDMX_LOGGER.info("Configuration file: " + confType );
+				SDMX_LOGGER.info("Local configuration file found: " + confType );
 			} 
 			catch (Exception e) {
+				//logger could be not available
 				e.printStackTrace();
 			}
 		}
+		// now try  globally configured file configuration and, if necessary, class configuration 
 		else {
+			// try global configuration
 			String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
-			if( 	central != null && 
-					!central.isEmpty()){
+			if( central != null && !central.isEmpty()){
 				if(new File(central).exists()){
 					try {
 						is1 = new FileInputStream(central);
 						is2 = new FileInputStream(central);
 						init(is1, is2);
 						confType = central;
-						SDMX_LOGGER.info("Configuration file: " + confType );
+						SDMX_LOGGER.info("Central configuration file found: " + confType );
 					} 
 					catch (Exception e) {
+						//logger could be not available
 						e.printStackTrace();
 					}
 				}
 			}
+			if(confType == null){
+				// try configuration class. 
+				try {
+					Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
+					Method method = clazz.getMethod("init");
+					method.invoke((Object)null);
+					confType = clazz.getCanonicalName();
+					SDMX_LOGGER.info("Class configuration found: " + confType);
+				} catch( Exception notFound ) {
+				}
+			}
 		}
-
-		// no class or file configuration found
+		// no class or file configuration found, apply some defaults
 		if(confType == null){
 			ConsoleHandler handler = new ConsoleHandler();
 			handler.setLevel(Level.INFO);
@@ -204,7 +218,7 @@ public class Configuration {
 		}
 	}
 	
-	public static void init(InputStream is1, InputStream is2) throws SecurityException, IOException {
+	private static void init(InputStream is1, InputStream is2) throws SecurityException, IOException {
 		setSdmxLogger();
 		LogManager.getLogManager().readConfiguration(is1);
 		is1.close();
@@ -217,11 +231,52 @@ public class Configuration {
 			System.setProperty(SSL_TRUSTSTORE_PROP, tStore);
 		}
 		
+		setupTrustAllCerts();
+		
 		//configure default language if not already set explicitly
 		SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
 		
 		configureProxy(props);
+	}
 
+	private static void setupTrustAllCerts() {
+		if (props.getProperty(SSL_DISABLE_CERT_CHECK_PROP, "FALSE").equalsIgnoreCase("TRUE")) {
+			SDMX_LOGGER.fine("The SSL Certificate checks are disabled...");
+			TrustManager[] alwaysTrust = new TrustManager[] { new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				public void checkClientTrusted(X509Certificate[] certs,
+						String authType) {
+				}
+				public void checkServerTrusted(X509Certificate[] certs,
+						String authType) {
+				}
+			} };
+
+			SSLContext context = null;
+			try {
+				context = SSLContext.getInstance("SSL");
+				context.init(null, alwaysTrust, new java.security.SecureRandom());
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (KeyManagementException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (context != null)
+				HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+			
+			//we also want to avoid verification of the chains 
+			HostnameVerifier alwaysValid = new HostnameVerifier() {
+				public boolean verify(String hostname, SSLSession session) {
+					return true;
+				}
+			};
+			HttpsURLConnection.setDefaultHostnameVerifier(alwaysValid);
+		}
 	}
 
 	private static void configureProxy(Properties props){

@@ -21,7 +21,8 @@
 package it.bancaditalia.oss.sdmx.helper;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 
 import java.awt.event.KeyEvent;
 
@@ -58,7 +59,7 @@ public class BuildCommandContentFrame extends JFrame{
 		StringBuffer buf = new StringBuffer();
 		String query = QueryPanel.sdmxQuery.getText();
 		if(query == null || query.isEmpty()){
-			throw new SdmxException("The sdmx query is not valid yet: '" + query + "'");
+			throw new SdmxInvalidParameterException("The sdmx query is not valid yet: '" + query + "'");
 		}
 		// R
 		buf.append(	"R COMMAND:\n");

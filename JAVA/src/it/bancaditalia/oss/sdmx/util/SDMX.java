@@ -54,7 +54,7 @@ public class SDMX {
 				else if("getTimeSeries".equalsIgnoreCase(method)){
 					System.out.println(SdmxClientHandler.dumpTimeSeries(provider, query, null, null));
 				}
-			} catch (SdmxException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

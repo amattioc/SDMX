@@ -25,15 +25,13 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
-public class ABSClientTest {
+public class WITSClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ABS", null));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_NRP9_ASGS", "FREQUENCY"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ABS_NRP9_ASGS..AUS.0.A", "2000", "2010"));
+//		System.err.println(SdmxClientHandler.getFlows("WITS", null));
+//		System.err.println(SdmxClientHandler.getDimensions("WITS", "DF_WITS_Tariff_TRAINS"));
+		System.err.println(SdmxClientHandler.getDSDIdentifier("WITS", "DF_WITS_Tariff_TRAINS"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("WITS", "DF_WITS_Tariff_TRAINS"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("WITS", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
 		
-
 	}
 }

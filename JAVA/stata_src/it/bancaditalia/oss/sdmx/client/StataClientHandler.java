@@ -21,10 +21,6 @@
 
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.helper.SDMXHelper;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,6 +28,10 @@ import java.util.logging.Logger;
 
 import com.stata.sfi.Data;
 import com.stata.sfi.SFIToolkit;
+
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.helper.SDMXHelper;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 /**
  * <p>Java class for optimizing interactions with the SdmxClientHandler in STATA. It uses the
  *  

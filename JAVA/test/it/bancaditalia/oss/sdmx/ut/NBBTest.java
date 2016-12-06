@@ -22,17 +22,18 @@ package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.client.custom.NBB;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.client.custom.NBB;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class NBBTest {
 	@Test
@@ -60,9 +61,9 @@ public class NBBTest {
 	
 	@Test
 	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes(NBB.class.getSimpleName(), "AFCSURV", "FREQUENCY");
-			assertNotNull("Null getCodes result", codes);
-			assertEquals("Wrong code for WDI annual", codes.get("M"), "Monthly");
+		Map<String, String> codes = SdmxClientHandler.getCodes(NBB.class.getSimpleName(), "AFCSURV", "FREQUENCY");
+		assertNotNull("Null getCodes result", codes);
+		assertEquals("Wrong code for WDI annual", codes.get("M"), "Monthly");
 	}
 
 	@Test

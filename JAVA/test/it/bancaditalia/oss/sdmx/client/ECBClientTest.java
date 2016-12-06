@@ -21,7 +21,7 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
@@ -34,12 +34,12 @@ public class ECBClientTest {
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
 //		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
-		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, "2015-01-01", true));
+//		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, "2015-01-01", true));
 //		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, null, true));
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "ICPF.A.AT.N.V.LE.N_F.S1251.A1.S.1.N.E.Z", null, null));
+		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "BSI/M..N.A.......", "2015-01", "2015-01").size());
 		
 	}
 }

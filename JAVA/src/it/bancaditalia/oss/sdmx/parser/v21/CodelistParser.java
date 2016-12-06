@@ -20,12 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LocalizedText;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,6 +32,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
  * @author Attilio Mattiocco
@@ -52,10 +52,10 @@ public class CodelistParser {
 	static final String ID = "id";
 	static final String DESCRIPTION = "Name";
 
-	public static Map<String,String> parse(InputStreamReader xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		return parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
 	}
-	public static Map<String,String> parse(InputStreamReader xmlBuffer, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static Map<String,String> parse(Reader xmlBuffer, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
@@ -107,7 +107,7 @@ public class CodelistParser {
 						codes.put(key, value.getText());
 					}
 					else{
-						throw new SdmxException("Error during Codelist Parsing. Invalid code id: " + key);
+						throw new SdmxXmlContentException("Error during Codelist Parsing. Invalid code id: " + key);
 					}
 				}
 				else{

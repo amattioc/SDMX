@@ -21,21 +21,21 @@
 package it.bancaditalia.oss.sdmx.client;
 
 
-import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
-
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
 
 /**
  * <p>Java Factory class for creating the Sdmx Clients.
@@ -181,64 +181,53 @@ public class SDMXClientFactory {
 	/**
      * General method for creating an SdmxClient.
      *
-	 * @param provider
-	 * @param user
-	 * @param pw
+	 * @param providerName A non-null provider identification short name. 
 	 * @return
+	 * @throws ClassNotFoundException if the provider implementation couldn't be found in classpath 
+	 * @throws InstantiationException if the provider implementation does not provide a default constructor
+	 * @throws IllegalAccessException if the provider implementation default constructor is not public
 	 */
-	public static GenericSDMXClient createClient(String provider) throws SdmxException{
+	public static GenericSDMXClient createClient(String providerName) throws SdmxException {
 		final String sourceMethod = "createClient";
 
 		logger.entering(sourceClass, sourceMethod);
-		logger.fine("Create an SDMX client for '" + provider + "'");
+		logger.fine("Create an SDMX client for '" + providerName + "'");
 		GenericSDMXClient client = null;
-		Provider p = providers.get(provider);
+		Provider provider = providers.get(providerName);
 		String hostname = null;
 
-		String errorMsg = "The provider '" + provider + "' is not available in this configuration.";
-		if(p != null && !p.isCustom()){
-			hostname = p.getEndpoint().getHost();
-			if(p.getEndpoint().getProtocol().equals("http")){
-				client = new RestSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
-			}
-			else if(p.getEndpoint().getProtocol().equals("https")){
-				try {
-					client = new HttpsSdmxClient(p.getName(), p.getEndpoint(), p.isNeedsCredentials(), p.isNeedsURLEncoding(), p.isSupportsCompression());
-				} catch (KeyManagementException e) {
-					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-					logger.log(Level.FINER, "", e);
-					throw new SdmxException(errorMsg);
-				} catch (NoSuchAlgorithmException e) {
-					logger.severe("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-					logger.log(Level.FINER, "", e);
-					throw new SdmxException(errorMsg);
-				}
-			}
-			else {
-				logger.severe("The protocol '" + p.getEndpoint().getProtocol() + "' is not supported.");
-				throw new SdmxException(errorMsg);
+		String errorMsg = "The provider '" + providerName + "' is not available in this configuration.";
+		if(provider != null && !provider.isCustom())
+		{
+			hostname = provider.getEndpoint().getHost();
+			if(provider.getEndpoint().getProtocol().toLowerCase().startsWith("http"))
+				client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
+			else 
+			{
+				logger.severe("The protocol '" + provider.getEndpoint().getProtocol() + "' is not supported.");
+				throw new SdmxInvalidParameterException(errorMsg);
 			}
 		}
 		else {
 			///legacy 2.0
-			try{
-				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.client.custom." + provider);
+			try {
+				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.client.custom." + providerName);
 				client = (GenericSDMXClient)clazz.newInstance();
 				// apply customizations eventually added by user in configuration file
 				// for now only endpoint can be overridden
-				if(p.getEndpoint() != null){
-					client.setEndpoint(p.getEndpoint());
-				}	
+				if(provider.getEndpoint() != null)
+					client.setEndpoint(provider.getEndpoint());
 				hostname = client.getEndpoint().getHost();
 			}
 			catch (ClassNotFoundException e) {
-				logger.severe("The provider '" + provider + "' is not available in this configuration.");
-				throw new SdmxException(errorMsg);
-			}
-			catch (Exception e) {
-				logger.severe("Exception caught. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-				logger.log(Level.FINER, "Exception caught. ", e);
-				throw new SdmxException(errorMsg);
+				logger.severe("The provider '" + providerName + "' is not available in this configuration.");
+				throw new SdmxUnknownProviderException(providerName, e);
+			} catch (IllegalAccessException e) {
+				logger.severe("The provider implementation it.bancaditalia.oss.sdmx.client.custom." + providerName + " does not define a default constructor.");
+				throw new SdmxUnknownProviderException(providerName, e);
+			} catch (InstantiationException e) {
+				logger.severe("Could not instantiate provider implementation it.bancaditalia.oss.sdmx.client.custom." + providerName);
+				throw new SdmxUnknownProviderException(providerName, e);
 			}
 		}
 

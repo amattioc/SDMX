@@ -20,11 +20,11 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -51,7 +51,7 @@ public interface GenericSDMXClient {
 	
 	/**
 	 * <p>Gets the basic dsd structure for the given dataflow
-	 * @param dsd the dsd identification
+	 * @param dsd a non-null dsd identifier
 	 * @param full if true, for 2.1 providers it retrieves the full dsd, with all the codelists.
 	 * @return the dimensions and (if configured) code lists
 	 * @throws SdmxException 

@@ -20,8 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,9 +39,9 @@ import javax.swing.table.DefaultTableModel;
  */
 public class PortableDataSet{
 	
-	private String TIME_LABEL = "TIME_PERIOD";
-	private String OBS_LABEL = "OBS_VALUE";
-	private String ID_LABEL = "ID";
+	public static final String TIME_LABEL = "TIME_PERIOD";
+	public static final String OBS_LABEL = "OBS_VALUE";
+	public static final String ID_LABEL = "ID";
 	
 	private static final String sourceClass = PortableDataSet.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
@@ -49,23 +49,21 @@ public class PortableDataSet{
 
 	public PortableDataSet() {
 		model = new DefaultTableModel();
-		model.addColumn(TIME_LABEL);
-		model.addColumn(OBS_LABEL);
 	}
 
-	public PortableDataSet(List<PortableTimeSeries> tslist) throws SdmxException {
+	public PortableDataSet(List<PortableTimeSeries> tslist) throws DataStructureException {
 		this();
 		putTimeSeries(tslist);
 	}
 
-	public int getColumnIndex(String name) throws SdmxException{
+	public int getColumnIndex(String name) throws DataStructureException{
 		int n = model.getColumnCount();
 		for(int i = 0; i < n; i++){
 			if(model.getColumnName(i).equals(name)){
 				return(i);
 			}
 		}
-		throw new SdmxException("Error: column " + name + " does not exist.");
+		throw new DataStructureException("Error: column " + name + " does not exist.");
 	}
 	
 	public int getRowCount(){
@@ -76,25 +74,25 @@ public class PortableDataSet{
 		return model.getColumnCount();
 	}
 	
-	public String getColumnName(int idx) throws SdmxException{
+	public String getColumnName(int idx) throws DataStructureException{
 		if(idx < getColumnCount()){
 			return model.getColumnName(idx);
 		}
 		else {
-			throw new SdmxException("Error: index exceeds number of actual columns");
+			throw new DataStructureException("Error: index exceeds number of actual columns");
 		}
 	}
 	
-	public Object getValueAt(int row, int column) throws SdmxException {
+	public Object getValueAt(int row, int column) throws DataStructureException {
 		if(row < getRowCount() && column < getColumnCount()){
 			return model.getValueAt(row, column);
 		}
 		else{
-			throw new SdmxException("Error: index exceeds number of actual rows or columns");
+			throw new DataStructureException("Error: index exceeds number of actual rows or columns");
 		}
 	}
 	
-	public String[] getTimeStamps() throws SdmxException {
+	public String[] getTimeStamps() throws DataStructureException {
 		int rows = getRowCount();
 		String[] result = new String[rows];
 		int timeCol = getColumnIndex(TIME_LABEL);
@@ -104,7 +102,7 @@ public class PortableDataSet{
 		return(result);
 	}
 
-	public Double[] getObservations() throws SdmxException {
+	public Double[] getObservations() throws DataStructureException {
 		int rows = getRowCount();
 		Double[] result = new Double[rows];
 		int obsCol = getColumnIndex(OBS_LABEL);
@@ -122,13 +120,13 @@ public class PortableDataSet{
 			for(int i = 0; i < rows; i++){
 				result[i] = (String) getValueAt(i, obsCol);
 			}
-		} catch (SdmxException e) {
+		} catch (DataStructureException e) {
 			result = new String[0];
 		}
 		return(result);
 	}
 	
-	public String[] getMetadataNames() throws SdmxException{
+	public String[] getMetadataNames() throws DataStructureException{
 		int cols = getColumnCount();
 		List<String> result = new ArrayList<String>();
 		for(int i = 0; i < cols; i++){
@@ -140,7 +138,7 @@ public class PortableDataSet{
 		return result.toArray(new String[0]);
 	}
 	
-	public void putTimeSeries(List<PortableTimeSeries> tslist) throws SdmxException{
+	public void putTimeSeries(List<PortableTimeSeries> tslist) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
 		for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
@@ -150,7 +148,7 @@ public class PortableDataSet{
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
-	public void putTimeSeries(PortableTimeSeries ts) throws SdmxException{
+	public void putTimeSeries(PortableTimeSeries ts) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
 		int row = model.getRowCount();
@@ -161,52 +159,26 @@ public class PortableDataSet{
 		List<String> times = ts.getTimeSlots();
 		List<String> obsAttrs = ts.getObsLevelAttributesNames();
 		String tsName = ts.getName();
-		int idxTsName = -1;
-		if(tsName != null){
-			try {
-				idxTsName = getColumnIndex(ID_LABEL);
-			} catch (SdmxException e) {
-				model.addColumn(ID_LABEL);
-				try {
-					idxTsName = getColumnIndex(ID_LABEL);
-				} catch (SdmxException e1) {
-					logger.severe(e1.getMessage());
-					throw new SdmxException("Unexpected error while adding column 'ID'");
-				}
-			}
-		}
 		
 		int n = values.size();
-		model.setRowCount(row + n);
+		//model.setRowCount(row + n);
 		for (int index = 0; index < n; index++) {
 			Double val = (Double) values.get(index);
 			if(times != null){
 				String time = times.get(index);
-				 if(time != null)
-					 model.setValueAt(time, row, 0);					
+				if(time != null)
+					addValue(row, TIME_LABEL, time);
 			}
-			model.setValueAt(val, row, 1);
-			if(idxTsName != -1){
-				model.setValueAt(tsName, row, idxTsName);	
+			addValue(row, OBS_LABEL, val);
+			if(tsName != null && !tsName.isEmpty()){
+				addValue(row, ID_LABEL, tsName);	
 			}
 			
 			// set obs level attributes
 			for (Iterator<String> iterator = obsAttrs.iterator(); iterator.hasNext();) {
 				String name = (String) iterator.next();
 				String value = ts.getObsLevelAttributes(name).get(index);
-				int idx;
-				try {
-					idx = getColumnIndex(name);
-				} catch (SdmxException e) {
-					model.addColumn(name);
-					try {
-						idx = getColumnIndex(name);
-					} catch (SdmxException e1) {
-						logger.severe(e1.getMessage());
-						throw new SdmxException("Unexpected error while adding column: " + name);
-					}
-				}
-				model.setValueAt(value, row, idx);
+				addValue(row, name, value);
 			}
 		
 			
@@ -217,39 +189,15 @@ public class PortableDataSet{
 				String[] tokens = dim.split(delims);
 				String name = tokens[0];
 				String value = tokens[1];
-				int idx;
-				try {
-					idx = getColumnIndex(name);
-				} catch (SdmxException e) {
-					model.addColumn(name);
-					try {
-						idx = getColumnIndex(name);
-					} catch (SdmxException e1) {
-						logger.severe(e1.getMessage());
-						throw new SdmxException("Unexpected error while adding column: " + name);
-					}
-				}
-				model.setValueAt(value, row, idx);
+				addValue(row, name, value);
 			}
-			// set dimensions
+			// set attributes
 			for (Iterator<String> iterator = attrs.iterator(); iterator.hasNext();) {
 				String attr = (String) iterator.next();
 				String[] tokens = attr.split(delims);
 				String name = tokens[0];
 				String value = tokens[1];
-				int idx;
-				try {
-					idx = getColumnIndex(name);
-				} catch (SdmxException e) {
-					model.addColumn(name);
-					try {
-						idx = getColumnIndex(name);
-					} catch (SdmxException e1) {
-						logger.severe(e1.getMessage());
-						throw new SdmxException("Unexpected error while adding column: " + name);
-					}
-				}
-				model.setValueAt(value, row, idx);
+				addValue(row, name, value);
 			}
 
 			
@@ -258,7 +206,26 @@ public class PortableDataSet{
 		
 		logger.exiting(sourceClass, sourceMethod);
 	}
-
+	
+	public void addValue(int row, String columnName, Object value) throws DataStructureException{
+		if(row >= model.getRowCount()){
+			model.setRowCount(row + 1);
+		}
+		int idx = -1;
+		try {
+			idx = getColumnIndex(columnName);
+		} catch (DataStructureException e) {
+			model.addColumn(columnName);
+			try {
+				idx = getColumnIndex(columnName);
+			} catch (DataStructureException e1) {
+				logger.severe(e1.getMessage());
+				throw new DataStructureException("Unexpected error while adding column: " + columnName);
+			}
+		}
+		model.setValueAt(value, row, idx);
+	}
+	
 	@Override
 	public String toString(){
 		int rows = model.getRowCount();

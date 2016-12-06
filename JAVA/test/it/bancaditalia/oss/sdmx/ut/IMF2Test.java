@@ -26,7 +26,7 @@ import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.client.custom.OECD;
+import it.bancaditalia.oss.sdmx.client.custom.IMF2;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 import java.util.List;
@@ -34,45 +34,47 @@ import java.util.Map;
 
 import org.junit.Test;
 
-public class OECDTest {
+public class IMF2Test {
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
-		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(OECD.class.getSimpleName(), "QNA");
-		assertNotNull("Null key family for QNA", keyF);
-		assertEquals("Wrong Key Family", "QNA", keyF.getId());
+		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(IMF2.class.getSimpleName(), "DS-FSIRE");
+		assertNotNull("Null key family for DS-FSIRE", keyF);
+		assertEquals("Wrong Key Family", "FSIRE", keyF.getId());
 	}
 
 	@Test
 	public void testGetFlows() throws SdmxException {
-		Map<String, String> f = SdmxClientHandler.getFlows(OECD.class.getSimpleName(), "AEO");
+		Map<String, String> f = SdmxClientHandler.getFlows(IMF2.class.getSimpleName(), "DS-FSIRE");
 		assertNotNull("Null getFlows result", f);
-		String descr = f.get("AEO");
-		assertEquals("Wrong description for AEO", "African Economic Outlook", descr);
+		String descr = f.get("DS-FSIRE");
+		assertEquals("Wrong description for DS-FSIRE", "Financial Soundness Indicators (FSI), Reporting Entities", descr);
 	}
 
 	@Test
 	public void testGetDimensions() throws SdmxException {
-		List<Dimension> dim = SdmxClientHandler.getDimensions(OECD.class.getSimpleName(), "QNA");
-		assertNotNull("Null getDimensions result QNA", dim);
-		String result = "[Dimension [id=LOCATION, position=1, codelist=Codelist [id=OECD/CL_QNA_LOCATION, codes={CHE=Switzerland, OECDE=O";
-		assertEquals("Wrong dimensions for QNA", result, dim.toString().substring(0, result.length()));
+		List<Dimension> dim = SdmxClientHandler.getDimensions(IMF2.class.getSimpleName(), "DS-FSIRE");
+		assertNotNull("Null getDimensions result DS-FSIRE", dim);
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IMF/CL_FREQ, codes={W=Weekly, A=Annual, Q=Quarterly, D=Dai";
+		assertEquals("Wrong dimensions for DS-FSIRE", result, dim.toString().substring(0, result.length()));
 	}
 	
 	@Test
 	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes(OECD.class.getSimpleName(), "QNA", "FREQUENCY");
+			Map<String, String> codes = SdmxClientHandler.getCodes(IMF2.class.getSimpleName(), "DS-FSIRE", "FREQ");
 			assertNotNull("Null getCodes result", codes);
-			assertEquals("Wrong code for FREQUENCY annual", codes.get("A"), "Annual");
+			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 	}
 
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(OECD.class.getSimpleName(), "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010");
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries(IMF2.class.getSimpleName(), "DS-WHDREO.A.PA.GGXCNL_GDP", "2000", "2015");
 		assertNotNull("Null time series result", res);
+		//warning: they depend on eventual order
 		String annual = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "QNA.ITA.B1_GE.CARSA.Q", annual);
+		assertEquals("Wrong name for first time series", "DS-WHDREO.A.PA.GGXCNL_GDP", annual);
 		String start = res.get(0).getTimeSlots().get(0);
-		assertEquals("Wrong start date for time series", "2000-Q1", start);
+		assertEquals("Wrong start date for time series", "2008", start);
+		//System.out.println(res);
 	}
 
 }

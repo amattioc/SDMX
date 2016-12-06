@@ -20,16 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bancaditalia.oss.sdmx.api.Codelist;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LocalizedText;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -43,6 +35,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
  * @author Attilio Mattiocco
@@ -77,13 +76,12 @@ public class DataStructureParser {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public static List<DataFlowStructure> parse(InputStreamReader xmlBuffer) throws XMLStreamException, SdmxException, UnsupportedEncodingException {
+	public static List<DataFlowStructure> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
-
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;

@@ -20,25 +20,28 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.stream.XMLStreamException;
+
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
@@ -60,10 +63,11 @@ public abstract class DotStat extends RestSdmx20Client{
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		Dataflow result = null;
 		query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
+		
 		try {
 			List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
 			if(dsds.size() > 0){
@@ -80,19 +84,17 @@ public abstract class DotStat extends RestSdmx20Client{
 				result.setDsdIdentifier(dsdId);
 			}
 			else{
-				throw new SdmxException("The query returned zero dataflows");
+				throw new SdmxXmlContentException("The query returned zero dataflows");
 			}
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		}
+		try {
+			xmlStream.close();
+		} catch (IOException e) {
+			logger.severe("Exception caught closing stream.");
+		}
+
 		return result;
 
 	}
@@ -101,7 +103,7 @@ public abstract class DotStat extends RestSdmx20Client{
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
 		String query=null;
-		InputStreamReader xmlStream = null;
+		Reader xmlStream = null;
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
 		query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
 		xmlStream = runQuery(query, null);
@@ -125,12 +127,10 @@ public abstract class DotStat extends RestSdmx20Client{
 				}
 			}
 			else{
-				throw new SdmxException("The query returned zero dataflows");
+				throw new SdmxXmlContentException("The query returned zero dataflows");
 			}
-		} catch (Exception e) {
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
-			throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
+		} catch (XMLStreamException e) {
+			throw SdmxExceptionFactory.wrap(e);
 		} finally{
 			try {
 				xmlStream.close();
@@ -138,6 +138,7 @@ public abstract class DotStat extends RestSdmx20Client{
 				logger.severe("Exception caught closing stream.");
 			}
 		}
+
 		return result;
 	}
 	

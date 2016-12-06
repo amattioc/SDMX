@@ -20,16 +20,9 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -45,6 +38,13 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
@@ -63,7 +63,7 @@ public class GenericDataParser {
 	private static final String ATTRIBUTES = "Attributes";
 	private static final String ATTRIBUTEVALUE = "Value";
 
-	public static DataParsingResult parse(InputStreamReader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, UnsupportedEncodingException, SdmxException {
+	public static DataParsingResult parse(Reader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
@@ -220,13 +220,21 @@ public class GenericDataParser {
 		}
 	}
 	
+	
 	// some 2.0 providers are apparently adding a BOM
-	public static BufferedReader skipBOM(InputStreamReader xmlBuffer) throws SdmxException{
-		BufferedReader br = new BufferedReader(xmlBuffer);
-		logger.fine(xmlBuffer.getEncoding());
+	public static BufferedReader skipBOM(Reader xmlBuffer) throws SdmxException{
+		BufferedReader br = new BufferedReader(xmlBuffer) 
+		{ 
+			@Override public void close() throws IOException 
+			{  
+				logger.fine("GenericDataParser::skipBOM: closing stream.");
+				super.close();
+			} 
+		};
 		try {
 			// java uses Unicode big endian
 			char[] cbuf = new char[1];
+			// TODO: Source of problems here
 			br.mark(1);
 			br.read(cbuf, 0, 1);
 			logger.fine(String.format("0x%2s", Integer.toHexString(cbuf[0])));
@@ -235,10 +243,12 @@ public class GenericDataParser {
 				logger.fine("BOM found and skipped");
 			}
 			else{
+				// TODO: Source of problems here
+				logger.fine("GenericDataParser::skipBOM: Resetting stream.");
 				br.reset();
 			}
 		} catch (IOException e) {
-			throw new SdmxException("Error handling BOM for UTF8 response stream.");
+			throw SdmxExceptionFactory.wrap(e);
 		}
 		return br;
 	}

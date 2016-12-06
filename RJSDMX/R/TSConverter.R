@@ -105,12 +105,12 @@ convertHashTable <- function (javaList) {
 }
 
 # convert a java List<PortableTimeSeries>
-convertTSList <- function (javaList) {
+convertTSList <- function (javaList, plain = F) {
 	rList = as.list(javaList);
 	numOfTS = length(rList);
 	names = lapply(X=rList, FUN=getNames)
-	result = lapply(X=rList, FUN=convertSingleTS)
-  	names(result) <- names
+	result = lapply(X=rList, FUN=convertSingleTS, plain = plain)
+  names(result) <- names
 	return(result);
 }
 
@@ -139,7 +139,7 @@ getMeta<-function(metaName, jtable){
   return(meta)
 }
 
-convertSingleTS<-function(ttss){
+convertSingleTS<-function(ttss, plain = F){
   tts = NULL  
   s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
   name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
@@ -162,7 +162,7 @@ convertSingleTS<-function(ttss){
     }
     observations = sapply(observationsJ, .jcall,"D","doubleValue")
 
-    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, obsAttr);
+    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, obsAttr, plain);
   }
   else{
     message(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
@@ -179,28 +179,52 @@ convertSingleTS<-function(ttss){
 # series_attr_values= list of values of series attributes
 # status= list of values of status attribute
 # convert the frequency from SDMX-like codelist to numeric, e.g. 'M'-> 12 etc..
-makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAttr) {
+makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAttr, plain = F) {
 
 	if(length(values > 0)) {
-
-		if (is.null(freq)) {
-			message (paste0(tsname, ": frequency is NULL. Irregular timeseries defined"))     
-			tmp_ts <- zoo(values, order.by=times)
-		}
-		else {
-      if(freq == 'A'){
-        tmp_ts<- zoo(values, order.by = as.integer(times),frequency=1)
-      } else if(freq == 'M'){
-        times = sub(pattern='M', replacement='-', times) # OECD only
-        tmp_ts<- zoo(values, order.by = as.yearmon(times),frequency=12)
-      } else if(freq == 'Q'){
-        tmp_ts<- zoo(values, order.by = as.yearqtr(sub(pattern='-', replacement=' ', times)),frequency=4)
-      } else if(freq == 'D' || freq == 'B'){
-        tmp_ts<- zoo(values, order.by = as.Date(times))
-      } else {
-	      tmp_ts <- zoo(values, order.by=times)
+    if(plain){
+      # format will always be: yyyy-mm-ddThh:mm:ss
+      if (is.null(freq)) {
+        message (paste0(tsname, ": frequency is NULL. Irregular timeseries defined"))     
+        tmp_ts <- zoo(values, order.by = as.Date(times))
       }
-	}
+      else {
+        if(freq == 'A'){
+          tmp_ts<- zoo(values, order.by = as.integer(substr('2016-07-03T00:00:00', 1,4)),frequency=1)
+        } else if(freq == 'M'){
+          tmp_ts<- zoo(values, order.by = as.yearmon(as.Date(times)),frequency=12)
+        } else if(freq == 'Q'){
+          tmp_ts<- zoo(values, order.by = as.yearqtr(as.Date(times)),frequency=4)
+        } else {
+          tmp_ts<- zoo(values, order.by = as.Date(times))
+        }
+      }
+    }
+    else{
+  		if (is.null(freq)) {
+  			message (paste0(tsname, ": frequency is NULL. Irregular timeseries defined"))     
+  			tmp_ts <- zoo(values, order.by=times)
+  		}
+  		else {
+        if(freq == 'A'){
+          # we expect a string year ('1984')
+          tmp_ts<- zoo(values, order.by = as.integer(times),frequency=1)
+        } else if(freq == 'M'){
+          # we expect '1984-02'
+          times = sub(pattern='M', replacement='-', times) # OECD only '1984-M2'
+          tmp_ts<- zoo(values, order.by = as.yearmon(times),frequency=12)
+        } else if(freq == 'Q'){
+          # we expect '1984-Q2'
+          tmp_ts<- zoo(values, order.by = as.yearqtr(sub(pattern='-', replacement=' ', times)),frequency=4)
+        } else if(freq == 'D' || freq == 'B'){
+          # we expect '1984-03-27'
+          tmp_ts<- zoo(values, order.by = as.Date(times))
+        } else {
+          # nothing we can forecast
+  	      tmp_ts <- zoo(values, order.by=times)
+        }
+    	}
+    }
 	}
 	else{
 		# if the time series is empty

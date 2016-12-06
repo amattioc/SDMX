@@ -19,13 +19,15 @@
 % permissions and limitations under the Licence.
 %
 
-function tsList = convert(list) 
+function tsList = convert(list, iso8601Date) 
 
     %check arguments
-    if nargin ~= 1
+    if nargin < 1
         error([ 'Usage: convert(list)\n' ...
                     'Arguments\n' ...
                     'list: a java.util.List of SDMX TimeSeries']);
+    elseif nargin < 2
+        iso8601Date = false;
     end
      
     %check class
@@ -40,19 +42,21 @@ function tsList = convert(list)
     %populate
 	for i=0:numOfTS-1
 		series = list.get(i);
-		ts = convertSeries(series);
+		ts = convertSeries(series, iso8601Date);
 		tsList{i+1} = ts;
 	end %for i
 	
 end % function convert       
 
-function ts = convertSeries(series)
+function ts = convertSeries(series, iso8601Date)
 	
     %check arguments
-    if nargin ~= 1
+    if nargin < 1
         error([ 'Usage: convertSeries(series)\n' ...
                     'Arguments\n' ...
                     'series: a it.bancaditalia.oss.sdmx.api.PortableTimeSeries']);
+    elseif nargin < 2
+        iso8601Date = false;
     end
      
     %check class
@@ -69,7 +73,7 @@ function ts = convertSeries(series)
    	% now set time and values
 	timeSlots = series.getTimeSlotsArray();
 	cArrayTimeSlots = cell(timeSlots);
-	arrayTimeSlots = convertDates(freq, cArrayTimeSlots);
+	arrayTimeSlots = convertDates(freq, cArrayTimeSlots, iso8601Date);
 	
 	numOfTimes = length(cArrayTimeSlots);
 	observations = series.getObservationsArray();
@@ -98,8 +102,11 @@ function ts = convertSeries(series)
 	set(ts, 'Name', char(name));
 end
 
-function dates = convertDates(freq, dates)
-	if(strcmp(freq, 'Q'))
+function dates = convertDates(freq, dates, iso8601Date)
+    
+    if(nargin == 3 && iso8601Date == true)
+        dates = datestr(datetime(dates,'InputFormat','uuuu-MM-dd''T''HH:mm:ss','TimeZone','UTC'));
+    elseif(strcmp(freq, 'Q'))
 		dates=regexprep(dates, 'Q1', '03-31');
 		dates=regexprep(dates, 'Q2', '06-30');
 		dates=regexprep(dates, 'Q3', '09-30');

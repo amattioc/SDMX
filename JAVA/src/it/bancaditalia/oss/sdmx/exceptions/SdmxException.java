@@ -18,17 +18,23 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bancaditalia.oss.sdmx.util;
+package it.bancaditalia.oss.sdmx.exceptions;
 
-public class SdmxException extends Exception{
-
-	public SdmxException(String message) {
-		super(message);
-	}
+/**
+ * Base Class for all SDMX-related exceptions
+ * 
+ * @author Valentino Pinna
+ *
+ */
+public abstract class SdmxException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public SdmxException(String message, Exception cause) {
+		super(message, cause);
+	}
 
 }

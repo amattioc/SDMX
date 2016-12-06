@@ -21,6 +21,7 @@
 package it.bancaditalia.oss.sdmx.util;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -58,7 +59,7 @@ public class GetTimeSeries {
 			try {
 				String result = SdmxClientHandler.dumpTimeSeries(provider, query, start, end);
 				System.out.println(result);
-			} catch (SdmxException e) {
+			} catch (Exception e) {
 				System.err.println(e.toString());
 				System.exit(-3); // exception calling get method
 			}

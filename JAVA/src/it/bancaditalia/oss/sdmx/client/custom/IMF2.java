@@ -21,9 +21,9 @@
 package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,21 +33,21 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-public class IMF2 extends DotStat{
+public class IMF2 extends RestSdmx20Client{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public IMF2() throws MalformedURLException{
-		super("IMF2", new URL("http://dataservices.imf.org/REST/SDMX_XML.svc"), false);
+		super("IMF2", new URL("http://dataservices.imf.org/REST/SDMX_XML.svc"), false, "", "compact_v2");
 	}
 	
 	@Override
 	protected String buildFlowQuery(String flow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
 			String query = endpoint + "/Dataflow";
-			if(flow != null && !flow.isEmpty() && !flow.equalsIgnoreCase("ALL")){
-				query += "/" + flow;				
-			}
+//			if(flow != null && !flow.isEmpty() && !flow.equalsIgnoreCase("ALL")){
+//				query += "/" + flow;				
+//			}
 			return query;
 		}
 		else{
@@ -75,7 +75,7 @@ public class IMF2 extends DotStat{
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 			
-			String query = endpoint + "/CompactData/" + dataflow.getId() + "/";
+			String query = endpoint + "/CompactData/" + dataflow.getDsdIdentifier().getId() + "/";
 			query += resource ;
 			query += RestQueryBuilder.addParams(startTime, endTime, 
 					serieskeysonly, updatedAfter, includeHistory, format);

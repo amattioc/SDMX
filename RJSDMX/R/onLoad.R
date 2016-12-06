@@ -19,11 +19,5 @@
 # permissions and limitations under the Licence.
 #
 .onLoad <- function(libname, pkgname) {
-	conf = Sys.getenv("SDMX_CONF")
-	if (is.null(conf) || conf=="") {
-		conf =file.path(find.package("RJSDMX"), "configuration.properties")
-		Sys.setenv(SDMX_CONF=conf)
-	}
-	#packageStartupMessage(paste('Connector configuration:', conf))
 	.jpackage(pkgname, lib.loc = libname)
 }

@@ -20,24 +20,27 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
-
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.stream.XMLStreamException;
+
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
@@ -61,36 +64,38 @@ public class ILO extends RestSdmx20Client {
 		for (Iterator<String> iterator = collections.keySet().iterator(); iterator.hasNext();) {
 			String coll = (String) iterator.next();
 			String query = endpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
-			InputStreamReader xmlStream = null;
-			xmlStream = runQuery(query, null);				
-			try {
-				List<DataFlowStructure> dfs = DataStructureParser.parse(xmlStream);
-				if(dfs.size() > 0){
-					for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) {
-						DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
-						Dataflow tmp = new Dataflow();
-						tmp.setId("DF_" + dsd.getId());
-						tmp.setName(dsd.getName());
-						tmp.setAgency(dsd.getAgency());
-						tmp.setVersion(dsd.getVersion());					
-						DSDIdentifier dsdId = new  DSDIdentifier();
-						dsdId.setAgency(dsd.getAgency());
-						dsdId.setId(dsd.getId());
-						dsdId.setVersion(dsd.getVersion());
-						tmp.setDsdIdentifier(dsdId);
-						result.put(tmp.getId(), tmp);
+			Reader xmlStream = runQuery(query, null);				
+			if(xmlStream!=null){
+				try {
+					List<DataFlowStructure> dfs = DataStructureParser.parse(xmlStream);
+					if(dfs.size() > 0){
+						for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) {
+							DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
+							Dataflow tmp = new Dataflow();
+							tmp.setId("DF_" + dsd.getId());
+							tmp.setName(dsd.getName());
+							tmp.setAgency(dsd.getAgency());
+							tmp.setVersion(dsd.getVersion());					
+							DSDIdentifier dsdId = new  DSDIdentifier();
+							dsdId.setAgency(dsd.getAgency());
+							dsdId.setId(dsd.getId());
+							dsdId.setVersion(dsd.getVersion());
+							tmp.setDsdIdentifier(dsdId);
+							result.put(tmp.getId(), tmp);
+						}
+					}
+				} catch (XMLStreamException e) {
+					throw SdmxExceptionFactory.wrap(e);
+				} finally{
+					try {
+						xmlStream.close();
+					} catch (IOException e) {
+						logger.severe("Exception caught closing stream.");
 					}
 				}
-			} catch (Exception e) {
-				logger.severe("Exception caught parsing results from call to provider " + name);
-				logger.log(Level.FINER, "Exception: ", e);
-				throw new SdmxException("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
+			}
+			else{
+				throw new SdmxXmlContentException("The query returned a null stream");
 			}
 		}
 		return result;

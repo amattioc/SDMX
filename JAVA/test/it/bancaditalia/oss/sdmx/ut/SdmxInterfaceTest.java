@@ -24,23 +24,26 @@ package it.bancaditalia.oss.sdmx.ut;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.PortableDataSet;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.SASClientHandler;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.SdmxException;
 
+import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableDataSet;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SASClientHandler;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+
 public class SdmxInterfaceTest {
 	@Test
-	public void testGetAddProvider() throws SdmxException {
+	public void testGetAddProvider() throws SdmxException, MalformedURLException {
 		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, "test provider");
 		List<PortableTimeSeries> a = SdmxClientHandler.getTimeSeries("TEST", "EXR.A.GBP.EUR.SP00.A", null, null);
 		assertNotNull("Null getTimeSeries result", a);
@@ -239,7 +242,6 @@ public class SdmxInterfaceTest {
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts2.getName());
 		assertEquals(true, ts2.getObservations().size() > 0 && ts2.getTimeSlots().size() > 0);
 		assertEquals(true, tslist1.size() > tslist2.size());
-
 	}
 	
 	@Test
@@ -250,7 +252,7 @@ public class SdmxInterfaceTest {
 	}
 
 	@Test
-	public void testGetTimeSeriesTable() throws SdmxException {
+	public void testGetTimeSeriesTable() throws SdmxException, DataStructureException {
 		PortableDataSet tstable = SdmxClientHandler.getTimeSeriesTable("ECB", "EXR.A.USD.EUR.SP00.A", null, null);
 		assertNotNull("Null getTimeSeriesTable result", tstable);	
 		assertTrue("No columns", tstable.getColumnCount() > 0);
@@ -260,7 +262,6 @@ public class SdmxInterfaceTest {
 		assertEquals("Error OBS_VALUE position", tstable.getColumnIndex("OBS_VALUE"), 1);
 		assertEquals("Error TIME_PERIOD position", tstable.getColumnIndex("TIME_PERIOD"), 0);
 		assertTrue("Error OBS_VALUE value", ((Double) tstable.getValueAt(0, 1)) > 0);
-		
 	}
 
 	@Test
@@ -293,6 +294,5 @@ public class SdmxInterfaceTest {
 		SASClientHandler.makeGetTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", "2000", "2001");
 		int data2 = SASClientHandler.getNumberOfData();
 		assertTrue(data1 > data2);
-
 	}
 }
