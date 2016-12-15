@@ -37,8 +37,8 @@ public class ABS extends DotStat{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public ABS() throws MalformedURLException{
-		super("ABS", new URL("http://stat.abs.gov.au/restsdmx/sdmx.ashx"), false);
-	}
+		super("ABS", new URL("	http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
+	}				
 	
 	@Override
 	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
@@ -57,7 +57,7 @@ public class ABS extends DotStat{
 	protected String buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
-		String query = super.buildDataQuery(dataflow, fixWildcard(resource) + "/ABS", null, null, false, null, false);
+		String query = super.buildDataQuery(dataflow, resource + "/ABS", null, null, false, null, false);
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			if(startTime != null){
 				query=query+"&startTime="+startTime;
@@ -70,23 +70,23 @@ public class ABS extends DotStat{
 	}
 
 	// https://github.com/amattioc/SDMX/issues/19
-	private static String fixWildcard(String resource) {
-		String[] items = resource.split("\\.", -1);
-		if (items.length <= 1) {
-			return resource;
-		}
-		for (int i = 0; i < items.length; i++) {
-			String tmp = items[i].trim();
-			if (tmp.isEmpty() || tmp.equals("*")) {
-				items[i] = "+";
-			}
-		}
-		StringBuilder result = new StringBuilder();
-		result.append(items[0]);
-		for (int i = 1; i < items.length; i++) {
-			result.append('.').append(items[i]);
-		}
-		return result.toString();
-	}
+//	private static String fixWildcard(String resource) {
+//		String[] items = resource.split("\\.", -1);
+//		if (items.length <= 1) {
+//			return resource;
+//		}
+//		for (int i = 0; i < items.length; i++) {
+//			String tmp = items[i].trim();
+//			if (tmp.isEmpty() || tmp.equals("*")) {
+//				items[i] = "+";
+//			}
+//		}
+//		StringBuilder result = new StringBuilder();
+//		result.append(items[0]);
+//		for (int i = 1; i < items.length; i++) {
+//			result.append('.').append(items[i]);
+//		}
+//		return result.toString();
+//	}
 
 }
