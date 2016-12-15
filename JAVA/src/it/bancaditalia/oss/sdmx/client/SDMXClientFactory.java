@@ -54,6 +54,7 @@ public class SDMXClientFactory {
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
 	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
+	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
 	
 	//read the configuration file
 	static {
@@ -84,6 +85,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false);
         addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
         addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
+        addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
 
 
 	    //add internal 2.0 providers
@@ -91,12 +93,12 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
 	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization", true);
 	    addBuiltInProvider("IMF", null, false, false, false, "International Monetary Fund", true);
+	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
-	    addBuiltInProvider("IMF2", null, false, false, false, "New IMF endpoint", true);
 
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);

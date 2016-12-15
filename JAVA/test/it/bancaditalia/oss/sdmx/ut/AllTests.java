@@ -31,6 +31,7 @@ import org.junit.runners.Suite;
 						ILOTest.class, 
 						IMFTest.class, 
 						IMF2Test.class, 
+						IMFSDMXCentralTest.class, 
 						InegiTest.class, 
 						WBTest.class,
 						INSEETest.class,

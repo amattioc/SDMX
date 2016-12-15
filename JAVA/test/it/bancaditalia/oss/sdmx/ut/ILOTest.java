@@ -55,10 +55,10 @@ public class ILOTest {
 	public void testGetDimensionsAndCodes() throws SdmxException {
 		Map<String, String> codes = SdmxClientHandler.getCodes("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "COLLECTION");
 		assertNotNull("Null getCodes result", codes);
-		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("MIG"), "International Labour Migration Statistics");
+		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("MIG"), "Labour Migration Statistics");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=International Labour Migration Statistics, NSW=Non-standar";
+		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=Labour Migration Statistics, NSW=Non-standard forms of wor";
 		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result,dim.toString().substring(0, result.length()));
 
 	}
