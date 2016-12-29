@@ -34,7 +34,7 @@ public class RestQueryBuilder{
 	
 	public static String getDataQuery(URL endpoint, String dataflow, String resource, 
 			String start, String end, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException{
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxInvalidParameterException{
 		
 		if( endpoint!=null && dataflow!=null && !dataflow.isEmpty() && resource!=null && !resource.isEmpty())
 		{
@@ -54,7 +54,7 @@ public class RestQueryBuilder{
 	}
 
 	public static String getStructureQuery(URL endpoint, String dsd, 
-			String agency, String version, boolean full) throws SdmxException{
+			String agency, String version, boolean full) throws SdmxInvalidParameterException{
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
@@ -73,7 +73,7 @@ public class RestQueryBuilder{
 	}
 
 	public static String getDataflowQuery(URL endpoint, String dataflow, 
-			String agency, String version) throws SdmxException{
+			String agency, String version) throws SdmxInvalidParameterException{
 		if( endpoint!=null || dataflow != null){
 			String dataflowKey = dataflow;
 			if(agency != null){
@@ -97,7 +97,7 @@ public class RestQueryBuilder{
 	}
 
 	public static String getCodelistQuery(URL endpoint, String codeList, 
-			String agency, String version) throws SdmxException {
+			String agency, String version) throws SdmxInvalidParameterException {
 		if( endpoint!=null &&
 			codeList!=null && !codeList.isEmpty()){
 				String codelistKey = codeList; 

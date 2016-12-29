@@ -456,9 +456,9 @@ public class SASClientHandler extends SdmxClientHandler{
 	}
 
 	public static String getObsMetaValue(double index) throws SASClientHandler.SdmxSASException {
-                if(obsmetadata != null && index <= obsmetadata.size()){
-                        return obsmetadata.getValue((int)index);
-                }
+		if(obsmetadata != null && index <= obsmetadata.size()){
+			return obsmetadata.getValue((int)index);
+		}
 		else{
 			throw new SASClientHandler.SdmxSASException("Observation level  cache error: cache is null or index exceeds size.");
 		}
@@ -474,4 +474,5 @@ public class SASClientHandler extends SdmxClientHandler{
 	}
 	
 }
+
 

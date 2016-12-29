@@ -20,6 +20,11 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
@@ -29,7 +34,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
  */
 public class GetTimeSeries {
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		if(args.length < 2 || args.length > 6 || args.length == 5){
 			System.err.println("usage: GetTimeSeries <provider> <query> [start] [end] [username password]");
 			System.exit(-1); // wrong number of arguments
@@ -48,7 +53,11 @@ public class GetTimeSeries {
 			}
 			if(args.length == 6){
 				String user = args[4];
-				String pw = args[5];
+				String pw;
+				if (args.length == 5)
+					pw = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF-8"))).readLine();
+				else
+					pw = args[5];	// arg 5
 				try {
 					SdmxClientHandler.setCredentials(provider, user, pw);
 				} catch (SdmxException e) {

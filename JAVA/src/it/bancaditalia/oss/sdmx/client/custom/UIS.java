@@ -20,16 +20,40 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LoginDialog;
+
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.swing.JFrame;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class UIS extends DotStat{
-		
+public class UIS extends RestSdmxClient{
+	
+	private String apiKey = null;
+	
 	public UIS() throws MalformedURLException{
-		super("UIS", new URL("http://data.uis.unesco.org/RestSDMX/sdmx.ashx"), false);
+		super("UIS", new URL("https://api.uis.unesco.org/sdmx"), false, false, true);
+		apiKey = Configuration.getUISApiKey();
+		if(apiKey == null || apiKey.isEmpty()){
+			final JFrame frame = new JFrame("Authentication");
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			LoginDialog loginDlg = new LoginDialog(frame, "UIS API KEY", false);
+            loginDlg.setVisible(true);
+            apiKey = loginDlg.getPassword();
+		}
+        
+	}
+	
+	@Override
+	protected void handleHttpHeaders(HttpURLConnection conn, String acceptHeader) {
+		super.handleHttpHeaders(conn, acceptHeader);
+		conn.setRequestProperty("Ocp-Apim-Subscription-key", apiKey);
 	}
 }

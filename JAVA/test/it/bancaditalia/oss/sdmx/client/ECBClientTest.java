@@ -39,7 +39,7 @@ public class ECBClientTest {
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "BSI/M..N.A.......", "2015-01", "2015-01").size());
+		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null));
 		
 	}
 }

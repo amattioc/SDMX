@@ -77,6 +77,7 @@ public class Configuration {
 	protected static final String TABLE_DUMP_PROP = "table.dump";  
 	protected static final String READ_TIMEOUT_PROP = "read.timeout";  
 	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";  
+	private static final String UIS_API_KEY_PROP = "uis.api.key";
 
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
@@ -87,6 +88,7 @@ public class Configuration {
 	private static  String SDMX_LANG = "en";  
 
 	private static final String sourceClass = Configuration.class.getSimpleName();
+
 	private static Properties props = new Properties();
 	private static boolean inited = false;
 
@@ -416,5 +418,9 @@ public class Configuration {
 		String os = System.getProperty("os.name").toLowerCase();
 		// windows
 		return (os.indexOf("win") >= 0);
+	}
+
+	public static String getUISApiKey() {
+		return props.getProperty(Configuration.UIS_API_KEY_PROP, null);
 	}
 }
