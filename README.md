@@ -5,7 +5,7 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/latest) <br><br>
 
 
-![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx.png)
+![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx2.png)
 
 **Browse SDMX data providers, build your queries and get data directly in your favourite tool.**
 
