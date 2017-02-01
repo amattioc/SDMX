@@ -58,6 +58,8 @@ public class DataStructureParser {
 	static final String CONCEPTS = "Concepts";
 	static final String CONCEPT = "Concept";
         
+	static final String NAME = "Name";
+	
 	static final String DIMENSIONLIST = "DimensionList";
 	static final String GROUP = "Group";
 	static final String ATTRIBUTELIST = "AttributeList";
@@ -85,6 +87,7 @@ public class DataStructureParser {
 		Map<String, String> concepts = null;
 		DataFlowStructure currentStructure = null;
 
+		LocalizedText currentName = new LocalizedText(Configuration.getLang());
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -102,6 +105,7 @@ public class DataStructureParser {
 				if (startElement.getName().getLocalPart() == (DATASTRUCTURE)) {
 					
 					currentStructure = new DataFlowStructure();
+					currentName.clear();
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext()) {
@@ -124,6 +128,13 @@ public class DataStructureParser {
 					}
 					logger.finer("Got data structure.");
 				}
+				
+				if (startElement.getName().getLocalPart().equals(NAME)) {
+					//this has to be checked better
+					if(currentStructure != null){
+						currentName.setText(startElement, eventReader);
+					}
+				}				
 				
 				if (startElement.getName().getLocalPart().equals(DIMENSIONLIST)) {
 					if(currentStructure != null){
@@ -149,6 +160,7 @@ public class DataStructureParser {
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(DATASTRUCTURE)) {
 					logger.finer("Adding data structure. " + currentStructure);
+					currentStructure.setName(currentName.getText());
 					result.add(currentStructure);
 				}
 			}
