@@ -353,9 +353,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		if(supportsCompression){
 			conn.addRequestProperty("Accept-Encoding","gzip");
 		}
-		if(acceptHeader!=null){
-			conn.setRequestProperty("Accept", acceptHeader);
-		}
+        if (acceptHeader != null && !"".equals(acceptHeader))
+        	conn.setRequestProperty("Accept", acceptHeader);
+        else
+        	conn.setRequestProperty("Accept", "*/*");
 	}
 
 	protected String buildDataQuery(Dataflow dataflow, String resource, 
