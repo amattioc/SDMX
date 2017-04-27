@@ -214,11 +214,11 @@ public class SdmxInterfaceTest {
 	}
 	@Test
 	public void testGetTimeSeries() throws SdmxException {
-		List<PortableTimeSeries> ts = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", "2000", "2010");
+		List<PortableTimeSeries> ts = SdmxClientHandler.getTimeSeries("ECB", "EXR.A.USD.EUR.SP00.A", "2000", "2010");
 		assertNotNull("Null gettimeseries result", ts);	
 		assertEquals(true, ts.size() == 1);
 		PortableTimeSeries ts1 = ts.get(0);
-		assertEquals("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB.YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", ts1.getName());
+		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
 		int nobs = ts1.getObservations().size();
 		assertEquals(true,  nobs == ts1.getTimeSlots().size());
 		for (Iterator<String> iterator = ts1.getObsLevelAttributesNames().iterator(); iterator.hasNext();) {

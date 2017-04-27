@@ -37,30 +37,30 @@ import org.junit.Test;
 public class IMF2Test {
 	@Test
 	public void testGetDSDIdentifier() throws SdmxException {
-		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(IMF2.class.getSimpleName(), "DS-FSIRE");
-		assertNotNull("Null key family for DS-FSIRE", keyF);
-		assertEquals("Wrong Key Family", "FSIRE", keyF.getId());
+		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(IMF2.class.getSimpleName(), "DS-WHDREO");
+		assertNotNull("Null key family for DS-WHDREO", keyF);
+		assertEquals("Wrong Key Family", "WHDREO", keyF.getId());
 	}
 
 	@Test
 	public void testGetFlows() throws SdmxException {
-		Map<String, String> f = SdmxClientHandler.getFlows(IMF2.class.getSimpleName(), "DS-FSIRE");
+		Map<String, String> f = SdmxClientHandler.getFlows(IMF2.class.getSimpleName(), "DS-WHDREO");
 		assertNotNull("Null getFlows result", f);
-		String descr = f.get("DS-FSIRE");
-		assertEquals("Wrong description for DS-FSIRE", "Financial Soundness Indicators (FSI), Reporting Entities", descr);
+		String descr = f.get("DS-WHDREO");
+		assertEquals("Wrong description for DS-WHDREO", "Western Hemisphere Regional Economic Outlook (WHDREO)", descr);
 	}
 
 	@Test
 	public void testGetDimensions() throws SdmxException {
-		List<Dimension> dim = SdmxClientHandler.getDimensions(IMF2.class.getSimpleName(), "DS-FSIRE");
-		assertNotNull("Null getDimensions result DS-FSIRE", dim);
+		List<Dimension> dim = SdmxClientHandler.getDimensions(IMF2.class.getSimpleName(), "DS-WHDREO");
+		assertNotNull("Null getDimensions result DS-WHDREO", dim);
 		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IMF/CL_FREQ, codes={W=Weekly, A=Annual, Q=Quarterly, D=Dai";
-		assertEquals("Wrong dimensions for DS-FSIRE", result, dim.toString().substring(0, result.length()));
+		assertEquals("Wrong dimensions for DS-WHDREO", result, dim.toString().substring(0, result.length()));
 	}
 	
 	@Test
 	public void testGetCodes() throws SdmxException {
-			Map<String, String> codes = SdmxClientHandler.getCodes(IMF2.class.getSimpleName(), "DS-FSIRE", "FREQ");
+			Map<String, String> codes = SdmxClientHandler.getCodes(IMF2.class.getSimpleName(), "DS-WHDREO", "FREQ");
 			assertNotNull("Null getCodes result", codes);
 			assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 	}

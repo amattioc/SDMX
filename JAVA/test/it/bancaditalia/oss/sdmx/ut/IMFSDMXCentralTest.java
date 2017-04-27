@@ -66,13 +66,13 @@ public class IMFSDMXCentralTest {
 
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("IMF_SDMX_CENTRAL", "SPI/....", "2008", null);
+		List<PortableTimeSeries> res = SdmxClientHandler.getTimeSeries("IMF_SDMX_CENTRAL", "SPI.SPI.FR.FPE_IX._Z.D", "2008", null);
 		assertNotNull("Null time series result", res);
 		//warning: they depend on eventual order
 		String annual = res.get(0).getName();
-		assertEquals("Wrong name for first time series", "SPI.SPI.CH.FPE_EOP_IX._Z.M", annual);
+		assertEquals("Wrong name for first time series", "SPI.SPI.FR.FPE_IX._Z.D", annual);
 		String start = res.get(0).getTimeSlots().get(0);
-		assertEquals("Wrong start date for time series", "2008-01", start);
+		assertEquals("Wrong start date for time series", "2015-02-02", start);
 		//System.out.println(res);
 	}
 

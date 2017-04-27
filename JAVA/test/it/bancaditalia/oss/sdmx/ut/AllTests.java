@@ -35,7 +35,7 @@ import org.junit.runners.Suite;
 						InegiTest.class, 
 						WBTest.class,
 						INSEETest.class,
-						NBBTest.class,
+//for now				NBBTest.class,
 						UNDATATest.class,
 						WITSTest.class,
 						ABSTest.class,

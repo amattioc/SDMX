@@ -66,7 +66,7 @@ public class UNDATATest {
 	public void testGetTimeSeriesFromID() throws SdmxException {
 		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("UNDATA", "DF_UNDATA_COUNTRYDATA/A...U....", "2010", "2015");
 		assertNotNull("Null time series result", res);
-		assertEquals("Wrong result size", 171, res.size());
+		assertEquals("Wrong result size", 172, res.size());
 	}
 
 }

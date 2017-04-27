@@ -21,31 +21,34 @@
 package it.bancaditalia.oss.sdmx.ut;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+
 
 public class ESTATTest {
 	
 	@Test
-	public void testGetDSDIdentifier() throws SdmxException {
+	public void testGetDSDIdentifier() throws SdmxException 
+	{
 		DSDIdentifier dsd = SdmxClientHandler.getDSDIdentifier("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null key family for prc_hicp_midx", dsd);
 		assertEquals("Wrong Key Family", "DSD_prc_hicp_midx", dsd.getId());
 	}
 
 	@Test
-	public void testGetFlows() throws SdmxException {
+	public void testGetFlows() throws SdmxException 
+	{
 		Map<String, String> f = SdmxClientHandler.getFlows("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("prc_hicp_midx");
@@ -53,19 +56,20 @@ public class ESTATTest {
 	}
 
 	@Test
-	public void testGetDimensionsAndCodes() throws SdmxException {
-		Map<String, String> codes = SdmxClientHandler.getCodes("EUROSTAT", "prc_hicp_midx", "FREQ");
-		assertNotNull("Null getCodes result", codes);
-		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
+	public void testGetDimensionsAndCodes() throws SdmxException 
+	{
 		List<Dimension> dim = SdmxClientHandler.getDimensions("EUROSTAT", "prc_hicp_midx");
 		assertNotNull("Null getDimensions result", dim);
 		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=ESTAT/CL_FREQ/1.0, codes={A=Annual, W=Weekly, H=Half-year, S=Semi-annual, Q=Quarterly, D=Daily,";
 		assertEquals("Wrong dimensions for prc_hicp_midx", result,dim.toString().substring(0, result.length()));
 	}
 
-
 	@Test
-	public void testGetCodes() throws SdmxException {
+	public void testGetCodes() throws SdmxException 
+	{
+		Map<String, String> codes = SdmxClientHandler.getCodes("EUROSTAT", "prc_hicp_midx", "FREQ");
+		assertNotNull("Null getCodes result", codes);
+		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 	}
 
 	@Test
