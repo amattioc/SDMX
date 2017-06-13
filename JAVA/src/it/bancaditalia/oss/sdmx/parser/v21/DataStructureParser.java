@@ -221,6 +221,7 @@ public class DataStructureParser {
 				}
 				else if (startElement.getName().getLocalPart().equals((TIMEDIMENSION))) {
 					logger.finer("Got time dimension");
+					currentDimension = null;
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
@@ -248,7 +249,7 @@ public class DataStructureParser {
 					logger.finer("Got time codelist");
 					setCodelistName(currentDimension, eventReader);
 					//now set codes
-					if(codelists != null){
+					if(codelists != null && currentDimension != null){
 						Codelist cl = currentDimension.getCodeList();
 						Map<String,String> codes = codelists.get(cl.getFullIdentifier());
 						cl.setCodes(codes);
@@ -256,7 +257,7 @@ public class DataStructureParser {
 				}
 				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity"))) {
 					logger.finer("Got concept identity");
-                                        if (concepts != null) {
+                                        if (concepts != null && currentDimension != null) {
                                             currentDimension.setName(getConceptName(concepts, eventReader));
                                         }
 				}
