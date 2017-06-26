@@ -18,23 +18,37 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bancaditalia.oss.sdmx.helper;
+package it.bancaditalia.oss.sdmx.util;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.Set;
 
-public class AboutActionListener implements ActionListener{
-	Component parent = null;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 
-	public AboutActionListener(Component parent) {
-		super();
-		this.parent = parent;
+/**
+ * @author Attilio Mattiocco
+ *
+ */
+public class GetProviders {
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	public static void main(String[] args) throws IOException {
+		try {
+			StringBuffer buf = new StringBuffer();
+			Set<String> providers = SdmxClientHandler.getProviders();
+			boolean first = true;
+			for (String provider: providers) {
+				if (!first) buf.append(",");
+				buf.append(provider);
+				first = false;
+			}
+			System.out.println(buf);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public void actionPerformed(ActionEvent ae) {
-			AboutContentFrame wnd = new AboutContentFrame();
-			wnd.setTitle("SDMX Connectors Information");
-		    wnd.setVisible( true );
-    }
 }

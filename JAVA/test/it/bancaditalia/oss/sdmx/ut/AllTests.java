@@ -40,7 +40,8 @@ import org.junit.runners.Suite;
 						WITSTest.class,
 						ABSTest.class,
 						UISTest.class,
-						ProxyTest.class})
+						ProxyTest.class
+						})
 public class AllTests {
 }
 

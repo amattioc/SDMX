@@ -20,14 +20,14 @@
  */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.awt.Component;
 import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 public class FlowSelectionListener implements ListSelectionListener{
 	private Component parent = null;

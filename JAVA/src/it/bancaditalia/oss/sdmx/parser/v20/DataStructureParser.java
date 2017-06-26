@@ -39,6 +39,7 @@ import javax.xml.stream.events.XMLEvent;
 import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
@@ -47,7 +48,7 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  * @author Attilio Mattiocco
  *
  */
-public class DataStructureParser {
+public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	private static final String sourceClass = DataStructureParser.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
@@ -76,7 +77,7 @@ public class DataStructureParser {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public static List<DataFlowStructure> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public List<DataFlowStructure> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();

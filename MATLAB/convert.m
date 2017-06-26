@@ -42,6 +42,11 @@ function tsList = convert(list, iso8601Date)
     %populate
 	for i=0:numOfTS-1
 		series = list.get(i);
+        %matlab does not handle non numeric data in time series
+        if ~series.isNumeric
+            warning('The time series %s is not numeric and will be skipped. You can get it in a table.', series.getName);
+            continue
+        end
 		ts = convertSeries(series, iso8601Date);
 		tsList{i+1} = ts;
 	end %for i
@@ -64,7 +69,7 @@ function ts = convertSeries(series, iso8601Date)
         error('SDMX convertSeries(series) error: input list must be of class it.bancaditalia.oss.sdmx.api.PortableTimeSeries.');
     end
     
-	% get frequency
+    % get frequency
 	freq = series.getFrequency();
 
 	% get all attributes and put them to DataInfo.UserData field as a map
@@ -100,6 +105,7 @@ function ts = convertSeries(series, iso8601Date)
 	set(ts, 'UserData', cArrayMap);
 	ts.timeinfo.units='days';
 	set(ts, 'Name', char(name));
+    
 end
 
 function dates = convertDates(freq, dates, iso8601Date)
@@ -130,28 +136,25 @@ end
 
 function metadata = getMetaData(ts)
     metadata = containers.Map;
-
-    % get all dimensions
-    tsdims = cell(ts.getDimensionsArray());
-    for i=1:length(tsdims)
-        keys = strsplit(tsdims{i}, '=');  
-        if size(keys) ~= 2
-            warning(['Dimension: ', tsdims{i}, 'is malformed. Skipping.']);
-        else
-            metadata(keys{1}) = keys{2};
-        end
-    end 
+ 
+    %handle errors
+    if ts.isErrorFlag
+        metadata('ERROR_FLAG') = true;
+        metadata('ERROR_MESSAGE') = ts.getErrorMessage;
+        warning('The time series %s is not valid due to errors in the request: %s.', ts.getName, ts.getErrorMessage);
+    end
     
-    % get all ts level attributes 
-    tsattrs = cell(ts.getAttributesArray());
+    % get all dimensions
+    tsdims = cell(ts.getDimensionsMap().keySet().toArray());    
+    for i=1:length(tsdims)
+        metadata(tsdims{i}) = char(ts.getDimension(tsdims{i}));
+    end
+    
+    % get all ts level attributes
+    tsattrs = cell(ts.getAttributesMap().keySet().toArray());    
     for i=1:length(tsattrs)
-        keys = strsplit(tsattrs{i}, '=');  
-        if size(keys) ~= 2
-            warning(['Attribute: ', tsattrs{i}, 'is malformed. Skipping.']);
-        else
-            metadata(keys{1}) = keys{2};
-        end
-    end 
+        metadata(tsattrs{i}) = char(ts.getAttribute(tsattrs{i}));
+    end
     
     % get all ts level attributes 
     obsattrs = cell(ts.getObsLevelAttributesNamesArray);

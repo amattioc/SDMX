@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.io.IOException;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -30,14 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.xml.stream.XMLStreamException;
-
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
@@ -62,84 +57,55 @@ public abstract class DotStat extends RestSdmx20Client{
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		String query=null;
-		Reader xmlStream = null;
-		Dataflow result = null;
-		query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
-		xmlStream = runQuery(query, null);
-		
-		try {
-			List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
-			if(dsds.size() > 0){
-				DataFlowStructure dsd = dsds.get(0);
-				result = new Dataflow();
-				result.setAgency(dsd.getAgency());
-				result.setId(dsd.getId());
-				result.setVersion(dsd.getVersion());
-				result.setName(dsd.getName());
-				DSDIdentifier dsdId = new  DSDIdentifier();
-				dsdId.setAgency(dsd.getAgency());
-				dsdId.setId(dsd.getId());
-				dsdId.setVersion(dsd.getVersion());
-				result.setDsdIdentifier(dsdId);
-			}
-			else{
-				throw new SdmxXmlContentException("The query returned zero dataflows");
-			}
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
+		String query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null);
+		if(dsds.size() > 0)
+		{
+			DataFlowStructure dsd = dsds.get(0);
+			Dataflow result = new Dataflow();
+			result.setAgency(dsd.getAgency());
+			result.setId(dsd.getId());
+			result.setVersion(dsd.getVersion());
+			result.setName(dsd.getName());
+			DSDIdentifier dsdId = new  DSDIdentifier();
+			dsdId.setAgency(dsd.getAgency());
+			dsdId.setId(dsd.getId());
+			dsdId.setVersion(dsd.getVersion());
+			result.setDsdIdentifier(dsdId);
+			return result;
 		}
-		try {
-			xmlStream.close();
-		} catch (IOException e) {
-			logger.severe("Exception caught closing stream.");
-		}
-
-		return result;
-
+		else
+			throw new SdmxXmlContentException("The query returned zero dataflows");
 	}
 
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		String query=null;
-		Reader xmlStream = null;
-		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
-		xmlStream = runQuery(query, null);
-		try {
-			List<DataFlowStructure> dsds = DataStructureParser.parse(xmlStream);
-			if(dsds.size() > 0){
-				result = new HashMap<String, Dataflow>();
-				for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) {
-					DataFlowStructure dsd = (DataFlowStructure) iterator.next();
-					Dataflow df = new Dataflow();
-					df.setAgency(dsd.getAgency());
-					df.setId(dsd.getId());
-					df.setVersion(dsd.getVersion());
-					df.setName(dsd.getName());
-					DSDIdentifier dsdId = new  DSDIdentifier();
-					dsdId.setAgency(dsd.getAgency());
-					dsdId.setId(dsd.getId());
-					dsdId.setVersion(dsd.getVersion());
-					df.setDsdIdentifier(dsdId);
-					result.put(dsd.getId(), df);
-				}
+		String query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null);
+		if(dsds.size() > 0)
+		{
+			Map<String, Dataflow> result = new HashMap<String, Dataflow>();
+			for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) 
+			{
+				DataFlowStructure dsd = (DataFlowStructure) iterator.next();
+				Dataflow df = new Dataflow();
+				df.setAgency(dsd.getAgency());
+				df.setId(dsd.getId());
+				df.setVersion(dsd.getVersion());
+				df.setName(dsd.getName());
+				DSDIdentifier dsdId = new  DSDIdentifier();
+				dsdId.setAgency(dsd.getAgency());
+				dsdId.setId(dsd.getId());
+				dsdId.setVersion(dsd.getVersion());
+				df.setDsdIdentifier(dsdId);
+				result.put(dsd.getId(), df);
 			}
-			else{
-				throw new SdmxXmlContentException("The query returned zero dataflows");
-			}
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
-		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}
+			
+			return result;
 		}
-
-		return result;
+		else
+			throw new SdmxXmlContentException("The query returned zero dataflows");
 	}
 	
 	@Override

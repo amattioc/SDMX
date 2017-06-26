@@ -21,17 +21,26 @@
 package it.bancaditalia.oss.sdmx.client;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.util.NavigableMap;
 import java.util.ServiceLoader;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
@@ -50,7 +59,7 @@ public class SDMXClientFactory {
 	private static final String ISTAT_PROVIDER_POP = "http://sdmx.istat.it/WS_CENSPOP/rest";
 	private static final String ISTAT_PROVIDER_AGR = "http://sdmx.istat.it/WS_CENSAGR/rest";
 	private static final String ISTAT_PROVIDER_IND = "http://sdmx.istat.it/WS_CIS/rest";
-	private static final String INSEE_PROVIDER = "http://www.bdm.insee.fr/series/sdmx";
+	private static final String INSEE_PROVIDER = "https://bdm.insee.fr/series/sdmx";
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
 	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
@@ -58,23 +67,27 @@ public class SDMXClientFactory {
 	
 	//read the configuration file
 	static {
-		providers = new HashMap<String, Provider>();
-		Configuration.init();
+		providers = new TreeMap<String, Provider>();
 		logger = Configuration.getSdmxLogger();
-		initBuiltInProviders();
-		initExternalProviders();
+		try {
+			initBuiltInProviders();
+			initExternalProviders();
+		} catch (SdmxException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static final String sourceClass = SDMXClientFactory.class.getSimpleName();
 	protected static Logger logger;
-	private static Map<String, Provider> providers;
+	private static NavigableMap<String, Provider> providers;
 
 
 	/**
      * Initialize the internal sdmx providers
+	 * @throws SdmxException 
      *
      */
-	private static void initBuiltInProviders(){
+	private static void initBuiltInProviders() throws SdmxException{
         addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false);
         //addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
         addBuiltInProvider("ISTAT", ISTAT_PROVIDER, false, false, false, "Italian National Institute of Statistics ", false);
@@ -100,17 +113,20 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
 
+	    //addBuiltInProvider("FILE", null, false, false, false, "File offline provider", true);
+
     	//Legacy 2.0
     	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
         for (GenericSDMXClient provider : ldr) {
-            addProvider(provider.getClass().getSimpleName(), null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName(), true);
+            addProvider(provider.getClass().getSimpleName(), null, null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName(), true);
         }
 	}
 	
 	/**
      * Initialize the sdmx providers from the configuration file
+	 * @throws SdmxException 
      */
-	private static void initExternalProviders(){
+	private static void initExternalProviders() throws SdmxException{
 	    //external providers set in the configuration file
 	    String external = Configuration.getExternalProviders();
 	    if(external != null && !external.isEmpty()){
@@ -130,16 +146,23 @@ public class SDMXClientFactory {
 	 * @param needsURLEncoding
 	 * @param supportsCompression
 	 * @param description
+	 * @throws SdmxException 
 	 */
-	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom){
-		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
+	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
+		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
+    	providers.put(name, p);
+	}
+
+	public static void addProvider(String name, URL endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
+		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
 	}
 
     /**
      * Add a builtin provider and check whether the default values need to be overwritten with values defined in the configuration file.
+     * @throws SdmxException 
      */
-    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description, boolean isCustom) {
+    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description, boolean isCustom) throws SdmxException {
         try {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
@@ -148,7 +171,7 @@ public class SDMXClientFactory {
             final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
             final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
             final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
-            addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom);
+            addProvider(providerName, providerURL, null, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom);
         } catch (final MalformedURLException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
@@ -157,8 +180,9 @@ public class SDMXClientFactory {
 
     /**
      * Add a external provider and check whether the default values need to be overwritten with values defined in the configuration file.
+     * @throws SdmxException 
      */
-    private static void addExternalProvider(final String id) {
+    private static void addExternalProvider(final String id) throws SdmxException {
         try {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + id + ".name", id);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + id + ".endpoint");
@@ -168,7 +192,25 @@ public class SDMXClientFactory {
 		        final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsURLEncoding", "false"));
 		        final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".supportsCompression", "false"));
 		        final String providerDescription = Configuration.getConfiguration().getProperty("providers." + id + ".description", id);
-		        addProvider(providerName, providerURL, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, false);
+		        
+		        String trustStoreLocation = Configuration.getConfiguration().getProperty("providers." + id + ".trustStore", "");
+		        KeyStore providerTrustStore = null;
+		        if (!"".equals(trustStoreLocation))
+					try {
+				        InputStream trustStoreFile = new FileInputStream(new File(trustStoreLocation));
+						providerTrustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+						providerTrustStore.load(trustStoreFile, "changeit".toCharArray());
+					} catch (FileNotFoundException e) {
+						logger.warning("Cannot open trust store at " + trustStoreLocation);
+					} catch (GeneralSecurityException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						throw SdmxExceptionFactory.wrap(e);
+					} finally {
+						providerTrustStore = null;
+					}
+		        
+		        addProvider(providerName, providerURL, providerTrustStore, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, false);
             }
             else{
             	logger.warning("No URL has been configured for the external provider: '" + id + "'. It will be skipped.");
@@ -202,8 +244,12 @@ public class SDMXClientFactory {
 		if(provider != null && !provider.isCustom())
 		{
 			hostname = provider.getEndpoint().getHost();
-			if(provider.getEndpoint().getProtocol().toLowerCase().startsWith("http"))
-				client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
+			if(provider.getEndpoint().getProtocol().toLowerCase().startsWith("http")){
+				client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.getSSLSocketFactory(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
+			}
+			else if(provider.getEndpoint().getProtocol().toLowerCase().equals("file")){
+				client = new FILE(provider.getName(), provider.getEndpoint());
+			}
 			else 
 			{
 				logger.severe("The protocol '" + provider.getEndpoint().getProtocol() + "' is not supported.");
@@ -217,9 +263,11 @@ public class SDMXClientFactory {
 				client = (GenericSDMXClient)clazz.newInstance();
 				// apply customizations eventually added by user in configuration file
 				// for now only endpoint can be overridden
-				if(provider.getEndpoint() != null)
+				if (provider.getEndpoint() != null)
 					client.setEndpoint(provider.getEndpoint());
-				hostname = client.getEndpoint().getHost();
+
+				if (client.getEndpoint() != null)
+					hostname = client.getEndpoint().getHost();
 			}
 			catch (ClassNotFoundException e) {
 				logger.severe("The provider '" + providerName + "' is not available in this configuration.");
@@ -235,9 +283,8 @@ public class SDMXClientFactory {
 
 		// now set default proxy if necessary
     	ProxySelector ps = ProxySelector.getDefault();
-    	if(ps != null && ps instanceof SdmxProxySelector){
-    		((SdmxProxySelector)ps).addToDefaultProxy(hostname);
-    	}
+		if (hostname != null && ps != null && ps instanceof SdmxProxySelector)
+	    	((SdmxProxySelector)ps).addToDefaultProxy(hostname);
 
 		logger.exiting(sourceClass, sourceMethod);
 		return client;
@@ -247,7 +294,7 @@ public class SDMXClientFactory {
 	 * Get the list of all available SDMX Providers
 	 * @return
 	 */
-	public static Map<String, Provider> getProviders() {
+	public static NavigableMap<String, Provider> getProviders() {
         return providers;
     }
 }

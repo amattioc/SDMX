@@ -20,14 +20,14 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
+
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 public class ProviderActionListener implements ActionListener{
 	Component parent = null;

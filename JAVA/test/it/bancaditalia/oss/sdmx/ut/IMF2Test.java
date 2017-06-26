@@ -73,7 +73,7 @@ public class IMF2Test {
 		String annual = res.get(0).getName();
 		assertEquals("Wrong name for first time series", "DS-WHDREO.A.PA.GGXCNL_GDP", annual);
 		String start = res.get(0).getTimeSlots().get(0);
-		assertEquals("Wrong start date for time series", "2008", start);
+		assertEquals("Wrong start date for time series", "2009", start);
 		//System.out.println(res);
 	}
 

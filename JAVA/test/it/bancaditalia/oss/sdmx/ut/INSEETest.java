@@ -37,9 +37,9 @@ import org.junit.Test;
 public class INSEETest {
 	@Test
 	public void getDSDIdentifier() throws SdmxException {
-		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("INSEE", "IPI-1970-DET");
-		assertNotNull("Null key family for IPI-1970-DET", keyF);
-		assertEquals("Wrong Key Family", "IPI-1970-DET", keyF.getId());
+		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier("INSEE", "CNA-2010-CONSO-SI");
+		assertNotNull("Null key family for CNA-2010-CONSO-SI", keyF);
+		assertEquals("Wrong Key Family", "CNA-2010-CONSO-SI", keyF.getId());
 		assertEquals("Wrong agency", "FR1", keyF.getAgency());
 	}
 
@@ -47,26 +47,26 @@ public class INSEETest {
 	public void testGetFlows() throws SdmxException {
 		Map<String, String> f = SdmxClientHandler.getFlows("INSEE", null);
 		assertNotNull("Null getFlows result", f);
-		String descr = f.get("IPI-1970-DET");
-		assertEquals("Wrong description for IPI-1970-DET", "Industrial production index (base 1970) - Main branches  - Stopped series", descr);
+		String descr = f.get("CNA-2010-CONSO-SI");
+		assertEquals("Wrong description for CNA-2010-CONSO-SI", "Final consumption expenditure by institutional sectors", descr);
 	}
 
 	@Test
 	public void testGetDimensionsAndCodes() throws SdmxException {
-		Map<String, String> codes = SdmxClientHandler.getCodes("INSEE", "IPI-1970-DET", "FREQ");
+		Map<String, String> codes = SdmxClientHandler.getCodes("INSEE", "CNA-2010-CONSO-SI", "FREQ");
 		assertNotNull("Null getCodes result", codes);
 		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
-		List<Dimension> dim = SdmxClientHandler.getDimensions("INSEE", "IPI-1970-DET");
+		List<Dimension> dim = SdmxClientHandler.getDimensions("INSEE", "CNA-2010-CONSO-SI");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=FR1/CL_FREQ/1.0, codes={A=Annual, T=Quarterly, I=Irregular, S=Semi-annual, Q=Quarterly, M=Monthly, B=Two-monthly}]], Dimension [id=BRANCHE, position=2, codelist=Codelist [id=FR1/CL_NI00054/1.0, codes=null]], Dimension [id=NATURE, position=3, codelist=Codelist [id=FR1/CL_NATURE/1.0, codes=null]]]";
-		assertEquals("Wrong dimensions for IPI-1970-DET", result, dim.toString().substring(0, result.length()));
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=FR1/CL_PERIODICITE/1.0, codes={A=Annual, T=Quarterly, S=Semi-annual, M=Monthly, B=Two-monthly}]], Dimension [id=INDICATEUR, position=2, codelist=Codelist [id=FR1/CL_INDICATEUR/1.0, codes=null]], Dimension [id=SECT-INST, position=3, codelist=Codelist [id=FR1/CL_SECT-INST/1.0, codes=null]], Dimen";
+		assertEquals("Wrong dimensions for CNA-2010-CONSO-SI", result, dim.toString().substring(0, result.length()));
 	}
 
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("INSEE", "IPI-1970-DET/.50.", null, null);
+		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("INSEE", "CNA-2010-CONSO-SI..CNA_CONSO_SI.S15.PCH.P3.A88-88.VALEUR_ABSOLUE.FE.EUR2010.BRUT", null, null);
 		assertNotNull("Null time series result", res);
-		assertEquals("Wrong result size", 7, res.size());
+		assertEquals("Wrong result size", 1, res.size());
 	}
 
 }

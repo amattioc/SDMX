@@ -41,7 +41,9 @@ import javax.swing.text.DefaultEditorKit;
 public class BuildCommandContentFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	
-	public BuildCommandContentFrame() throws SdmxException {
+	public BuildCommandContentFrame() throws SdmxException 
+	{
+		super();
 		setSize(800, 600);
 		this.setLocationRelativeTo(this.getContentPane());
 
@@ -76,5 +78,8 @@ public class BuildCommandContentFrame extends JFrame{
 		text.setText(buf.toString());
 		commandPane.getViewport().add(text);
 		add(commandPane);
+
+		setTitle("Commands in statistical tools");
+	    setVisible( true );
 	}
 }

@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.io.IOException;
-import java.io.Reader;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -29,15 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamException;
-
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
@@ -60,147 +55,60 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
-		String query=null;
-		Reader xmlStream = null;
-		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		query = buildFlowQuery("ALL", null, null);
-		xmlStream = runQuery(query, null);
-		try {
-			List<Dataflow> dfs = DataflowParser.parse(xmlStream);
-			if(dfs.size() > 0){
-				result = new HashMap<String, Dataflow>();
-				for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
-					Dataflow df = (Dataflow) iterator.next();
-					result.put(df.getId(), df);
-				}
+		
+		String query = buildFlowQuery("ALL", null, null);
+		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null);
+		if(dfs.size() > 0)
+		{
+			Map<String, Dataflow> result = new HashMap<String, Dataflow>();
+			for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
+				Dataflow df = (Dataflow) iterator.next();
+				result.put(df.getId(), df);
 			}
-			else{
-				throw new SdmxXmlContentException("The query returned zero dataflows");
-			}
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
-		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}
+			return result;
 		}
-		return result;
+		else
+			throw new SdmxXmlContentException("The query returned zero dataflows");
 	}
 
 	@Override
-	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
-		String query=null;
-		Reader xmlStream = null;
-		Dataflow df = null;
-		query = buildFlowQuery(dataflow, agency, version);
-		xmlStream = runQuery(query, null);
-		try {
-			List<Dataflow> flows = DataflowParser.parse(xmlStream);
-			if(flows.size() >= 1){
-				for (Iterator<Dataflow> iterator = flows.iterator(); iterator.hasNext();) {
-					Dataflow item = (Dataflow) iterator.next();
-					if(item.getId().equalsIgnoreCase(dataflow)){
-						df = item;
-					}
-				}
-			}
-			else{
-				throw new SdmxXmlContentException("The query returned zero dataflows");
-			}
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
-		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}
-		}
-		return df;
+	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException 
+	{
+		String query = buildFlowQuery(dataflow, agency, version);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
+		if(flows.size() >= 1)
+			for (Dataflow item: flows)
+				if(item.getId().equalsIgnoreCase(dataflow))
+					return item;
+
+		throw new SdmxXmlContentException("The query returned zero dataflows");
 	}
 
 	@Override
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
-		String query=null;
-		Reader xmlStream = null;
-		DataFlowStructure str = new DataFlowStructure();
 		if(dsd!=null){
-			query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			xmlStream = runQuery(query, null);
-			try {
-				str = DataStructureParser.parse(xmlStream).get(0);
-			} catch (XMLStreamException e) {
-				throw SdmxExceptionFactory.wrap(e);
-			} finally{
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
-			}
+			String query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
+			return runQuery(new DataStructureParser(), query, null).get(0);
 		}
-		else{
+		else
 			throw new InvalidParameterException("Null dsd in input");
-		}
-		return str;
-	
 	}
 
 	@Override
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException {
-		String query=null;
-		Reader xmlStream = null;
-		Map<String, String> result = null;
-		query = buildCodelistQuery(codeList, agency, version);
-		xmlStream = runQuery(query, null);
-		try {
-			result = CodelistParser.parse(xmlStream);
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
-		} finally{
-			try {
-				xmlStream.close();
-			} catch (IOException e) {
-				logger.severe("Exception caught closing stream.");
-			}
-		}
-		return result;
+		String query = buildCodelistQuery(codeList, agency, version);
+		return runQuery(new CodelistParser(), query, null);
 	}
 
 	@Override
 	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		DataParsingResult ts = getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-		return ts.getData();
+		return getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory).getData();
 	}
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		String query=null;
-		Reader xmlStream = null;
-		DataParsingResult ts = new DataParsingResult();
-		query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-		try {
-			xmlStream = runQuery(query, acceptHdr);
-			if(format != null){
-				ts = CompactDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-			}
-			else{
-				// just for WB, to be removed ASAP
-				ts = GenericDataParser.parse(xmlStream, dsd, dataflow.getId(), !serieskeysonly);
-			}
-		} catch (XMLStreamException e) {
-			throw SdmxExceptionFactory.wrap(e);
-		} finally{
-			if (xmlStream != null) {
-				try {
-					xmlStream.close();
-				} catch (IOException e) {
-					logger.severe("Exception caught closing stream.");
-				}
-			}
-		}
-		return ts;
+		String query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		return runQuery(format != null ? new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly) : 
+				new GenericDataParser(dsd, dataflow.getId(), !serieskeysonly), query, acceptHdr);
 	}
 
 	@Override

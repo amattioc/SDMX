@@ -1,11 +1,13 @@
 % Toolbox MatSDMX
-% Version 1.7
+% Version 1.8
 % MATLAB interface to SDMX Web Services
 %
 % Files 
 %
 %	getProviders  - get the list of available data providers
 %	addProvider  - add a new provider (SDMX 2.1) to the internal registry
+%	addLocalProvider  - add a new provider (SDMX 2.1) for handling local
+%	SDMX files
 %	getFlows - get the list of available data flows for the input provider
 %	getDimensions - get the list of dimensions for the input dataflow
 %	getDSDIdentifier - get the name of the DSD for the input dataflow

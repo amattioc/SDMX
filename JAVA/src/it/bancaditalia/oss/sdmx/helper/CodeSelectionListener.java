@@ -20,13 +20,13 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 public class CodeSelectionListener implements ListSelectionListener{
 	private static Logger logger = Configuration.getSdmxLogger();

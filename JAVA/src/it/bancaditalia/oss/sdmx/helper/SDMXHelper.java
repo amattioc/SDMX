@@ -20,20 +20,15 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,15 +42,22 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
+import it.bancaditalia.oss.sdmx.client.Provider;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+
 /**
  * @author Attilio Mattiocco
  *
  */
-public class SDMXHelper extends JFrame{
+public class SDMXHelper extends JFrame
+{
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = Configuration.getSdmxLogger();
+	
 	private boolean exitOnClose = true;
-	static QueryPanel query = new QueryPanel();
+	private QueryPanel query = new QueryPanel();
 	private JTextArea sdmxMessages;
 	private HelperHandler textAreaHandler = null;
 		
@@ -68,14 +70,14 @@ public class SDMXHelper extends JFrame{
 		this.exitOnClose = exitOnClose;
 	}
 	
-	public void init(){
+	public void init() {
 		try {
 			 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception ex) {
 			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
 			logger.log(Level.FINER, "", ex);
 		}
-
+		
 		setSize(800, 600);
 		
 		setJMenuBar(createMenus());
@@ -119,11 +121,8 @@ public class SDMXHelper extends JFrame{
         menuBar = new JMenuBar();
         menu = new JMenu("Providers");
         menuBar.add(menu);
- 		List<Provider> providers = new ArrayList<Provider>(SDMXClientFactory.getProviders().values());		
-		Collections.sort(providers, new ProviderComparator());
-		for (Iterator<Provider> iterator = providers.iterator(); iterator.hasNext();) {
-			Provider p = iterator.next();
-			String provider = p.getName() + ": " + p.getDescription();
+		for (Entry<String, Provider> p: SDMXClientFactory.getProviders().entrySet()) {
+			String provider = p.getKey() + ": " + p.getValue().getDescription();
 			menuItem = new JMenuItem(provider);
 			menu.add(menuItem);
 			menuItem.addActionListener(new ProviderActionListener(this));
@@ -133,16 +132,36 @@ public class SDMXHelper extends JFrame{
 		menuBar.add(menu);
 		menuItem = new JMenuItem(new DefaultEditorKit.CopyAction());
 		menuItem.setText("Copy Selection");
-		menuItem.setMnemonic(KeyEvent.VK_C);
+		menuItem.setMnemonic(KeyEvent.VK_COPY);
 		menu.add(menuItem);
 		menuItem = new JMenuItem("Build commands");
-		menuItem.addActionListener(new BuildCommandActionListener(this));
+		menuItem.addActionListener(new ActionListener() 
+				{
+					public void actionPerformed(ActionEvent ae) {
+						try 
+						{
+							new BuildCommandContentFrame();
+						}
+						catch (SdmxException ex) 
+						{
+							logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+							logger.log(Level.FINER, "", ex);
+						}
+				    }
+				});
 		menu.add(menuItem);
 
 		menu = new JMenu("Help");
 		menuBar.add(menu);
 		menuItem = new JMenuItem("About SDMX Connectors...");
-		menuItem.addActionListener(new AboutActionListener(this));
+		menuItem.addActionListener(new ActionListener() 
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) 
+					{
+						new AboutContentFrame();
+					}
+				});
 		menu.add(menuItem);
 
         return menuBar;
@@ -152,7 +171,7 @@ public class SDMXHelper extends JFrame{
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {
 	    		SDMXHelper h = new SDMXHelper(false);
-	    		h.init();
+				h.init();
 	        }
 	    });
     }

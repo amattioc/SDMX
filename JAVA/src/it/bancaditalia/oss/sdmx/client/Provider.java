@@ -20,13 +20,23 @@
  */
 package it.bancaditalia.oss.sdmx.client;
 
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
-
-import java.net.URL;
-import java.util.Hashtable;
-import java.util.Map;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class Provider {
 	private String name;
@@ -42,9 +52,9 @@ public class Provider {
 	private Map<String, Dataflow> flows; 
 	// key: dsd id (full) --> structure
 	private Hashtable<String, DataFlowStructure> dsdNameToStructureCache = null;
+	private SSLSocketFactory sslSocketFactory;
 
-	public Provider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) {
-		super();
+	public Provider(String name, URL endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException {
 		this.name = name;
 		this.endpoint = endpoint;
 		this.description = description;
@@ -54,6 +64,25 @@ public class Provider {
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
 		this.isCustom = isCustom;
+		
+	    try {
+			if (trustStore != null)
+			{
+			    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			    tmf.init(trustStore);
+			    
+			    SSLContext context = SSLContext.getInstance("TLS");
+			    context.init(null, tmf.getTrustManagers(), new SecureRandom());
+			    
+			    this.sslSocketFactory = context.getSocketFactory();
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (KeyStoreException e) {
+			e.printStackTrace();
+		} catch (KeyManagementException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getName() {
@@ -147,6 +176,10 @@ public class Provider {
 
 	public boolean isCustom() {
 		return isCustom;
+	}
+
+	public SSLSocketFactory getSSLSocketFactory() {
+		return sslSocketFactory;
 	}
 
 }

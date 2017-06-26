@@ -23,6 +23,7 @@ package it.bancaditalia.oss.sdmx.client;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,10 +116,20 @@ public class StataClientHandler {
 				Data.addVarStr("TSNAME", 10);
 				name = Data.getVarIndex("TSNAME") ;
 				int lastPos = name;
+				boolean allNumeric = true;
+				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
+					if(!iterator.next().isNumeric()){
+						allNumeric = false;
+						break;
+					}
+				}				
 				if(processData){
 					SFIToolkit.displayln("The query returned " + dataLength + " observations.");
 					Data.addVarStr("DATE", 5);
-					Data.addVarDouble("VALUE");
+					if(allNumeric)
+						Data.addVarDouble("VALUE");
+					else
+						Data.addVarStr("VALUE", 40);
 					date = Data.getVarIndex("DATE") ;
 					val = Data.getVarIndex("VALUE") ;
 					lastPos = val;
@@ -130,31 +141,40 @@ public class StataClientHandler {
 					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
 					String tsname = ts.getName();
 					if(processData){
-						List<Double> tsobs = ts.getObservations();
+						List<Object> tsobs = ts.getObservations();
 						List<String> tsdates = ts.getTimeSlots();
 						int j = 0; // observation counter
-						for (Iterator<Double> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
+						for (Iterator<Object> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
 							Data.storeStr(name, rowOffset+j+1, tsname);
-							Data.storeNum(val, rowOffset+j+1, iterator2.next());
+							if(allNumeric){
+								Data.storeNum(val, rowOffset+j+1, (Double)iterator2.next());
+							}
+							else{
+								Data.storeStr(val, rowOffset+j+1, iterator2.next().toString());
+							}
 							Data.storeStr(date, rowOffset+j+1, tsdates.get(j));
 							if(processMeta){
-								List<String> dimensions = ts.getDimensions();
-								List<String> attributes = ts.getAttributes();
-								attributes.addAll(dimensions);
-								for (Iterator<String> iterator3 = attributes.iterator(); iterator3.hasNext();) {
-									String attr = (String) iterator3.next();
-									String[] tokens = attr.split("\\s*=\\s*");
-									String key = tokens[0];
-									String value = tokens[1];
-									if(key != null && !key.isEmpty() && value != null && ! value.isEmpty()){
-										int attrPos = Data.getVarIndex(key) ;
-										if(attrPos > lastPos){
-											lastPos = attrPos;
-											//not set yet
-											Data.addVarStr(key, value.length());
-										}
-										Data.storeStr(attrPos, rowOffset+j+1, value);
+								for (Entry<String, String> dim: ts.getDimensionsMap().entrySet()) {
+									String key = dim.getKey();
+									String value = dim.getValue();
+									int attrPos = Data.getVarIndex(key) ;
+									if(attrPos > lastPos){
+										lastPos = attrPos;
+										//not set yet
+										Data.addVarStr(key, value.length());
 									}
+									Data.storeStr(attrPos, rowOffset+j+1, value);
+								}
+								for (Entry<String, String> attr: ts.getAttributesMap().entrySet()) {
+									String key = attr.getKey();
+									String value = attr.getValue();
+									int attrPos = Data.getVarIndex(key) ;
+									if(attrPos > lastPos){
+										lastPos = attrPos;
+										//not set yet
+										Data.addVarStr(key, value.length());
+									}
+									Data.storeStr(attrPos, rowOffset+j+1, value);
 								}
 								List<String> obsAttrNames = ts.getObsLevelAttributesNames();
 								for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
@@ -177,23 +197,27 @@ public class StataClientHandler {
 					}
 					else{
 						Data.storeStr(name, i+1, tsname);
-						List<String> dimensions = ts.getDimensions();
-						List<String> attributes = ts.getAttributes();
-						attributes.addAll(dimensions);
-						for (Iterator<String> iterator3 = attributes.iterator(); iterator3.hasNext();) {
-							String attr = (String) iterator3.next();
-							String[] tokens = attr.split("\\s*=\\s*");
-							String key = tokens[0];
-							String value = tokens[1];
-							if(key != null && !key.isEmpty() && value != null && ! value.isEmpty()){
-								int attrPos = Data.getVarIndex(key) ;
-								if(attrPos > lastPos){
-									lastPos = attrPos;
-									//not set yet
-									Data.addVarStr(key, 10);
-								}
-								Data.storeStr(attrPos, i+1, value);
+						for (Entry<String, String> dim: ts.getDimensionsMap().entrySet()) {
+							String key = dim.getKey();
+							String value = dim.getValue();
+							int attrPos = Data.getVarIndex(key) ;
+							if(attrPos > lastPos){
+								lastPos = attrPos;
+								//not set yet
+								Data.addVarStr(key, value.length());
 							}
+							Data.storeStr(attrPos, rowOffset+i+1, value);
+						}
+						for (Entry<String, String> attr: ts.getAttributesMap().entrySet()) {
+							String key = attr.getKey();
+							String value = attr.getValue();
+							int attrPos = Data.getVarIndex(key) ;
+							if(attrPos > lastPos){
+								lastPos = attrPos;
+								//not set yet
+								Data.addVarStr(key, value.length());
+							}
+							Data.storeStr(attrPos, rowOffset+i+1, value);
 						}
 					}
 					i++;

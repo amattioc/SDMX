@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -82,7 +83,39 @@ public class SdmxClientHandler {
 	}
 
 	/**
-	 * Adds a provider to current configuration 
+	 * Adds a local provider that reads SDMX files in a user specified directory 
+	 * 
+	 * @param provider a non-null, non-empty provider identification short name.
+	 * @param endpoint a non-null existing directory where the SDMX files are stored
+	 * @param description an optional natural language description of the provider
+	 * 
+	 * @throws SdmxException
+	 */
+	public static void addLocalProvider(String provider, String endpoint, String description) throws SdmxException {
+		
+		if(provider == null || provider.trim().isEmpty()){
+			logger.severe("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+		}
+		if(endpoint == null){
+			logger.severe("The enpoint of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
+		}
+		// get the URL from this file
+		File epFile = new File(endpoint);
+		if(!epFile.isDirectory()){
+			logger.severe("The enpoint of the provider must be an existing local directory");
+			throw new SdmxInvalidParameterException("The enpoint of the provider has to be an existing local directory");
+		}
+		try{
+			SDMXClientFactory.addProvider(provider, epFile.toURI().toURL(), null, false, false, false, description, false);
+		} catch (MalformedURLException e) {
+			throw new SdmxInvalidParameterException(e.getMessage());
+		}
+	}
+
+	/**
+	 * Adds a local provider that reads files on disk 
 	 * 
 	 * @param provider a non-null, non-empty provider identification short name.
 	 * @param endpoint a non-null provider-defined endpoint url for queries
@@ -105,7 +138,7 @@ public class SdmxClientHandler {
 			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
 		}
 		try {
-			SDMXClientFactory.addProvider(provider, new URL(endpoint), needsCredentials, needsURLEncoding, 
+			SDMXClientFactory.addProvider(provider, new URL(endpoint), null, needsCredentials, needsURLEncoding, 
 					supportsCompression, description, false);
 		} catch (MalformedURLException e) {
 			throw new SdmxInvalidParameterException(e.getMessage());
@@ -116,13 +149,8 @@ public class SdmxClientHandler {
 	 * Get the list of all available SDMX Providers
 	 * @return
 	 */
-	public static List<String> getProviders() {
-		List<String> providers = new ArrayList<String>();
-		Set<String> result = SDMXClientFactory.getProviders().keySet();
-		if(result != null){
-			providers = new ArrayList<String>(result);
-		}
-		return providers;
+	public static SortedSet<String> getProviders() {
+		return SDMXClientFactory.getProviders().navigableKeySet();
     }
 	
 	public static DataFlowStructure getDataFlowStructure(String provider, String dataflow) throws SdmxException {

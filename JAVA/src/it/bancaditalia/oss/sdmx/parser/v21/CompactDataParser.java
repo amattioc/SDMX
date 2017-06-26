@@ -28,10 +28,11 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
@@ -45,6 +46,7 @@ import javax.xml.stream.events.XMLEvent;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
@@ -54,9 +56,9 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  * @author Attilio Mattiocco
  *
  */
-public class CompactDataParser {
+public class CompactDataParser implements Parser<DataParsingResult> {
 	private static final String sourceClass = CompactDataParser.class.getSimpleName();
-	protected static Logger logger = Configuration.getSdmxLogger();
+	protected static final Logger logger = Configuration.getSdmxLogger();
 	
 	private static final String DATASET = "DataSet";
 	private static final String ACTION = "action";
@@ -71,7 +73,18 @@ public class CompactDataParser {
 	private static final String SEVERITY = "severity";
 	private static final String TEXT = "Text";
 
-	public static DataParsingResult parse(Reader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, SdmxException {
+	private DataFlowStructure dsd;
+	private String dataflow;
+	private boolean data;
+	
+	public CompactDataParser(DataFlowStructure dsd, String dataflow, boolean data)
+	{
+		this.dsd = dsd;
+		this.dataflow = dataflow;
+		this.data = data;
+	}
+
+	public DataParsingResult parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		
@@ -124,7 +137,7 @@ public class CompactDataParser {
 					
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
-					setMetadata(ts, dsd, attributes, currentAction, currentValidFromDate, currentValidToDate);
+					setMetadata(ts, attributes, currentAction, currentValidFromDate, currentValidToDate);
 				}
 
 				if (startElement.getName().getLocalPart() == (FOOTER)) {
@@ -182,39 +195,46 @@ public class CompactDataParser {
 		return result;
 	}
 
-	private static void setMetadata(PortableTimeSeries ts, DataFlowStructure dsd, Iterator<Attribute> attributes, 
-			String action, String validFrom, String validTo) {
+	private void setMetadata(PortableTimeSeries ts, Iterator<Attribute> attributes, String action, String validFrom, String validTo) {
 		final String sourceMethod = "setMetadata";
 		logger.entering(sourceClass, sourceMethod);
 		if(action != null){
-			ts.addAttribute(ACTION + "=" + action);
+			ts.addAttribute(ACTION, action);
 		}
 		if(validFrom != null){
-			ts.addAttribute(VALID_FROM + "=" + validFrom);
+			ts.addAttribute(VALID_FROM, validFrom);
 		}
 		if(validTo != null){
-			ts.addAttribute(VALID_TO + "=" + validTo);
+			ts.addAttribute(VALID_TO, validTo);
 		}
-		String[] dimensions = new String[dsd.getDimensions().size()];
+		int size = dsd.getDimensions().size();
+		String[] names = new String[size];
+		String[] values = new String[size];
 		while (attributes.hasNext()) {
 			Attribute attr = attributes.next();
 			String id = attr.getName().toString();
 			String value = attr.getValue();
 			if(dsd.isDimension(id)){
-				dimensions[dsd.getDimensionPosition(id)-1] = id+"="+value;
+				names[dsd.getDimensionPosition(id)-1] = id;
+				values[dsd.getDimensionPosition(id)-1] = value;
 				if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 					ts.setFrequency(value);
 				}
 			}
 			else{
-				ts.addAttribute(id+"="+value);
+				ts.addAttribute(id, value);
 			}
-			ts.setDimensions(Arrays.asList(dimensions));
 		}
+		
+		Map<String, String> dimensions = new LinkedHashMap<String, String>();
+		for (int i = 0; i < size; i++)
+			dimensions.put(names[i], values[i]);
+		
+		ts.setDimensions(dimensions);
 		logger.exiting(sourceClass, sourceMethod);
 	}
 
-	private static void setFooter(XMLEventReader eventReader, DataParsingResult data) throws XMLStreamException {
+	private void setFooter(XMLEventReader eventReader, DataParsingResult parsingResult) throws XMLStreamException {
 		final String sourceMethod = "setFooter";
 		logger.entering(sourceClass, sourceMethod);
 		Message msg = null;
@@ -260,7 +280,7 @@ public class CompactDataParser {
 				// just get the first message for now
 				if (endElement.getName().getLocalPart() == (MESSAGE)) {
 					logger.finer("Adding footer message");
-					data.setMessage(msg);
+					parsingResult.setMessage(msg);
 					break;
 				}
 			}

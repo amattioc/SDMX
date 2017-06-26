@@ -26,6 +26,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
@@ -43,6 +44,10 @@ public class PortableDataSet{
 	public static final String OBS_LABEL = "OBS_VALUE";
 	public static final String ID_LABEL = "ID";
 	
+	private boolean errorFlag = false;
+	private boolean numeric = false;
+	private String errorObjects = null;
+	
 	private static final String sourceClass = PortableDataSet.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 	private  DefaultTableModel model = null;
@@ -53,7 +58,7 @@ public class PortableDataSet{
 
 	public PortableDataSet(List<PortableTimeSeries> tslist) throws DataStructureException {
 		this();
-		putTimeSeries(tslist);
+		setTimeSeries(tslist);
 	}
 
 	public int getColumnIndex(String name) throws DataStructureException{
@@ -102,12 +107,12 @@ public class PortableDataSet{
 		return(result);
 	}
 
-	public Double[] getObservations() throws DataStructureException {
+	public Object[] getObservations() throws DataStructureException {
 		int rows = getRowCount();
-		Double[] result = new Double[rows];
+		Object[] result = new Object[rows];
 		int obsCol = getColumnIndex(OBS_LABEL);
 		for(int i = 0; i < rows; i++){
-			result[i] = (Double) getValueAt(i, obsCol);
+			result[i] = (Object) getValueAt(i, obsCol);
 		}
 		return(result);
 	}
@@ -138,32 +143,48 @@ public class PortableDataSet{
 		return result.toArray(new String[0]);
 	}
 	
-	public void putTimeSeries(List<PortableTimeSeries> tslist) throws DataStructureException{
+	public void setTimeSeries(List<PortableTimeSeries> tslist) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
+		//check if all time series are numeric. Otherwise, convert everything to string
+		boolean allNumeric = true;
+		for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
+			if(!iterator.next().isNumeric()){
+				allNumeric = false;
+				break;
+			}
+		}
 		for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
 			PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
-			putTimeSeries(ts);
+			putTimeSeries(ts, allNumeric);
 		}
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
-	public void putTimeSeries(PortableTimeSeries ts) throws DataStructureException{
+	private void putTimeSeries(PortableTimeSeries ts, boolean allNumeric) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
 		int row = model.getRowCount();
-		
-		List<String> dims = ts.getDimensions();
-		List<String> attrs = ts.getAttributes();
-		List<Double> values = ts.getObservations();
+		setNumeric(allNumeric);
+
+		List<Object> values = ts.getObservations();
 		List<String> times = ts.getTimeSlots();
 		List<String> obsAttrs = ts.getObsLevelAttributesNames();
 		String tsName = ts.getName();
 		
+		//check errors 
+		if(ts.isErrorFlag()){
+			errorFlag = true;
+			addErrorObjects(tsName);
+		}
+		
 		int n = values.size();
 		//model.setRowCount(row + n);
 		for (int index = 0; index < n; index++) {
-			Double val = (Double) values.get(index);
+			Object val = values.get(index);
+			if(!allNumeric && ts.isNumeric()){
+				val = ((Double)val).toString();
+			}
 			if(times != null){
 				String time = times.get(index);
 				if(time != null)
@@ -183,23 +204,12 @@ public class PortableDataSet{
 		
 			
 			// set dimensions
-			String delims = "=";
-			for (Iterator<String> iterator = dims.iterator(); iterator.hasNext();) {
-				String dim = (String) iterator.next();
-				String[] tokens = dim.split(delims);
-				String name = tokens[0];
-				String value = tokens[1];
-				addValue(row, name, value);
-			}
-			// set attributes
-			for (Iterator<String> iterator = attrs.iterator(); iterator.hasNext();) {
-				String attr = (String) iterator.next();
-				String[] tokens = attr.split(delims);
-				String name = tokens[0];
-				String value = tokens[1];
-				addValue(row, name, value);
-			}
+			for (Entry<String, String> dim: ts.getDimensionsMap().entrySet())
+				addValue(row, dim.getKey(), dim.getValue());
 
+			// set attributes
+			for (Entry<String, String> dim: ts.getAttributesMap().entrySet())
+				addValue(row, dim.getKey(), dim.getValue());
 			
 			row++;
 		}
@@ -226,6 +236,34 @@ public class PortableDataSet{
 		model.setValueAt(value, row, idx);
 	}
 	
+	public boolean isErrorFlag() {
+		return errorFlag;
+	}
+
+	public void setErrorFlag(boolean errorFlag) {
+		this.errorFlag = errorFlag;
+	}
+
+	public String getErrorObjects() {
+		return errorObjects;
+	}
+
+	public void addErrorObjects(String errorObjects) {
+		if(this.errorObjects == null || this.errorObjects.isEmpty())
+			this.errorObjects = errorObjects;
+		else
+			this.errorObjects += ", " + errorObjects;
+	}
+
+	
+	public boolean isNumeric() {
+		return numeric;
+	}
+
+	public void setNumeric(boolean numeric) {
+		this.numeric = numeric;
+	}
+
 	@Override
 	public String toString(){
 		int rows = model.getRowCount();

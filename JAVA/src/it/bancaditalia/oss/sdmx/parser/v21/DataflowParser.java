@@ -37,6 +37,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
@@ -44,7 +45,7 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  * @author Attilio Mattiocco
  *
  */
-public class DataflowParser {
+public class DataflowParser implements Parser<List<Dataflow>> {
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	private static final String DATAFLOW = "Dataflow";
@@ -54,7 +55,7 @@ public class DataflowParser {
 	private static final String NAME = "Name";
 	private static final String REF = "Ref";
 
-	public static List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException {
+	public List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);

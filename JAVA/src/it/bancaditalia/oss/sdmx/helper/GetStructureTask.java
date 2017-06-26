@@ -20,12 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.awt.Component;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +29,10 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
+
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
@@ -56,10 +55,9 @@ class GetStructureTask extends SwingWorker<Void, Void> {
 			DefaultListModel dimListModel = new DefaultListModel();
 			List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
 			int i=0;
-			for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext();) {
-				Dimension dim = iterator.next();
+			for (Dimension dim: dims)
 				dimListModel.add(i++, dim.getId());
-			}
+			
 			JList dimList = new JList(dimListModel);
 			dimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			dimList.addListSelectionListener(new DimensionSelectionListener(parent));

@@ -24,10 +24,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -41,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
@@ -50,7 +52,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  * @author Attilio Mattiocco
  *
  */
-public class GenericDataParser {
+public class GenericDataParser implements Parser<DataParsingResult> {
 	protected static Logger logger = Configuration.getSdmxLogger();
 
 	private static final String SERIES = "Series";
@@ -63,7 +65,18 @@ public class GenericDataParser {
 	private static final String ATTRIBUTES = "Attributes";
 	private static final String ATTRIBUTEVALUE = "Value";
 
-	public static DataParsingResult parse(Reader xmlBuffer, DataFlowStructure dsd, String dataflow, boolean data) throws XMLStreamException, SdmxException {
+	private DataFlowStructure dsd;
+	private String dataflow;
+	private boolean data;
+
+	public GenericDataParser(DataFlowStructure dsd, String dataflow, boolean data)
+	{
+		this.dsd = dsd;
+		this.dataflow = dataflow;
+		this.data = data;
+	}
+	
+	public DataParsingResult parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
@@ -85,7 +98,7 @@ public class GenericDataParser {
 				}
 
 				if (startElement.getName().getLocalPart() == (SERIES_KEY)) {
-					setSeriesKey(ts, eventReader, dsd);
+					setSeriesKey(ts, eventReader);
 				}
 
 				if (startElement.getName().getLocalPart() == (ATTRIBUTES)) {
@@ -108,10 +121,11 @@ public class GenericDataParser {
 		return result;
 	}
 
-	private static void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader, DataFlowStructure dsd) throws XMLStreamException {
+	private void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
 		String id = null;
 		String val = null;
-		String[] dimensions = new String[dsd.getDimensions().size()];
+		String[] names = new String[dsd.getDimensions().size()];
+		String[] values = new String[dsd.getDimensions().size()];
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -135,7 +149,8 @@ public class GenericDataParser {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
 					if(dsd.isDimension(id)){
-						dimensions[dsd.getDimensionPosition(id)-1] = id+"="+val;
+						names[dsd.getDimensionPosition(id)-1] = id;
+						values[dsd.getDimensionPosition(id)-1] = val;
 					}
 					if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 						ts.setFrequency(val);
@@ -145,7 +160,10 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (SERIES_KEY)) {
-					ts.setDimensions(Arrays.asList(dimensions));
+					Map<String, String> dimensions = new LinkedHashMap<String, String>(names.length);
+					for (int i = 0; i < names.length; i++)
+						dimensions.put(names[i], values[i]);
+					ts.setDimensions(dimensions);
 					break;
 				}
 			}
@@ -177,7 +195,7 @@ public class GenericDataParser {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					ts.addAttribute(id+'='+val);
+					ts.addAttribute(id, val);
 				}
 			}
 			if (event.isEndElement()) {

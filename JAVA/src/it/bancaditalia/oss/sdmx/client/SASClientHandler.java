@@ -28,6 +28,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
@@ -277,8 +278,8 @@ public class SASClientHandler extends SdmxClientHandler{
 					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
 					int obsnum = ts.getObservations().size();
 					datasize += obsnum;
-					metasize += ts.getDimensions().size();
-					metasize += ts.getAttributes().size();
+					metasize += ts.getDimensionsMap().size();
+					metasize += ts.getAttributesMap().size();
 					obsmetasize += ts.getObsLevelAttributesNames().size() * obsnum;
 				}
 				
@@ -291,32 +292,20 @@ public class SASClientHandler extends SdmxClientHandler{
 				int obsMetaRowIndex = 0;
 				for (Iterator<PortableTimeSeries> iterator = result.iterator(); iterator.hasNext();) {
 					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
+					if(!ts.isNumeric()){
+						logger.warning("Time Series " + ts.getName() + "is not numeric and will be skipped in SAS.");
+						continue;
+					}
 					String name = ts.getName();
 					// setting ts level metadata
-					List<String> dimensions = ts.getDimensions();
-					for (Iterator<String> iterator2 = dimensions.iterator(); iterator2.hasNext();) {
-						String dim = (String) iterator2.next();
-						//deparse dimension (KEY=VALUE)
-						String[] tokens = dim.split("\\s*=\\s*");
-						String key = tokens[0];
-						String value = tokens[1];
-						metadata.setRow(metaRowIndex, name, key, value, "DIMENSION");
-						metaRowIndex++;
-					}
-					List<String> attributes = ts.getAttributes();
-					for (Iterator<String> iterator2 = attributes.iterator(); iterator2.hasNext();) {
-						String attr = (String) iterator2.next();
-						//deparse dimension (KEY=VALUE)
-						String[] tokens = attr.split("\\s*=\\s*");
-						String key = tokens[0];
-						String value = tokens[1];
-						metadata.setRow(metaRowIndex, name, key, value, "ATTRIBUTE");
-						metaRowIndex++;
-					}
+					for (Entry<String, String> dimension: ts.getDimensionsMap().entrySet())
+						metadata.setRow(metaRowIndex++, name, dimension.getKey(), dimension.getValue(), "DIMENSION");
+					for (Entry<String, String> attribute: ts.getAttributesMap().entrySet())
+						metadata.setRow(metaRowIndex++, name, attribute.getKey(), attribute.getValue(), "ATTRIBUTE");
 					
 					//setting data cache
 					String[] timeSlots = ts.getTimeSlotsArray();
-					Double[] observations = ts.getObservationsArray();
+					Double[] observations = (Double[])ts.getObservationsArray();
 					if(timeSlots.length != observations.length){
 						logger.warning("The time series " + name + " is not well formed. Skip it.");
 						break;
@@ -456,9 +445,9 @@ public class SASClientHandler extends SdmxClientHandler{
 	}
 
 	public static String getObsMetaValue(double index) throws SASClientHandler.SdmxSASException {
-		if(obsmetadata != null && index <= obsmetadata.size()){
-			return obsmetadata.getValue((int)index);
-		}
+                if(obsmetadata != null && index <= obsmetadata.size()){
+                        return obsmetadata.getValue((int)index);
+                }
 		else{
 			throw new SASClientHandler.SdmxSASException("Observation level  cache error: cache is null or index exceeds size.");
 		}
@@ -474,5 +463,4 @@ public class SASClientHandler extends SdmxClientHandler{
 	}
 	
 }
-
 

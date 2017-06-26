@@ -20,25 +20,21 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import java.util.List;
+
+import javax.swing.SwingWorker;
+
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.SwingWorker;
 
 /**
  * @author Attilio Mattiocco
  *
  */
 class GetQueryContentTask extends SwingWorker<Void, Void> {
-	private static Logger logger = Configuration.getSdmxLogger();
 	private ProgressViewer progress = null;
 	
 	public GetQueryContentTask(ProgressViewer progress) {
@@ -47,7 +43,8 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 	}
 
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected Void doInBackground() throws SdmxException
+	{
 		String query = QueryPanel.sdmxQuery.getText();
 		try {
 			if(query == null || query.isEmpty()){
@@ -59,9 +56,6 @@ class GetQueryContentTask extends SwingWorker<Void, Void> {
 			wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
 			progress.setVisible(false);
 		    wnd.setVisible( true );
-		} catch (SdmxException ex) {
-			logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-			logger.log(Level.FINER, "", ex);
 		} finally {
 			progress.setVisible(false);
 		}

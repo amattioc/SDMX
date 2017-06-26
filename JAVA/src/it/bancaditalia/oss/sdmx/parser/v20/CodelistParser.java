@@ -26,20 +26,21 @@ import java.util.Map;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class CodelistParser {
+public class CodelistParser implements Parser<Map<String,String>>{
 	// valid in V.2.0
 	static final String CODELIST = "CodeList";
 	static final String CODE = "Code";
 	static final String ID = "value";
 	static final String DESCRIPTION = "Description";
 
-	public static Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
 	}
 	

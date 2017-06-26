@@ -33,6 +33,11 @@ function tsTable = convertTable(ds)
         error('SDMX convert(list) error: input list must be of class it.bancaditalia.oss.sdmx.api.PortableDataSet.');
     end
     
+    %handle errors
+    if ds.isErrorFlag
+        warning('The time series %s is not valid due to errors in the request.', ds.getErrorObjects);
+    end
+
     values = cell(ds.getObservations);
     times = cell(ds.getTimeStamps);
     dimNames = cell(ds.getMetadataNames);

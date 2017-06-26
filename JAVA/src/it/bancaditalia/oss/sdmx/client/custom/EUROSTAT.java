@@ -20,31 +20,30 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxResponseException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.DisconnectOnCloseReader;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.zip.ZipInputStream;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Attilio Mattiocco
+ *
+ */
+/**
+ * @author m027907
  *
  */
 public class EUROSTAT extends RestSdmxClient{
@@ -64,47 +63,22 @@ public class EUROSTAT extends RestSdmxClient{
 	}
 	
 	@Override
-	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow,
-							DataFlowStructure dsd, String resource, String startTime,
-							String endTime, boolean serieskeysonly, String updatedAfter,
-							boolean includeHistory) throws SdmxException {
-		
-		DataParsingResult data = null;
-		InputStreamReader isr = null;
-		List<PortableTimeSeries> ts = null;
-		data = getData(dataflow, dsd, resource, startTime, endTime,
-									serieskeysonly, updatedAfter, includeHistory);
-		ts = data.getData();
-		if(ts == null || ts.size() == 0){
+	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime,
+							String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException 
+	{
+		DataParsingResult data = getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		List<PortableTimeSeries> ts = data.getData();
+		if(ts == null || ts.size() == 0)
+		{
 			Message msg = data.getMessage();
-			if(msg != null && msg.getCode() != null && msg.getCode().equalsIgnoreCase("413") && msg.getUrl() != null){
-				isr = pollLateResponse(msg.getUrl());
-				if(isr != null){
-					try {
-						data = CompactDataParser.parse(isr, dsd, dataflow.getId(), !serieskeysonly);
-					} catch (XMLStreamException e) {
-						throw SdmxExceptionFactory.wrap(e);
-					}
-				}
-				if(isr != null){
-					try {
-						isr.close();
-					} catch (IOException e) {
-						logger.severe("Exception caught closing stream.");
-					}
-				}
-			}
-		}
-		return data.getData();
-	}
-	
-	private InputStreamReader pollLateResponse(String urlStr) throws SdmxException {
-		if(urlStr != null && !urlStr.isEmpty()){
-			HttpURLConnection conn = null;
-			try {
-				URL url = new URL(urlStr);
-				ZipInputStream zis = null;
-				for(int i = 1; i <= retries; i++){
+			
+			if(msg != null && msg.getCode() != null && msg.getCode().equalsIgnoreCase("413") && msg.getUrl() != null)
+			{
+				String url = msg.getUrl();
+				Parser<DataParsingResult> parser = new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly);
+				
+				for(int i = 1; i <= retries; i++)
+				{
 					logger.info("Trying late retrieval with URL: " + url + ". Attempt n: " + i);
 					try {
 						Thread.sleep(sleepTime);
@@ -112,28 +86,18 @@ public class EUROSTAT extends RestSdmxClient{
 						// safely ignore
 					}
 					
-					//connect to url
-					conn = (HttpURLConnection) url.openConnection();
-					conn.setRequestMethod("GET");
-					int code = conn.getResponseCode();
-					if (code == 200) {
-						logger.fine("Connection opened. Code: " +code);
-						zis = new ZipInputStream(conn.getInputStream());
-						zis.getNextEntry(); // the archie just contains one file
-						//return new InputStreamReader(zis, Configuration.UTF_8);
-						return DisconnectOnCloseReader.of(zis, Configuration.UTF_8, conn);
+					try {
+						return runQuery(parser, msg.getUrl(), null).getData();
+					} catch (SdmxResponseException e) {
+						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					}
-					conn.disconnect();
 				}
-			} catch (MalformedURLException e) {
-				logger.warning("URL for late retrieval is not valid: " + urlStr);
-			} catch (IOException e) {
-				throw SdmxExceptionFactory.wrap(e);
 			}
 		}
 		else{
-			logger.warning("URL for late retrieval is not valid: " + urlStr);
+			return ts;
 		}
-		return null;
+		
+		throw new SdmxXmlContentException("Late retrieval failed.");
 	}
 }

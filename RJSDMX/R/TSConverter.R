@@ -27,9 +27,9 @@ sdmxzoo2df <- function (tts, setId, setMeta) {
   if(!missing(tts) && length(tts) != 0 && is.zoo(tts)){
     n = length(tts)
     time=as.character(index(tts))
-    data=as.numeric(tts)
+    data=coredata(tts)
     header=c('TIME_PERIOD', 'OBS_VALUE')
-    ddf=data.frame(time, data)      
+    ddf=data.frame(time, data, stringsAsFactors = F)      
     if(setMeta){
       metaddf = data.frame(row.names = 1:n)
       metaheader = NULL
@@ -38,22 +38,22 @@ sdmxzoo2df <- function (tts, setId, setMeta) {
           val = attr(tts, x)
           if(length(val) == 1){
             # ts level attributes go close to id
-            metaddf = cbind(metaddf, rep(attr(tts, x), n))
+            metaddf = cbind(metaddf, rep(attr(tts, x), n), stringsAsFactors = F)
             metaheader=c(metaheader, x)
           }
           else if(length(val) == n){
             # obs level attributes go close to data
-            ddf = cbind(val, ddf)
+            ddf = cbind(val, ddf, stringsAsFactors = F)
             header=c(x, header)
           }
         }
       }
-      ddf = cbind(metaddf, ddf)
+      ddf = cbind(metaddf, ddf, stringsAsFactors = F)
       header=c(metaheader, header)
     }
     if(setId){
       id=rep(attr(tts, 'ID'), n)
-      ddf=cbind(id, ddf)
+      ddf=cbind(id, ddf, stringsAsFactors = F)
       header=c('ID', header)
     }
     colnames(ddf) = header
@@ -116,15 +116,34 @@ convertTSList <- function (javaList, plain = F) {
 
 # convert a java PortableDataSet
 convertTSDF <- function (jtable) {
+  isNumeric = .jcall(jtable,"Z","isNumeric");
   time = .jcall(jtable,"[Ljava/lang/String;","getTimeStamps", evalString = TRUE, evalArray = TRUE)
-  values = .jcall(jtable,"[Ljava/lang/Double;","getObservations", evalArray = TRUE)
-  values = sapply(values, .jcall,"D","doubleValue")
+  values = .jcall(jtable,"[Ljava/lang/Object;","getObservations", evalArray = TRUE)
+  if(isNumeric){
+    values = sapply(values, .jcall,"D","doubleValue")
+  }
+  else{
+    values = sapply(values, .jcall,"Ljava/lang/String;","toString", evalString = T)
+  }
   metaNames = .jcall(jtable,"[Ljava/lang/String;","getMetadataNames", evalString = TRUE, evalArray = TRUE)
   metaList = lapply(metaNames, getMeta, jtable = jtable)
   names(metaList) = metaNames
-  result = as.data.frame(metaList)
-  result = cbind('OBS_VALUE'=values, result)
-  result = cbind('TIME_PERIOD'=time, result)
+  result = as.data.frame(metaList, stringsAsFactors = FALSE)
+  result = cbind('OBS_VALUE'=values, result, stringsAsFactors = FALSE)
+  result = cbind('TIME_PERIOD'=time, result, stringsAsFactors = FALSE)
+  #check errors
+  errorObjects = NULL
+  flag = .jcall(jtable,"Z","isErrorFlag");
+  if(flag){
+    errorObjects = .jcall(jtable,"Ljava/lang/String;","getErrorObjects", evalString = TRUE);
+    attr(result, which = 'IS_ERROR') = T
+    attr(result, which = 'ERROR_OBJECTS') = errorObjects
+    warning('The results contain errors. Please check the ERROR_OBJECTS attribute')
+  }
+  else{
+    attr(result, which = 'IS_ERROR') = F      
+  }
+  attr(result, which = 'IS_NUMERIC') = isNumeric
   return(result);
 }
 
@@ -144,14 +163,22 @@ convertSingleTS<-function(ttss, plain = F){
   s = .jcast(ttss, new.class = "it/bancaditalia/oss/sdmx/api/PortableTimeSeries", check = TRUE);
   name = .jcall(s,"Ljava/lang/String;","getName", evalString = TRUE);
   freq = .jcall(s,"Ljava/lang/String;","getFrequency", evalString = TRUE);
-  dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionsArray", evalArray = TRUE,
+  dimensions = .jcall(s,"[Ljava/lang/String;","getDimensionNamesArray", evalArray = TRUE,
                       evalString = TRUE);
-  attributes = .jcall(s,"[Ljava/lang/String;","getAttributesArray", evalArray = TRUE,
+  attributes = .jcall(s,"[Ljava/lang/String;","getAttributeNamesArray", evalArray = TRUE,
                       evalString = TRUE);
   timeSlots = .jcall(s,"[Ljava/lang/String;","getTimeSlotsArray", evalArray = TRUE,
                      evalString = TRUE);
-  observationsJ = .jcall(s,"[Ljava/lang/Double;","getObservationsArray", evalArray = TRUE);
-  numOfObs = length(observationsJ);
+  isNumeric = .jcall(s,"Z","isNumeric");
+  observationsJ = .jcall(s,"[Ljava/lang/Object;","getObservationsArray", evalArray = TRUE);
+  if(isNumeric){
+    observations = sapply(observationsJ, .jcall,"D","doubleValue")
+  }
+  else{
+    observations = sapply(observationsJ, .jcall,"Ljava/lang/String;","toString", evalString = T)
+  }
+  
+  numOfObs = length(observations);
   numOfTimes = length(timeSlots);
   if( numOfObs > 0 && numOfObs == numOfTimes){
     obsAttrNames = .jcall(s,"[Ljava/lang/String;","getObsLevelAttributesNamesArray", evalArray = TRUE,
@@ -160,9 +187,20 @@ convertSingleTS<-function(ttss, plain = F){
     for(x in obsAttrNames){
       obsAttr[[x]] =  .jcall(s,"[Ljava/lang/String;","getObsLevelAttributesArray", x)
     }
-    observations = sapply(observationsJ, .jcall,"D","doubleValue")
-
-    tts = makeSDMXTS(name, freq, timeSlots, observations, attributes, dimensions, obsAttr, plain);
+    tts = makeSDMXTS(ttss, name, freq, timeSlots, observations, attributes, dimensions, obsAttr, plain);
+    #check errors
+    errorMessage = NULL
+    flag = .jcall(s,"Z","isErrorFlag");
+    if(flag){
+      errorMessage = .jcall(s,"Ljava/lang/String;","getErrorMessage", evalString = TRUE);
+      attr(tts, which = 'IS_ERROR') = T
+      attr(tts, which = 'ERROR_MSG') = errorMessage
+      warning(paste('The time series', name, 'contains errors. Please check the ERROR_MSG attribute'))
+    }
+    else{
+      attr(tts, which = 'IS_ERROR') = F      
+    }
+    attr(tts, which = 'IS_NUMERIC') = isNumeric  
   }
   else{
     message(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
@@ -179,7 +217,7 @@ convertSingleTS<-function(ttss, plain = F){
 # series_attr_values= list of values of series attributes
 # status= list of values of status attribute
 # convert the frequency from SDMX-like codelist to numeric, e.g. 'M'-> 12 etc..
-makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAttr, plain = F) {
+makeSDMXTS<- function (ttss, tsname,freq,times,values,series_attr, series_dims, obsAttr, plain = F) {
 
 	if(length(values > 0)) {
     if(plain){
@@ -239,17 +277,16 @@ makeSDMXTS<- function (tsname,freq,times,values,series_attr, series_dims, obsAtt
 
   	# define the timeseries attributes (dimensions + attributes)
 	if (length(series_dims) >0){
-		for (l in 1:length(series_dims)) {
-			attrComp=(unlist(strsplit(series_dims[l], "=", fixed = TRUE)))
-			attr(tmp_ts,attrComp[1]) <- (attrComp[2])
+		for (x in series_dims) {
+      dim = .jcall(ttss,"Ljava/lang/String;","getDimension", x, evalString = T);
+			attr(tmp_ts, x) <- dim
 		}
 	}
 	if (length(series_attr) >0){
-		for (l in 1:length(series_attr)) {
-			attrComp=(unlist(strsplit(series_attr[l], "=", fixed = TRUE)))
-			attr(tmp_ts,attrComp[1]) <- (attrComp[2])
+		for (x in series_attr) {
+			attr = .jcall(ttss,"Ljava/lang/String;","getAttribute", x, evalString = T);
+			attr(tmp_ts, x) <- attr
 		}
 	}
 	return(tmp_ts)
-
 }

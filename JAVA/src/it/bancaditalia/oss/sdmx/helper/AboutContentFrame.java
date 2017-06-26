@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -32,6 +30,8 @@ import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
@@ -90,5 +90,8 @@ public class AboutContentFrame extends JFrame{
 		text.setText(buf.toString());
 		commandPane.setText(buf.toString());
 		add(commandPane);
+		
+		setTitle("SDMX Connectors Information");
+	    setVisible( true );
 	}
 }

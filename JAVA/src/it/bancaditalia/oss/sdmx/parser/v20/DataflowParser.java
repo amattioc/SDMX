@@ -21,12 +21,6 @@
 
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LocalizedText;
-
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -42,11 +36,18 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.client.Parser;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
+
 /**
  * @author Attilio Mattiocco
  *
  */
-public class DataflowParser {
+public class DataflowParser implements Parser<List<Dataflow>> {
 	protected static Logger logger = Configuration.getSdmxLogger();
 
 	private static final String DATAFLOW = "Dataflow";
@@ -59,7 +60,7 @@ public class DataflowParser {
 	private static final String KF_AGID = "KeyFamilyAgencyID";
 	private static final String KF_VER = "Version";
 
-	public static List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);

@@ -33,6 +33,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
@@ -42,7 +43,7 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  * @author Attilio Mattiocco
  *
  */
-public class CodelistParser {
+public class CodelistParser implements Parser<Map<String,String>> {
 	private static final String sourceClass = CodelistParser.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 
@@ -52,7 +53,7 @@ public class CodelistParser {
 	static final String ID = "id";
 	static final String DESCRIPTION = "Name";
 
-	public static Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
 		return parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
 	}
 	public static Map<String,String> parse(Reader xmlBuffer, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
@@ -67,10 +68,13 @@ public class CodelistParser {
 		return codes;
 	}
 
-	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException
+	{
 		return getCodes(eventReader, CODELIST, CODE, ID, DESCRIPTION);
 	}
-	public static Map<String, String> getCodes(XMLEventReader eventReader, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException{
+	
+	public static Map<String, String> getCodes(XMLEventReader eventReader, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException
+	{
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
@@ -101,21 +105,17 @@ public class CodelistParser {
 			
 			if (event.isEndElement()) {
 				String eventName=event.asEndElement().getName().getLocalPart();
-				if (eventName.equals(code)) {
-					if(key != null){
+				if (eventName.equals(code))
+					if(key != null)
+					{
 						logger.finer("Got code " + key + ", " + value.getText());
 						codes.put(key, value.getText());
 					}
-					else{
+					else
 						throw new SdmxXmlContentException("Error during Codelist Parsing. Invalid code id: " + key);
-					}
-				}
-				else{
+				else if (eventName.equals(codelist))
 					//stop after first codelist
-					if (eventName.equals(codelist)) {
-						break;
-					}
-				}
+					break;
 			}
 		}
 		return codes;

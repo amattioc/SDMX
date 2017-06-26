@@ -20,15 +20,19 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * This is a Java container for a Time Series. It will be transformed by a converter in the various 
@@ -45,94 +49,92 @@ public class PortableTimeSeries {
 	private String frequency = null;
 	private String dataflow = null;
 	
-	private List<String> attributes = null;
+	private Map<String, String> attributes = new HashMap<String, String>();
 	//note that the dimensions have to be ordered as prescribed by the DSD
-	private List<String> dimensions = null;
-	private List<String> timeSlots = null;
-	private List<Double> observations = null;
+	private Map<String, String> dimensions = new LinkedHashMap<String, String>();
+	private List<String> timeSlots = new ArrayList<String>();
+	private List<String> observations = new ArrayList<String>();
 	//left here for backward compatibility
-	private List<String> status = null;
-	private Hashtable<String, ArrayList<String>> obsLevelAttributes = null;
+	private List<String> status = new ArrayList<String>();
+	private Map<String, List<String>> obsLevelAttributes = new HashMap<String, List<String>>();
 
 	private String name;
+	private boolean errorFlag = false;
+	private boolean numeric = true;
+	private String errorMessage = null;
 	
 	public PortableTimeSeries() {
 		super();
-		this.attributes = new ArrayList<String>();
-		this.dimensions = new ArrayList<String>();
-		this.timeSlots = new ArrayList<String>();
-		this.observations = new ArrayList<Double>();
-		this.status = new ArrayList<String>();
-		this.obsLevelAttributes = new Hashtable<String, ArrayList<String>>();
 	}
 
-	public List<String> getAttributes() {
-		return attributes;
-	}
-	public String getAttributeValue(String code){
-		String value = null;
-		for (Iterator<String> iterator = attributes.iterator(); iterator.hasNext();) {
-			String attr = (String) iterator.next();
-			String[] tokens = attr.split("\\s*=\\s*");
-			String key = tokens[0];
-			String tmp = tokens[1];
-			if(key != null && !key.isEmpty() && tmp != null && key.equals(code)){
-				value = tmp;
-				break;
-			}		
-		}
-		return value;
-	}
-
-	public String[] getAttributesArray() {
-		return attributes.toArray(new String[0]);
-	}
-	public void setAttributes(List<String> attributes) {
-		this.attributes = attributes;
-	}
-	public void addAttribute(String attribute) {
-		this.attributes.add(attribute);
-	}
-	public List<String> getDimensions() {
-		return dimensions;
-	}
-	public String getDimensionValue(String code){
-		String value = null;
-		for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
-			String dim = (String) iterator.next();
-			String[] tokens = dim.split("\\s*=\\s*");
-			String key = tokens[0];
-			String tmp = tokens[1];
-			if(key != null && !key.isEmpty() && tmp != null && key.equals(code)){
-				value = tmp;
-				break;
+	//quick constructor for typical basic time series
+	public PortableTimeSeries(String name, String[] timeSlots, Double[] observations, String statusName, String[] status) throws DataStructureException {
+		super();
+		this.name = name;
+		if(timeSlots != null && observations != null && observations.length == timeSlots.length){
+			for (int i = 0; i < observations.length; i++) {
+				this.observations.add(observations[i].toString());
 			}
-		}
-		return value;
-	}
-	public String[] getDimensionsArray() {
-		return dimensions.toArray(new String[0]);
-	}
-	public void setDimensions(List<String> dimensions) {
-		this.dimensions = dimensions;
-	}
-	public void addDimension(String dimension) {
-		this.dimensions.add(dimension);
-	}
-	public void addObservation(String observation, String timeSlot, Hashtable<String, String> attributes){
-		// we'll be very easy here. 
-		if(observation == null || observation.isEmpty()){
-			logger.info(getName() + ": missing observation for time slot: " + timeSlot + ", I'll set a NaN.");
-			this.observations.add(new Double("NaN"));
+			this.timeSlots = Arrays.asList(timeSlots);
 		}
 		else{
-			try {
-				this.observations.add(new Double(observation));
-			} catch (NumberFormatException  e) {
-				logger.info(getName() + ": found invalid observation for time slot: " + timeSlot + ", I'll set a NaN.");
-				this.observations.add(new Double("NaN"));
-			}
+			throw new DataStructureException("Time slots and data have to be not null and of the same length");
 		}
+		if(statusName != null && status != null && status.length == observations.length){
+			this.obsLevelAttributes.put(statusName, Arrays.asList(status));
+		}
+	}
+
+	public Map<String, String> getAttributesMap() {
+		return attributes;
+	}
+	
+	public String[] getAttributeNamesArray() {
+		return attributes.keySet().toArray(new String[0]);
+	}
+	
+	public String getAttribute(String code){
+		return attributes.get(code);
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
+	}
+
+	public void addAttribute(String key, String value) {
+		this.attributes.put(key, value);
+	}
+	
+	public Map<String, String> getDimensionsMap() {
+		return dimensions;
+	}
+
+	public String[] getDimensionNamesArray() {
+		return dimensions.keySet().toArray(new String[0]);
+	}
+
+	public String getDimension(String code){
+		return dimensions.get(code);
+	}
+
+	public void setDimensions(Map<String, String> dimensions) {
+		this.dimensions.clear();
+		this.dimensions.putAll(dimensions);
+	}
+
+	public void addDimension(String key, String value) {
+		this.dimensions.put(key, value);
+	}
+	
+	public void addObservation(String observation, String timeSlot, Map<String, String> attributes){
+		if(observation == null || observation.isEmpty()){
+			logger.info(getName() + ": missing observation for time slot: " + timeSlot + ", I'll set a NaN.");
+			this.observations.add("NaN");
+		}
+		else{
+			this.observations.add(observation);
+		}
+		
 		if(timeSlot == null || timeSlot.isEmpty()){
 			logger.info(getName() + ": a time slot is missing. This is not a well formed time series. I'll set a blank character.");
 			timeSlot = "";
@@ -162,7 +164,7 @@ public class PortableTimeSeries {
 		}
 		//now add empty slots for all attributes that are not present
 		if(obsLevelAttributes != null){
-			for (Iterator<ArrayList<String>> iterator = obsLevelAttributes.values().iterator(); iterator.hasNext();) {
+			for (Iterator<List<String>> iterator = obsLevelAttributes.values().iterator(); iterator.hasNext();) {
 				ArrayList<String> tmp = (ArrayList<String>) iterator.next();
 				if(tmp.size() < timeSlots.size()){
 					tmp.add("");
@@ -170,7 +172,7 @@ public class PortableTimeSeries {
 			}
 		}
 	}
-	public void setObservations(List<Double> obs) throws DataStructureException{
+	public void setObservations(List<String> obs) throws DataStructureException{
 		if(obs.size() == this.timeSlots.size()){
 			this.observations = obs;
 		}
@@ -178,11 +180,33 @@ public class PortableTimeSeries {
 			throw new DataStructureException("Error setting data in time series. Wrong observation number.");
 		}
 	}
-	public List<Double> getObservations() {
-		return observations;
+	public List<Object> getObservations() {
+		List<Object> result = new ArrayList<Object>();
+		if(isNumeric()){
+			for (String obs : observations) {
+				try {
+					result.add(Double.valueOf(obs));		
+				} catch (NumberFormatException  e) {
+					logger.info(getName() + ": found invalid observation for time series: " + this.getName() + ", I'll set a NaN.");
+					result.add(new Double("NaN"));
+				}
+					
+			}
+		}
+		else{
+			for (String obs : observations) {
+				result.add(obs);			
+			}
+		}		
+		return result;
 	}
-	public Double[] getObservationsArray() {
-		return observations.toArray(new Double[0]);
+	public Object[] getObservationsArray() throws DataStructureException {
+		if(isNumeric()){
+			return getObservations().toArray(new Double[0]);
+		}
+		else{
+			return getObservations().toArray(new String[0]);
+		}		
 	}
 	public void setTimeSlots(List<String> dates) throws DataStructureException{
 		if(dates.size() == this.observations.size()){
@@ -198,17 +222,8 @@ public class PortableTimeSeries {
 	public String[] getTimeSlotsArray() {
 		return timeSlots.toArray(new String[0]);
 	}
-	@Deprecated
-	public List<String> getStatus() {
-		return this.status;
-	}
-	@Deprecated
-	public String[] getStatusArray() {
-		return this.status.toArray(new String[0]);
-	}
-	
 	public List<String> getObsLevelAttributesNames() {
-		return Collections.list(obsLevelAttributes.keys());
+		return new ArrayList<String>(obsLevelAttributes.keySet());
 	}
 
 	public String[] getObsLevelAttributesNamesArray() {
@@ -238,16 +253,11 @@ public class PortableTimeSeries {
 				else{
 					name = "";
 				}
-				String delims = "[ =]";
-				for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
-					String dim = (String) iterator.next();
-					String[] tokens = dim.split(delims);
-					String value = tokens[1];
-					name += value;
-					if(iterator.hasNext()){
-						name += ".";
-					}
-				}
+				ArrayList<String> dimValues = new ArrayList<String>(dimensions.values());
+				// dimensions.size() > 0
+				name += dimValues.get(0);
+				for (String dimValue: dimValues.subList(1, dimValues.size()))
+					name += "." + dimValue;
 			}
 		}
 		return name;
@@ -266,21 +276,48 @@ public class PortableTimeSeries {
 		this.dataflow = dataflow;
 	}
 	
+	public boolean isErrorFlag() {
+		return errorFlag;
+	}
+
+	public void setErrorFlag(boolean errorFlag) {
+		this.errorFlag = errorFlag;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	public void reverse(){
 		Collections.reverse(this.observations);
 		Collections.reverse(this.timeSlots);
 		for (Iterator<String> iterator = obsLevelAttributes.keySet().iterator(); iterator.hasNext();) {
 			String key = (String) iterator.next();
-			ArrayList<String> attrs = obsLevelAttributes.get(key);
+			List<String> attrs = obsLevelAttributes.get(key);
 			Collections.reverse(attrs);
 			obsLevelAttributes.put(key, attrs);
 		}
 	}
 	
+	public boolean isNumeric() {
+		return numeric;
+	}
+
+	public void setNumeric(boolean numeric) {
+		this.numeric = numeric;
+	}
+
 	public String toString(){
 		String buffer = "";
 		buffer += "\nName: " + getName();
 		buffer += "\nFrequency: " + frequency;
+		buffer += "\nnumeric: " + numeric;
+		buffer += "\nerror: " + isErrorFlag();
+		buffer += "\nerror_msg: " + getErrorMessage();
 		buffer += "\nAttributes: " + attributes;
 		buffer += "\nDimensions: " + dimensions;
 		buffer += "\nVALUES: ";
@@ -292,6 +329,82 @@ public class PortableTimeSeries {
 		
 		return buffer;
 	}
+	
+	@Deprecated
+	public List<String> getAttributes() {
+		return Arrays.asList(getAttributesArray());
+	}
 
+	@Deprecated
+	public String getAttributeValue(String code){
+		return getAttribute(code);
+	}
+
+	@Deprecated 
+	public String[] getAttributesArray() {
+		String[] result = new String[attributes.size()];
+		int i = 0;
+		for (Entry<String, String> x: attributes.entrySet())
+			result[i++] = x.getKey() + "=" + x.getValue();
+		return result;
+	}
+
+	@Deprecated
+	public void setAttributes(List<String> attributes) {
+		this.attributes.clear();
+		for (String pair: attributes)
+			this.attributes.put(pair.split("=")[0], pair.split("=")[1]);
+	}
+
+	@Deprecated
+	public void addAttribute(String attribute) {
+		addAttribute(attribute.split("=")[0], attribute.split("=")[1]);
+	}
+
+	@Deprecated
+	public List<String> getDimensions() {
+		return Arrays.asList(getDimensionsArray());
+	}
+
+	@Deprecated
+	public String getDimensionValue(String code){
+		return getDimension(code);
+	}
+
+	@Deprecated
+	public String[] getDimensionsArray() {
+		String[] result = new String[dimensions.size()];
+		int i = 0;
+		for (Entry<String, String> x: dimensions.entrySet())
+			result[i++] = x.getKey() + "=" + x.getValue();
+		return result;
+	}
+
+	@Deprecated
+	public void setDimensions(List<String> dimensions) {
+		this.dimensions.clear();
+		for (String pair: dimensions)
+		{
+			System.out.println(Arrays.asList(Thread.getAllStackTraces().get(Thread.currentThread())));
+			System.out.println(pair);
+			System.out.println(Arrays.asList(pair.split("=")));
+			this.dimensions.put(pair.split("=")[0], pair.split("=")[1]);
+		}
+	}
+
+	@Deprecated
+	public void addDimension(String dimension) {
+		addDimension(dimension.split("=")[0], dimension.split("=")[1]);
+	}
+
+	@Deprecated
+	public List<String> getStatus() {
+		return this.status;
+	}
+
+	@Deprecated
+	public String[] getStatusArray() {
+		return this.status.toArray(new String[0]);
+	}
 
 }

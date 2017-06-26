@@ -52,7 +52,7 @@ public class SDMX {
 					System.out.println(SdmxClientHandler.getFlows(provider, query));
 				}
 				else if("getTimeSeries".equalsIgnoreCase(method)){
-					System.out.println(SdmxClientHandler.dumpTimeSeries(provider, query, null, null));
+					System.out.println("Method removed. Use GetTimeSeries command.");
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

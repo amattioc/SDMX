@@ -20,17 +20,12 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -44,6 +39,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableRowSorter;
+
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -167,32 +166,38 @@ public class QueryPanel extends JPanel implements ActionListener{
 		String buf = QueryPanel.selectedDataflow + "/";
 		StringBuffer query = new StringBuffer("");
 		List<Dimension> dims = SdmxClientHandler.getDimensions(QueryPanel.selectedProvider, QueryPanel.selectedDataflow);
-		int i = 0;
-		for (Iterator<Dimension> iterator = dims.iterator(); iterator.hasNext(); i++) {
-			if(i != 0){
+		boolean first = true;
+		for (Dimension dim: dims) 
+		{
+			if (!first)
 				query.append(".");
-			}
-			Dimension dim = (Dimension) iterator.next();
+
 			JTable table = QueryPanel.codeTables.get(dim.getId());
-			if(table != null){
-				int[] rowSelected =table.getSelectedRows();
-				for (int j = 0; j < rowSelected.length; j++) {
-					if(j != 0){
+			if (table != null)
+			{
+				first = true;
+				for (int cell: table.getSelectedRows()) 
+				{
+					if (!first)
 						query.append("+");
-					}
-					int convertedIndex = table.convertRowIndexToModel(rowSelected[j]);
+					
+					int convertedIndex = table.convertRowIndexToModel(cell);
 					String code = table.getModel().getValueAt(convertedIndex, 0).toString();
 					query.append(code);
+
+					first = false;
 				}
 			}
+
+			first = false;
 		}
 		
 		// temporary workaround for issue #94. 
 		// The '..' path breaks some providers and the 'all' keyword is a good replacement, 
 		// but it is not accepted by the Eurostat provider (that anyway is able to handle the '..' path
-		if(query.toString().equals("..") && !QueryPanel.selectedProvider.equalsIgnoreCase("EUROSTAT")){
+		if(query.toString().equals("..") && !QueryPanel.selectedProvider.equalsIgnoreCase("EUROSTAT"))
 			query = new StringBuffer("all");
-		}
+
 		buf += query.toString();
 		return buf;
 	}

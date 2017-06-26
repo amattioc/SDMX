@@ -73,7 +73,7 @@ getDSDIdentifier <- function(provider, dataflow) {
 #'
 #' Configure a new data provider (only SDMX 2.1 REST providers are supported). This function can be used to configure a new (SDMX 2.1 compliant, REST based) data provider.
 #'
-#' addProvider(name, agency, endpoint, needsCredentials)
+#' addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)
 #'
 #' @param name the name of the provider
 #' @param endpoint the URL where the provider resides
@@ -89,6 +89,25 @@ getDSDIdentifier <- function(provider, dataflow) {
 #' }
 addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='') {
   J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)
+}
+
+#' add new local provider
+#'
+#' Configure a new local data provider (only SDMX 2.1 files are supported).
+#'
+#' addLocalProvider(name, directory, description)
+#'
+#' @param name the name of the provider
+#' @param directory the directory where the files are stored
+#' @param description a brief text description of the provider
+#' @rdname addLocalProvider
+#' @export
+#' @examples
+#' \dontrun{
+#' addProvider('pname', 'pdir', 'my provider')
+#' }
+addLocalProvider <- function(name, directory, description='') {
+  J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addLocalProvider(name, directory, description)
 }
 
 #' get dsd dimensions for dataflow

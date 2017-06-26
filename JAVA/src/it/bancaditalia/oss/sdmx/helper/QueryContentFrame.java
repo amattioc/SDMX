@@ -20,21 +20,17 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -42,58 +38,39 @@ import javax.swing.table.DefaultTableModel;
  */
 public class QueryContentFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private static Logger logger = Configuration.getSdmxLogger();
 	
-	public QueryContentFrame(List<PortableTimeSeries> tslist) {
+	public QueryContentFrame(List<PortableTimeSeries> tslist) throws SdmxException {
 		setSize(800, 600);
 		this.setLocationRelativeTo(this.getContentPane());
 		JScrollPane tsPane = new JScrollPane();
-		int nTs = tslist.size();
-		if(nTs > 0 ){
-			ArrayList<String> colNames = new ArrayList<String>();
-			colNames.add("Time Series");
+		int nRows = tslist.size();
+		if(nRows > 0 ){
+
+			Vector<String> columnNames = new Vector<String>();
+			columnNames.add("Time Series");
 			PortableTimeSeries ts = tslist.get(0);
-			List<String> dimensions = ts.getDimensions();
-			String delims = "[ =]";
-			for (Iterator<String> iterator = dimensions.iterator(); iterator.hasNext();) {
-				String dim = (String) iterator.next();
-				String[] tokens = dim.split(delims);
-				String dimName = tokens[0] + " (" + tokens[1] + ")";
-				colNames.add(dimName);
-			}
-			int ncols = colNames.size();
-			if(ncols > 0){
-				DefaultTableModel m = new DefaultTableModel();
-				m.setColumnCount(ncols);
-				m.setColumnIdentifiers(colNames.toArray());
-				m.setNumRows(nTs);
-				int i=0, j=1;
-				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
-					PortableTimeSeries item = (PortableTimeSeries) iterator.next();
-					List<String> dims = item.getDimensions();
-					m.setValueAt(item.getName(), i, 0);
-					j = 1;
-					for (Iterator<String> iterator2 = dims.iterator(); iterator2.hasNext();) {
-						String dim = (String) iterator2.next();
-						String[] tokens = dim.split(delims);
-						String name = tokens[0];
-						String code = tokens[1];
-						try {
-							String descr = SdmxClientHandler.getCodes(QueryPanel.selectedProvider, QueryPanel.selectedDataflow, name).get(code);
-							m.setValueAt(code + " (" + descr + ")", i, j);
-						} catch (SdmxException ex) {
-							logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-							logger.log(Level.FINER, "", ex);
-						}
-						j++;
-					}
-					i++;
+			for (String dim: ts.getDimensionsMap().keySet())
+				columnNames.add(dim);
+
+			Vector<Vector<String>> table = new Vector<Vector<String>>();
+
+			for (PortableTimeSeries series: tslist) 
+			{
+				Vector<String> row = new Vector<String>();
+				table.add(row);
+				row.add(series.getName());
+				for (Entry<String, String> dim: series.getDimensionsMap().entrySet()) 
+				{
+					String name = dim.getKey();
+					String code = dim.getValue();
+					String descr = SdmxClientHandler.getCodes(QueryPanel.selectedProvider, QueryPanel.selectedDataflow, name).get(code);
+					row.add(code + " (" + descr + ")");
 				}
-				JTable tsTable = new JTable(m);
-				tsTable.setAutoCreateRowSorter(true);
-				tsPane.getViewport().add(tsTable);
-				add(tsPane);
 			}
+			JTable tsTable = new JTable(table, columnNames);
+			tsTable.setAutoCreateRowSorter(true);
+			tsPane.getViewport().add(tsTable);
+			add(tsPane);
 		}
 	}
 }

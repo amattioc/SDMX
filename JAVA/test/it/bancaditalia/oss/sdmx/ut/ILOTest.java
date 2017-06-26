@@ -58,16 +58,16 @@ public class ILOTest {
 		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("MIG"), "Labour Migration Statistics");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=Labour Migration Statistics, NSW=Non-standard forms of wor";
+		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=Labour Migration Statistics, SDG=SDG, NSW=Non-standard forms of wor";
 		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result,dim.toString().substring(0, result.length()));
 
 	}
 	
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null);
+		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463...", null, null);
 		assertNotNull("Null time series result", res);
-		assertEquals("Wrong result size", 1, res.size());
+		assertEquals("Wrong result size", res.size() > 0, true);
 	}
 
 }
