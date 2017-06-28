@@ -24,6 +24,7 @@ import java.io.IOException;
  *
  * @see
  * https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf
+ * https://sdmx.org/wp-content/uploads/SDMX_2-1-1-SECTION_07_WebServicesGuidelines_2013-04.pdf
  * @author Philippe Charles
  */
 public final class SdmxResponseException extends SdmxException {
@@ -43,4 +44,14 @@ public final class SdmxResponseException extends SdmxException {
 	public int getResponseCode() {
 		return responseCode;
 	}
+	
+	public static final int SDMX_NO_RESULTS_FOUND = 100;
+	public static final int SDMX_UNAUTHORIZED = 110;
+	public static final int SDMX_RESPONSE_SIZE_CLIENT = 130;
+	public static final int SDMX_SYNTAX_ERROR = 140;
+	public static final int SDMX_SEMANTIC_ERROR = 150;
+	public static final int SDMX_INTERNAL_SERVER_ERROR = 500;
+	public static final int SDMX_NOT_IMPLEMENTED = 501;
+	public static final int SDMX_SERVICE_UNAVAILABLE = 503;
+	public static final int SDMX_RESPONSE_SIZE_SERVER = 510;
 }

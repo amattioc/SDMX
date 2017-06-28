@@ -265,9 +265,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 					handleHttpHeaders((HttpURLConnection) conn, acceptHeader);
 				}
 
-				code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : 200;
+				code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 			
-				if (code >= 300 && code <= 303) 
+				if (isRedirection(code)) 
 				{
 					Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
 					String newquery = conn.getHeaderField("Location");
@@ -283,9 +283,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 						throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was empty.", null);
 					}
 				}			
-			} while(code >= 300 && code <= 303);
+			} while(isRedirection(code));
 			
-			if (code == 200) {
+			if (code == HttpURLConnection.HTTP_OK) {
 				logger.fine("Connection opened. Code: " + code);
 				InputStream stream = conn.getInputStream();
 				String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
@@ -392,5 +392,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 	
 	protected String buildCodelistQuery(String codeList, String agency, String version) throws SdmxException {
 		return RestQueryBuilder.getCodelistQuery(endpoint, codeList, agency, version);
+	}
+	
+	private static boolean isRedirection(int code) {
+		return code >= HttpURLConnection.HTTP_MULT_CHOICE && code <= HttpURLConnection.HTTP_SEE_OTHER;
 	}
 }
