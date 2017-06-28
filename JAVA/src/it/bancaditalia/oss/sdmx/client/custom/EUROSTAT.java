@@ -37,6 +37,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import java.net.HttpURLConnection;
 
 /**
  * @author Attilio Mattiocco
@@ -72,7 +73,7 @@ public class EUROSTAT extends RestSdmxClient{
 		{
 			Message msg = data.getMessage();
 			
-			if(msg != null && msg.getCode() != null && msg.getCode().equalsIgnoreCase("413") && msg.getUrl() != null)
+			if(isAsyncDelivery(msg))
 			{
 				String url = msg.getUrl();
 				Parser<DataParsingResult> parser = new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly);
@@ -100,4 +101,11 @@ public class EUROSTAT extends RestSdmxClient{
 		
 		throw new SdmxXmlContentException("Late retrieval failed.");
 	}
+	
+	// http://ec.europa.eu/eurostat/en/web/sdmx-web-services/a-few-useful-points
+	private static boolean isAsyncDelivery(Message msg) {
+		return msg != null && ASYNC_DELIVERY_CODE.equals(msg.getCode()) && msg.getUrl() != null;
+	}
+	
+	private static final String ASYNC_DELIVERY_CODE = String.valueOf(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
 }

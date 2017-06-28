@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 
 import it.bancaditalia.oss.sdmx.client.Provider;
+import java.net.HttpURLConnection;
 
 public final class SdmxExceptionFactory 
 {
@@ -34,17 +35,17 @@ public final class SdmxExceptionFactory
 	
 	// TODO: These should be read from configuration and not statically defined
 	static {
-		sdmxMessages.put(100, "No results matching the query.");
-		sdmxMessages.put(110, "Credentials needed.");
-		sdmxMessages.put(130, "Results too large.");
-		sdmxMessages.put(140, "There is a problem with the syntax of the query.");
-		sdmxMessages.put(150, "The syntax of the query is OK but it has no meaning.");
+		sdmxMessages.put(SdmxResponseException.SDMX_NO_RESULTS_FOUND, "No results matching the query.");
+		sdmxMessages.put(SdmxResponseException.SDMX_UNAUTHORIZED, "Credentials needed.");
+		sdmxMessages.put(SdmxResponseException.SDMX_RESPONSE_SIZE_CLIENT, "Results too large.");
+		sdmxMessages.put(SdmxResponseException.SDMX_SYNTAX_ERROR, "There is a problem with the syntax of the query.");
+		sdmxMessages.put(SdmxResponseException.SDMX_SEMANTIC_ERROR, "The syntax of the query is OK but it has no meaning.");
 		// sdmxMessages.put(304, "No change since the timestamp supplied in the If-Modified-Since header.");
 		// sdmxMessages.put(406, "Not a supported format.");
-		sdmxMessages.put(500, "Error on the provider side.");
-		sdmxMessages.put(501, "Feature not supported.");
-		sdmxMessages.put(503, "Service temporarily unavailable. Please try again later.");
-		sdmxMessages.put(510, "Response too large.");
+		sdmxMessages.put(SdmxResponseException.SDMX_INTERNAL_SERVER_ERROR, "Error on the provider side.");
+		sdmxMessages.put(SdmxResponseException.SDMX_NOT_IMPLEMENTED, "Feature not supported.");
+		sdmxMessages.put(SdmxResponseException.SDMX_SERVICE_UNAVAILABLE, "Service temporarily unavailable. Please try again later.");
+		sdmxMessages.put(SdmxResponseException.SDMX_RESPONSE_SIZE_SERVER, "Response too large.");
 	}
 	
 	private SdmxExceptionFactory() {}
@@ -80,13 +81,22 @@ public final class SdmxExceptionFactory
 	{
 		switch (httpCode)
 		{
-			case 400: return 140;
-			case 401: return 110;
-			case 403: return 150;
-			case 404: return 100;
-			case 413: return 510; // also: 130
-			case 500: case 501: case 503: return httpCode;
-			default: return httpCode;
+			case HttpURLConnection.HTTP_BAD_REQUEST: 
+				return SdmxResponseException.SDMX_SYNTAX_ERROR;
+			case HttpURLConnection.HTTP_UNAUTHORIZED: 
+				return SdmxResponseException.SDMX_UNAUTHORIZED;
+			case HttpURLConnection.HTTP_FORBIDDEN: 
+				return SdmxResponseException.SDMX_SEMANTIC_ERROR;
+			case HttpURLConnection.HTTP_NOT_FOUND: 
+				return SdmxResponseException.SDMX_NO_RESULTS_FOUND;
+			case HttpURLConnection.HTTP_ENTITY_TOO_LARGE: 
+				return SdmxResponseException.SDMX_RESPONSE_SIZE_SERVER; // also: SDMX_RESPONSE_SIZE_CLIENT
+			case HttpURLConnection.HTTP_INTERNAL_ERROR: 
+			case HttpURLConnection.HTTP_NOT_IMPLEMENTED: 
+			case HttpURLConnection.HTTP_UNAVAILABLE: 
+				return httpCode;
+			default: 
+				return httpCode;
 		}
 	}
 
