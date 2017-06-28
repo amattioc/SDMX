@@ -21,6 +21,8 @@
 package it.bancaditalia.oss.sdmx.util;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -28,59 +30,48 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 public class LocalizedText {
-	private String preferredLang = "en";
-	private String preferredText = "";
-	private String altText = "";
-	private final String LANG = "lang";
+	private static final String LANG = "lang";
+	
+	private final LanguagePriorityList languages;
+	private final Map<String, String> data;
 
-	public LocalizedText(String preferredLang) {
+	public LocalizedText(LanguagePriorityList languages) {
 		super();
-		this.preferredLang = preferredLang;
+		this.languages = languages;
+		this.data = new LinkedHashMap<String, String>();
 	}
 
-	public void setPreferredText(String englishText) {
-		this.preferredText = englishText;
+	private void put(String lang, String text) {
+		if (text != null) {
+			data.put(lang, text);
+		}
 	}
-	public String getEnglishText() {
-		return preferredText;
-	}
-	public void setAltText(String altText) {
-		this.altText = altText;
-	}
-	public String getAltText() {
-		return altText;
-	}
+	
+	/**
+	 * Gets a localized text.
+	 * @return a text by using the best matching language if available
+	 * or the first parsed text otherwise or null if nothing is available
+	 */
 	public String getText() {
-		return (!preferredText.isEmpty() ? preferredText : altText);
+		if (data.isEmpty()) {
+			return null;
+		}
+		String lang = languages.lookupTag(data.keySet());
+		return lang != null ? data.get(lang) : data.values().iterator().next();
 	}
+
 	public void setText(StartElement startElement, XMLEventReader eventReader) throws XMLStreamException{
-		String text = null;
-		boolean preferred = false;
 		@SuppressWarnings("unchecked")
 		Iterator<Attribute> attributes = startElement.getAttributes();
 		while (attributes.hasNext()) {
 			Attribute attribute = attributes.next();
 			if (attribute.getName().getLocalPart().equals(this.LANG)) {
-				String lang = attribute.getValue();
-				if(lang.equals(preferredLang)){
-					preferred = true;
-				}
-			}
-		}
-		text = eventReader.getElementText();
-		if(preferred){
-			setPreferredText(text);
-		}
-		else{
-			if(altText == null || altText.isEmpty()){
-				setAltText(text);
+				put(attribute.getValue(), eventReader.getElementText());
 			}
 		}
 	}
 	
 	public void clear(){
-		preferredText = "";
-		altText = "";
+		data.clear();
 	}
-
 }

@@ -37,6 +37,7 @@ import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -53,32 +54,32 @@ public class CodelistParser implements Parser<Map<String,String>> {
 	static final String ID = "id";
 	static final String DESCRIPTION = "Name";
 
-	public Map<String,String> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
-		return parse(xmlBuffer, CODELIST, CODE, ID, DESCRIPTION);
+	public Map<String,String> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+		return parse(xmlBuffer, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
-	public static Map<String,String> parse(Reader xmlBuffer, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
+	public static Map<String,String> parse(Reader xmlBuffer, LanguagePriorityList languages, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
-		Map<String,String> codes = getCodes(eventReader, codelist, code, id, description);
+		Map<String,String> codes = getCodes(eventReader, languages, codelist, code, id, description);
 		
 		logger.exiting(sourceClass, sourceMethod);
 		return codes;
 	}
 
-	public static Map<String, String> getCodes(XMLEventReader eventReader) throws XMLStreamException, SdmxException
+	public static Map<String, String> getCodes(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException
 	{
-		return getCodes(eventReader, CODELIST, CODE, ID, DESCRIPTION);
+		return getCodes(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
 	
-	public static Map<String, String> getCodes(XMLEventReader eventReader, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException
+	public static Map<String, String> getCodes(XMLEventReader eventReader, LanguagePriorityList languages, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException
 	{
 		Map<String,String> codes = new Hashtable<String,String>();
 
 		String key = null;
-		LocalizedText value = new LocalizedText(Configuration.getLang());
+		LocalizedText value = new LocalizedText(languages);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
