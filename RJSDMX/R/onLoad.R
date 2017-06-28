@@ -19,9 +19,5 @@
 # permissions and limitations under the Licence.
 #
 .onLoad <- function(libname, pkgname) {
-  ### try workaround for issue https://github.com/amattioc/SDMX/issues/130
-  #.jpackage(pkgname, lib.loc = libname)
-  sdmxjar <- system.file(package=pkgname, lib.loc=libname, 'java/SDMX.jar')
-  if (!.jniInitialized) .jinit()
-  .jaddClassPath(sdmxjar)
+	.jpackage(pkgname, lib.loc = libname)
 }
