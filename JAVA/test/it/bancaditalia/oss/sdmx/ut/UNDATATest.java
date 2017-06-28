@@ -58,7 +58,7 @@ public class UNDATATest {
 		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("UNDATA", "DF_UNDATA_COUNTRYDATA");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IAEG/CL_FREQ_MDG/1.0, codes={A=Annual, 2A=Two-year average, 3A=Three-year average, S=Half-yearly, semester, Q=Quarterly, M=Monthly}]], Dimension [id=SERIES, position=2, codelist=Codelist [id=UNSD/CL_SERIES_COUNTRY_DATA/0.9, codes=null]], Dimension [id=UNIT, position=3, codelist=Codelist [id=UNSD";
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=IAEG/CL_FREQ_MDG/1.0, codes={A=Annual, 2A=Two-year average, 3A=Three-year average, S=Half-yearly, semester, Q=Quarterly, M=Monthly}]]";
 		assertEquals("Wrong dimensions for DF_UNDATA_COUNTRYDATA", result, dim.toString().substring(0, result.length()));
 	}
 

@@ -58,7 +58,7 @@ public class WITSTest {
 		assertEquals("Wrong code for FREQ annual", codes.get("A"), "Annual");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("WITS", "DF_WITS_Tariff_TRAINS");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=WBG_WITS/CL_FREQ_WITS/1.0, codes={A=Annual}]], Dimension [id=REPORTER, position=2, codelist=Codelist [id=WBG_WITS/CL_COUNTRY_WITS/1.0, codes=null]], Dimension [id=PARTNER, position=3, codelist=Codelist [id=WBG_WITS/CL_COUNTRY_WITS/1.0, codes=null]], Dimension [id=PR";
+		String result = "[Dimension [id=FREQ, position=1, codelist=Codelist [id=WBG_WITS/CL_FREQ_WITS/1.0, codes={A=Annual}]]";
 		assertEquals("Wrong dimensions for EXR", result, dim.toString().substring(0, result.length()));
 	}
 

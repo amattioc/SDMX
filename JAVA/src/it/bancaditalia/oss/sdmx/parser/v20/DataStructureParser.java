@@ -39,6 +39,8 @@ import javax.xml.stream.events.XMLEvent;
 import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
+import it.bancaditalia.oss.sdmx.api.SdmxMetaElement;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
@@ -156,7 +158,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		logger.entering(sourceClass, sourceMethod);
 		
 		String agency = currentStructure.getAgency();
-		Dimension currentDimension = null;
+		SdmxMetaElement currentElement = null;
 		int position = 0;
 		
 		while (eventReader.hasNext()) {
@@ -164,17 +166,25 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 			logger.finest(event.toString());
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart().equals(DIMENSION)) {
-					logger.finer("Got dimension");
+				if (startElement.getName().getLocalPart().equals(DIMENSION) || startElement.getName().getLocalPart().equals(ATTRIBUTE)) {
+					boolean isDimension = startElement.getName().getLocalPart().equals(DIMENSION);
+					if(isDimension){
+						logger.finer("Got dimension");
+						currentElement = new Dimension();
+						// in sdmx2.0 this position is not set, we rely on the order of the DSD
+						position++;
+						((Dimension)currentElement).setPosition(position);
+					}
+					else{
+						logger.finer("Got attribute");
+						currentElement = new SdmxAttribute();
+					}
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
 					String codelistID = null;
 					String codelistAgency = null;
-					currentDimension = new Dimension();
-					// in sdmx2.0 this position is not set, we rely on the order of the DSD
-					position++;
-					currentDimension.setPosition(position);
+					
 					while (attributes.hasNext()) {
 						Attribute attribute = attributes.next();
 						if (attribute.getName().toString().equals(CONCEPT_REF)) {
@@ -189,10 +199,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					}
 					
 					if(id!= null && !id.isEmpty()){
-						currentDimension.setId(id);
-                                                if (concepts != null) {
-                                                    currentDimension.setName(concepts.get(agency + "/" + id));
-                                                }
+						currentElement.setId(id);
+						if (concepts != null) {
+							currentElement.setName(concepts.get(agency + "/" + id));
+						}
 					}
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Invalid id: " + id);
@@ -203,10 +213,11 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 						Map<String, String> codes = codelists.get(cl.getFullIdentifier());
 							cl.setCodes(codes);
 						}
-						currentDimension.setCodeList(cl);					
+						currentElement.setCodeList(cl);					
 					}
 					else{
-						throw new RuntimeException("Error during Structure Parsing. Invalid CODELIST: " + codelistID);
+						if(isDimension)
+							throw new RuntimeException("Error during Structure Parsing. Invalid CODELIST: " + codelistID);
 					}
 				}
 				else if (startElement.getName().getLocalPart().equals((TIMEDIMENSION))) {
@@ -239,9 +250,18 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 			if (event.isEndElement()) {
 				
 				if (event.asEndElement().getName().getLocalPart().equals(DIMENSION)) {
-					if(currentStructure != null && currentDimension != null){
-						logger.finer("Adding dimension: " + currentDimension);
-						currentStructure.setDimension(currentDimension);
+					if(currentStructure != null && currentElement != null){
+						logger.finer("Adding dimension: " + currentElement);
+						currentStructure.setDimension((Dimension)currentElement);
+					}
+					else{
+						throw new RuntimeException("Error during Structure Parsing. Null current structure or dimension.");
+					}	
+				}
+				else if (event.asEndElement().getName().getLocalPart().equals(ATTRIBUTE)) {
+					if(currentStructure != null && currentElement != null){
+						logger.finer("Adding attribute: " + currentElement);
+						currentStructure.setAttribute((SdmxAttribute)currentElement);
 					}
 					else{
 						throw new RuntimeException("Error during Structure Parsing. Null current structure or dimension.");

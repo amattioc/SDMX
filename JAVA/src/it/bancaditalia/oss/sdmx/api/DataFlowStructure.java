@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,11 +46,14 @@ public class DataFlowStructure {
 	// this is an ordered list (id, codelist). the position is got from the DSD 
 	// key: dimension id --> dimension
 	private Map<String, Dimension> dimensions;
-	
+
+	private Map<String, SdmxAttribute> attributes;
+
 	public DataFlowStructure() {
 		super();
 		// key: dimension id --> dimension
 		dimensions = new HashMap<String, Dimension>();
+		attributes = new HashMap<String, SdmxAttribute>();
 	}
 	
 	public String getId() {
@@ -97,6 +101,10 @@ public class DataFlowStructure {
 		return Arrays.asList(result);
 	}
 
+	public List<SdmxAttribute> getAttributes() {
+		return new ArrayList<SdmxAttribute>(attributes.values());
+	}
+
 	public void setDimension(Dimension dim) {
 		this.dimensions.put(dim.getId(), dim);
 	}
@@ -104,7 +112,15 @@ public class DataFlowStructure {
 	public Dimension getDimension(String dimensionName) {
 		return this.dimensions.get(dimensionName);
 	}
-	
+
+	public void setAttribute(SdmxAttribute attr) {
+		this.attributes.put(attr.getId(), attr);
+	}
+
+	public SdmxAttribute getAttribute(String attrName) {
+		return this.attributes.get(attrName);
+	}
+
 	public void setTimeDimension(String timeDimension) {
 		this.timeDimension = timeDimension;
 	}
@@ -136,8 +152,9 @@ public class DataFlowStructure {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DSD [id=").append(getFullIdentifier())
-			.append(",\n name=").append(name)
-			.append(",\n dimensions=").append(dimensions).append("]");
+			.append(", name=").append(name)
+			.append(", dimensions=\n").append(dimensions)
+			.append(", attributes=\n").append(attributes).append("]");
 		return builder.toString();
 	}
 

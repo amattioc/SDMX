@@ -22,33 +22,48 @@ package it.bancaditalia.oss.sdmx.api;
 
 
 
-public class Dimension extends SdmxMetaElement{
+public class SdmxMetaElement {
 	
-	private int position;
+	private String id = null;
+	private Codelist  codeList = null;
+	private String name;
 	
-	public Dimension(String id, int position, Codelist codeList) {
-		super(id, codeList);
-		this.position = position;
-	}
-	
-	public Dimension() {
+	public SdmxMetaElement() {
 		super();
 	}
+
+	public SdmxMetaElement(String id, Codelist codeList) {
+		super();
+		this.id = id;
+		this.codeList = codeList;
+	}
+
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public Codelist getCodeList() {
+		return codeList;
+	}
+	public void setCodeList(Codelist  codeList) {
+		this.codeList = codeList;
+	}
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
         
-	public int getPosition() {
-		return position;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Dimension [id=").append(getId())
-				.append(", position=").append(position)
-				.append(", codelist=").append(getCodeList()).append("]\n");
+		builder.append("Attribute [id=").append(id)
+				.append(", name=").append(name)
+				.append(", codelist=").append(codeList).append("]\n");
 		return builder.toString();
 	}
 

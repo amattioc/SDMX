@@ -43,9 +43,12 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
@@ -215,13 +218,40 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 			String id = attr.getName().toString();
 			String value = attr.getValue();
 			if(dsd.isDimension(id)){
+				String desc = null;
 				names[dsd.getDimensionPosition(id)-1] = id;
-				values[dsd.getDimensionPosition(id)-1] = value;
 				if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 					ts.setFrequency(value);
 				}
+				//If the dimension has a descriptive label and the user wants it, add it in parenthesis 
+				if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+					Dimension dim = dsd.getDimension(id);
+					if(dim != null){
+						Codelist cl = dim.getCodeList();
+						if(cl != null){
+							desc = cl.getCodes().get(value);
+							if(desc != null){
+								value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+							}
+						}
+					}
+				}
+				values[dsd.getDimensionPosition(id)-1] = value;
 			}
 			else{
+				String desc = null;
+				if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+					SdmxAttribute sdmxattr = dsd.getAttribute(id);
+					if(sdmxattr != null){
+						Codelist cl = sdmxattr.getCodeList();
+						if(cl != null){
+							desc = cl.getCodes().get(value);
+							if(desc != null){
+								value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+							}
+						}
+					}
+				}
 				ts.addAttribute(id, value);
 			}
 		}

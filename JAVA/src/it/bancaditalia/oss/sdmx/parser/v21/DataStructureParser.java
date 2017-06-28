@@ -38,6 +38,8 @@ import javax.xml.stream.events.XMLEvent;
 import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
+import it.bancaditalia.oss.sdmx.api.SdmxMetaElement;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
@@ -67,6 +69,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	static final String MEASURELIST = "MeasureList";
 	
 	static final String DIMENSION = "Dimension";
+	static final String ATTRIBUTE = "Attribute";
 	static final String TIMEDIMENSION = "TimeDimension";
 
 	static final String POSITION = "position";
@@ -150,7 +153,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					setStructureGroups(currentStructure, eventReader);
 				}
 				if (startElement.getName().getLocalPart().equals(ATTRIBUTELIST)) {
-					setStructureAttributes(currentStructure, eventReader);
+					setStructureAttributes(currentStructure, eventReader, codelists, concepts);
 				}
 				if (startElement.getName().getLocalPart().equals(MEASURELIST)) {
 					setStructureMeasures(currentStructure, eventReader);	
@@ -170,7 +173,77 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		logger.exiting(sourceClass, sourceMethod);
 		return result;
 	}
+	
+	private static void setStructureAttributes(DataFlowStructure currentStructure, XMLEventReader eventReader,  Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException {
+		final String sourceMethod = "setStructureAttributes";
+		logger.entering(sourceClass, sourceMethod);
+		SdmxAttribute currentAttribute = null;
+		while (eventReader.hasNext()) {
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+				if (startElement.getName().getLocalPart().equals(ATTRIBUTE)) {
+					logger.finer("Got attribute");
+					currentAttribute = new SdmxAttribute();
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String id = null;
+					while (attributes.hasNext()) {
+						Attribute attribute = attributes.next();
+						if (attribute.getName().toString().equals(ID)) {
+							id=attribute.getValue();
+						}
+					}
+					
+					if(id!= null && !id.isEmpty()){
+						currentAttribute.setId(id);
+					}
+					else{
+						throw new RuntimeException("Error during Structure Parsing. Invalid attribute id: " + id);
+					}
 
+				}
+				else if (startElement.getName().getLocalPart().equals((LOCAL_REPRESENTATION))) {
+					logger.finer("Got codelist");
+					setCodelistName(currentAttribute, eventReader);
+					//now set codes
+					if(codelists != null && currentAttribute != null){
+						Codelist cl = currentAttribute.getCodeList();
+						if(cl != null){
+							Map<String,String> codes = codelists.get(cl.getFullIdentifier());
+							cl.setCodes(codes);
+						}
+						else{
+							logger.finer("No code list for attribute: " + currentAttribute.getId());
+						}
+					}
+				}
+				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity"))) {
+					logger.finer("Got concept identity");
+					if (concepts != null && currentAttribute != null) {
+						currentAttribute.setName(getConceptName(concepts, eventReader));
+					}
+				}
+			}
+			if (event.isEndElement()) {
+				if (event.asEndElement().getName().getLocalPart().equals(DIMENSION)) {
+					if(currentStructure != null && currentAttribute != null){
+						logger.finer("Adding attribute: " + currentAttribute);
+						currentStructure.setAttribute(currentAttribute);
+					}
+					else{
+						throw new RuntimeException("Error during Structure Parsing. Null current structure or dimension.");
+					}	
+				}
+				else if (event.asEndElement().getName().getLocalPart().equals(ATTRIBUTELIST)) {
+					break;
+				}
+			}
+		}
+		logger.exiting(sourceClass, sourceMethod);
+	}
+	
 	private static void setStructureDimensions(
 			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException {
 		final String sourceMethod = "setStructureDimensions";
@@ -217,7 +290,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 						currentDimension.setId(id);
 					}
 					else{
-						throw new RuntimeException("Error during Structure Parsing. Invalid id: " + id);
+						throw new RuntimeException("Error during Structure Parsing. Invalid dimension id: " + id);
 					}
 				}
 				else if (startElement.getName().getLocalPart().equals((TIMEDIMENSION))) {
@@ -247,7 +320,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					continue;
 				}
 				else if (startElement.getName().getLocalPart().equals((LOCAL_REPRESENTATION))) {
-					logger.finer("Got time codelist");
+					logger.finer("Got codelist");
 					setCodelistName(currentDimension, eventReader);
 					//now set codes
 					if(codelists != null && currentDimension != null){
@@ -258,9 +331,9 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 				}
 				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity"))) {
 					logger.finer("Got concept identity");
-                                        if (concepts != null && currentDimension != null) {
-                                            currentDimension.setName(getConceptName(concepts, eventReader));
-                                        }
+					if (concepts != null && currentDimension != null) {
+						currentDimension.setName(getConceptName(concepts, eventReader));
+					}
 				}
 				
 			}
@@ -284,7 +357,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
-	private static void setCodelistName(Dimension dim, XMLEventReader eventReader) throws XMLStreamException {
+	private static void setCodelistName(SdmxMetaElement dim, XMLEventReader eventReader) throws XMLStreamException {
 		final String sourceMethod = "setCodelist";
 		logger.entering(sourceClass, sourceMethod);
 		while (eventReader.hasNext()) {
@@ -375,24 +448,6 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
-	private static void setStructureAttributes(
-			DataFlowStructure currentStructure, XMLEventReader eventReader) throws XMLStreamException {
-		final String sourceMethod = "setStructureAttributes";
-		logger.entering(sourceClass, sourceMethod);
-		while (eventReader.hasNext()) {
-			// TODO skip for now
-			
-			XMLEvent event = eventReader.nextEvent();
-			logger.finest(event.toString());
-			if (event.isEndElement()) {
-				if (event.asEndElement().getName().getLocalPart().equals(ATTRIBUTELIST)) {
-					break;
-				}
-			}
-		}
-		logger.exiting(sourceClass, sourceMethod);
-	}
-	
 	private static Map<String, Map<String, String>> getCodelists(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
 		Map<String, Map<String, String>> codelists = new Hashtable<String, Map<String,String>>();
 		while (eventReader.hasNext()) {
@@ -436,7 +491,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	}
 	
 	private static Map<String, String> getConcepts(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
-		Map<String, String> codelists = new Hashtable<String, String>();
+		Map<String, String> concepts = new Hashtable<String, String>();
 		String agency = "";
 		String version = "";
 		while (eventReader.hasNext()) {
@@ -457,8 +512,8 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 							version = attr.getValue();
 						}
 					}
-                                }                               
-                                else if (startElement.getName().getLocalPart().equals(CONCEPT)) {
+				}                               
+				else if (startElement.getName().getLocalPart().equals(CONCEPT)) {
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
@@ -471,7 +526,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					}
 					conceptName = agency + "/" + id + "/" + version;
 					logger.finer("Got concept: " + conceptName);
-					codelists.put(conceptName, getConceptName(eventReader));	
+					concepts.put(conceptName, getConceptName(eventReader));	
 				}
 			}
 			if (event.isEndElement()) {
@@ -480,7 +535,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 				}
 			}
 		}
-		return(codelists);
+		return(concepts);
 	}
 
 	private static String getConceptName(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
@@ -531,9 +586,8 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 							version=attribute.getValue();
 						}
 					}
-                                        name = concepts.get(agency + "/" + id + "/" + version);
+                    name = concepts.get(agency + "/" + id + "/" + version);
 				}
-				
 			}
 			
 			if (event.isEndElement()) {

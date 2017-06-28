@@ -58,7 +58,7 @@ public class ILOTest {
 		assertEquals("Wrong code for COLLECTION KILM national data", codes.get("MIG"), "Labour Migration Statistics");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=Labour Migration Statistics, SDG=SDG, NSW=Non-standard forms of wor";
+		String result = "[Dimension [id=COLLECTION, position=1, codelist=Codelist [id=ILO/CL_COLLECTION, codes={IR=Industrial relations, CP=Country Profiles, MIG=Labour Migration Statistics, SDG=SDG labour m";
 		assertEquals("Wrong dimensions for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", result,dim.toString().substring(0, result.length()));
 
 	}

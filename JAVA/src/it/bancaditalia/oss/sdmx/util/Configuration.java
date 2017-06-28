@@ -84,6 +84,11 @@ public class Configuration {
 	protected static final String READ_TIMEOUT_PROP = "read.timeout";  
 	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";  
 	private static final String UIS_API_KEY_PROP = "uis.api.key";
+	private static final String SDMX_CODES_POLICY = "handle.sdmx.codes";
+	public static final String SDMX_CODES_POLICY_ID = "code";
+	public static final String SDMX_CODES_POLICY_DESC= "description";
+	public static final String SDMX_CODES_POLICY_BOTH = "both";
+	public static final String SDMX_CODES_POLICY_ATTRIBUTES = "attributes";
 
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
@@ -167,6 +172,10 @@ public class Configuration {
 			timeout = props.getProperty(Configuration.CONNECT_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
 		}
 		return Integer.parseInt(timeout);	
+	}
+
+	public static String getCodesPolicy(){
+		return props.getProperty(SDMX_CODES_POLICY, SDMX_CODES_POLICY_ID);
 	}
 
 	public static String getLang(){

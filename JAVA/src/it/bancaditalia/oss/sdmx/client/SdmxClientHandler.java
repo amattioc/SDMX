@@ -170,7 +170,7 @@ public class SdmxClientHandler {
 		if(result == null)
 		{
 			logger.finer("DSD for " + keyF.getFullIdentifier() + " not cached. Calling Provider.");
-			result = getClient(provider).getDataFlowStructure(keyF, false);
+			result = getClient(provider).getDataFlowStructure(keyF, !Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID));
 			if(result != null)
 				p.setDSD(fullkeyFamilyKey, result);
 			else

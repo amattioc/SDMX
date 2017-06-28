@@ -53,7 +53,7 @@ public class IMFSDMXCentralTest {
 	public void testGetDimensions() throws SdmxException {
 		List<Dimension> dim = SdmxClientHandler.getDimensions("IMF_SDMX_CENTRAL", "SPI");
 		assertNotNull("Null getDimensions result SPI", dim);
-		String result = "[Dimension [id=DATA_DOMAIN, position=1, codelist=Codelist [id=IMF/CL_DATADOMAIN/1.0, codes=null]], Dimension [id=";
+		String result = "[Dimension [id=DATA_DOMAIN, position=1, codelist=Codelist [id=IMF/CL_DATADOMAIN/1.0, codes=null]]";
 		assertEquals("Wrong dimensions for SPI", result, dim.toString().substring(0, result.length()));
 	}
 	

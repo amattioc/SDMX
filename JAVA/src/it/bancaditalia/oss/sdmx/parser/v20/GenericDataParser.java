@@ -40,8 +40,11 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
@@ -123,7 +126,7 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 
 	private void setSeriesKey(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
 		String id = null;
-		String val = null;
+		String value = null;
 		String[] names = new String[dsd.getDimensions().size()];
 		String[] values = new String[dsd.getDimensions().size()];
 		while (eventReader.hasNext()) {
@@ -140,7 +143,21 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 							id=attribute.getValue();
 						}
 						else if (attribute.getName().toString().equalsIgnoreCase(VALUE)) {
-							val=attribute.getValue();
+							String desc = null;
+							value=attribute.getValue();
+							//If the dimension has a descriptive label and the user wants it, add it in parenthesis 
+							if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+								Dimension dim = dsd.getDimension(id);
+								if(dim != null){
+									Codelist cl = dim.getCodeList();
+									if(cl != null){								
+										desc = cl.getCodes().get(value);
+										if(desc != null){
+											value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -150,10 +167,10 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
 					if(dsd.isDimension(id)){
 						names[dsd.getDimensionPosition(id)-1] = id;
-						values[dsd.getDimensionPosition(id)-1] = val;
+						values[dsd.getDimensionPosition(id)-1] = value;
 					}
 					if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
-						ts.setFrequency(val);
+						ts.setFrequency(value);
 					}
 				}
 			}
@@ -170,9 +187,9 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 		}
 	}
 	
-	private static void setSeriesAttributes(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
+	private void setSeriesAttributes(PortableTimeSeries ts, XMLEventReader eventReader) throws XMLStreamException {
 		String id = null;
-		String val = null;
+		String value = null;
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -187,7 +204,20 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 							id=attribute.getValue();
 						}
 						else if (attribute.getName().toString().equalsIgnoreCase(VALUE)) {
-							val=attribute.getValue();
+							String desc = null;
+							value=attribute.getValue();
+							if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+								SdmxAttribute sdmxattr = dsd.getAttribute(id);
+								if(sdmxattr != null){
+									Codelist cl = sdmxattr.getCodeList();
+									if(cl != null){
+										desc = cl.getCodes().get(value);
+										if(desc != null){
+											value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -195,7 +225,7 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					ts.addAttribute(id, val);
+					ts.addAttribute(id, value);
 				}
 			}
 			if (event.isEndElement()) {
