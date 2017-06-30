@@ -175,7 +175,14 @@ public class Configuration {
 	}
 
 	public static String getCodesPolicy(){
-		return props.getProperty(SDMX_CODES_POLICY, SDMX_CODES_POLICY_ID);
+		String policy = props.getProperty(SDMX_CODES_POLICY, SDMX_CODES_POLICY_ID);
+		if( !policy.equalsIgnoreCase(SDMX_CODES_POLICY_ID) && 
+			!policy.equalsIgnoreCase(SDMX_CODES_POLICY_DESC) && 
+			!policy.equalsIgnoreCase(SDMX_CODES_POLICY_BOTH)){
+			SDMX_LOGGER.warning("The value " + policy + "for the key " + SDMX_CODES_POLICY + "is not valid. Using default.");
+			policy = SDMX_CODES_POLICY_ID;
+		}
+		return policy;
 	}
 
 	public static String getLang(){
