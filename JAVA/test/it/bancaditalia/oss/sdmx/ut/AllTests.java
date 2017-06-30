@@ -22,6 +22,8 @@ package it.bancaditalia.oss.sdmx.ut;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityListTest;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class, 
 						ISTATTest.class, 
@@ -40,7 +42,9 @@ import org.junit.runners.Suite;
 						WITSTest.class,
 						ABSTest.class,
 						UISTest.class,
-						ProxyTest.class
+						ProxyTest.class,
+//						FileTest.class,
+						LanguagePriorityListTest.class
 						})
 public class AllTests {
 }

@@ -55,6 +55,7 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
@@ -305,7 +306,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 					((ZipInputStream) stream).getNextEntry();
 				}
 				
-				if (Configuration.isDumpXml())
+				if (Configuration.isDumpXml() && !(this instanceof FILE)) //skip for local providers
 				{
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					byte[] buf = new byte[4096];
@@ -313,7 +314,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 					while ((i = stream.read(buf, 0, 4096)) > 0)
 						baos.write(buf, 0, i);
 					baos.close();
-					File dumpfilename = new File(Configuration.getDumpPrefix(), url.getPath().replaceAll("\\p{Punct}", "_") + ".xml");
+					String resource = url.getPath().replaceAll(endpoint.getPath()+"/", "");
+					File dumpfilename = new File(Configuration.getDumpPrefix(), resource.replaceAll("\\p{Punct}", "_") + ".xml");
 					logger.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
 					FileOutputStream dumpfile = new FileOutputStream(dumpfilename);
 					dumpfile.write(baos.toByteArray());

@@ -80,7 +80,6 @@ public class Configuration {
 	protected static final String SDMX_LANG_PROP = "sdmx.lang";  
 	protected static final String LATE_RESP_RETRIES_PROP = "late.response.retries";  
 	protected static final String TABLE_DUMP_PROP = "table.dump";  
-	protected static final String XML_DUMP_PROP = "xml.dump";  
 	protected static final String READ_TIMEOUT_PROP = "read.timeout";  
 	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";  
 	private static final String UIS_API_KEY_PROP = "uis.api.key";
@@ -92,7 +91,6 @@ public class Configuration {
 
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
-	private static final String XML_DUMP_DEFAULT = "FALSE";
 	private static final String SDMX_DEFAULT_LANG = "en";  
 	private static final String SDMX_DEFAULT_TIMEOUT = "0";  
 	private static final String LOGGER_NAME = "SDMX";
@@ -148,10 +146,6 @@ public class Configuration {
 
 	public static boolean isTable(){
 		return props.getProperty(TABLE_DUMP_PROP, TABLE_DUMP_DEFAULT).equalsIgnoreCase("TRUE");
-	}
-
-	public static boolean isDumpXml(){
-		return props.getProperty(XML_DUMP_PROP, XML_DUMP_DEFAULT).equalsIgnoreCase("TRUE");
 	}
 
 	public static String getExternalProviders(){
@@ -497,7 +491,37 @@ public class Configuration {
 	}
 
 	public static String getDumpPrefix() {
-		return props.getProperty(DUMP_XML_PREFIX, ".");
+		String path = props.getProperty(DUMP_XML_PREFIX);
+		if(path != null && !path.isEmpty()){
+			File f = new File(path);
+			if(f.exists() && f.isDirectory()){
+				props.put(DUMP_XML_PREFIX, path);
+			}
+			else{
+				SDMX_LOGGER.info("The directory set for storing xml files does not exist and it'll not be used.");
+				path = null;
+			}
+		}
+		return path;
+	}
+	
+	public static void setDumpPrefix(String path) {
+		if(path == null || path.isEmpty()){
+			SDMX_LOGGER.warning("The directory for storing xml files cannot be null");
+		}
+		else{
+			File f = new File(path);
+			if(f.exists() && f.isDirectory()){
+				props.put(DUMP_XML_PREFIX, path);
+			}
+			else{
+				SDMX_LOGGER.warning("The directory for storing xml files must already exist");
+			}
+		}
+	}
+	
+	public static boolean isDumpXml(){
+		return (props.getProperty(DUMP_XML_PREFIX) != null) && (!props.getProperty(DUMP_XML_PREFIX).isEmpty()); 
 	}
 
 }

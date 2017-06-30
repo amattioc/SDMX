@@ -8,9 +8,7 @@ import java.util.Map;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.helper.SDMXHelper;
 
 public class FILE extends RestSdmxClient {
 	
@@ -51,30 +49,27 @@ public class FILE extends RestSdmxClient {
 	@Override
 	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory)
 	{
-		String id = (dataflow.getId()+ "_" + resource).replaceAll("\\p{Punct}", "_");
+		String id = (dataflow.getFullIdentifier()+ "_" + resource).replaceAll("\\p{Punct}", "_");
 		return endpoint.toString() + "data_" + id + ".xml";
 	}
 	
 	@Override
 	protected String buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		return endpoint.toString() + "structure_" + dsd + ".xml";
+		return endpoint.toString() + "datastructure_" + agency + "_" + dsd + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
 	}
 	
 	@Override
 	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
 	{
-		return endpoint.toString() + "dataflow_" + dataflow + ".xml";
+		return endpoint.toString() + "dataflow_" + agency + "_" + dataflow + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
 	}
 	
 	@Override
 	protected String buildCodelistQuery(String codeList, String agency, String version) throws SdmxException 
 	{
-		return endpoint.toString() + "codelist_" + codeList + ".xml";
+		return endpoint.toString() + "codelist_" + agency + "_" + codeList + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
 	}
 	
-	public static void main(String[] args) throws SdmxException {
-		SdmxClientHandler.addLocalProvider("FileTest", "FileProviderTestFiles", "Test");
-		SDMXHelper.start();
-	}
+
 }
