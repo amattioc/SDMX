@@ -170,7 +170,21 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 							obs_val=attribute.getValue();
 						}
 						else{
-							obs_attr.put(name, attribute.getValue());
+							String value = attribute.getValue();
+							String desc = null;
+							if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+								SdmxAttribute sdmxattr = dsd.getAttribute(name);
+								if(sdmxattr != null){
+									Codelist cl = sdmxattr.getCodeList();
+									if(cl != null){
+										desc = cl.getCodes().get(value);
+										if(desc != null){
+											value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+										}
+									}
+								}
+							}
+							obs_attr.put(name, value);
 						}
 					}
 					ts.addObservation(obs_val, time, obs_attr);

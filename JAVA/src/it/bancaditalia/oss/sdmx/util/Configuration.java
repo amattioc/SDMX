@@ -494,11 +494,9 @@ public class Configuration {
 		String path = props.getProperty(DUMP_XML_PREFIX);
 		if(path != null && !path.isEmpty()){
 			File f = new File(path);
-			if(f.exists() && f.isDirectory()){
-				props.put(DUMP_XML_PREFIX, path);
-			}
-			else{
-				SDMX_LOGGER.info("The directory set for storing xml files does not exist and it'll not be used.");
+			if(!f.exists() || !f.isDirectory()){
+				SDMX_LOGGER.warning("The directory set for storing xml files does not exist.");
+				props.remove(DUMP_XML_PREFIX);
 				path = null;
 			}
 		}

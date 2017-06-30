@@ -17,5 +17,7 @@ public class FileTest {
 		System.err.println(SdmxClientHandler.getDimensions("TEST", "EXR"));
 		System.err.println(SdmxClientHandler.getDataFlowStructure("TEST", "EXR"));
 		System.err.println(SdmxClientHandler.getTimeSeries("TEST", "EXR.M.USD.EUR.SP00.A",  null, null));
+		
+		
 	}
 }

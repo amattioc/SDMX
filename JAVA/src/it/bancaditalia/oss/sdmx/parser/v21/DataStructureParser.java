@@ -228,7 +228,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 				}
 			}
 			if (event.isEndElement()) {
-				if (event.asEndElement().getName().getLocalPart().equals(DIMENSION)) {
+				if (event.asEndElement().getName().getLocalPart().equals(ATTRIBUTE)) {
 					if(currentStructure != null && currentAttribute != null){
 						logger.finer("Adding attribute: " + currentAttribute);
 						currentStructure.setAttribute(currentAttribute);
