@@ -36,7 +36,7 @@ public class SdmxIOException extends SdmxException {
 	}
 
 	public SdmxIOException(String message, IOException cause) {
-		super("Connection problems while talking to endpoint: " + message, null);
+		super("Connection problems while talking to endpoint: " + message, cause);
 	}
 
 	public SdmxIOException(XMLStreamException cause) {
