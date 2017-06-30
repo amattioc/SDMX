@@ -67,6 +67,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
 
 /**
@@ -91,6 +92,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected String pw = null;
 	protected int readTimeout = Configuration.getReadTimeout(this.getClass().getSimpleName());
 	protected int connectTimeout = Configuration.getConnectTimeout(this.getClass().getSimpleName());
+	protected LanguagePriorityList languages = LanguagePriorityList.parse(Configuration.getLang());
 	
 	private static final String sourceClass = RestSdmxClient.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
@@ -121,6 +123,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 
 	public void setConnectTimeout(int timeout) {
 		this.connectTimeout = timeout;    
+	}
+
+	public void setLanguages(LanguagePriorityList languages) {
+		this.languages = languages;
 	}
 
         @Override
@@ -320,7 +326,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 				try 
 				{
 					reader = new InputStreamReader(stream, UTF_8);
-					return parser.parse(reader);
+					return parser.parse(reader, languages != null ? languages : LanguagePriorityList.ANY);
 				} finally {
 					if (reader != null)
 						reader.close();
@@ -361,6 +367,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 		}
 		if(supportsCompression){
 			conn.addRequestProperty("Accept-Encoding","gzip,deflate");
+		}
+		if (languages != null) {
+			conn.addRequestProperty("Accept-Language", languages.toString());
 		}
         if (acceptHeader != null && !"".equals(acceptHeader))
         	conn.setRequestProperty("Accept", acceptHeader);

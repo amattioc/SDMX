@@ -50,6 +50,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 
 /**
  * @author Attilio Mattiocco
@@ -79,7 +80,7 @@ public class GenericDataParser implements Parser<DataParsingResult> {
 		this.data = data;
 	}
 	
-	public DataParsingResult parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public DataParsingResult parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = skipBOM(xmlBuffer);
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);

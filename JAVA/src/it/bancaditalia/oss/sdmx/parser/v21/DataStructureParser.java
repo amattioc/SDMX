@@ -43,6 +43,7 @@ import it.bancaditalia.oss.sdmx.api.SdmxMetaElement;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -80,7 +81,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public List<DataFlowStructure> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public List<DataFlowStructure> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -91,7 +92,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		Map<String, String> concepts = null;
 		DataFlowStructure currentStructure = null;
 
-		LocalizedText currentName = new LocalizedText(Configuration.getLang());
+		LocalizedText currentName = new LocalizedText(languages);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
@@ -100,10 +101,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 				StartElement startElement = event.asStartElement();
 				
 				if (startElement.getName().getLocalPart() == (CODELISTS)) {
-					codelists = getCodelists(eventReader);
+					codelists = getCodelists(eventReader, languages);
 				}
                                 else if (startElement.getName().getLocalPart() == (CONCEPTS)) {
-					concepts = getConcepts(eventReader);
+					concepts = getConcepts(eventReader, languages);
 				}
 
 				if (startElement.getName().getLocalPart() == (DATASTRUCTURE)) {
@@ -448,7 +449,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
-	private static Map<String, Map<String, String>> getCodelists(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+	private static Map<String, Map<String, String>> getCodelists(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException{
 		Map<String, Map<String, String>> codelists = new Hashtable<String, Map<String,String>>();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
@@ -477,7 +478,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					}
 					codelistName = agency + "/" + id+ "/" + version;
 					logger.finer("Got codelist: " + codelistName);
-					Map<String, String> codes = CodelistParser.getCodes(eventReader);
+					Map<String, String> codes = CodelistParser.getCodes(eventReader, languages);
 					codelists.put(codelistName, codes);	
 				}
 			}
@@ -490,7 +491,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		return(codelists);
 	}
 	
-	private static Map<String, String> getConcepts(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
+	private static Map<String, String> getConcepts(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException{
 		Map<String, String> concepts = new Hashtable<String, String>();
 		String agency = "";
 		String version = "";
@@ -526,7 +527,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					}
 					conceptName = agency + "/" + id + "/" + version;
 					logger.finer("Got concept: " + conceptName);
-					concepts.put(conceptName, getConceptName(eventReader));	
+					concepts.put(conceptName, getConceptName(eventReader, languages));	
 				}
 			}
 			if (event.isEndElement()) {
@@ -538,8 +539,8 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		return(concepts);
 	}
 
-	private static String getConceptName(XMLEventReader eventReader) throws XMLStreamException, SdmxException{
-		LocalizedText value = new LocalizedText(Configuration.getLang());
+	private static String getConceptName(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException{
+		LocalizedText value = new LocalizedText(languages);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());

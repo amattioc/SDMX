@@ -41,6 +41,7 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -60,7 +61,7 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String KF_AGID = "KeyFamilyAgencyID";
 	private static final String KF_VER = "Version";
 
-	public List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public List<Dataflow> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
@@ -69,7 +70,7 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 
 		Dataflow df = null;
 
-		LocalizedText currentName = new LocalizedText(Configuration.getLang());
+		LocalizedText currentName = new LocalizedText(languages);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());

@@ -39,6 +39,7 @@ import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -55,14 +56,14 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String NAME = "Name";
 	private static final String REF = "Ref";
 
-	public List<Dataflow> parse(Reader xmlBuffer) throws XMLStreamException {
+	public List<Dataflow> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		Dataflow df = null;
 
-		LocalizedText currentName = new LocalizedText(Configuration.getLang());
+		LocalizedText currentName = new LocalizedText(languages);
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());

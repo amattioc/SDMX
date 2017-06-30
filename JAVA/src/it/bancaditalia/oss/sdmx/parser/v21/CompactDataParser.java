@@ -53,6 +53,7 @@ import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -87,7 +88,7 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 		this.data = data;
 	}
 
-	public DataParsingResult parse(Reader xmlBuffer) throws XMLStreamException, SdmxException {
+	public DataParsingResult parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		
@@ -144,7 +145,7 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 				}
 
 				if (startElement.getName().getLocalPart() == (FOOTER)) {
-					setFooter(eventReader, result);
+					setFooter(eventReader, languages, result);
 				}
 
 				if (startElement.getName().getLocalPart().equals(OBS) && data) {
@@ -264,7 +265,7 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 		logger.exiting(sourceClass, sourceMethod);
 	}
 
-	private void setFooter(XMLEventReader eventReader, DataParsingResult parsingResult) throws XMLStreamException {
+	private void setFooter(XMLEventReader eventReader, LanguagePriorityList languages, DataParsingResult parsingResult) throws XMLStreamException {
 		final String sourceMethod = "setFooter";
 		logger.entering(sourceClass, sourceMethod);
 		Message msg = null;
@@ -292,7 +293,7 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 				}
 				if (startElement.getName().getLocalPart() == (TEXT)) {
 					String item = null;
-					LocalizedText text = new LocalizedText(Configuration.getLang());
+					LocalizedText text = new LocalizedText(languages);
 					text.setText(startElement, eventReader);
 					item = text.getText();
 					msg.addText(item);
