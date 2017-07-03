@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,17 +43,18 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
-			String query = null;
-			if(!dsd.contentEquals("ALL")){
-				query = endpoint + "/GetKeyFamily/" + dsd;
+			RestQueryBuilder query;
+			try {
+				query = !dsd.contentEquals("ALL")
+					? RestQueryBuilder.of(endpoint)
+					: RestQueryBuilder.of(new URL(baseEndpoint));
+			} catch (MalformedURLException ex) {
+				throw new RuntimeException(ex);
 			}
-			else{
-				query = baseEndpoint + "/GetKeyFamily/" + dsd;
-			}
-			return query;
+			return query.path("GetKeyFamily").path(dsd).build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -60,7 +62,7 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
 		if( endpoint!=null && 
@@ -68,19 +70,20 @@ public class IMF extends DotStat{
 				resource!=null && !resource.isEmpty()){
 
 			// for IMF use the simple DF id
-			String query = endpoint + "/GetData?dataflow=" + dataflow.getId() + "&key=";
-			query += resource ;
+			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("GetData")
+				.param("dataflow", dataflow.getId())
+				.param("key", resource)
+				.param("format", format);
 			
-			query += "&format=" + format;
 			if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 				if(startTime != null){
-					query=query+"&startTime="+startTime;
+					query.param("startTime", startTime);
 				}
 				if(endTime != null){
-					query=query+"&endTime="+endTime;
+					query.param("endTime", endTime);
 				}
 			}
-			return query;
+			return query.build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);

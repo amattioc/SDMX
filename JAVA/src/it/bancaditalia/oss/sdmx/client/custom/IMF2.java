@@ -22,8 +22,9 @@ package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,13 +43,12 @@ public class IMF2 extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildFlowQuery(String flow, String agency, String version) throws SdmxException{
+	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
-			String query = endpoint + "/Dataflow";
+			return RestQueryBuilder.of(endpoint).path("Dataflow").build(needsURLEncoding);
 //			if(flow != null && !flow.isEmpty() && !flow.equalsIgnoreCase("ALL")){
 //				query += "/" + flow;				
 //			}
-			return query;
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: endpoint=" + endpoint);
@@ -56,11 +56,10 @@ public class IMF2 extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
 	
-			String query = endpoint + "/DataStructure/" + dsd;
-			return query;
+			return RestQueryBuilder.of(endpoint).path("DataStructure").path(dsd).build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -68,18 +67,16 @@ public class IMF2 extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 			
-			String query = endpoint + "/CompactData/" + dataflow.getDsdIdentifier().getId() + "/";
-			query += resource ;
-			query += RestQueryBuilder.addParams(startTime, endTime, 
-					serieskeysonly, updatedAfter, includeHistory, format);
-			return query;
+			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("CompactData").path(dataflow.getDsdIdentifier().getId()).path(resource);
+			return Sdmx21Queries.addParams(query, startTime, endTime,
+					serieskeysonly, updatedAfter, includeHistory, format).build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);

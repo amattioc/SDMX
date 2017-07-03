@@ -22,7 +22,9 @@ package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,12 +43,11 @@ public class ABS extends DotStat{
 	}				
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			// agency=all is not working. we always use ABS
-			String query = endpoint + "/GetDataStructure/" + dsd + "/ABS";
-			return query;
+			return RestQueryBuilder.of(endpoint).path("GetDataStructure").path(dsd).path("ABS").build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -54,19 +55,22 @@ public class ABS extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
-		String query = super.buildDataQuery(dataflow, resource + "/ABS", null, null, false, null, false);
+
+		RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("GetData").path(dataflow.getId()).path(resource).path("ABS");
+	    	Sdmx21Queries.addParams(query, null, null, false, null, false, format);
+
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			if(startTime != null){
-				query=query+"&startTime="+startTime;
+				query.param("startTime", startTime);
 			}
 			if(endTime != null){
-				query=query+"&endTime="+endTime;
+				query.param("endTime", endTime);
 			}
 		}
-		return query;
+		return query.build(needsURLEncoding);
 	}
 
 	// https://github.com/amattioc/SDMX/issues/19

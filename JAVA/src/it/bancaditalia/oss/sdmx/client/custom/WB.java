@@ -21,8 +21,9 @@
 package it.bancaditalia.oss.sdmx.client.custom;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,11 +42,10 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
-			String query = endpoint + "/KeyFamily?id=" + dsd;
-			return query;
+			return RestQueryBuilder.of(endpoint).path("KeyFamily").param("id", dsd).build(needsURLEncoding);
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -53,12 +53,11 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
-		String query = endpoint + "/v2/data/" + dataflow.getId() + "/" + fixKey(resource);
-		query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly, null, false, format);
-		return query;
+		RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("v2").path("data").path(dataflow.getId()).path(fixKey(resource));
+		return Sdmx21Queries.addParams(query, startTime, endTime, serieskeysonly, null, false, format).build(needsURLEncoding);
 	}
 	
 	// https://github.com/amattioc/SDMX/issues/19

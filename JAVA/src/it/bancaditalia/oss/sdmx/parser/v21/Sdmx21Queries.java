@@ -24,46 +24,45 @@ import java.net.URL;
 
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class RestQueryBuilder{
+public class Sdmx21Queries{
 	
 	
-	public static String getDataQuery(URL endpoint, String dataflow, String resource, 
+	public static RestQueryBuilder getDataQuery(URL endpoint, String dataflow, String resource, 
 			String start, String end, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxInvalidParameterException{
 		
 		if( endpoint!=null && dataflow!=null && !dataflow.isEmpty() && resource!=null && !resource.isEmpty())
 		{
-			String query = endpoint + "/data/" + dataflow + "/";
-			query += resource ;
-			query += addParams(start, end, serieskeysonly, updatedAfter, includeHistory, format);
-			return query;
+			RestQueryBuilder result = RestQueryBuilder.of(endpoint).path("data").path(dataflow).path(resource);
+			return addParams(result, start, end, serieskeysonly, updatedAfter, includeHistory, format);
 		}
 		else{
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
 	
-	public static String getStructureQuery(URL endpoint, String dsd, 
+	public static RestQueryBuilder getStructureQuery(URL endpoint, String dsd, 
 			String agency, String version) throws SdmxException{
 		return getStructureQuery(endpoint, dsd, agency, version, false);
 	}
 
-	public static String getStructureQuery(URL endpoint, String dsd, 
+	public static RestQueryBuilder getStructureQuery(URL endpoint, String dsd, 
 			String agency, String version, boolean full) throws SdmxInvalidParameterException{
 		if( endpoint!=null &&
 				agency!=null && !agency.isEmpty() &&
 				dsd!=null && !dsd.isEmpty()){
-			String query = endpoint + "/datastructure/" + agency + "/" + dsd;
+			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("datastructure").path(agency).path(dsd);
 			if(version!=null && !version.isEmpty()){
-				query += "/" + version;
+				query.path(version);
 			}
 			if(full){
-				query += "?references=children";
+				query.param("references", "children");
 			}
 			return query;
 		}
@@ -72,76 +71,58 @@ public class RestQueryBuilder{
 		}
 	}
 
-	public static String getDataflowQuery(URL endpoint, String dataflow, 
+	public static RestQueryBuilder getDataflowQuery(URL endpoint, String dataflow, 
 			String agency, String version) throws SdmxInvalidParameterException{
 		if( endpoint!=null || dataflow != null){
-			String dataflowKey = dataflow;
-			if(agency != null){
-				dataflowKey = agency + "/" + dataflowKey;
-			}
-			if(version != null){
-				dataflowKey = dataflowKey + "/" + version;
-			}
-			String query = endpoint + "/dataflow";
-			if(dataflowKey!=null && !dataflowKey.isEmpty()){
-				query += "/" + dataflowKey;
-			}
-			else{
-				throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflowKey);
-			}
-			return query;
+			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("dataflow");
+			return addResourceId(query, agency, dataflow, version);
 		}
 		else{
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 		}
 	}
 
-	public static String getCodelistQuery(URL endpoint, String codeList, 
+	public static RestQueryBuilder getCodelistQuery(URL endpoint, String codeList, 
 			String agency, String version) throws SdmxInvalidParameterException {
-		if( endpoint!=null &&
-			codeList!=null && !codeList.isEmpty()){
-				String codelistKey = codeList; 
-				if(agency != null){
-					codelistKey = agency + "/" + codelistKey;
-				}
-				if(version != null){
-					codelistKey = codelistKey + "/" + version;
-				}
-				String query = endpoint + "/codelist/" + codelistKey ;
-				return query;
+		if( endpoint!=null && codeList!=null && !codeList.isEmpty()){
+			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("codelist");
+			return addResourceId(query, agency, codeList, version);
 		}
 		else{
 			throw new SdmxInvalidParameterException("Invalid query parameters: codeList=" + codeList  + " endpoint=" + endpoint);
 		}
 	}
+
+	public static RestQueryBuilder addResourceId(RestQueryBuilder query, String agencyId, String resourceId, String version) {
+		if(agencyId != null){
+			query.path(agencyId);
+		}
+		query.path(resourceId);
+		if(version != null){
+			query.path(version);
+		}
+		return query;
+	}
 	
-	public static String addParams(String start, String end, boolean serieskeysonly, 
+	public static RestQueryBuilder addParams(RestQueryBuilder query, String start, String end, boolean serieskeysonly, 
 			String updatedAfter, boolean includeHistory, String format){
-		String query = "";
-		boolean first = true;
 		if(start != null && !start.isEmpty()){
-			query = query + (first ? "?" : "&") + "startPeriod="+start;
-			first = false;
+			query.param("startPeriod", start);
 		}
 		if(end != null && !end.isEmpty()){
-			query = query + (first ? "?" : "&") + "endPeriod="+end;
-			first = false;
+			query.param("endPeriod", end);
 		}
 		if(serieskeysonly){
-			query = query + (first ? "?" : "&") + "detail=serieskeysonly";
-			first = false;
+			query.param("detail", "serieskeysonly");
 		}
 		if(includeHistory){
-			query = query + (first ? "?" : "&") + "includeHistory=true";
-			first = false;
+			query.param("includeHistory", "true");
 		}
 		if(updatedAfter != null && !updatedAfter.isEmpty()){
-			query = query + (first ? "?" : "&") + "updatedAfter=" + updatedAfter;
-			first = false;
+			query.param("updatedAfter", updatedAfter);
 		}
 		if(format != null && !format.isEmpty()){
-			query = query + (first ? "?" : "&") + "format=" + format;
-			first = false;
+			query.param("format", format);
 		}
 		return query;
 	}

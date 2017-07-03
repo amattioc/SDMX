@@ -34,8 +34,9 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -59,7 +60,7 @@ public class ILO extends RestSdmx20Client {
 		for (Iterator<String> iterator = collections.keySet().iterator(); iterator.hasNext();) 
 		{
 			String coll = (String) iterator.next();
-			String query = endpoint + "/datastructure" + "/ILO/" + coll + "_ALL_MULTI";
+			URL query = RestQueryBuilder.of(endpoint).path("datastructure").path("ILO").path(coll + "_ALL_MULTI").build(needsURLEncoding);
 			List<DataFlowStructure> dfs = runQuery(new DataStructureParser(), query, null);
 			if(dfs.size() > 0){
 				for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) 
@@ -85,8 +86,8 @@ public class ILO extends RestSdmx20Client {
 		return result;
 	}
 	
-	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ILO", version);
-		return query;
+	@Override
+	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		return Sdmx21Queries.getDataflowQuery(endpoint,dataflow, "ILO", version).build(needsURLEncoding);
 	}
 }

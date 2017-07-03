@@ -35,7 +35,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxResponseException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import java.net.HttpURLConnection;
 
@@ -58,9 +58,8 @@ public class EUROSTAT extends RestSdmxClient{
 	}
 
 	@Override
-	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		String query = RestQueryBuilder.getDataflowQuery(endpoint,dataflow, "ESTAT", version);
-		return query;
+	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		return Sdmx21Queries.getDataflowQuery(endpoint,dataflow, "ESTAT", version).build(needsURLEncoding);
 	}
 	
 	@Override
@@ -88,7 +87,9 @@ public class EUROSTAT extends RestSdmxClient{
 					}
 					
 					try {
-						return runQuery(parser, msg.getUrl(), null).getData();
+						return runQuery(parser, new URL(msg.getUrl()), null).getData();
+					} catch (MalformedURLException e) {
+						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					} catch (SdmxResponseException e) {
 						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					}

@@ -66,7 +66,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
@@ -132,9 +132,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 
         @Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
-		String query=null;
 		Map<String, Dataflow> result = null;
-		query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
+		URL query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
 		if(flows.size() > 0){
 			result = new HashMap<String, Dataflow>();
@@ -151,9 +150,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
-		String query=null;
 		Dataflow result = null;
-		query = buildFlowQuery(dataflow, agency, version);
+		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
 		if(flows.size() >= 1)
 			result = flows.get(0);
@@ -169,7 +167,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			throw new SdmxInvalidParameterException("getDataFlowStructure(): Null dsd in input");
 		else
 		{
-			String query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
+			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			return runQuery(new DataStructureParser(), query, null).get(0);
 		}
 	}
@@ -177,7 +175,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	@Override
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException
 	{
-		String query = buildCodelistQuery(codeList, agency, version);
+		URL query = buildCodelistQuery(codeList, agency, version);
 		return runQuery(new CodelistParser(), query, null);
 	}
 	
@@ -189,7 +187,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException 
 	{
-		String query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly), query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		Message msg = ts.getMessage();
 		if(msg != null)
@@ -224,7 +222,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	public String buildDataURL(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory);
+		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory).toString();
 	}
 
 	/**
@@ -236,14 +234,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 	 * 
 	 * @throws SdmxException 
 	 */
-	protected final <T> T runQuery(Parser<T> parser, String query, String acceptHeader) throws SdmxException
+	protected final <T> T runQuery(Parser<T> parser, URL query, String acceptHeader) throws SdmxException
 	{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);
-		if(needsURLEncoding){
-			query = query.replace("|", "%2B");
-			query = query.replace("+", "%2B");
-		}
 
 		URLConnection conn = null;
 		URL url = null;
@@ -252,7 +246,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		// TODO: implement in Java 7 with try-with-resource
 		try {
 			int code;
-			url = new URL(query);
+			url = query;
 			
 			do{
 				conn = url.openConnection();
@@ -379,30 +373,30 @@ public class RestSdmxClient implements GenericSDMXClient{
         	conn.setRequestProperty("Accept", "*/*");
 	}
 
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		if( endpoint!=null && dataflow!=null && resource!=null && !resource.isEmpty())
-			return RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
+			return Sdmx21Queries.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null).build(needsURLEncoding);
 		else
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}
 	
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
 		if( endpoint!=null  && agency!=null && !agency.isEmpty() && dsd!=null && !dsd.isEmpty())
-			return RestQueryBuilder.getStructureQuery(endpoint, dsd, agency,  version, full);
+			return Sdmx21Queries.getStructureQuery(endpoint, dsd, agency,  version, full).build(needsURLEncoding);
 		else
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 	
-	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		return RestQueryBuilder.getDataflowQuery(endpoint,dataflow, agency, version);
+	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		return Sdmx21Queries.getDataflowQuery(endpoint,dataflow, agency, version).build(needsURLEncoding);
 	}
 	
-	protected String buildCodelistQuery(String codeList, String agency, String version) throws SdmxException {
-		return RestQueryBuilder.getCodelistQuery(endpoint, codeList, agency, version);
+	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException {
+		return Sdmx21Queries.getCodelistQuery(endpoint, codeList, agency, version).build(needsURLEncoding);
 	}
 	
 	private static boolean isRedirection(int code) {
