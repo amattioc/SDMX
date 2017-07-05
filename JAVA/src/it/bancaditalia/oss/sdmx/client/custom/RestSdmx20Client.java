@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.URI;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	private String acceptHdr = null;
 	protected String format = "compact_v2";
 
-	public RestSdmx20Client(String name, URL endpoint, boolean needsCredentials, String acceptHdr, String format) {
+	public RestSdmx20Client(String name, URI endpoint, boolean needsCredentials, String acceptHdr, String format) {
 		super(name, endpoint, needsCredentials, false, false);
 		this.acceptHdr = acceptHdr;
 		this.format = format;
@@ -118,8 +119,8 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			return Sdmx21Queries.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).build(needsURLEncoding);
+			return Sdmx21Queries.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + 

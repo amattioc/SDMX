@@ -20,15 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.logging.Logger;
+
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * @author Attilio Mattiocco
@@ -38,20 +41,23 @@ public class ABS extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public ABS() throws MalformedURLException{
-		super("ABS", new URL("	http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
+	public ABS() throws URISyntaxException {
+		super("ABS", new URI("http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
 	}				
 	
 	@Override
-	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException {
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			// agency=all is not working. we always use ABS
-			return RestQueryBuilder.of(endpoint).path("GetDataStructure").path(dsd).path("ABS").build(needsURLEncoding);
+			try {
+				return new RestQueryBuilder(endpoint).addPath("GetDataStructure").addPath(dsd).addPath("ABS").build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
-		else{
+		else
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
-		}
 	}
 	
 	@Override
@@ -59,18 +65,18 @@ public class ABS extends DotStat{
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
 
-		RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("GetData").path(dataflow.getId()).path(resource).path("ABS");
-	    	Sdmx21Queries.addParams(query, null, null, false, null, false, format);
+		Sdmx21Queries query = (Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("GetData").addPath(dataflow.getId()).addPath(resource).addPath("ABS");
+	    query.addParams(null, null, false, null, false, format);
 
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			if(startTime != null){
-				query.param("startTime", startTime);
+				query.addParam("startTime", startTime);
 			}
 			if(endTime != null){
-				query.param("endTime", endTime);
+				query.addParam("endTime", endTime);
 			}
 		}
-		return query.build(needsURLEncoding);
+		return query.buildSdmx21Query();
 	}
 
 	// https://github.com/amattioc/SDMX/issues/19

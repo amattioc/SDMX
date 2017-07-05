@@ -14,10 +14,12 @@
  */
 package it.bancaditalia.oss.sdmx.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,36 +30,14 @@ import java.util.Map.Entry;
  *
  * @author Philippe Charles
  */
-public final class RestQueryBuilder {
+public class RestQueryBuilder {
 
-	/**
-	 * Creates a new builder from a base URL.
-	 *
-	 * @param entryPoint a non-null URL
-	 * @return a non-null builder
-	 * @throws NullPointerException if entryPoint is null
-	 */
-	public static RestQueryBuilder of(URL entryPoint) {
-		if (entryPoint == null) {
-			throw new NullPointerException("entryPoint");
-		}
-		return new RestQueryBuilder(entryPoint);
-	}
+	protected final URI entryPoint;
+	protected final List<String> paths = new ArrayList<String>();
+	protected final Map<String, String> params = new LinkedHashMap<String, String>();
 
-	private final URL entryPoint;
-	private final List<String> paths;
-	private final Map<String, String> params;
-
-	private RestQueryBuilder(URL entryPoint) {
+	public RestQueryBuilder(URI entryPoint) {
 		this.entryPoint = entryPoint;
-		this.paths = new ArrayList<String>();
-		this.params = new LinkedHashMap<String, String>();
-	}
-
-	public RestQueryBuilder clear() {
-		this.paths.clear();
-		this.params.clear();
-		return this;
 	}
 
 	/**
@@ -67,11 +47,11 @@ public final class RestQueryBuilder {
 	 * @return this builder
 	 * @throws NullPointerException if entryPoint is null
 	 */
-	public RestQueryBuilder path(String path) {
+	public RestQueryBuilder addPath(String path) {
 		if (path == null) {
 			throw new NullPointerException("path");
 		}
-		this.paths.add(path);
+		paths.add(path);
 		return this;
 	}
 
@@ -83,7 +63,7 @@ public final class RestQueryBuilder {
 	 * @return this builder
 	 * @throws NullPointerException if key or value is null
 	 */
-	public RestQueryBuilder param(String key, String value) {
+	public RestQueryBuilder addParam(String key, String value) {
 		if (key == null) {
 			throw new NullPointerException("key");
 		}
@@ -93,44 +73,35 @@ public final class RestQueryBuilder {
 		params.put(key, value);
 		return this;
 	}
-
+	
 	/**
 	 * Creates a new URL using the specified path and parameters.
 	 *
 	 * @param needsURLEncoding encodes the content if necessary
-	 * @return a non-null URL
+	 * @return a URL
+	 * @throws MalformedURLException 
 	 */
-	public URL build(boolean needsURLEncoding) {
-		StringBuilder result = new StringBuilder();
-		result.append(entryPoint);
-		for (String o : paths) {
-			result.append('/').append(needsURLEncoding ? encode(o) : o);
-		}
-		Iterator<Entry<String, String>> iter = params.entrySet().iterator();
-		if (iter.hasNext()) {
-			result.append('?');
-			append(result, iter.next(), needsURLEncoding);
-			while (iter.hasNext()) {
-				result.append('&');
-				append(result, iter.next(), needsURLEncoding);
-			}
-		}
+	public URL build() throws MalformedURLException 
+	{
 		try {
+			StringBuilder result = new StringBuilder();
+			result.append(entryPoint);
+			
+			for (String o : paths)
+				result.append('/').append(o);
+			
+			boolean first = true;
+			for (Entry<String, String> entry: params.entrySet())
+			{
+				result.append(first ? '?' : '&');
+				result.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append('=').append(entry.getValue());
+				first = false;
+			}
+		
 			return new URL(result.toString());
-		} catch (MalformedURLException ex) {
-			throw new RuntimeException("Failed to build URL", ex);
-		}
-	}
-
-	private static String encode(String o) {
-		return o.replace("|", "%2B").replace("+", "%2B");
-	}
-
-	private static void append(StringBuilder result, Entry<String, String> param, boolean needsURLEncoding) {
-		if (needsURLEncoding) {
-			result.append(encode(param.getKey())).append('=').append(encode(param.getValue()));
-		} else {
-			result.append(param.getKey()).append('=').append(param.getValue());
+		} catch (UnsupportedEncodingException e) {
+			// safe to ignore.
+			throw new RuntimeException("UnsupportedEncodingException", e);
 		}
 	}
 }

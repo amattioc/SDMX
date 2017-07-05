@@ -21,8 +21,8 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -107,11 +107,8 @@ public class SdmxClientHandler {
 			logger.severe("The enpoint of the provider must be an existing local directory");
 			throw new SdmxInvalidParameterException("The enpoint of the provider has to be an existing local directory");
 		}
-		try{
-			SDMXClientFactory.addProvider(provider, epFile.toURI().toURL(), null, false, false, false, description, false);
-		} catch (MalformedURLException e) {
-			throw new SdmxInvalidParameterException(e.getMessage());
-		}
+		
+		SDMXClientFactory.addProvider(provider, epFile.toURI(), null, false, false, false, description, false);
 	}
 
 	/**
@@ -138,9 +135,9 @@ public class SdmxClientHandler {
 			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
 		}
 		try {
-			SDMXClientFactory.addProvider(provider, new URL(endpoint), null, needsCredentials, needsURLEncoding, 
+			SDMXClientFactory.addProvider(provider, new URI(endpoint), null, needsCredentials, needsURLEncoding, 
 					supportsCompression, description, false);
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 			throw new SdmxInvalidParameterException(e.getMessage());
 		}
 	}

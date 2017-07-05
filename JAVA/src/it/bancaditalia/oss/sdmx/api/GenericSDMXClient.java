@@ -20,7 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -116,12 +116,12 @@ public interface GenericSDMXClient {
      * @return the endpoint URL
 	 * @throws SdmxException 
      */
-	public URL getEndpoint() throws SdmxException;
+	public URI getEndpoint() throws SdmxException;
 
 	/**
      * <p>Sets the URL of the web service for this provider client
      */
-	public void setEndpoint(URL endpoint);
+	public void setEndpoint(URI endpoint);
 
 	/**
      * <p>Gets the exact URL corresponding to the data query in input for this client 

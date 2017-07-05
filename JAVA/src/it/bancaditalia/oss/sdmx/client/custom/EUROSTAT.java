@@ -20,7 +20,10 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -37,7 +40,6 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import java.net.HttpURLConnection;
 
 /**
  * @author Attilio Mattiocco
@@ -53,13 +55,13 @@ public class EUROSTAT extends RestSdmxClient{
 	private int retries = Integer.parseInt(Configuration.getLateResponseRetries(10));
 	
 
-	public EUROSTAT() throws MalformedURLException{
-		super("Eurostat", new URL(EUROSTAT_PROVIDER), false, false, false);
+	public EUROSTAT() throws URISyntaxException {
+		super("Eurostat", new URI(EUROSTAT_PROVIDER), false, false, false);
 	}
 
 	@Override
 	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		return Sdmx21Queries.getDataflowQuery(endpoint,dataflow, "ESTAT", version).build(needsURLEncoding);
+		return Sdmx21Queries.createDataflowQuery(endpoint,dataflow, "ESTAT", version).buildSdmx21Query();
 	}
 	
 	@Override

@@ -21,6 +21,7 @@
 package it.bancaditalia.oss.sdmx.client.custom;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
@@ -47,10 +49,10 @@ public abstract class DotStat extends RestSdmx20Client{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public DotStat(String name, URL endpoint, boolean needsCredentials, String format) throws MalformedURLException{
+	public DotStat(String name, URI endpoint, boolean needsCredentials, String format) {
 		super(name, endpoint, needsCredentials, null, format);
 	}
-	public DotStat(String name, URL endpoint, boolean needsCredentials) throws MalformedURLException{
+	public DotStat(String name, URI endpoint, boolean needsCredentials) {
 		super(name, endpoint, needsCredentials, null, "compact_v2");
 	}
 
@@ -116,9 +118,13 @@ public abstract class DotStat extends RestSdmx20Client{
 
 
 	@Override
-	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException{
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
-			return RestQueryBuilder.of(endpoint).path("GetDataStructure").path(dsd).build(needsURLEncoding);
+			try {
+				return new RestQueryBuilder(endpoint).addPath("GetDataStructure").addPath(dsd).build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -134,13 +140,12 @@ public abstract class DotStat extends RestSdmx20Client{
 				resource!=null && !resource.isEmpty()){
 			
 			// for OECD use the simple DF id
-			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("GetData").path(dataflow.getId()).path(resource);
+			Sdmx21Queries query = (Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("GetData").addPath(dataflow.getId()).addPath(resource);
 			
 			//query=query+"?";
 			//query += "&format=compact_v2";
-			Sdmx21Queries.addParams(query, startTime, endTime, 
-					serieskeysonly, updatedAfter, includeHistory, format);
-			return query.build(needsURLEncoding);
+			return query.addParams(startTime, endTime, 
+					serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);

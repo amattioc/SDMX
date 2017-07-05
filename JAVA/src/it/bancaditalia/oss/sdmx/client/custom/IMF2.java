@@ -20,15 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.logging.Logger;
+
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * @author Attilio Mattiocco
@@ -38,14 +41,18 @@ public class IMF2 extends RestSdmx20Client{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public IMF2() throws MalformedURLException{
-		super("IMF2", new URL("http://dataservices.imf.org/REST/SDMX_XML.svc"), false, "", "compact_v2");
+	public IMF2() throws URISyntaxException {
+		super("IMF2", new URI("http://dataservices.imf.org/REST/SDMX_XML.svc"), false, "", "compact_v2");
 	}
 	
 	@Override
 	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException{
 		if( endpoint!=null){
-			return RestQueryBuilder.of(endpoint).path("Dataflow").build(needsURLEncoding);
+			try {
+				return new RestQueryBuilder(endpoint).addPath("Dataflow").build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 //			if(flow != null && !flow.isEmpty() && !flow.equalsIgnoreCase("ALL")){
 //				query += "/" + flow;				
 //			}
@@ -56,10 +63,14 @@ public class IMF2 extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException{
 		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
 	
-			return RestQueryBuilder.of(endpoint).path("DataStructure").path(dsd).build(needsURLEncoding);
+			try {
+				return new RestQueryBuilder(endpoint).addPath("DataStructure").addPath(dsd).build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -74,9 +85,8 @@ public class IMF2 extends RestSdmx20Client{
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 			
-			RestQueryBuilder query = RestQueryBuilder.of(endpoint).path("CompactData").path(dataflow.getDsdIdentifier().getId()).path(resource);
-			return Sdmx21Queries.addParams(query, startTime, endTime,
-					serieskeysonly, updatedAfter, includeHistory, format).build(needsURLEncoding);
+			return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("CompactData").addPath(dataflow.getDsdIdentifier().getId()).addPath(resource)).addParams(startTime, endTime,
+					serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);

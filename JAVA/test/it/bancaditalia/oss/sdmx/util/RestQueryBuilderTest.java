@@ -15,7 +15,9 @@
 package it.bancaditalia.oss.sdmx.util;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,11 +28,11 @@ import org.junit.Test;
 public class RestQueryBuilderTest {
 
 	@Test
-	public void test() throws MalformedURLException {
-		URL entryPoint = new URL("http://ws-entry-point");
+	public void test() throws URISyntaxException, MalformedURLException {
+		URI entryPoint = new URI("http://ws-entry-point");
 
-		Assert.assertEquals(entryPoint, RestQueryBuilder.of(entryPoint).build(true));
-		Assert.assertEquals(new URL("http://ws-entry-point/hello/world"), RestQueryBuilder.of(entryPoint).path("hello").path("world").build(true));
-		Assert.assertEquals(new URL("http://ws-entry-point?k1=v1&k2=v2"), RestQueryBuilder.of(entryPoint).param("k1", "v1").param("k2", "v2").build(true));
+		Assert.assertEquals(entryPoint, new RestQueryBuilder(entryPoint).build());
+		Assert.assertEquals(new URI("http://ws-entry-point/hello/world"), new RestQueryBuilder(entryPoint).addPath("hello").addPath("world").build());
+		Assert.assertEquals(new URI("http://ws-entry-point?k1=v1&k2=v2"), new RestQueryBuilder(entryPoint).addParam("k1", "v1").addParam("k2", "v2").build());
 	}
 }

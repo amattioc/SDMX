@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.ProxySelector;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -85,7 +86,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected final boolean supportsCompression;
 	protected final SSLSocketFactory sslSocketFactory;
 
-	protected /* final */ URL endpoint;
+	protected /* final */ URI endpoint;
 	protected boolean dotStat = false;
 	protected boolean needsCredentials = false;
 	protected boolean containsCredentials = false;
@@ -98,7 +99,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	private static final String sourceClass = RestSdmxClient.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public RestSdmxClient(String name, URL endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
+	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
 	{
 		this.endpoint = endpoint;
 		this.name = name;
@@ -108,7 +109,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.sslSocketFactory = sslSocketFactory;
 	}
 
-	public RestSdmxClient(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
+	public RestSdmxClient(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
 	{
 		this.endpoint = endpoint;
 		this.name = name;
@@ -209,12 +210,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 	}
 	
 	@Override
-	public URL getEndpoint() {
+	public URI getEndpoint() {
 		return endpoint;
 	}
 
 	@Override
-	public void setEndpoint(URL endpoint) {
+	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;		
 	}
 
@@ -377,8 +378,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		if( endpoint!=null && dataflow!=null && resource!=null && !resource.isEmpty())
-			return Sdmx21Queries.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null).build(needsURLEncoding);
+			return Sdmx21Queries.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null).buildSdmx21Query();
 		else
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}
@@ -386,17 +387,17 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
 		if( endpoint!=null  && agency!=null && !agency.isEmpty() && dsd!=null && !dsd.isEmpty())
-			return Sdmx21Queries.getStructureQuery(endpoint, dsd, agency,  version, full).build(needsURLEncoding);
+			return Sdmx21Queries.createStructureQuery(endpoint, dsd, agency,  version, full).buildSdmx21Query();
 		else
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 	
 	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		return Sdmx21Queries.getDataflowQuery(endpoint,dataflow, agency, version).build(needsURLEncoding);
+		return Sdmx21Queries.createDataflowQuery(endpoint,dataflow, agency, version).buildSdmx21Query();
 	}
 	
 	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException {
-		return Sdmx21Queries.getCodelistQuery(endpoint, codeList, agency, version).build(needsURLEncoding);
+		return Sdmx21Queries.createCodelistQuery(endpoint, codeList, agency, version).buildSdmx21Query();
 	}
 	
 	private static boolean isRedirection(int code) {
