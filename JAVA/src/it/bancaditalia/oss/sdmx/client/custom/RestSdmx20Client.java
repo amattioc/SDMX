@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.URI;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -40,14 +41,14 @@ import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 
 public abstract class RestSdmx20Client extends RestSdmxClient{
 	
 	private String acceptHdr = null;
 	protected String format = "compact_v2";
 
-	public RestSdmx20Client(String name, URL endpoint, boolean needsCredentials, String acceptHdr, String format) {
+	public RestSdmx20Client(String name, URI endpoint, boolean needsCredentials, String acceptHdr, String format) {
 		super(name, endpoint, needsCredentials, false, false);
 		this.acceptHdr = acceptHdr;
 		this.format = format;
@@ -56,7 +57,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		
-		String query = buildFlowQuery("ALL", null, null);
+		URL query = buildFlowQuery("ALL", null, null);
 		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null);
 		if(dfs.size() > 0)
 		{
@@ -74,7 +75,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException 
 	{
-		String query = buildFlowQuery(dataflow, agency, version);
+		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
 		if(flows.size() >= 1)
 			for (Dataflow item: flows)
@@ -87,7 +88,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	@Override
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
 		if(dsd!=null){
-			String query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
+			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			return runQuery(new DataStructureParser(), query, null).get(0);
 		}
 		else
@@ -96,7 +97,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 
 	@Override
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException {
-		String query = buildCodelistQuery(codeList, agency, version);
+		URL query = buildCodelistQuery(codeList, agency, version);
 		return runQuery(new CodelistParser(), query, null);
 	}
 
@@ -106,21 +107,20 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		String query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		return runQuery(format != null ? new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly) : 
 				new GenericDataParser(dsd, dataflow.getId(), !serieskeysonly), query, acceptHdr);
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
-			String query = RestQueryBuilder.getDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format);
-			return query;
+			return Sdmx21Queries.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
+					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + 

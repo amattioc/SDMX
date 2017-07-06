@@ -20,13 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
+
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -36,37 +41,42 @@ public class ABS extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public ABS() throws MalformedURLException{
-		super("ABS", new URL("	http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
+	public ABS() throws URISyntaxException {
+		super("ABS", new URI("http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
 	}				
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException {
 		if( endpoint!=null  &&
 				dsd!=null && !dsd.isEmpty()){
 			// agency=all is not working. we always use ABS
-			String query = endpoint + "/GetDataStructure/" + dsd + "/ABS";
-			return query;
+			try {
+				return new RestQueryBuilder(endpoint).addPath("GetDataStructure").addPath(dsd).addPath("ABS").build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
-		else{
+		else
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
-		}
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
-		String query = super.buildDataQuery(dataflow, resource + "/ABS", null, null, false, null, false);
+
+		Sdmx21Queries query = (Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("GetData").addPath(dataflow.getId()).addPath(resource).addPath("ABS");
+	    query.addParams(null, null, false, null, false, format);
+
 		if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 			if(startTime != null){
-				query=query+"&startTime="+startTime;
+				query.addParam("startTime", startTime);
 			}
 			if(endTime != null){
-				query=query+"&endTime="+endTime;
+				query.addParam("endTime", endTime);
 			}
 		}
-		return query;
+		return query.buildSdmx21Query();
 	}
 
 	// https://github.com/amattioc/SDMX/issues/19

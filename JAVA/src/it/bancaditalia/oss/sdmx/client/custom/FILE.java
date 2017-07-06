@@ -2,6 +2,8 @@ package it.bancaditalia.oss.sdmx.client.custom;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,17 +11,25 @@ import java.util.Map;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 public class FILE extends RestSdmxClient {
 	
-	public FILE(String name, URL endpoint) {
+	public FILE(String name, URI endpoint) {
 		super(name, endpoint, false, false, false);
 	}
 	
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		File basedir = new File(endpoint.getFile());
+		File basedir;
+		try {
+			basedir = new File(endpoint.toURL().getFile());
+		} catch (MalformedURLException e) {
+			throw SdmxExceptionFactory.wrap(e);
+		}
 		String[] files = basedir.list(new FilenameFilter() {
 			
 			@Override
@@ -47,28 +57,28 @@ public class FILE extends RestSdmxClient {
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory)
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		String id = (dataflow.getFullIdentifier()+ "_" + resource).replaceAll("\\p{Punct}", "_");
-		return endpoint.toString() + "data_" + id + ".xml";
+		return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("data_" + id + ".xml")).buildSdmx21Query();
 	}
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		return endpoint.toString() + "datastructure_" + agency + "_" + dsd + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
+		return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("datastructure_" + agency + "_" + dsd + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml")).buildSdmx21Query();
 	}
 	
 	@Override
-	protected String buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
+	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
 	{
-		return endpoint.toString() + "dataflow_" + agency + "_" + dataflow + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
+		return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("dataflow_" + agency + "_" + dataflow + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml")).buildSdmx21Query();
 	}
 	
 	@Override
-	protected String buildCodelistQuery(String codeList, String agency, String version) throws SdmxException 
+	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException 
 	{
-		return endpoint.toString() + "codelist_" + agency + "_" + codeList + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml";
+		return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("codelist_" + agency + "_" + codeList + "_" + version.replaceAll("\\p{Punct}", "_") + ".xml")).buildSdmx21Query();
 	}
 	
 

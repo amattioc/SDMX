@@ -26,9 +26,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.ProxySelector;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.NavigableMap;
@@ -148,12 +148,12 @@ public class SDMXClientFactory {
 	 * @param description
 	 * @throws SdmxException 
 	 */
-	public static void addProvider(String name, URL endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
+	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
 		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
 	}
 
-	public static void addProvider(String name, URL endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
+	public static void addProvider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
 		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
 	}
@@ -166,16 +166,16 @@ public class SDMXClientFactory {
         try {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
-            final URL providerURL = null != providerEndpoint ? new URL(providerEndpoint) : null;
+            final URI providerURL = null != providerEndpoint ? new URI(providerEndpoint) : null;
             final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
             final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
             final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
             final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
             addProvider(providerName, providerURL, null, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom);
-        } catch (final MalformedURLException e) {
+        } catch (URISyntaxException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
-        }
+		}
     }
 
     /**
@@ -187,7 +187,7 @@ public class SDMXClientFactory {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + id + ".name", id);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + id + ".endpoint");
             if(providerEndpoint != null && !providerEndpoint.isEmpty()){
-            	final URL providerURL = new URL(providerEndpoint);
+            	final URI providerURL = new URI(providerEndpoint);
 		        final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsCredentials", "false"));
 		        final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsURLEncoding", "false"));
 		        final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".supportsCompression", "false"));
@@ -216,10 +216,10 @@ public class SDMXClientFactory {
             	logger.warning("No URL has been configured for the external provider: '" + id + "'. It will be skipped.");
             	return;
             }
-        } catch (final MalformedURLException e) {
+        } catch (URISyntaxException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
-        }
+		}
     }
 
 	/**
@@ -244,15 +244,15 @@ public class SDMXClientFactory {
 		if(provider != null && !provider.isCustom())
 		{
 			hostname = provider.getEndpoint().getHost();
-			if(provider.getEndpoint().getProtocol().toLowerCase().startsWith("http")){
+			if(provider.getEndpoint().getScheme().toLowerCase().startsWith("http")){
 				client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.getSSLSocketFactory(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
 			}
-			else if(provider.getEndpoint().getProtocol().toLowerCase().equals("file")){
+			else if(provider.getEndpoint().getScheme().toLowerCase().equals("file")){
 				client = new FILE(provider.getName(), provider.getEndpoint());
 			}
 			else 
 			{
-				logger.severe("The protocol '" + provider.getEndpoint().getProtocol() + "' is not supported.");
+				logger.severe("The protocol '" + provider.getEndpoint().getScheme() + "' is not supported.");
 				throw new SdmxInvalidParameterException(errorMsg);
 			}
 		}

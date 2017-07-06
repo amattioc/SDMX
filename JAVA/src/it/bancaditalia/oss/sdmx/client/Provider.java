@@ -20,7 +20,7 @@
  */
 package it.bancaditalia.oss.sdmx.client;
 
-import java.net.URL;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -41,7 +41,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 public class Provider {
 	private String name;
 	private String description;
-	private URL endpoint;
+	private URI endpoint;
 	private boolean needsCredentials;
 	private boolean needsURLEncoding;
 	private boolean supportsCompression;
@@ -54,7 +54,7 @@ public class Provider {
 	private Hashtable<String, DataFlowStructure> dsdNameToStructureCache = null;
 	private SSLSocketFactory sslSocketFactory;
 
-	public Provider(String name, URL endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException {
+	public Provider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException {
 		this.name = name;
 		this.endpoint = endpoint;
 		this.description = description;
@@ -93,11 +93,11 @@ public class Provider {
 		this.name = name;
 	}
 
-	public URL getEndpoint() {
+	public URI getEndpoint() {
 		return endpoint;
 	}
 
-	public void setEndpoint(URL endpoint) {
+	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;
 	}
 

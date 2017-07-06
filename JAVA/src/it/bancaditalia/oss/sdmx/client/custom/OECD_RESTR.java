@@ -20,8 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author Attilio Mattiocco
@@ -29,7 +29,7 @@ import java.net.URL;
  */
 public class OECD_RESTR extends DotStat{
 		
-	public OECD_RESTR() throws MalformedURLException{
-		super("OECD_RESTR", new URL("https://stats.oecd.org/restsdmx/sdmx.ashx/"), true);
+	public OECD_RESTR() throws URISyntaxException {
+		super("OECD_RESTR", new URI("https://stats.oecd.org/restsdmx/sdmx.ashx/"), true);
 	}
 }

@@ -20,12 +20,17 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
+
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -37,22 +42,26 @@ public class IMF extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public IMF() throws MalformedURLException{
-		super("IMF", new URL(baseEndpoint + "/sdmx.ashx"), false);
+	public IMF() throws URISyntaxException {
+		super("IMF", new URI(baseEndpoint + "/sdmx.ashx"), false);
 	}
 
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
-		if( endpoint!=null  &&
-				dsd!=null && !dsd.isEmpty()){
-			String query = null;
-			if(!dsd.contentEquals("ALL")){
-				query = endpoint + "/GetKeyFamily/" + dsd;
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException{
+		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+			RestQueryBuilder query;
+			try {
+				query = !dsd.contentEquals("ALL")
+					? new RestQueryBuilder(endpoint)
+					: new RestQueryBuilder(new URI(baseEndpoint));
+			} catch (URISyntaxException ex) {
+				throw new RuntimeException(ex);
 			}
-			else{
-				query = baseEndpoint + "/GetKeyFamily/" + dsd;
+			try {
+				return query.addPath("GetKeyFamily").addPath(dsd).build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
 			}
-			return query;
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -60,27 +69,32 @@ public class IMF extends DotStat{
 	}
 
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
 		if( endpoint!=null && 
 				dataflow!=null &&
 				resource!=null && !resource.isEmpty()){
 
 			// for IMF use the simple DF id
-			String query = endpoint + "/GetData?dataflow=" + dataflow.getId() + "&key=";
-			query += resource ;
+			RestQueryBuilder query = new RestQueryBuilder(endpoint).addPath("GetData")
+				.addParam("dataflow", dataflow.getId())
+				.addParam("key", resource)
+				.addParam("format", format);
 			
-			query += "&format=" + format;
 			if((startTime != null && !startTime.isEmpty()) || (endTime != null && !endTime.isEmpty())){
 				if(startTime != null){
-					query=query+"&startTime="+startTime;
+					query.addParam("startTime", startTime);
 				}
 				if(endTime != null){
-					query=query+"&endTime="+endTime;
+					query.addParam("endTime", endTime);
 				}
 			}
-			return query;
+			try {
+				return query.build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);

@@ -20,13 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.parser.v21.RestQueryBuilder;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
+
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -36,16 +41,18 @@ public class WB extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public WB() throws MalformedURLException{
-		super("WorldBank", new URL("http://api.worldbank.org"), false, null);
+	public WB() throws URISyntaxException {
+		super("WorldBank", new URI("http://api.worldbank.org"), false, null);
 	}
 	
 	@Override
-	protected String buildDSDQuery(String dsd, String agency, String version, boolean full){
-		if( endpoint!=null  &&
-				dsd!=null && !dsd.isEmpty()){
-			String query = endpoint + "/KeyFamily?id=" + dsd;
-			return query;
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException{
+		if( endpoint!=null  && dsd!=null && !dsd.isEmpty()){
+			try {
+				return new RestQueryBuilder(endpoint).addPath("KeyFamily").addParam("id", dsd).build();
+			} catch (MalformedURLException e) {
+				throw SdmxExceptionFactory.wrap(e);
+			}
 		}
 		else{
 			throw new RuntimeException("Invalid query parameters: dsd=" + dsd + " endpoint=" + endpoint);
@@ -53,12 +60,11 @@ public class WB extends DotStat{
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory){
-		String query = endpoint + "/v2/data/" + dataflow.getId() + "/" + fixKey(resource);
-		query += RestQueryBuilder.addParams(startTime, endTime, serieskeysonly, null, false, format);
-		return query;
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException{
+		
+		return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("v2").addPath("data").addPath(dataflow.getId()).addPath(fixKey(resource))).addParams(startTime, endTime, serieskeysonly, null, false, format).buildSdmx21Query();
 	}
 	
 	// https://github.com/amattioc/SDMX/issues/19

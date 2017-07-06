@@ -20,11 +20,12 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * @author Attilio Mattiocco
@@ -32,12 +33,12 @@ import java.net.URL;
  */
 public class NBB extends DotStat{
 		
-	public NBB() throws MalformedURLException{
-		super("NBB", new URL("https://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
+	public NBB() throws URISyntaxException {
+		super("NBB", new URI("https://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
 	}
 	
 	@Override
-	protected String buildDataQuery(Dataflow dataflow, String resource, 
+	protected URL buildDataQuery(Dataflow dataflow, String resource, 
 			String startTime, String endTime, boolean serieskeysonly, 
 			String updatedAfter, boolean includeHistory) throws SdmxException{
 		return super.buildDataQuery(dataflow, resource + "/all", startTime, endTime, serieskeysonly, null, false);
