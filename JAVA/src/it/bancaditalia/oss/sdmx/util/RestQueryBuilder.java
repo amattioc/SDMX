@@ -87,8 +87,8 @@ public class RestQueryBuilder {
 			StringBuilder result = new StringBuilder();
 			result.append(entryPoint);
 			
-			for (String o : paths)
-				result.append('/').append(o);
+			for (String path : paths)
+				result.append('/').append(URLEncoder.encode(path, "UTF-8"));
 			
 			boolean first = true;
 			for (Entry<String, String> entry: params.entrySet())
