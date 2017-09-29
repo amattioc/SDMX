@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import java.io.BufferedReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -30,7 +28,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -80,12 +77,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public List<DataFlowStructure> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	@Override
+	public List<DataFlowStructure> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;

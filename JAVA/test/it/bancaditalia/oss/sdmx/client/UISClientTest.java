@@ -27,13 +27,13 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class UISClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("UIS", null));
-		System.err.println(SdmxClientHandler.getFlow("UIS", "SCN_DS"));
-		System.err.println(SdmxClientHandler.getDSDIdentifier("UIS", "SCN_DS"));
-		System.err.println(SdmxClientHandler.getDimensions("UIS", "SCN_DS"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("UIS", "SCN_DS"));
-		System.err.println(SdmxClientHandler.getCodes("UIS", "SCN_DS", "LOCATION"));
-		System.err.println(SdmxClientHandler.getTimeSeries("UIS", "SCN_DS/PERSDEN_EMP_TFTE.ITA", "2010", "2015"));
+//		System.err.println(SdmxClientHandler.getFlows("UIS", null));
+//		System.err.println(SdmxClientHandler.getFlow("UIS", "SCN_DS"));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("UIS", "SCN_DS"));
+//		System.err.println(SdmxClientHandler.getDimensions("UIS", "SCN_DS"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("UIS", "DEM_ECO"));
+//		System.err.println(SdmxClientHandler.getCodes("UIS", "SCN_DS", "LOCATION"));
+		System.err.println(SdmxClientHandler.getTimeSeries("UIS", "DEM_ECO.DEC.LCU_USD._Z._Z.AF", null, null));
 
 	}
 }

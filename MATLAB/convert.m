@@ -90,9 +90,14 @@ function ts = convertSeries(series, iso8601Date)
 	name = series.getName();
 
     if numOfSamples ~= 0
-        if numOfSamples == numOfTimes 
+        if numOfSamples == numOfTimes
+            startdate = arrayTimeSlots(1,:);
+            if(numOfTimes == 1)
+                %seems a matlab bug in the constructor of the timeseries
+                arrayTimeSlots = cellstr(arrayTimeSlots);
+            end
             ts = timeseries(arrayObservations, arrayTimeSlots);
-            ts.timeinfo.startdate = arrayTimeSlots(1,:);
+            ts.timeinfo.startdate = startdate;
         else
             error(['Time series: ', char(name), '. Number of samples different from number of timeslots']);
         end   %if 

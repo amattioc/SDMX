@@ -27,11 +27,11 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class IstatClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("ISTAT", null));
-		System.err.println(SdmxClientHandler.getDSDIdentifier("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getDimensions("ISTAT", "144_125"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ISTAT", "115_200_M.M.IT.CONS_PROD.F.N", null, null));
+//		System.err.println(SdmxClientHandler.getFlows("ISTAT", null));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("ISTAT", "144_125"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("ISTAT", "144_125"));
+//		System.err.println(SdmxClientHandler.getDimensions("ISTAT", "144_125"));
+		System.err.println(SdmxClientHandler.getTimeSeries("ISTAT", "169_745/M.00ST.IT.4.55", null, null));
 		
 	}
 }

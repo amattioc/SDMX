@@ -29,7 +29,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -42,6 +44,8 @@ import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.api.PortableDataSet;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
+import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
@@ -144,10 +148,13 @@ public class SdmxClientHandler {
 
 	/**
 	 * Get the list of all available SDMX Providers
-	 * @return
+	 * @return A map where the keys are the provider names and the values the needsCredentials values 
 	 */
-	public static SortedSet<String> getProviders() {
-		return SDMXClientFactory.getProviders().navigableKeySet();
+	public static SortedMap<String, Boolean> getProviders() {
+		TreeMap<String, Boolean> result = new TreeMap<String, Boolean>();
+		for (Entry<String, Provider> entry: SDMXClientFactory.getProviders().entrySet())
+			result.put(entry.getKey(), entry.getValue().isNeedsCredentials());
+		return result;
     }
 	
 	public static DataFlowStructure getDataFlowStructure(String provider, String dataflow) throws SdmxException {
@@ -167,9 +174,32 @@ public class SdmxClientHandler {
 		if(result == null)
 		{
 			logger.finer("DSD for " + keyF.getFullIdentifier() + " not cached. Calling Provider.");
-			result = getClient(provider).getDataFlowStructure(keyF, !Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID));
-			if(result != null)
+			result = getClient(provider).getDataFlowStructure(keyF,
+					/*
+					 *  TODO: Find a way to obtain dimension description without a full query. Original code: 
+					 *  !Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)
+					 */
+					true);
+			if(result != null){
+				if(! (getClient(provider) instanceof RestSdmx20Client)){
+					// workaround: some providers do not set in the dsd response all the referenced codelists
+					for(Dimension x : result.getDimensions()){
+						if (x.getCodeList() != null && (x.getCodeList().getCodes() == null || x.getCodeList().getCodes().isEmpty())){
+							Map<String, String> cl = getClient(provider).getCodes(x.getCodeList().getId(), x.getCodeList().getAgency(), x.getCodeList().getVersion());
+							x.getCodeList().setCodes(cl);
+							result.setDimension(x);
+						}
+					}
+					for(SdmxAttribute x : result.getAttributes()){
+						if (x.getCodeList() != null && (x.getCodeList().getCodes() == null || x.getCodeList().getCodes().isEmpty())){
+							Map<String, String> cl = getClient(provider).getCodes(x.getCodeList().getId(), x.getCodeList().getAgency(), x.getCodeList().getVersion());
+							x.getCodeList().setCodes(cl);
+							result.setAttribute(x);
+						}
+					}
+				}
 				p.setDSD(fullkeyFamilyKey, result);
+			}
 			else
 				throw new SdmxXmlContentException("Could not find dataflow structure for '" + dataflow + "' in provider: '" + provider + "'");
 		}
@@ -255,7 +285,7 @@ public class SdmxClientHandler {
 		
 		return codes;
 	}
-
+	
 	public static Dataflow getFlow(String provider, String dataflow) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){
 			logger.severe("The name of the provider cannot be null");
@@ -280,10 +310,19 @@ public class SdmxClientHandler {
 	}
 	
 	public static Map<String,String> getFlows(String provider, String pattern) throws SdmxException {
+		Map<String, Dataflow> flows = getFlowObjects(provider, pattern);
+		Map<String, String> result = new HashMap<String, String>();
+		for (Entry<String, Dataflow> entry: flows.entrySet())
+			result.put(entry.getKey(), entry.getValue().getDescription());
+		return result;
+	}
+
+	public static Map<String, Dataflow> getFlowObjects(String provider, String pattern) throws SdmxException {
 		if(provider == null || provider.trim().isEmpty()){
 			logger.severe("The name of the provider cannot be null");
 			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
 		}
+
 		Map<String,Dataflow> flows = null;
 		Provider p = getProvider(provider);
 		flows = p.getFlows();
@@ -296,11 +335,10 @@ public class SdmxClientHandler {
 			}
 			else
 				throw new SdmxXmlContentException("Could not get dataflows from provider: '" + provider + "'");
-			
 		}
 		return filterFlows(flows, pattern);
 	}
-
+	
 	public static PortableDataSet getTimeSeriesTable(String provider, String tsKey,
 			String startTime, String endTime) throws SdmxException, DataStructureException {
 		return new PortableDataSet(getTimeSeries(provider, tsKey, startTime, endTime, false, null, false));
@@ -323,25 +361,22 @@ public class SdmxClientHandler {
 	}
 
 	private static List<PortableTimeSeries> getTimeSeries(String provider, String tsKey, String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		if(provider == null || provider.trim().isEmpty()){
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	{
+		if (provider == null || provider.trim().isEmpty()) {
 			logger.severe("The name of the provider cannot be null");
 			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
 		}
-		if(tsKey == null || tsKey.trim().isEmpty()){
+		if (tsKey == null || tsKey.trim().isEmpty()) {
 			logger.severe("The tsKey cannot be null");
 			throw new SdmxInvalidParameterException("The tsKey cannot be null");
 		}
-		List<PortableTimeSeries> ts = new ArrayList<PortableTimeSeries> ();
-		String[] ids = tsKey.trim().split("\\s*;\\s*");
-		for (int i = 0; i < ids.length; i++) {
-			List<PortableTimeSeries> tmp = getSingleTimeSeries(provider, ids[i], startTime, endTime, 
-					serieskeysonly, updatedAfter, includeHistory);
-			if(tmp != null){
-				ts.addAll(tmp);
-			}
-		}
-		return(ts);
+
+		List<PortableTimeSeries> result = new ArrayList<PortableTimeSeries>();
+		for (String keyId: tsKey.trim().split("\\s*;\\s*"))
+			result.addAll(getSingleTimeSeries(provider, keyId, startTime, endTime, serieskeysonly, updatedAfter, includeHistory));
+		
+		return(result);
 	}
 
 	public static String getDataURL(String provider, String tsKey, String start, String end, 
@@ -516,27 +551,28 @@ public class SdmxClientHandler {
 		}
 	}
 	
-	private static Map<String,String> filterFlows(Map<String,Dataflow> flows, String pattern){
+	private static Map<String, Dataflow> filterFlows(Map<String,Dataflow> flows, String pattern){
 		final String sourceMethod = "filterFlows";
 		logger.entering(sourceClass, sourceMethod);
-		Map<String,String> result = new HashMap<String,String>();
-		if(flows != null && flows.size() > 0){
-			if(pattern != null && !pattern.trim().isEmpty()){
+		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
+		if(flows != null && flows.size() > 0)
+		{
+			if(pattern != null && !pattern.trim().isEmpty())
 				pattern = pattern.replaceAll ("\\*", ".*").replaceAll ("\\?", ".");
-			}
-			for (Iterator<String> iterator = flows.keySet().iterator(); iterator.hasNext();) {
-				String key = (String) iterator.next();
-				String value = flows.get(key).getDescription();
-				if(pattern != null && !pattern.trim().isEmpty()){
-					if(key.matches(pattern) || value.matches(pattern)){
-						result.put(key, value);
-					}
-				}
-				else{
-					result.put(key, value);
-				}
+
+			for (Entry<String, Dataflow> entry: flows.entrySet())
+			{
+				String description = entry.getValue().getDescription();
+				if (pattern != null && !pattern.trim().isEmpty())
+					if(entry.getKey().matches(pattern) || description.matches(pattern))
+						result.put(entry.getKey(), entry.getValue());
+					else
+						;
+				else
+					result.put(entry.getKey(), entry.getValue());
 			}
 		}
+		
 		logger.exiting(sourceClass, sourceMethod);
 		return result;
 	}

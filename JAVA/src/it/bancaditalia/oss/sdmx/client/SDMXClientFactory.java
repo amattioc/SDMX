@@ -64,6 +64,7 @@ public class SDMXClientFactory {
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
 	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
 	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
+	private static final String WB_PROVIDER = "http://api.worldbank.org/v2/sdmx/rest";
 	
 	//read the configuration file
 	static {
@@ -99,6 +100,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
         addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
         addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
+	    addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
 
 
 	    //add internal 2.0 providers
@@ -108,7 +110,6 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("IMF", null, false, false, false, "International Monetary Fund", true);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
-	    addBuiltInProvider("WB", null, false, false, false, "World Bank (BETA provider)", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
@@ -227,9 +228,6 @@ public class SDMXClientFactory {
      *
 	 * @param providerName A non-null provider identification short name. 
 	 * @return
-	 * @throws ClassNotFoundException if the provider implementation couldn't be found in classpath 
-	 * @throws InstantiationException if the provider implementation does not provide a default constructor
-	 * @throws IllegalAccessException if the provider implementation default constructor is not public
 	 */
 	public static GenericSDMXClient createClient(String providerName) throws SdmxException {
 		final String sourceMethod = "createClient";

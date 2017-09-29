@@ -20,14 +20,12 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import java.io.Reader;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -54,15 +52,13 @@ public class CodelistParser implements Parser<Map<String,String>> {
 	static final String ID = "id";
 	static final String DESCRIPTION = "Name";
 
-	public Map<String,String> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
-		return parse(xmlBuffer, languages, CODELIST, CODE, ID, DESCRIPTION);
+	public Map<String,String> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+		return parse(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
-	public static Map<String,String> parse(Reader xmlBuffer, LanguagePriorityList languages, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
+	public static Map<String,String> parse(XMLEventReader eventReader, LanguagePriorityList languages, String codelist, String code, String id, String description) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 		Map<String,String> codes = getCodes(eventReader, languages, codelist, code, id, description);
 		
 		logger.exiting(sourceClass, sourceMethod);

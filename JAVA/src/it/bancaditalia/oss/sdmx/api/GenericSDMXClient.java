@@ -37,6 +37,10 @@ public interface GenericSDMXClient {
 	 * @return a HashTable of mappings (flow id and name)
 	 * @throws SdmxException 
 	 */
+	/**
+	 * @return
+	 * @throws SdmxException
+	 */
 	public Map<String, Dataflow> getDataflows() throws SdmxException;
 
 	/**
@@ -47,6 +51,13 @@ public interface GenericSDMXClient {
 	 * @return the dsd identifier (id, agency, version)
 	 * @throws SdmxException 
 	 */
+	/**
+	 * @param dataFlow
+	 * @param agency
+	 * @param version
+	 * @return
+	 * @throws SdmxException
+	 */
 	public Dataflow getDataflow(String dataFlow, String agency, String version) throws SdmxException;
 	
 	/**
@@ -55,6 +66,12 @@ public interface GenericSDMXClient {
 	 * @param full if true, for 2.1 providers it retrieves the full dsd, with all the codelists.
 	 * @return the dimensions and (if configured) code lists
 	 * @throws SdmxException 
+	 */
+	/**
+	 * @param dsd
+	 * @param full
+	 * @return
+	 * @throws SdmxException
 	 */
 	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException;
 
@@ -65,6 +82,13 @@ public interface GenericSDMXClient {
 	 * @param codeList name of the codelist to get
 	 * @param agency agency of the codelist to get
 	 * @param version version of the codelist to get
+	 * @return
+	 * @throws SdmxException
+	 */
+	/**
+	 * @param codeList
+	 * @param agency
+	 * @param version
 	 * @return
 	 * @throws SdmxException
 	 */
@@ -92,6 +116,18 @@ public interface GenericSDMXClient {
      * @return the list of {@link PortableTimeSeries }
 	 * @throws SdmxException 
      */
+	/**
+	 * @param dataflow
+	 * @param dsd
+	 * @param resource
+	 * @param startTime
+	 * @param endTime
+	 * @param seriesKeyOnly
+	 * @param updatedAfter
+	 * @param includeHistory
+	 * @return
+	 * @throws SdmxException
+	 */
 	public List<PortableTimeSeries> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
 			String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;
@@ -101,6 +137,9 @@ public interface GenericSDMXClient {
      * with setCredentials()
      * @return true if credentials have to be set
      */
+	/**
+	 * @return
+	 */
 	public boolean needsCredentials();
 	
 	/**
@@ -109,6 +148,10 @@ public interface GenericSDMXClient {
      * @param user the user name
      * @param pw the password
      */
+	/**
+	 * @param user
+	 * @param pw
+	 */
 	public void setCredentials(String user, String pw);
 
 	/**
@@ -116,11 +159,18 @@ public interface GenericSDMXClient {
      * @return the endpoint URL
 	 * @throws SdmxException 
      */
+	/**
+	 * @return
+	 * @throws SdmxException
+	 */
 	public URI getEndpoint() throws SdmxException;
 
 	/**
      * <p>Sets the URL of the web service for this provider client
      */
+	/**
+	 * @param endpoint
+	 */
 	public void setEndpoint(URI endpoint);
 
 	/**
@@ -133,6 +183,17 @@ public interface GenericSDMXClient {
      * @return the query URL for the endpoint
 	 * @throws SdmxException 
      */
+	/**
+	 * @param dataflow
+	 * @param resource
+	 * @param startTime
+	 * @param endTime
+	 * @param seriesKeyOnly
+	 * @param updatedAfter
+	 * @param includeHistory
+	 * @return
+	 * @throws SdmxException
+	 */
 	public String buildDataURL(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;

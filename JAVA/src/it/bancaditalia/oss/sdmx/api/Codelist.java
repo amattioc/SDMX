@@ -20,15 +20,41 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * @author m027907
+ *
+ */
+/**
+ * @author m027907
+ *
+ */
 public class Codelist {
+	/**
+	 * 
+	 */
 	private String id = null;
+	/**
+	 * 
+	 */
 	private String agency = null;
+	/**
+	 * 
+	 */
 	private String version = null;
 	// code id --> code description
-	private Map<String, String> codes;
+	/**
+	 * 
+	 */
+	private final Map<String, String> codes = new LinkedHashMap<String, String>();
 
+	/**
+	 * @param id
+	 * @param agency
+	 * @param version
+	 */
 	public Codelist(String id, String agency, String version) {
 		super();
 		this.id = id;
@@ -36,6 +62,9 @@ public class Codelist {
 		this.version = version;
 	}
 	
+	/**
+	 * 
+	 */
 	public Codelist() {
 		super();
 		this.id = null;
@@ -43,33 +72,71 @@ public class Codelist {
 		this.version = null; 
 	}
 
-	public void setCodes(Map<String, String> codes) {
-		this.codes = codes;
+	/**
+	 * @param codes
+	 */
+	/**
+	 * @param codes
+	 */
+	public void setCodes(Map<String, String> codes) 
+	{
+		if (codes != null)
+		{
+			this.codes.clear();
+			this.codes.putAll(codes);
+		}
 	}
 
+	/**
+	 * @return
+	 */
 	public Map<String, String> getCodes() {
 		return codes;
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getId() {
 		return id;
 	}
+	/**
+	 * @param id
+	 */
+	/**
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
+	/**
+	 * @return
+	 */
 	public String getAgency() {
 		return agency;
 	}
+	/**
+	 * @param agency
+	 */
 	public void setAgency(String agency) {
 		this.agency = agency;
 	}
+	/**
+	 * @return
+	 */
 	public String getVersion() {
 		return version;
 	}
+	/**
+	 * @param version
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getFullIdentifier() {
 		String codelist = id;
 		if(agency!=null){
@@ -81,6 +148,9 @@ public class Codelist {
 		return codelist;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

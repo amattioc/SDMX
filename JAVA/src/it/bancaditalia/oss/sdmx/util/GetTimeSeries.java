@@ -20,7 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -55,7 +54,7 @@ public class GetTimeSeries {
 				String user = args[4];
 				String pw;
 				if (args.length == 5)
-					pw = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF-8"))).readLine();
+					pw = new SafeLineReader(new InputStreamReader(System.in, Charset.forName("UTF-8"))).readLine();
 				else
 					pw = args[5];	// arg 5
 				try {

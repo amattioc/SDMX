@@ -31,7 +31,7 @@ public class ECBClientTest {
 //		
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "MOBILE_EXR"));
 //		
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "ICPF"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "EXR"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
 //		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
 //		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, "2015-01-01", true));
@@ -39,7 +39,12 @@ public class ECBClientTest {
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null));
+		SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null);
 		
+		SdmxClientHandler.addLocalProvider("TEST", "D:\\Dati\\Profili\\e922480\\Desktop\\FILETEST", "my test");
+		System.err.println(SdmxClientHandler.getDimensions("TEST", "EXR"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("TEST", "EXR"));
+		System.err.println(SdmxClientHandler.getCodes("TEST", "EXR", "FREQ"));
+		System.err.println(SdmxClientHandler.getTimeSeries("TEST", "EXR.M.USD.EUR.SP00.A",  null, null));
 	}
 }

@@ -45,49 +45,68 @@ public class DataFlowStructure {
 	
 	// this is an ordered list (id, codelist). the position is got from the DSD 
 	// key: dimension id --> dimension
-	private Map<String, Dimension> dimensions;
+	private final Map<String, Dimension> dimensions = new HashMap<String, Dimension>();
+	private final Map<String, SdmxAttribute> attributes = new HashMap<String, SdmxAttribute>();
 
-	private Map<String, SdmxAttribute> attributes;
-
-	public DataFlowStructure() {
-		super();
-		// key: dimension id --> dimension
-		dimensions = new HashMap<String, Dimension>();
-		attributes = new HashMap<String, SdmxAttribute>();
-	}
-	
+	/**
+	 * @return
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
 
+	/**
+	 * @param name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getAgency() {
 		return agency;
 	}
 
+	/**
+	 * @param agency
+	 */
 	public void setAgency(String agency) {
 		this.agency = agency;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getVersion() {
 		return version;
 	}
 
+	/**
+	 * @param version
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 
+	/**
+	 * @return
+	 */
 	public List<Dimension> getDimensions() {
 		Dimension[] result = null;
 		Collection<Dimension> dims = dimensions.values();
@@ -101,42 +120,76 @@ public class DataFlowStructure {
 		return Arrays.asList(result);
 	}
 
+	/**
+	 * @return
+	 */
 	public List<SdmxAttribute> getAttributes() {
 		return new ArrayList<SdmxAttribute>(attributes.values());
 	}
 
+	/**
+	 * @param dim
+	 */
 	public void setDimension(Dimension dim) {
 		this.dimensions.put(dim.getId(), dim);
 	}
 
+	/**
+	 * @param dimensionName
+	 * @return
+	 */
 	public Dimension getDimension(String dimensionName) {
 		return this.dimensions.get(dimensionName);
 	}
 
+	/**
+	 * @param attr
+	 */
 	public void setAttribute(SdmxAttribute attr) {
 		this.attributes.put(attr.getId(), attr);
 	}
 
+	/**
+	 * @param attrName
+	 * @return
+	 */
 	public SdmxAttribute getAttribute(String attrName) {
 		return this.attributes.get(attrName);
 	}
 
+	/**
+	 * @param timeDimension
+	 */
 	public void setTimeDimension(String timeDimension) {
 		this.timeDimension = timeDimension;
 	}
 
+	/**
+	 * @param candidate
+	 * @return
+	 */
 	public boolean isDimension(String candidate) {
 		return dimensions.containsKey(candidate);
 	}
 	
+	/**
+	 * @param candidate
+	 * @return
+	 */
 	public int getDimensionPosition(String candidate) {
 		return dimensions.get(candidate).getPosition();
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getTimeDimension() {
 		return timeDimension;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getFullIdentifier() {
 		String dsd = id;
 		if(agency!=null){
@@ -148,6 +201,9 @@ public class DataFlowStructure {
 		return dsd;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -158,6 +214,9 @@ public class DataFlowStructure {
 		return builder.toString();
 	}
 
+	/**
+	 * @return
+	 */
 	public String getMeasure() {
 		return "OBS_VALUE";
 	}

@@ -35,50 +35,86 @@ public class Dataflow {
 	private String version;
 	private DSDIdentifier dsdIdentifier;
 
+	/**
+	 * @return
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getDescription() {
 		return name;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getName() {
 		return getFullIdentifier() + " ; " + name;
 	}
 
+	/**
+	 * @param name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getAgency() {
 		return agency;
 	}
 
+	/**
+	 * @param agency
+	 */
 	public void setAgency(String agency) {
 		this.agency = agency;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getVersion() {
 		return version;
 	}
 
+	/**
+	 * @param version
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 
+	/**
+	 * @return
+	 */
 	public DSDIdentifier getDsdIdentifier() {
 		return dsdIdentifier;
 	}
 
+	/**
+	 * @param dsdIdentifier
+	 */
 	public void setDsdIdentifier(DSDIdentifier dsdIdentifier) {
 		this.dsdIdentifier = dsdIdentifier;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getFullIdentifier() {
 		String dsd = id;
 		if(agency!=null){
@@ -90,6 +126,9 @@ public class Dataflow {
 		return dsd;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

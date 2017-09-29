@@ -65,7 +65,7 @@ public class LocalizedText {
 		Iterator<Attribute> attributes = startElement.getAttributes();
 		while (attributes.hasNext()) {
 			Attribute attribute = attributes.next();
-			if (attribute.getName().getLocalPart().equals(this.LANG)) {
+			if (attribute.getName().getLocalPart().equals(LANG)) {
 				put(attribute.getValue(), eventReader.getElementText());
 			}
 		}

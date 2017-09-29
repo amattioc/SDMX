@@ -77,7 +77,7 @@ public class EUROSTAT extends RestSdmxClient{
 			if(isAsyncDelivery(msg))
 			{
 				String url = msg.getUrl();
-				Parser<DataParsingResult> parser = new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly);
+				Parser<DataParsingResult> parser = new CompactDataParser(dsd, dataflow, !serieskeysonly);
 				
 				for(int i = 1; i <= retries; i++)
 				{

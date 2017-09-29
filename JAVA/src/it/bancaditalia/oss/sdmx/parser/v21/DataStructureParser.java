@@ -20,7 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -42,6 +40,7 @@ import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.api.SdmxMetaElement;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
@@ -81,11 +80,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	static final String LOCAL_REPRESENTATION = "LocalRepresentation";
 	static final String REF = "Ref";
 
-	public List<DataFlowStructure> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	@Override
+	public List<DataFlowStructure> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 		
 		List<DataFlowStructure> result = new ArrayList<DataFlowStructure>();
 		Map<String, Map<String,String>> codelists = null;
@@ -246,7 +244,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 	}
 	
 	private static void setStructureDimensions(
-			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException {
+			DataFlowStructure currentStructure, XMLEventReader eventReader, Map<String, Map<String,String>> codelists, Map<String, String> concepts) throws XMLStreamException, SdmxXmlContentException {
 		final String sourceMethod = "setStructureDimensions";
 		logger.entering(sourceClass, sourceMethod);
 		

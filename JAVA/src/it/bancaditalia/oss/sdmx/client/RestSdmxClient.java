@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -48,6 +49,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
@@ -189,7 +192,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException 
 	{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly), query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
+		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		Message msg = ts.getMessage();
 		if(msg != null)
 			logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
@@ -323,7 +326,12 @@ public class RestSdmxClient implements GenericSDMXClient{
 				try 
 				{
 					reader = new InputStreamReader(stream, UTF_8);
-					return parser.parse(reader, languages != null ? languages : LanguagePriorityList.ANY);
+					XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+					BufferedReader br = skipBOM(reader);
+					//InputStream in = new ByteArrayInputStream(xmlBuffer);
+					XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
+					
+					return parser.parse(eventReader, languages != null ? languages : LanguagePriorityList.ANY);
 				} finally {
 					if (reader != null)
 						reader.close();
@@ -402,5 +410,37 @@ public class RestSdmxClient implements GenericSDMXClient{
 	
 	private static boolean isRedirection(int code) {
 		return code >= HttpURLConnection.HTTP_MULT_CHOICE && code <= HttpURLConnection.HTTP_SEE_OTHER;
+	}
+
+	// some 2.0 providers are apparently adding a BOM
+	public BufferedReader skipBOM(Reader xmlBuffer) throws SdmxException{
+		BufferedReader br = new BufferedReader(xmlBuffer) 
+		{ 
+			@Override public void close() throws IOException 
+			{  
+				logger.fine("GenericDataParser::skipBOM: closing stream.");
+				super.close();
+			} 
+		};
+		try {
+			// java uses Unicode big endian
+			char[] cbuf = new char[1];
+			// TODO: Source of problems here
+			br.mark(1);
+			br.read(cbuf, 0, 1);
+			logger.fine(String.format("0x%2s", Integer.toHexString(cbuf[0])));
+			if(		(byte)cbuf[0] == (byte)0xfeff) 
+			{
+				logger.fine("BOM found and skipped");
+			}
+			else{
+				// TODO: Source of problems here
+				logger.fine("GenericDataParser::skipBOM: Resetting stream.");
+				br.reset();
+			}
+		} catch (IOException e) {
+			throw SdmxExceptionFactory.wrap(e);
+		}
+		return br;
 	}
 }

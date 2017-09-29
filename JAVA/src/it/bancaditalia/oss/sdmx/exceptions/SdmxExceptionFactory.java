@@ -54,7 +54,7 @@ public final class SdmxExceptionFactory
 	 * Builds a SdmxResponseException from a given http code.
 	 * 
 	 * @param httpCode an http response code that have a SDMX meaning as defined in the specification
-	 * @param inner an optional IOException that caused the exception being built
+	 * @param cause an optional IOException that caused the exception being built
 	 * @param provider an optional provider eventually containing custom sdmx message codes
 	 * @return
 	 */

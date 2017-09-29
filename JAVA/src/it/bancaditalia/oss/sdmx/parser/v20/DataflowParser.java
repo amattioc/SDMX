@@ -21,15 +21,12 @@
 
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import java.io.BufferedReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -61,12 +58,9 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String KF_AGID = "KeyFamilyAgencyID";
 	private static final String KF_VER = "Version";
 
-	public List<Dataflow> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	@Override
+	public List<Dataflow> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
-
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 		Dataflow df = null;
 

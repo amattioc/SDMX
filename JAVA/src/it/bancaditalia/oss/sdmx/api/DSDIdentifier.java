@@ -25,6 +25,11 @@ public class DSDIdentifier {
 	private String agency = null;
 	private String version = null;
 	
+	/**
+	 * @param id
+	 * @param agency
+	 * @param version
+	 */
 	public DSDIdentifier(String id, String agency, String version) {
 		super();
 		this.id = id;
@@ -32,6 +37,9 @@ public class DSDIdentifier {
 		this.version = version;
 	}
 	
+	/**
+	 * 
+	 */
 	public DSDIdentifier() {
 		super();
 		this.id = null;
@@ -39,25 +47,46 @@ public class DSDIdentifier {
 		this.version = null; // for providers that are not handling versions
 	}
 
+	/**
+	 * @return
+	 */
 	public String getId() {
 		return id;
 	}
+	/**
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
+	/**
+	 * @return
+	 */
 	public String getAgency() {
 		return agency;
 	}
+	/**
+	 * @param agency
+	 */
 	public void setAgency(String agency) {
 		this.agency = agency;
 	}
+	/**
+	 * @return
+	 */
 	public String getVersion() {
 		return version;
 	}
+	/**
+	 * @param version
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getFullIdentifier() {
 		String dsd = id;
 		if(agency!=null){
@@ -69,6 +98,9 @@ public class DSDIdentifier {
 		return dsd;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return getFullIdentifier();

@@ -21,7 +21,8 @@
 package it.bancaditalia.oss.sdmx.util;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 
@@ -29,25 +30,31 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
  * @author Attilio Mattiocco
  *
  */
-public class GetProviders {
+public class GetProviders
+{
 
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException {
-		try {
+	public static void main(String[] args) throws IOException
+	{
+		try
+		{
 			StringBuffer buf = new StringBuffer();
-			Set<String> providers = SdmxClientHandler.getProviders();
+			SortedMap<String, Boolean> providers = SdmxClientHandler.getProviders();
 			boolean first = true;
-			for (String provider: providers) {
-				if (!first) buf.append(",");
-				buf.append(provider);
+			for (Entry<String, Boolean> provider : providers.entrySet())
+			{
+				if (!first)
+					buf.append(",");
+				buf.append(provider.getKey() + "{" + (provider.getValue() ? "1" : "0") + "}");
 				first = false;
 			}
 			System.out.println(buf);
-			
-		} catch (Exception e) {
+
+		} catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}

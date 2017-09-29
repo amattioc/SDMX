@@ -21,14 +21,12 @@
 
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -56,10 +54,8 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String NAME = "Name";
 	private static final String REF = "Ref";
 
-	public List<Dataflow> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException {
+	public List<Dataflow> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException {
 		List<Dataflow> dfList = new ArrayList<Dataflow>();
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlBuffer);
 
 		Dataflow df = null;
 

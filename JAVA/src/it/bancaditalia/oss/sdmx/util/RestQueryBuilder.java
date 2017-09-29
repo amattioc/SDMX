@@ -77,7 +77,6 @@ public class RestQueryBuilder {
 	/**
 	 * Creates a new URL using the specified path and parameters.
 	 *
-	 * @param needsURLEncoding encodes the content if necessary
 	 * @return a URL
 	 * @throws MalformedURLException 
 	 */

@@ -52,15 +52,39 @@ public class PortableDataSet{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	private  DefaultTableModel model = null;
 
+	/**
+	 * 
+	 */
+	/**
+	 * 
+	 */
 	public PortableDataSet() {
 		model = new DefaultTableModel();
 	}
 
+	/**
+	 * @param tslist
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param tslist
+	 * @throws DataStructureException
+	 */
 	public PortableDataSet(List<PortableTimeSeries> tslist) throws DataStructureException {
 		this();
 		setTimeSeries(tslist);
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param name
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public int getColumnIndex(String name) throws DataStructureException{
 		int n = model.getColumnCount();
 		for(int i = 0; i < n; i++){
@@ -71,14 +95,36 @@ public class PortableDataSet{
 		throw new DataStructureException("Error: column " + name + " does not exist.");
 	}
 	
+	/**
+	 * @return
+	 */
+	/**
+	 * @return
+	 */
 	public int getRowCount(){
 		return model.getRowCount();
 	}
 	
+	/**
+	 * @return
+	 */
+	/**
+	 * @return
+	 */
 	public int getColumnCount(){
 		return model.getColumnCount();
 	}
 	
+	/**
+	 * @param idx
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param idx
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public String getColumnName(int idx) throws DataStructureException{
 		if(idx < getColumnCount()){
 			return model.getColumnName(idx);
@@ -88,6 +134,18 @@ public class PortableDataSet{
 		}
 	}
 	
+	/**
+	 * @param row
+	 * @param column
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param row
+	 * @param column
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public Object getValueAt(int row, int column) throws DataStructureException {
 		if(row < getRowCount() && column < getColumnCount()){
 			return model.getValueAt(row, column);
@@ -97,6 +155,14 @@ public class PortableDataSet{
 		}
 	}
 	
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public String[] getTimeStamps() throws DataStructureException {
 		int rows = getRowCount();
 		String[] result = new String[rows];
@@ -107,6 +173,14 @@ public class PortableDataSet{
 		return(result);
 	}
 
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public Object[] getObservations() throws DataStructureException {
 		int rows = getRowCount();
 		Object[] result = new Object[rows];
@@ -117,6 +191,14 @@ public class PortableDataSet{
 		return(result);
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 */
+	/**
+	 * @param name
+	 * @return
+	 */
 	public String[] getMetadata(String name){
 		int rows = getRowCount();
 		String[] result = new String[rows];
@@ -131,6 +213,14 @@ public class PortableDataSet{
 		return(result);
 	}
 	
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @return
+	 * @throws DataStructureException
+	 */
 	public String[] getMetadataNames() throws DataStructureException{
 		int cols = getColumnCount();
 		List<String> result = new ArrayList<String>();
@@ -143,6 +233,14 @@ public class PortableDataSet{
 		return result.toArray(new String[0]);
 	}
 	
+	/**
+	 * @param tslist
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param tslist
+	 * @throws DataStructureException
+	 */
 	public void setTimeSeries(List<PortableTimeSeries> tslist) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
@@ -161,6 +259,16 @@ public class PortableDataSet{
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
+	/**
+	 * @param ts
+	 * @param allNumeric
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param ts
+	 * @param allNumeric
+	 * @throws DataStructureException
+	 */
 	private void putTimeSeries(PortableTimeSeries ts, boolean allNumeric) throws DataStructureException{
 		final String sourceMethod = "putTimeSeries";
 		logger.entering(sourceClass, sourceMethod);
@@ -217,6 +325,18 @@ public class PortableDataSet{
 		logger.exiting(sourceClass, sourceMethod);
 	}
 	
+	/**
+	 * @param row
+	 * @param columnName
+	 * @param value
+	 * @throws DataStructureException
+	 */
+	/**
+	 * @param row
+	 * @param columnName
+	 * @param value
+	 * @throws DataStructureException
+	 */
 	public void addValue(int row, String columnName, Object value) throws DataStructureException{
 		if(row >= model.getRowCount()){
 			model.setRowCount(row + 1);
@@ -236,18 +356,42 @@ public class PortableDataSet{
 		model.setValueAt(value, row, idx);
 	}
 	
+	/**
+	 * @return
+	 */
+	/**
+	 * @return
+	 */
 	public boolean isErrorFlag() {
 		return errorFlag;
 	}
 
+	/**
+	 * @param errorFlag
+	 */
+	/**
+	 * @param errorFlag
+	 */
 	public void setErrorFlag(boolean errorFlag) {
 		this.errorFlag = errorFlag;
 	}
 
+	/**
+	 * @return
+	 */
+	/**
+	 * @return
+	 */
 	public String getErrorObjects() {
 		return errorObjects;
 	}
 
+	/**
+	 * @param errorObjects
+	 */
+	/**
+	 * @param errorObjects
+	 */
 	public void addErrorObjects(String errorObjects) {
 		if(this.errorObjects == null || this.errorObjects.isEmpty())
 			this.errorObjects = errorObjects;
@@ -256,14 +400,32 @@ public class PortableDataSet{
 	}
 
 	
+	/**
+	 * @return
+	 */
+	/**
+	 * @return
+	 */
 	public boolean isNumeric() {
 		return numeric;
 	}
 
+	/**
+	 * @param numeric
+	 */
+	/**
+	 * @param numeric
+	 */
 	public void setNumeric(boolean numeric) {
 		this.numeric = numeric;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString(){
 		int rows = model.getRowCount();

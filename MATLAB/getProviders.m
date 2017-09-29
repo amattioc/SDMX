@@ -29,7 +29,7 @@ function providers = getProviders()
     
     try        
         providers = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getProviders();
-        providers = cell(providers.toArray);
+        providers = cell(providers.keySet.toArray);
     catch mexp
         error(['SDMX getProviders() error:\n' mexp.message]);         
     end

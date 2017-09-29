@@ -28,37 +28,65 @@ public class SdmxMetaElement {
 	private Codelist  codeList = null;
 	private String name;
 	
+	/**
+	 * 
+	 */
 	public SdmxMetaElement() {
 		super();
 	}
 
+	/**
+	 * @param id
+	 * @param codeList
+	 */
 	public SdmxMetaElement(String id, Codelist codeList) {
 		super();
 		this.id = id;
 		this.codeList = codeList;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getId() {
 		return id;
 	}
+	/**
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
+	/**
+	 * @return
+	 */
 	public Codelist getCodeList() {
 		return codeList;
 	}
+	/**
+	 * @param codeList
+	 */
 	public void setCodeList(Codelist  codeList) {
 		this.codeList = codeList;
 	}
 
+    /**
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
         
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Attribute [id=").append(id)

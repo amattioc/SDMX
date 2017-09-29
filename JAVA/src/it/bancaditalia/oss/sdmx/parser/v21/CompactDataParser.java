@@ -23,20 +23,19 @@
  */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import java.io.BufferedReader;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -45,13 +44,13 @@ import javax.xml.stream.events.XMLEvent;
 
 import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
@@ -78,25 +77,21 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 	private static final String TEXT = "Text";
 
 	private DataFlowStructure dsd;
-	private String dataflow;
+	private Dataflow dataflow;
 	private boolean data;
 	
-	public CompactDataParser(DataFlowStructure dsd, String dataflow, boolean data)
+	public CompactDataParser(DataFlowStructure dsd, Dataflow dataflow, boolean data)
 	{
 		this.dsd = dsd;
 		this.dataflow = dataflow;
 		this.data = data;
 	}
 
-	public DataParsingResult parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	public DataParsingResult parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 		
 		List<PortableTimeSeries> tsList = new ArrayList<PortableTimeSeries>();
-		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		BufferedReader br = GenericDataParser.skipBOM(xmlBuffer);
-		//InputStream in = new ByteArrayInputStream(xmlBuffer);
-		XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 		DataParsingResult result = new DataParsingResult();
 		PortableTimeSeries ts = null;
@@ -227,51 +222,55 @@ public class CompactDataParser implements Parser<DataParsingResult> {
 		}
 		int size = dsd.getDimensions().size();
 		String[] names = new String[size];
-		String[] values = new String[size];
+		
+		@SuppressWarnings("unchecked")
+		Entry<String, String> values[] = new Entry[size];
+		
 		while (attributes.hasNext()) {
 			Attribute attr = attributes.next();
 			String id = attr.getName().toString();
 			String value = attr.getValue();
-			if(dsd.isDimension(id)){
+			if (dsd.isDimension(id))
+			{
 				String desc = null;
-				names[dsd.getDimensionPosition(id)-1] = id;
+				names[dsd.getDimensionPosition(id) - 1] = id;
 				if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
 					ts.setFrequency(value);
 				}
-				//If the dimension has a descriptive label and the user wants it, add it in parenthesis 
-				if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
-					Dimension dim = dsd.getDimension(id);
-					if(dim != null){
-						Codelist cl = dim.getCodeList();
-						if(cl != null){
-							desc = cl.getCodes().get(value);
-							if(desc != null){
-								value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
-							}
-						}
-					}
+
+				Dimension dim = dsd.getDimension(id);
+				if (dim != null)
+				{
+					Codelist cl = dim.getCodeList();
+					if(cl != null)
+						desc = cl.getCodes().get(value);
 				}
-				values[dsd.getDimensionPosition(id)-1] = value;
+				
+				values[dsd.getDimensionPosition(id) - 1] = new AbstractMap.SimpleEntry<String, String>(value, desc);
 			}
-			else{
+			else
+			{
 				String desc = null;
-				if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)){
+				if(!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID))
+				{
 					SdmxAttribute sdmxattr = dsd.getAttribute(id);
 					if(sdmxattr != null){
 						Codelist cl = sdmxattr.getCodeList();
 						if(cl != null){
 							desc = cl.getCodes().get(value);
 							if(desc != null){
-								value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + "(" + desc + ")";
+								// TODO: Double-check this line. Unwanted side effects, for example in PortableTimeSeries.getName()
+								value = Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc : value + " (" + desc + ")";
 							}
 						}
 					}
 				}
+				
 				ts.addAttribute(id, value);
 			}
 		}
 		
-		Map<String, String> dimensions = new LinkedHashMap<String, String>();
+		Map<String, Entry<String, String>> dimensions = new LinkedHashMap<String, Entry<String, String>>();
 		for (int i = 0; i < size; i++)
 			dimensions.put(names[i], values[i]);
 		

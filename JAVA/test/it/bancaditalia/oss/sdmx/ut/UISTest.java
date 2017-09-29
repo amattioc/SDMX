@@ -58,7 +58,7 @@ public class UISTest {
 		assertEquals("Wrong code for REF_AREA italy", codes.get("IT"), "Italy");
 		List<Dimension> dim = SdmxClientHandler.getDimensions("UIS", "CE");
 		assertNotNull("Null getDimensions result", dim);
-		String result = "[Dimension [id=FCS_DOMAIN, position=1, codelist=Codelist [id=UNESCO/CL_FCS_DOMAIN/1.0, codes=null]]";
+		String result = "[Dimension [id=FCS_DOMAIN, position=1, codelist=Codelist [id=UNESCO/CL_FCS_DOMAIN/1.0, codes={CULT_";
 		assertEquals("Wrong dimensions for CE", result, dim.toString().substring(0, result.length()));
 	}
 

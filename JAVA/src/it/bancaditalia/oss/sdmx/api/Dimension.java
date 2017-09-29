@@ -20,29 +20,44 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-
-
-public class Dimension extends SdmxMetaElement{
+public class Dimension extends SdmxMetaElement {
 	
 	private int position;
 	
+	/**
+	 * @param id
+	 * @param position
+	 * @param codeList
+	 */
 	public Dimension(String id, int position, Codelist codeList) {
 		super(id, codeList);
 		this.position = position;
 	}
 	
+	/**
+	 * 
+	 */
 	public Dimension() {
 		super();
 	}
         
+	/**
+	 * @return
+	 */
 	public int getPosition() {
 		return position;
 	}
 
+	/**
+	 * @param position
+	 */
 	public void setPosition(int position) {
 		this.position = position;
 	}
 
+	/* (non-Javadoc)
+	 * @see it.bancaditalia.oss.sdmx.api.SdmxMetaElement#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

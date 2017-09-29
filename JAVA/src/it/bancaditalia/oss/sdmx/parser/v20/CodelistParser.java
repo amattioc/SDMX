@@ -20,7 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
-import java.io.Reader;
 import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
@@ -41,8 +40,8 @@ public class CodelistParser implements Parser<Map<String,String>>{
 	static final String ID = "value";
 	static final String DESCRIPTION = "Description";
 
-	public Map<String,String> parse(Reader xmlBuffer, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
-		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.parse(xmlBuffer, languages, CODELIST, CODE, ID, DESCRIPTION);
+	public Map<String,String> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.parse(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
 	
 	public static Map<String, String> getCodes(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {

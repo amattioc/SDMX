@@ -258,9 +258,9 @@ getSDMX <- function(provider, id, start='', end='') {
 #' getProviders()
 #' }
 getProviders <- function() {
-  jlist <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getProviders()
-	res = convertStringList(jlist)
-	return(res)
+  jmap <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getProviders()
+	res = convertHashTable(jmap)
+	return(names(res))
 }
 
 #' get dsd codes for dataflow

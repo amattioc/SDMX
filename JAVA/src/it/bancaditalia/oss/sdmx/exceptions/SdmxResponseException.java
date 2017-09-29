@@ -22,9 +22,8 @@ import java.io.IOException;
  * Specific exception that deals with response codes from SDMX RESTful web
  * services.
  *
- * @see
- * https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf
- * https://sdmx.org/wp-content/uploads/SDMX_2-1-1-SECTION_07_WebServicesGuidelines_2013-04.pdf
+ * @see <a href="https://github.com/amattioc/sdmx-rest/blob/master/v2_1/ws/rest/docs/rest_cheat_sheet.pdf">REST cheat sheet</a>
+ * @see <a href="https://sdmx.org/wp-content/uploads/SDMX_2-1-1-SECTION_07_WebServicesGuidelines_2013-04.pdf">SDMX Web Services Guidelines</a>
  * @author Philippe Charles
  */
 public final class SdmxResponseException extends SdmxException {

@@ -44,7 +44,7 @@ public class Sdmx21Queries extends RestQueryBuilder {
 
 		if (endpoint != null && dataflow != null && !dataflow.isEmpty() && resource != null && !resource.isEmpty())
 			return (Sdmx21Queries) new Sdmx21Queries(endpoint).addParams(start, end, serieskeysonly, updatedAfter, includeHistory, format).addPath("data")
-					.addPath(dataflow).addPath(resource);
+					.addPath(dataflow).addPath(resource).addPath("");
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}
@@ -60,6 +60,7 @@ public class Sdmx21Queries extends RestQueryBuilder {
 			if (version != null && !version.isEmpty()) {
 				query.addPath(version);
 			}
+			query.addPath("");
 			if (full) {
 				query.addParam("references", "children");
 			}
@@ -90,6 +91,8 @@ public class Sdmx21Queries extends RestQueryBuilder {
 		
 		if (version != null)
 			addPath(version);
+		
+		addPath("");
 
 		return this;
 	}

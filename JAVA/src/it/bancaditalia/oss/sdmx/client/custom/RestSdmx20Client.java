@@ -38,7 +38,6 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
-import it.bancaditalia.oss.sdmx.parser.v20.GenericDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
@@ -108,8 +107,9 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-		return runQuery(format != null ? new CompactDataParser(dsd, dataflow.getId(), !serieskeysonly) : 
-				new GenericDataParser(dsd, dataflow.getId(), !serieskeysonly), query, acceptHdr);
+		// 20/09/2017: GenericDataParser deleted
+		return runQuery(/*format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) /*: 
+				new GenericDataParser(dsd, dataflow, !serieskeysonly)*/, query, acceptHdr);
 	}
 
 	@Override

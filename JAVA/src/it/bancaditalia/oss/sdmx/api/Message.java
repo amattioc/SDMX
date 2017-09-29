@@ -29,45 +29,78 @@ public class Message {
 	private String url = null; //eventual url redirection for Eurostat
 	private List<String> text = null;
 
+	/**
+	 * 
+	 */
 	public Message() {
 		super();
 		this.text = new ArrayList<String>();
 	}
 
+	/**
+	 * @return
+	 */
 	public String getCode() {
 		return code;
 	}
+	/**
+	 * @param code
+	 */
 	public void setCode(String code) {
 		this.code = code;
 	}
+	/**
+	 * @return
+	 */
 	public List<String> getText() {
 		return text;
 	}
 
+	/**
+	 * @param text
+	 */
 	public void setText(List<String> text) {
 		this.text = text;
 	}
 
+	/**
+	 * @param textItem
+	 */
 	public void addText(String textItem){
 		this.text.add(textItem);
 	}
 	
+	/**
+	 * @param severity
+	 */
 	public void setSeverity(String severity) {
 		this.severity = severity;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getSeverity() {
 		return severity;
 	}
 
+	/**
+	 * @param url
+	 */
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getUrl() {
 		return url;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

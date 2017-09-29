@@ -22,10 +22,24 @@ package it.bancaditalia.oss.sdmx.helper;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
+import javax.swing.border.EmptyBorder;
 
 /**
  * @author Attilio Mattiocco
@@ -34,16 +48,90 @@ import javax.swing.JProgressBar;
 public class ProgressViewer extends JDialog {
 
 	private static final long serialVersionUID = -7937931709790747236L;
-	private JProgressBar progressBar;
+	
+	private static final ExecutorService executorService = Executors.newCachedThreadPool(); 
+	
+	private final JProgressBar progressBar;
+	private final SwingWorker<Void, Void> worker;
+	private final AtomicBoolean interrupted = new AtomicBoolean(false);
+	private Future<?> task = null;
 
-    public ProgressViewer(Component parent) {
+    public ProgressViewer(Component parent, final Runnable executor) {
+    	this.worker = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception 
+			{
+				try {
+					while (!isVisible() && !interrupted.get())
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+
+					if (!interrupted.get())
+					{
+						task = executorService.submit(executor);
+						task.get();
+					}
+				} finally {
+					setVisible(false);
+					dispose();
+				}
+				
+				return null;
+			}
+    	};
+        
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        getContentPane().add(panel, BorderLayout.CENTER);
+        panel.setLayout(new BorderLayout(0, 0));
+        
         progressBar = new JProgressBar();
+        panel.add(progressBar);
         progressBar.setIndeterminate(true);
-        this.add(BorderLayout.CENTER, progressBar);
-        this.add(BorderLayout.NORTH, new JLabel("Executing query..."));
-        this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        this.setSize(300, 75);
+        
+        Box horizontalBox = Box.createHorizontalBox();
+        horizontalBox.setBorder(new EmptyBorder(10, 0, 0, 0));
+        panel.add(horizontalBox, BorderLayout.SOUTH);
+        
+        Component horizontalGlue = Box.createHorizontalGlue();
+        horizontalBox.add(horizontalGlue);
+        
+        ActionListener cancelListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				while (task == null && !interrupted.get())
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e1) {
+						// ignore
+					}
+				
+				if (task != null && !interrupted.get())
+				{
+					task.cancel(true);
+					interrupted.set(true);
+				}
+			}
+		}; 
+        
+        JButton btnCancel = new JButton("Cancel");
+        btnCancel.addActionListener(cancelListener);
+        horizontalBox.add(btnCancel);
+        
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        this.setSize(300, 103);
         this.setLocationRelativeTo(parent);
         this.setModal(true);
+    	this.setResizable(false);
+    	this.setTitle("Executing query...");
+    	
+    	JRootPane root = getRootPane();
+    	root.setDefaultButton(btnCancel);
+        root.registerKeyboardAction(cancelListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+		worker.execute();
     }
 }

@@ -83,9 +83,9 @@ public class ESTATTest {
 		String start = res.get(0).getTimeSlots().get(0);
 		assertEquals("Wrong start date for time series", "2000-01", start);
 		//check delayed response
-		res = SdmxClientHandler.getTimeSeries("EUROSTAT","lfsa_pgaied/.....", null, null);
-		assertNotNull("Null time series result", res);
-		assertTrue("Zero time series returned", res.size() > 0);
+//for now		res = SdmxClientHandler.getTimeSeries("EUROSTAT","lfsa_pgaied/.....", null, null);
+//		assertNotNull("Null time series result", res);
+//		assertTrue("Zero time series returned", res.size() > 0);
 	}
 
 }
