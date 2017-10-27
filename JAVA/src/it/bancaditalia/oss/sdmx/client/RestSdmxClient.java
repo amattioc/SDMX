@@ -74,6 +74,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
+import java.net.MalformedURLException;
 
 /**
  * @author Attilio Mattiocco
@@ -98,6 +99,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected int readTimeout = Configuration.getReadTimeout(this.getClass().getSimpleName());
 	protected int connectTimeout = Configuration.getConnectTimeout(this.getClass().getSimpleName());
 	protected LanguagePriorityList languages = LanguagePriorityList.parse(Configuration.getLang());
+	protected RestSdmxEventListener eventListener = RestSdmxEventListener.NO_OP;
 	
 	private static final String sourceClass = RestSdmxClient.class.getSimpleName();
 	protected static Logger logger = Configuration.getSdmxLogger();
@@ -134,6 +136,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.languages = languages;
 	}
 
+	public void setEventListener(RestSdmxEventListener eventListener) {
+		this.eventListener = eventListener;
+	}
+	
         @Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		Map<String, Dataflow> result = null;
@@ -194,8 +200,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query, "application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		Message msg = ts.getMessage();
-		if(msg != null)
-			logger.info("The sdmx call returned messages in the footer:\n " + msg.toString() );
+		if (msg != null) {
+			logger.log(Level.INFO, "The sdmx call returned messages in the footer:\n {0}", msg);
+			eventListener.onDataFooterMessage(query, msg);
+		}
 		return ts;
 	}
 
@@ -245,7 +253,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 
 		URLConnection conn = null;
 		URL url = null;
-		logger.info("Contacting web service with query: " + query);
+		logger.log(Level.INFO, "Contacting web service with query: {0}", query);
 		
 		// TODO: implement in Java 7 with try-with-resource
 		try {
@@ -274,19 +282,13 @@ public class RestSdmxClient implements GenericSDMXClient{
 			
 				if (isRedirection(code)) 
 				{
-					Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
-					String newquery = conn.getHeaderField("Location");
-					if(newquery != null && !newquery.isEmpty()){
-						url = new URL(newquery);
-						if (ProxySelector.getDefault() instanceof SdmxProxySelector)
-							((SdmxProxySelector)ProxySelector.getDefault()).addUrlHostToProxy(url, proxy);
-						logger.info("Redirecting to: " + url.toString());
-						if (conn instanceof HttpURLConnection)
-							((HttpURLConnection) conn).disconnect();
-					}
-					else{
-						throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was empty.", null);
-					}
+					URL redirection = getRedirectionURL(conn, code);
+					adjustProxyForRedirection(redirection);
+					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
+					eventListener.onRedirection(url, redirection);
+					if (conn instanceof HttpURLConnection)
+						((HttpURLConnection) conn).disconnect();
+					url = redirection;
 				}			
 			} while(isRedirection(code));
 			
@@ -410,6 +412,25 @@ public class RestSdmxClient implements GenericSDMXClient{
 	
 	private static boolean isRedirection(int code) {
 		return code >= HttpURLConnection.HTTP_MULT_CHOICE && code <= HttpURLConnection.HTTP_SEE_OTHER;
+	}
+	
+	private static URL getRedirectionURL(URLConnection conn, int code) throws SdmxIOException {
+		String location = conn.getHeaderField("Location");
+		if (location == null || location.isEmpty()) {
+			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was empty.", null);
+		}
+		try {
+			return new URL(location);
+		} catch (MalformedURLException ex) {
+			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was malformed: '" + location + "'.", null);
+		}
+	}
+	
+	private static void adjustProxyForRedirection(URL redirection) throws URISyntaxException {
+		if (ProxySelector.getDefault() instanceof SdmxProxySelector) {
+			Proxy proxy = ProxySelector.getDefault().select(redirection.toURI()).get(0);
+			((SdmxProxySelector) ProxySelector.getDefault()).addUrlHostToProxy(redirection, proxy);
+		}
 	}
 
 	// some 2.0 providers are apparently adding a BOM
