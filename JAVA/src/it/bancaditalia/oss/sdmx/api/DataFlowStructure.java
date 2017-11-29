@@ -42,6 +42,7 @@ public class DataFlowStructure {
 	private String agency;
 	private String version;
 	private String timeDimension;
+	private String primaryMeasure;
 	
 	// this is an ordered list (id, codelist). the position is got from the DSD 
 	// key: dimension id --> dimension
@@ -218,7 +219,10 @@ public class DataFlowStructure {
 	 * @return
 	 */
 	public String getMeasure() {
-		return "OBS_VALUE";
+		return primaryMeasure;
 	}
-
+	
+	public void setMeasure(String primaryMeasure) {
+		this.primaryMeasure = primaryMeasure;
+	}
 }
