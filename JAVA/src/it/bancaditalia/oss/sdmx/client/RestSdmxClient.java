@@ -328,7 +328,8 @@ public class RestSdmxClient implements GenericSDMXClient{
 				try 
 				{
 					reader = new InputStreamReader(stream, UTF_8);
-					XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+					XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+					preventXXE(inputFactory);
 					BufferedReader br = skipBOM(reader);
 					//InputStream in = new ByteArrayInputStream(xmlBuffer);
 					XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
@@ -463,5 +464,15 @@ public class RestSdmxClient implements GenericSDMXClient{
 			throw SdmxExceptionFactory.wrap(e);
 		}
 		return br;
+	}
+	
+	// https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#XMLInputFactory_.28a_StAX_parser.29
+	private static void preventXXE(XMLInputFactory factory) {
+		if (factory.isPropertySupported(XMLInputFactory.SUPPORT_DTD)) {
+			factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+		}
+		if (factory.isPropertySupported(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES)) {
+			factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+		}
 	}
 }
