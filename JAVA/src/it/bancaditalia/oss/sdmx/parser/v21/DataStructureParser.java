@@ -319,32 +319,6 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 					}
 					continue;
 				}
-				else if (startElement.getName().getLocalPart().equals((PRIMARYMEASURE))) {
-					logger.finer("Got primary measure");
-					currentDimension = null;
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					String id = null;
-					while (attributes.hasNext()) {
-						Attribute attribute = attributes.next();
-						if (attribute.getName().toString().equals(ID)) {
-							id=attribute.getValue();
-						}
-					}
-					if(id!= null && !id.isEmpty()){
-						if(currentStructure != null){
-							logger.finer("Adding primary measure: " + id);
-							currentStructure.setMeasure(id);
-						}
-						else{
-							throw new RuntimeException("Error during Structure Parsing. Null current Structure.");
-						}	
-					}
-					else{
-						throw new RuntimeException("Error during Structure Parsing. Invalid primary measure: " + id);
-					}
-					continue;
-				}
 				else if (startElement.getName().getLocalPart().equals((LOCAL_REPRESENTATION))) {
 					logger.finer("Got codelist");
 					setCodelistName(currentDimension, eventReader);
@@ -461,10 +435,36 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>> {
 		final String sourceMethod = "setStructureMeasures";
 		logger.entering(sourceClass, sourceMethod);
 		while (eventReader.hasNext()) {
-			// TODO skip for now
-			
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
+
+			if (event.isStartElement()) {
+				StartElement startElement = event.asStartElement();
+				if (startElement.getName().getLocalPart().equals((PRIMARYMEASURE))) {
+					logger.finer("Got primary measure");
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String id = null;
+					while (attributes.hasNext()) {
+						Attribute attribute = attributes.next();
+						if (attribute.getName().toString().equals(ID)) {
+							id = attribute.getValue();
+						}
+					}
+					if (id != null && !id.isEmpty()) {
+						if (currentStructure != null) {
+							logger.finer("Adding primary measure: " + id);
+							currentStructure.setMeasure(id);
+						} else {
+							throw new RuntimeException("Error during Structure Parsing. Null current Structure.");
+						}
+					} else {
+						throw new RuntimeException("Error during Structure Parsing. Invalid primary measure: " + id);
+					}
+					continue;
+				}
+			}
+			
 			if (event.isEndElement()) {
 				if (event.asEndElement().getName().getLocalPart().equals(MEASURELIST)) {
 					break;
