@@ -43,6 +43,10 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 public class StataClientHandler {
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
+
+	static {
+		logger.addHandler(new StataLogHandler());
+	}
 	
 	public static int getTimeSeries(String[] args){
 		List<PortableTimeSeries> tslist = null;

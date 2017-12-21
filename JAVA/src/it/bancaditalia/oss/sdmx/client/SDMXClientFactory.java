@@ -64,7 +64,7 @@ public class SDMXClientFactory {
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
 	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
 	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
-	private static final String WB_PROVIDER = "http://api.worldbank.org/v2/sdmx/rest";
+	private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
 	
 	//read the configuration file
 	static {

@@ -17,6 +17,7 @@ package it.bancaditalia.oss.sdmx.util;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class RestQueryBuilderTest {
 		URI entryPoint = new URI("http://ws-entry-point");
 
 		Assert.assertEquals(entryPoint, new RestQueryBuilder(entryPoint).build());
-		Assert.assertEquals(new URI("http://ws-entry-point/hello/world"), new RestQueryBuilder(entryPoint).addPath("hello").addPath("world").build());
-		Assert.assertEquals(new URI("http://ws-entry-point?k1=v1&k2=v2"), new RestQueryBuilder(entryPoint).addParam("k1", "v1").addParam("k2", "v2").build());
+		Assert.assertEquals(new URL("http://ws-entry-point/hello/world"), new RestQueryBuilder(entryPoint).addPath("hello").addPath("world").build());
+		Assert.assertEquals(new URL("http://ws-entry-point?k1=v1&k2=v2"), new RestQueryBuilder(entryPoint).addParam("k1", "v1").addParam("k2", "v2").build());
 	}
 }

@@ -20,8 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.ut;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class ILOTest {
 		Map<String, String> f = SdmxClientHandler.getFlows("ILO", "*DF_YI_ALL_EMP_TEMP_SEX_AGE_NB*");
 		assertNotNull("Null getFlows result", f);
 		String descr = f.get("DF_YI_ALL_EMP_TEMP_SEX_AGE_NB");
-		assertEquals("Wrong description for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "Employment by sex and age (thousands)", descr);
+		assertEquals("Wrong description for DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", "Employment by sex and age", descr);
 	}
 
 	@Test
@@ -65,9 +64,12 @@ public class ILOTest {
 	
 	@Test
 	public void testGetTimeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463...", null, null);
+		List<PortableTimeSeries>  res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null, null);
 		assertNotNull("Null time series result", res);
-		assertEquals("Wrong result size", res.size() > 0, true);
+		assertEquals("Wrong result size", res.size() , 1);
+		res = SdmxClientHandler.getTimeSeries("ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463...", null, null);
+		assertNotNull("Null time series result", res);
+		assertTrue("Wrong result size", res.size() > 0);
 	}
 
 }

@@ -50,6 +50,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.security.auth.Subject;
 import javax.swing.JFrame;
 
 /**
@@ -104,6 +105,7 @@ public class Configuration {
 
 	private static Properties props = new Properties();
 	private static boolean inited = false;
+	private static Subject subject;
 	
 	static {
 		init();
@@ -522,4 +524,13 @@ public class Configuration {
 		return (props.getProperty(DUMP_XML_PREFIX) != null) && (!props.getProperty(DUMP_XML_PREFIX).isEmpty()); 
 	}
 
+	public static void setSubject(Subject subject)
+	{
+		Configuration.subject = subject;
+	}
+
+	public static Subject getSubject()
+	{
+		return subject;
+	}
 }

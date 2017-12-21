@@ -540,7 +540,7 @@ public class SdmxClientHandler {
 			if(user == null || pw == null){
 				final JFrame frame = new JFrame("Authentication");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				LoginDialog loginDlg = new LoginDialog(frame, "Authentication");
+				LoginDialog loginDlg = new LoginDialog(frame, client.getName() + " Authentication");
                 loginDlg.setVisible(true);
                 client.setCredentials(loginDlg.getUsername(), loginDlg.getPassword());
                 frame.dispose();

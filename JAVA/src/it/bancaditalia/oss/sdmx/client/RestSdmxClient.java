@@ -230,6 +230,10 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.endpoint = endpoint;		
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	@Override
 	public String buildDataURL(Dataflow dataflow, String resource, 
 			String startTime, String endTime, 
@@ -256,12 +260,16 @@ public class RestSdmxClient implements GenericSDMXClient{
 		logger.log(Level.INFO, "Contacting web service with query: {0}", query);
 		
 		// TODO: implement in Java 7 with try-with-resource
-		try {
+		try
+		{
 			int code;
 			url = query;
 			
-			do{
-				conn = url.openConnection();
+			Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
+			logger.fine("Using proxy: " + proxy);
+			
+			do {
+				conn = url.openConnection(proxy);
 			
 				if (conn instanceof HttpsURLConnection && sslSocketFactory != null)
 				{
@@ -283,7 +291,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 				if (isRedirection(code)) 
 				{
 					URL redirection = getRedirectionURL(conn, code);
-					adjustProxyForRedirection(redirection);
 					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
 					eventListener.onRedirection(url, redirection);
 					if (conn instanceof HttpURLConnection)
@@ -424,13 +431,6 @@ public class RestSdmxClient implements GenericSDMXClient{
 			return new URL(location);
 		} catch (MalformedURLException ex) {
 			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was malformed: '" + location + "'.", null);
-		}
-	}
-	
-	private static void adjustProxyForRedirection(URL redirection) throws URISyntaxException {
-		if (ProxySelector.getDefault() instanceof SdmxProxySelector) {
-			Proxy proxy = ProxySelector.getDefault().select(redirection.toURI()).get(0);
-			((SdmxProxySelector) ProxySelector.getDefault()).addUrlHostToProxy(redirection, proxy);
 		}
 	}
 

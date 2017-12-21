@@ -44,7 +44,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  *
  */
 
-public class PortableTimeSeries implements Serializable {
+public class PortableTimeSeries implements Serializable, Iterable<Observation> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -62,8 +62,8 @@ public class PortableTimeSeries implements Serializable {
 	private List<String> timeSlots = new ArrayList<String>();
 	private List<String> observations = new ArrayList<String>();
 	//left here for backward compatibility
-	private final List<String> status = new ArrayList<String>();
-	private final Map<String, List<String>> obsLevelAttributes = new HashMap<String, List<String>>();
+	final List<String> status = new ArrayList<String>();
+	final Map<String, List<String>> obsLevelAttributes = new HashMap<String, List<String>>();
 
 	private boolean errorFlag = false;
 	private boolean numeric = true;
@@ -71,9 +71,6 @@ public class PortableTimeSeries implements Serializable {
 	private String name;
 	private boolean useGeneratedName = true;
 	
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -98,9 +95,6 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public String[] getAttributeNamesArray() {
 		return getAttributesMap().keySet().toArray(new String[0]);
 	}
@@ -109,17 +103,10 @@ public class PortableTimeSeries implements Serializable {
 	 * @param code
 	 * @return
 	 */
-	/**
-	 * @param code
-	 * @return
-	 */
 	public String getAttribute(String code){
 		return getAttributesMap().get(code);
 	}
 
-	/**
-	 * @param attributes
-	 */
 	/**
 	 * @param attributes
 	 */
@@ -132,17 +119,10 @@ public class PortableTimeSeries implements Serializable {
 	 * @param key
 	 * @param value
 	 */
-	/**
-	 * @param key
-	 * @param value
-	 */
 	public void addAttribute(String key, String value) {
 		this.getAttributesMap().put(key, value);
 	}
 	
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -158,9 +138,6 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public String[] getDimensionNamesArray() {
 		return dimensions.keySet().toArray(new String[0]);
 	}
@@ -169,17 +146,10 @@ public class PortableTimeSeries implements Serializable {
 	 * @param code
 	 * @return
 	 */
-	/**
-	 * @param code
-	 * @return
-	 */
 	public String getDimension(String code){
 		return dimensions.containsKey(code) ? dimensions.get(code).getKey() : null;
 	}
 
-	/**
-	 * @param dimensions
-	 */
 	/**
 	 * @param dimensions
 	 */
@@ -195,10 +165,6 @@ public class PortableTimeSeries implements Serializable {
 	 * @param key
 	 * @param value
 	 */
-	/**
-	 * @param key
-	 * @param value
-	 */
 	public void addDimension(String key, String value) {
 		this.dimensions.put(key, new AbstractMap.SimpleEntry<String, String>(value, null));
 		attributes.remove(GENERATEDNAME_ATTR_NAME);
@@ -206,11 +172,6 @@ public class PortableTimeSeries implements Serializable {
 			name = null;
 	}
 	
-	/**
-	 * @param observation
-	 * @param timeSlot
-	 * @param attributes
-	 */
 	/**
 	 * @param observation
 	 * @param timeSlot
@@ -233,7 +194,7 @@ public class PortableTimeSeries implements Serializable {
 		
 		if(attributes != null){
 			for (Iterator<String> iterator = attributes.keySet().iterator(); iterator.hasNext();) {
-				String key = (String) iterator.next();
+				String key = iterator.next();
 				//backward compatibility, to be removed in a couple of versions
 				if(key.equals("OBS_STATUS")){
 					this.status.add(attributes.get(key));
@@ -262,10 +223,7 @@ public class PortableTimeSeries implements Serializable {
 			}
 		}
 	}
-	/**
-	 * @param obs
-	 * @throws DataStructureException
-	 */
+
 	/**
 	 * @param obs
 	 * @throws DataStructureException
@@ -278,9 +236,7 @@ public class PortableTimeSeries implements Serializable {
 			throw new DataStructureException("Error setting data in time series. Wrong observation number.");
 		}
 	}
-	/**
-	 * @return
-	 */
+
 	/**
 	 * @return
 	 */
@@ -304,10 +260,7 @@ public class PortableTimeSeries implements Serializable {
 		}		
 		return result;
 	}
-	/**
-	 * @return
-	 * @throws DataStructureException
-	 */
+
 	/**
 	 * @return
 	 * @throws DataStructureException
@@ -320,10 +273,7 @@ public class PortableTimeSeries implements Serializable {
 			return getObservations().toArray(new String[0]);
 		}		
 	}
-	/**
-	 * @param dates
-	 * @throws DataStructureException
-	 */
+
 	/**
 	 * @param dates
 	 * @throws DataStructureException
@@ -336,27 +286,21 @@ public class PortableTimeSeries implements Serializable {
 			throw new DataStructureException("Error setting dates in time series. Wrong dates number.");
 		}
 	}
-	/**
-	 * @return
-	 */
+
 	/**
 	 * @return
 	 */
 	public List<String> getTimeSlots() {
 		return timeSlots;
 	}
-	/**
-	 * @return
-	 */
+
 	/**
 	 * @return
 	 */
 	public String[] getTimeSlotsArray() {
 		return timeSlots.toArray(new String[0]);
 	}
-	/**
-	 * @return
-	 */
+	
 	/**
 	 * @return
 	 */
@@ -367,17 +311,10 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public String[] getObsLevelAttributesNamesArray() {
 		return getObsLevelAttributesNames().toArray(new String[0]);
 	}
 
-	/**
-	 * @param attributeName
-	 * @return
-	 */
 	/**
 	 * @param attributeName
 	 * @return
@@ -390,17 +327,10 @@ public class PortableTimeSeries implements Serializable {
 	 * @param attributeName
 	 * @return
 	 */
-	/**
-	 * @param attributeName
-	 * @return
-	 */
 	public String[] getObsLevelAttributesArray(String attributeName) {
 		return getObsLevelAttributes(attributeName).toArray(new String[0]);
 	}
 	
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -428,9 +358,6 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @param name
 	 */
-	/**
-	 * @param name
-	 */
 	public void setName(String name) 
 	{
 		useGeneratedName = false;
@@ -440,42 +367,31 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public String getFrequency() {
 		return frequency;
 	}
-	/**
-	 * @param frequency
-	 */
+
 	/**
 	 * @param frequency
 	 */
 	public void setFrequency(String frequency) {
 		this.frequency = frequency;
 	}
-	/**
-	 * @return
-	 */
+
 	/**
 	 * @return
 	 */
 	public String getDataflow() {
 		return dataflow.getId();
 	}
-	/**
-	 * @return
-	 */
+
 	/**
 	 * @return
 	 */
 	public Dataflow getDataflowObject() {
 		return dataflow;
 	}
-	/**
-	 * @param dataflow
-	 */
+
 	/**
 	 * @param dataflow
 	 */
@@ -486,16 +402,10 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public boolean isErrorFlag() {
 		return errorFlag;
 	}
 
-	/**
-	 * @param errorFlag
-	 */
 	/**
 	 * @param errorFlag
 	 */
@@ -506,16 +416,10 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	public String getErrorMessage() {
 		return errorMessage;
 	}
 
-	/**
-	 * @param errorMessage
-	 */
 	/**
 	 * @param errorMessage
 	 */
@@ -524,8 +428,14 @@ public class PortableTimeSeries implements Serializable {
 	}
 
 	/**
-	 * 
+	 * @return an Iterator over Observations
 	 */
+	@Override
+	public Iterator<Observation> iterator()
+	{
+		return new ObservationIterator(this);
+	}
+	
 	/**
 	 * 
 	 */
@@ -533,16 +443,13 @@ public class PortableTimeSeries implements Serializable {
 		Collections.reverse(this.observations);
 		Collections.reverse(this.timeSlots);
 		for (Iterator<String> iterator = obsLevelAttributes.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
+			String key = iterator.next();
 			List<String> attrs = obsLevelAttributes.get(key);
 			Collections.reverse(attrs);
 			obsLevelAttributes.put(key, attrs);
 		}
 	}
 	
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -553,19 +460,10 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @param numeric
 	 */
-	/**
-	 * @param numeric
-	 */
 	public void setNumeric(boolean numeric) {
 		this.numeric = numeric;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString(){
 		String buffer = "";
 		buffer += "\nName: " + getName();
@@ -588,9 +486,6 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	@Deprecated
 	public List<String> getAttributes() {
 		return Arrays.asList(getAttributesArray());
@@ -600,18 +495,11 @@ public class PortableTimeSeries implements Serializable {
 	 * @param code
 	 * @return
 	 */
-	/**
-	 * @param code
-	 * @return
-	 */
 	@Deprecated
 	public String getAttributeValue(String code){
 		return getAttribute(code);
 	}
 
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -627,9 +515,6 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @param attributes
 	 */
-	/**
-	 * @param attributes
-	 */
 	@Deprecated
 	public void setAttributes(List<String> attributes) {
 		this.getAttributesMap().clear();
@@ -640,17 +525,11 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @param attribute
 	 */
-	/**
-	 * @param attribute
-	 */
 	@Deprecated
 	public void addAttribute(String attribute) {
 		addAttribute(attribute.split("=")[0], attribute.split("=")[1]);
 	}
 
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -663,18 +542,11 @@ public class PortableTimeSeries implements Serializable {
 	 * @param code
 	 * @return
 	 */
-	/**
-	 * @param code
-	 * @return
-	 */
 	@Deprecated
 	public String getDimensionValue(String code){
 		return getDimension(code);
 	}
 
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -690,17 +562,11 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @param dimension
 	 */
-	/**
-	 * @param dimension
-	 */
 	@Deprecated
 	public void addDimension(String dimension) {
 		addDimension(dimension.split("=")[0], dimension.split("=")[1]);
 	}
 
-	/**
-	 * @return
-	 */
 	/**
 	 * @return
 	 */
@@ -712,12 +578,8 @@ public class PortableTimeSeries implements Serializable {
 	/**
 	 * @return
 	 */
-	/**
-	 * @return
-	 */
 	@Deprecated
 	public String[] getStatusArray() {
 		return this.status.toArray(new String[0]);
 	}
-
 }

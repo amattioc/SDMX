@@ -24,22 +24,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -51,51 +42,25 @@ public class ILO extends RestSdmx20Client {
 	
 	public ILO() throws URISyntaxException {
 		//the ILO providers supports https but it gets errors with java 1.6
-		super("ILO", new URI("http://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
+		super("ILO", new URI("https://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
 	}
 
 	@Override
-	public Map<String, Dataflow> getDataflows() throws SdmxException {
-		Map<String, Dataflow> result = new HashMap<String, Dataflow>();
-		Map<String, String> collections = getCodes("CL_COLLECTION", "ILO", "latest");
-		// this algorithm will be replaced as soon as the ILO provider supports 
-		// 'ALL_MULTI' queries for dataflows
-		for (Iterator<String> iterator = collections.keySet().iterator(); iterator.hasNext();) 
-		{
-			String coll = (String) iterator.next();
-			URL query;
-			try {
-				query = new RestQueryBuilder(endpoint).addPath("datastructure").addPath("ILO").addPath(coll + "_ALL_MULTI").build();
-			} catch (MalformedURLException e) {
-				throw SdmxExceptionFactory.wrap(e);
-			}
-			List<DataFlowStructure> dfs = runQuery(new DataStructureParser(), query, null);
-			if(dfs.size() > 0){
-				for (Iterator<DataFlowStructure> iterator1 = dfs.iterator(); iterator1.hasNext();) 
-				{
-					DataFlowStructure dsd = (DataFlowStructure) iterator1.next();
-					Dataflow tmp = new Dataflow();
-					tmp.setId("DF_" + dsd.getId());
-					tmp.setName(dsd.getName());
-					tmp.setAgency(dsd.getAgency());
-					tmp.setVersion(dsd.getVersion());					
-					DSDIdentifier dsdId = new  DSDIdentifier();
-					dsdId.setAgency(dsd.getAgency());
-					dsdId.setId(dsd.getId());
-					dsdId.setVersion(dsd.getVersion());
-					tmp.setDsdIdentifier(dsdId);
-					result.put(tmp.getId(), tmp);
-				}
-			}
-			else
-				throw new SdmxXmlContentException("The query returned a null stream");
-		}
-		
-		return result;
+	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+		return Sdmx21Queries.createDataflowQuery(endpoint,dataflow, "ILO", version).buildSdmx21Query();
 	}
 	
 	@Override
-	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
-		return Sdmx21Queries.createDataflowQuery(endpoint,dataflow, "ILO", version).buildSdmx21Query();
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
+		
+		// just remove the slash 
+		URL url = super.buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		try {
+			url = new URL(url.toString().substring(0, url.toString().lastIndexOf("/")));
+		} catch (MalformedURLException e) {
+			throw SdmxExceptionFactory.wrap(e);
+		}
+		return url;
 	}
 }
