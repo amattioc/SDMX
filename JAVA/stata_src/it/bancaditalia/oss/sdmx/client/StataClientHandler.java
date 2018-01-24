@@ -151,7 +151,11 @@ public class StataClientHandler {
 						for (Iterator<Object> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
 							Data.storeStr(name, rowOffset+j+1, tsname);
 							if(allNumeric){
-								Data.storeNum(val, rowOffset+j+1, (Double)iterator2.next());
+								Double tmpValue = (Double)iterator2.next();
+								if(!tmpValue.equals(Double.NaN))
+									Data.storeNum(val, rowOffset+j+1, tmpValue);
+								else
+									Data.storeNum(val, rowOffset+j+1, Data.getMissingValue());
 							}
 							else{
 								Data.storeStr(val, rowOffset+j+1, iterator2.next().toString());

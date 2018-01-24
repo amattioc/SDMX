@@ -31,7 +31,6 @@ import it.bancaditalia.oss.sdmx.util.LanguagePriorityListTest;
 						OECDTest.class, 
 						ESTATTest.class, 
 						ILOTest.class, 
-						IMFTest.class, 
 						IMF2Test.class, 
 						IMFSDMXCentralTest.class, 
 						InegiTest.class, 
