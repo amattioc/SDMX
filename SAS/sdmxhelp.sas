@@ -21,8 +21,7 @@
 %macro sdmxhelp;
 
 data _null_;
-declare javaobj jClient ( 'it.bancaditalia.oss.sdmx.helper.SDMXHelper' );
-jClient.callStaticVoidMethod( 'start' );
+declare javaobj jClient ( 'it/bancaditalia/oss/sdmx/helper/SDMXHelper' );
 jClient.delete();
 run;
 
