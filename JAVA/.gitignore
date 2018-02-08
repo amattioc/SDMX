@@ -3,3 +3,6 @@
 /bin/
 *.orig
 /configuration.properties
+.classpath
+.project
+.settings/
