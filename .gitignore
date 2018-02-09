@@ -3,3 +3,12 @@ MATLAB/lib
 SAS/lib
 JAVA/dist
 JAVA/configuration.properties
+JAVA/build/
+JAVA/FileProviderTestFiles/
+JAVA/bin/
+*.orig
+**/configuration.properties
+.classpath
+.project
+.settings
+
