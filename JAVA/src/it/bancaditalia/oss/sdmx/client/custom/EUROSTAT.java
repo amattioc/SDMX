@@ -45,10 +45,6 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  * @author Attilio Mattiocco
  *
  */
-/**
- * @author m027907
- *
- */
 public class EUROSTAT extends RestSdmxClient{
 	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
 	private int sleepTime = 6000;

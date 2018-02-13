@@ -21,10 +21,12 @@
 package it.bancaditalia.oss.sdmx.helper;
 
 import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.JTextArea;
 
 public class HelperHandler extends java.util.logging.Handler {
+	private SimpleFormatter formatter = new SimpleFormatter();
 
     public HelperHandler(JTextArea whereTo) {
 		super();
@@ -35,7 +37,7 @@ public class HelperHandler extends java.util.logging.Handler {
 
     @Override
     public void publish(final LogRecord record) {
-    	whereTo.append(" " + record.getMessage()+"\n");
+    	whereTo.append(formatter.format(record));
     	whereTo.setCaretPosition(whereTo.getDocument().getLength());
     }
 

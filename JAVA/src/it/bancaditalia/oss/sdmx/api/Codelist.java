@@ -24,36 +24,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @author m027907
- *
- */
-/**
- * @author m027907
+ * @author Valentino Pinna
  *
  */
 public class Codelist {
-	/**
-	 * 
-	 */
+
 	private String id = null;
-	/**
-	 * 
-	 */
 	private String agency = null;
-	/**
-	 * 
-	 */
 	private String version = null;
 	// code id --> code description
-	/**
-	 * 
-	 */
 	private final Map<String, String> codes = new LinkedHashMap<String, String>();
 
 	/**
-	 * @param id
-	 * @param agency
-	 * @param version
+	 * Creates a codelist with givem id, agency and version.
+	 * 
+	 * @param id The id of the codelist
+	 * @param agency The agency of the codelist
+	 * @param version The version of the codelist
 	 */
 	public Codelist(String id, String agency, String version) {
 		super();
@@ -63,7 +50,7 @@ public class Codelist {
 	}
 	
 	/**
-	 * 
+	 * Creates an empty codelist.
 	 */
 	public Codelist() {
 		super();
@@ -72,9 +59,6 @@ public class Codelist {
 		this.version = null; 
 	}
 
-	/**
-	 * @param codes
-	 */
 	/**
 	 * @param codes
 	 */
@@ -88,45 +72,47 @@ public class Codelist {
 	}
 
 	/**
-	 * @return
+	 * @return A map of codes names and descriptions in this codelist
 	 */
 	public Map<String, String> getCodes() {
 		return codes;
 	}
 	
 	/**
-	 * @return
+	 * @return The codelist id
 	 */
 	public String getId() {
 		return id;
 	}
-	/**
-	 * @param id
-	 */
+
 	/**
 	 * @param id
 	 */
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	/**
-	 * @return
+	 * @return The codelist agency
 	 */
 	public String getAgency() {
 		return agency;
 	}
+	
 	/**
 	 * @param agency
 	 */
 	public void setAgency(String agency) {
 		this.agency = agency;
 	}
+	
 	/**
-	 * @return
+	 * @return The codelist version
 	 */
 	public String getVersion() {
 		return version;
 	}
+	
 	/**
 	 * @param version
 	 */
@@ -135,7 +121,7 @@ public class Codelist {
 	}
 	
 	/**
-	 * @return
+	 * @return The full identifier of this codelist in the form "agency/id/version".
 	 */
 	public String getFullIdentifier() {
 		String codelist = id;
