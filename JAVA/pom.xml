@@ -193,6 +193,7 @@
 									<workingDirectory>..</workingDirectory>
 									<basedir>..</basedir>
 									<tag>v${project.version}</tag>
+									<message>Version ${project.version}</message>
 									<pushChanges>true</pushChanges>
 								</configuration>
 							</execution>
