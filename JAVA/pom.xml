@@ -42,7 +42,7 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/amattioc/SDMX.git</connection>
-		<developerConnection>scm:git:https://github.com:amattioc/SDMX.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/amattioc/SDMX.git</developerConnection>
 		<url>https://github.com/amattioc/SDMX/tree/master</url>
 	</scm>
 
