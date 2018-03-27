@@ -88,8 +88,9 @@ public class RestSdmxClient implements GenericSDMXClient{
 	protected final String name;
 	protected final boolean needsURLEncoding;
 	protected final boolean supportsCompression;
-	protected final SSLSocketFactory sslSocketFactory;
 
+	protected SSLSocketFactory sslSocketFactory;
+	protected ProxySelector proxySelector = null;
 	protected /* final */ URI endpoint;
 	protected boolean dotStat = false;
 	protected boolean needsCredentials = false;
@@ -122,6 +123,14 @@ public class RestSdmxClient implements GenericSDMXClient{
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
 		this.sslSocketFactory = null;
+	}
+
+	public void setProxySelector(ProxySelector proxySelector) {
+		this.proxySelector = proxySelector;
+	}
+
+	public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+		this.sslSocketFactory = sslSocketFactory;
 	}
 
 	public void setReadTimeout(int timeout) {
@@ -265,7 +274,7 @@ public class RestSdmxClient implements GenericSDMXClient{
 			int code;
 			url = query;
 			
-			Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
+			Proxy proxy = ((proxySelector != null) ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
 			logger.fine("Using proxy: " + proxy);
 			
 			do {
