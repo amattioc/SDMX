@@ -105,6 +105,7 @@ public class SDMXClientFactory {
 
 	    //add internal 2.0 providers
 	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true);
+	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true);
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
 	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization", true);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
