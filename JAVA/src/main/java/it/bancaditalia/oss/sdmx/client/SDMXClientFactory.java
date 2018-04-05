@@ -141,19 +141,35 @@ public class SDMXClientFactory {
 	/**
      * General method for creating an SdmxClient.
      *
-	 * @param name
-	 * @param endpoint
-	 * @param needsCredentials
-	 * @param needsURLEncoding
-	 * @param supportsCompression
-	 * @param description
-	 * @throws SdmxException 
+	 * @param name The name of the provider to create.
+	 * @param endpoint the {@link URI} of the provider to create.
+	 * @param needsCredentials true if the provider needs authentication.
+	 * @param needsURLEncoding true if the provider needs the URL to be encoded.
+	 * @param supportsCompression true if the provider supports HTTP compression features.
+	 * @param description The description of the provider
+	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * 
+	 * @throws SdmxException if there is an error creating the provider. 
 	 */
 	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
 		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
 	}
 
+	/**
+     * General method for creating an SdmxClient.
+     *
+	 * @param name The name of the provider to create.
+	 * @param endpoint the {@link URI} of the provider to create.
+	 * @param trustStore A truststore to use to connect to this provider.
+	 * @param needsCredentials true if the provider needs authentication.
+	 * @param needsURLEncoding true if the provider needs the URL to be encoded.
+	 * @param supportsCompression true if the provider supports HTTP compression features.
+	 * @param description The description of the provider
+	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * 
+	 * @throws SdmxException if there is an error creating the provider. 
+	 */
 	public static void addProvider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
 		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
     	providers.put(name, p);
@@ -227,7 +243,8 @@ public class SDMXClientFactory {
      * General method for creating an SdmxClient.
      *
 	 * @param providerName A non-null provider identification short name. 
-	 * @return
+	 * @return The client.
+	 * @throws SdmxException if there is an error creating the client.
 	 */
 	public static GenericSDMXClient createClient(String providerName) throws SdmxException {
 		final String sourceMethod = "createClient";
@@ -290,7 +307,7 @@ public class SDMXClientFactory {
 
 	/**
 	 * Get the list of all available SDMX Providers
-	 * @return
+	 * @return A map of providers with keys as names and {@link Provider} instances as values.
 	 */
 	public static NavigableMap<String, Provider> getProviders() {
         return providers;

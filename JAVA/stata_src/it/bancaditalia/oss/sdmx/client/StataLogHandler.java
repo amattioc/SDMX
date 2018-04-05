@@ -11,6 +11,10 @@ import java.util.logging.SimpleFormatter;
 
 import com.stata.sfi.SFIToolkit;
 
+/**
+ * @author Valentino Pinna
+ *
+ */
 public class StataLogHandler extends Handler
 {
 	private SimpleFormatter formatter = new SimpleFormatter();
@@ -36,6 +40,7 @@ public class StataLogHandler extends Handler
 			SFIToolkit.displayln(formatter.formatMessage(record));
 	}
 
+	@SuppressWarnings("javadoc")
 	public PrintStream getPrintStream()
 	{
 		return new PrintStream(new OutputStream()
@@ -58,6 +63,7 @@ public class StataLogHandler extends Handler
 			});
 	}
 
+	@SuppressWarnings("javadoc")
 	public PrintStream getErrorStream()
 	{
 		return new PrintStream(new OutputStream()

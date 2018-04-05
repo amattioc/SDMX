@@ -65,7 +65,7 @@ public interface GenericSDMXClient {
 	 * @param codeList name of the codelist to get
 	 * @param agency agency of the codelist to get
 	 * @param version version of the codelist to get
-	 * @return
+	 * @return A map of codes with symbols as keys and descriptions as values.
 	 * @throws SdmxException
 	 */
 	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException;
@@ -133,6 +133,8 @@ public interface GenericSDMXClient {
      * @param endTime end time of the observations to be gathered
      * @param dataflow the dataflow of the time series to be gathered
      * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
+	 * @param updatedAfter Only obtain results newer than this date
+	 * @param includeHistory whether to include the history in the request
      * @return the query URL for the endpoint
 	 * @throws SdmxException 
      */

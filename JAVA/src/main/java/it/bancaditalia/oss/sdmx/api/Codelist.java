@@ -69,6 +69,10 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 		this.version = null;
 	}
 
+	/**
+	 * @param codes
+	 * @param parents
+	 */
 	public Codelist(Map<String, String> codes, Map<String, String> parents)
 	{
 		this();
@@ -82,7 +86,8 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 		return keySet().iterator();
 	}
 
-	/**
+	/*
+	/** 
 	 * @return A depth-first view over the hierarchy of this codelist
 	 */
 	/*
@@ -126,7 +131,7 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	}
 
 	/**
-	 * @deprecated Use this object directly
+	 * @deprecated Use {@link #entrySet()}.
 	 * @return A map of codes names and descriptions in this codelist
 	 */
 	@Deprecated
@@ -136,6 +141,9 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	}
 
 	/**
+	 * Returns the parent of a code in a code hierarchy.
+	 * 
+	 * @param code The code
 	 * @return The parent of a code if it exists, null otherwise
 	 */
 	public String getParent(String code)
@@ -144,8 +152,10 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	}
 
 	/**
-	 * @deprecated Use this object directly
+	 * @param code 
 	 * @return The description of a code if it exists, null otherwise
+
+	 * @deprecated Use this object directly.
 	 */
 	@Deprecated
 	public String getDescription(String code)

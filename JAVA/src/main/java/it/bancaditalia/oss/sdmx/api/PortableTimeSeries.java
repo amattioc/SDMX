@@ -49,14 +49,17 @@ import it.bancaditalia.oss.sdmx.util.Utils.Function;
  * into a native time series object.
  * 
  * @author Attilio Mattiocco
- *
+ * 
+ * @param <T> The type to store in this {@link PortableTimeSeries}
  */
-
 public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>, RandomAccess, Serializable
 {
 
 	private static final long							serialVersionUID		= 1L;
 
+	/**
+	 * The default name for an attribute that stores the generated name for unnamed series.
+	 */
 	public static final String							GENERATEDNAME_ATTR_NAME	= "CONNECTORS_AUTONAME";
 	protected static final Logger						logger					= Configuration.getSdmxLogger();
 
@@ -560,7 +563,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Get a list of Strings in the format "key=value" for each defined attribute in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The list.
+	 * @deprecated Use {@link #getAttributesMap()} instead.
 	 */
 	@Deprecated
 	public List<String> getAttributes()
@@ -569,8 +575,11 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
+	 * Get a value for an attribute.
+	 * 
 	 * @param code
-	 * @return
+	 * @return The list.
+	 * @deprecated Use {@link #getAttributesMap()}.{@link Map#get(Object) get(String)} instead.
 	 */
 	@Deprecated
 	public String getAttributeValue(String code)
@@ -579,7 +588,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Get a String[] in the format "key=value" for each defined attribute in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The array.
+	 * @deprecated Use {@link #getAttributesMap()} instead.
 	 */
 	@Deprecated
 	public String[] getAttributesArray()
@@ -592,7 +604,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @param attributes
+	 * Sets attributes for this series.
+	 * 
+	 * @param attributes a List of String in the format "key=value" for each attribute to set.
+	 * @deprecated Use {@link #getAttributesMap()}.{@link Map#putAll(Map) putAll(Map)} instead.
 	 */
 	@Deprecated
 	public void setAttributes(List<String> attributes)
@@ -603,7 +618,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @param attribute
+	 * Sets an attribute for this series.
+	 * 
+	 * @param attribute a string in the format "key=value" representing the attribute to set.
+	 * @deprecated Use {@link #getAttributesMap()}.{@link Map#put(Object, Object) put(String, String)} instead.
 	 */
 	@Deprecated
 	public void addAttribute(String attribute)
@@ -612,7 +630,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Get a list of Strings in the format "key=value" for each defined dimension in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The list.
+	 * @deprecated Use {@link #getDimensionsMap()} instead.
 	 */
 	@Deprecated
 	public List<String> getDimensions()
@@ -621,8 +642,11 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
+	 * Get a value for a dimension.
+	 * 
 	 * @param code
-	 * @return
+	 * @return The list.
+	 * @deprecated Use {@link #getDimensionsMap()}.{@link Map#get(Object) get(String)} instead.
 	 */
 	@Deprecated
 	public String getDimensionValue(String code)
@@ -631,7 +655,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Get a String[] in the format "key=value" for each defined dimension in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The array.
+	 * @deprecated Use {@link #getDimensionsMap()} instead.
 	 */
 	@Deprecated
 	public String[] getDimensionsArray()
@@ -644,7 +671,10 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @param dimension
+	 * Sets an dimension for this series.
+	 * 
+	 * @param dimension a string in the format "key=value" representing the dimension to set.
+	 * @deprecated Use {@link #getDimensionsMap()}.{@link Map#put(Object, Object) put(String, String)} instead.
 	 */
 	@Deprecated
 	public void addDimension(String dimension)
@@ -653,7 +683,13 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Gets a list of statuses for each observation in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The "status" attribute value of each observation.
+	 * @deprecated Use this series iterator to extract the status from each
+	 *             {@link BaseObservation#getAttributeValue(String) BaseObservation}.
+	 * 
+	 * @See {@link BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")}
 	 */
 	@Deprecated
 	public List<String> getStatus()
@@ -662,7 +698,13 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @return
+	 * Gets an array of statuses for each observation in this {@link PortableTimeSeries}.
+	 * 
+	 * @return The "status" attribute value of each observation.
+	 * @deprecated Use this series iterator to extract the status from each
+	 *             {@link BaseObservation#getAttributeValue(String) BaseObservation}.
+	 * 
+	 * @See {@link BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")}
 	 */
 	@Deprecated
 	public String[] getStatusArray()

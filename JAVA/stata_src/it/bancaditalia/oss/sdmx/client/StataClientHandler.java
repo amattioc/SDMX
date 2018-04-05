@@ -53,6 +53,7 @@ public class StataClientHandler
 		logger.addHandler(new StataLogHandler());
 	}
 
+	@SuppressWarnings("javadoc")
 	public static int getTimeSeries(String[] args)
 	{
 		List<PortableTimeSeries<Double>> tslist = null;
@@ -268,12 +269,14 @@ public class StataClientHandler
 
 	}
 
+	@SuppressWarnings("javadoc")
 	public static int sdmxHelper(String[] args)
 	{
 		SDMXHelper.start();
 		return 0;
 	}
 
+	@SuppressWarnings("javadoc")
 	public static int addProvider(String[] args)
 	{
 		int returnCode = 0;

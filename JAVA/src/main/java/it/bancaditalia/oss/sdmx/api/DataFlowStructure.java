@@ -73,7 +73,7 @@ public class DataFlowStructure
 	}
 
 	/**
-	 * @return
+	 * @return This dataflow structure name
 	 */
 	public String getName()
 	{
@@ -89,7 +89,7 @@ public class DataFlowStructure
 	}
 
 	/**
-	 * @param agency
+	 * @param agency This dataflow structure agency
 	 */
 	public void setAgency(String agency)
 	{
@@ -105,7 +105,7 @@ public class DataFlowStructure
 	}
 
 	/**
-	 * @param version
+	 * @param version This dataflow structure version
 	 */
 	public void setVersion(String version)
 	{
@@ -134,7 +134,9 @@ public class DataFlowStructure
 	}
 
 	/**
-	 * @param dim
+	 * Puts a dimension into this structure.
+	 * 
+	 * @param dim The dimension which is to put.
 	 */
 	public void setDimension(Dimension dim)
 	{
@@ -142,6 +144,8 @@ public class DataFlowStructure
 	}
 
 	/**
+	 * Gets a dimension from this {@link DataFlowStructure} if it exists.
+	 * 
 	 * @param dimensionId A name of a dimension contained in this dataflow structure.
 	 * @return The dimension object with given name in this dataflow structure, or null.
 	 */
@@ -151,7 +155,9 @@ public class DataFlowStructure
 	}
 
 	/**
-	 * @param attr
+	 * Sets the metadata and value of an attribute to this {@link DataFlowStructure}.
+	 * 
+	 * @param attr The attribute to set.
 	 */
 	public void setAttribute(SdmxAttribute attr)
 	{
@@ -245,6 +251,11 @@ public class DataFlowStructure
 		return primaryMeasure;
 	}
 
+	/**
+	 * Sets the primary measure of this dataflow structure.
+	 * 
+	 * @param primaryMeasure The primary measure of this dataflow structure to set.
+	 */
 	public void setMeasure(String primaryMeasure)
 	{
 		this.primaryMeasure = primaryMeasure;

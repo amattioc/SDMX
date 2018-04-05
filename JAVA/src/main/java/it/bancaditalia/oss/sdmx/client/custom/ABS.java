@@ -41,6 +41,9 @@ public class ABS extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
+	/**
+	 * @throws URISyntaxException
+	 */
 	public ABS() throws URISyntaxException {
 		super("ABS", new URI("http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
 	}				

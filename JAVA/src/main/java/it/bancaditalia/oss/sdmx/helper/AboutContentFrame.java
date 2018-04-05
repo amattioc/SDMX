@@ -58,6 +58,9 @@ public class AboutContentFrame extends JDialog
 	private static final long	serialVersionUID	= 1L;
 	protected static Logger		logger				= Configuration.getSdmxLogger();
 
+	/**
+	 * 
+	 */
 	public AboutContentFrame()
 	{
 		String buildID = "NOT FOUND";

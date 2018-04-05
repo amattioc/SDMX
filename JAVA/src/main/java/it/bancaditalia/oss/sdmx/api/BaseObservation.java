@@ -16,6 +16,7 @@ import it.bancaditalia.oss.sdmx.util.Utils.Function;
  * The extending class is required only to implement the {@link #getValue()} method.
  * 
  * @author Valentino Pinna
+ * @param <T> The value type for this {@link BaseObservation}. 
  */
 public abstract class BaseObservation<T> implements Serializable, Comparable<BaseObservation<?>>
 {
@@ -66,8 +67,9 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	 * Creates a new Observation equal to this, with the value set equal to the result of applying a function to this
 	 * and another Observation values. Note: String values are automatically converted to Double.
 	 * 
-	 * @param mapper The function mapping the value.
-	 * @return A new Observation
+	 * @param other The other {@link BaseObservation} to combine with this {@link BaseObservation}. 
+	 * @param combiner The function mapping the value.
+	 * @return A new Observation whose value is the result of the function.
 	 */
 	public <U, R> BaseObservation<R> combine(BaseObservation<U> other, BiFunction<? super T, ? super U, R> combiner)
 	{

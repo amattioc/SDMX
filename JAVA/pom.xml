@@ -72,6 +72,7 @@
 				<dependency>
 					<groupId>com.stata</groupId>
 					<artifactId>stata-sfi</artifactId>
+					<version>14.0</version>
 				</dependency>
 			</dependencies>
 			<build>
@@ -219,24 +220,24 @@
 								<goals>
 									<goal>release</goal>
 								</goals>
-								<configuration>
-									<releaseName>Release ${project.version}</releaseName>
-									<tag>v${project.version}</tag>
-									<description>${sdmx.release.description}</description>
-									<draft>true</draft>
-									<overwriteArtifact>true</overwriteArtifact>
-									<fileSets>
-										<fileSet>
-											<directory>${project.build.directory}</directory>
-											<includes>
-												<include>${project.artifactId}*.jar</include>
-												<include>*.tar.gz</include>
-											</includes>
-										</fileSet>
-									</fileSets>
-								</configuration>
 							</execution>
 						</executions>
+						<configuration>
+							<releaseName>Release ${project.version}</releaseName>
+							<tag>v${project.version}</tag>
+							<description>${sdmx.release.description}</description>
+							<draft>true</draft>
+							<overwriteArtifact>true</overwriteArtifact>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>${project.artifactId}*.jar</include>
+										<include>*.tar.gz</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

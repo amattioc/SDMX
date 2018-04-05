@@ -29,6 +29,10 @@ import javax.xml.stream.XMLStreamException;
 import it.bancaditalia.oss.sdmx.client.Provider;
 import java.net.HttpURLConnection;
 
+/**
+ * @author Valentino Pinna
+ *
+ */
 public final class SdmxExceptionFactory 
 {
 	private static final Map<Integer, String> sdmxMessages = new HashMap<>();
@@ -56,7 +60,8 @@ public final class SdmxExceptionFactory
 	 * @param httpCode an http response code that have a SDMX meaning as defined in the specification
 	 * @param cause an optional IOException that caused the exception being built
 	 * @param provider an optional provider eventually containing custom sdmx message codes
-	 * @return
+	 * 
+	 * @return The {@link SdmxException} that maps the specified HTTP return code.
 	 */
 	public static SdmxException createRestException(int httpCode, IOException cause, Provider provider)
 	{
@@ -100,6 +105,15 @@ public final class SdmxExceptionFactory
 		}
 	}
 
+	/**
+	 * Wraps a generic {@link Exception} into a {@link SdmxException}.
+	 * @param cause The exception to wrap. It must be of type {@link XMLStreamException} or {@link IOException}.
+	 * 
+	 * @return The wrapped exception.
+	 * 
+	 * NOTE: {@link RuntimeException} instances will not be wrapped by this method.
+	 * @throws UnsupportedOperationException if the exception to wrap is an instance of uncompatible class.
+	 */
 	public static SdmxException wrap(Exception cause) 
 	{
 		if (cause instanceof RuntimeException)
