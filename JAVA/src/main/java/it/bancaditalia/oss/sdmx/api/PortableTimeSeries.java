@@ -300,31 +300,6 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
-	 * @deprecated {@link PortableTimeSeries#add(BaseObservation)} instead.
-	 */
-	@Deprecated
-	@SuppressWarnings("unchecked")
-	public void addObservation(String observation, String timeSlot, Map<String, String> attributes)
-	{
-		if (observation == null)
-		{
-			logger.fine(getName() + ": missing or empty observation for time slot: " + timeSlot + ", I'll set a NaN.");
-		}
-
-		if (isNumeric())
-			try
-			{
-				add((BaseObservation<T>) new DoubleObservation(timeSlot, Double.parseDouble(observation), attributes));
-			}
-			catch (NumberFormatException e)
-			{
-				add((BaseObservation<T>) new DoubleObservation(timeSlot, Double.NaN, attributes));
-			}
-		else
-			add(new Observation<>(timeSlot, (T) observation, attributes));
-	}
-
-	/**
 	 * @return A list of series' observation values, in the same order as they were added to this series.
 	 * @deprecated Use the series natural iterator to obtain values instead
 	 */
