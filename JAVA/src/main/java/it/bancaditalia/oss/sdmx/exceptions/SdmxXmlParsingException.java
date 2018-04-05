@@ -1,6 +1,6 @@
 /* Copyright 2010,2014 Bank Of Italy
 *
-* Licensed under the EUPL, Version 1.1 or newer as soon they
+* Licensed under the EUPL, Version 1.1 or - as soon they
 * will be approved by the European Commission - subsequent
 * versions of the EUPL (the "Licence");
 * You may not use this work except in compliance with the
@@ -18,11 +18,19 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-%macro sdmxhelp;
+package it.bancaditalia.oss.sdmx.exceptions;
 
-data _null_;
-declare javaobj jClient ( 'it/bancaditalia/oss/sdmx/helper/SDMXHelper' );
-jClient.delete();
-run;
+import javax.xml.stream.XMLStreamException;
 
-%mend;
+public class SdmxXmlParsingException extends SdmxException {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	SdmxXmlParsingException(XMLStreamException cause) {
+		super("Error detected while parsing SDMX response: " + cause.getMessage(), cause);
+	}
+
+}

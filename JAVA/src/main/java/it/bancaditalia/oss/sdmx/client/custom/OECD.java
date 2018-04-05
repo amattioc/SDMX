@@ -1,6 +1,6 @@
 /* Copyright 2010,2014 Bank Of Italy
 *
-* Licensed under the EUPL, Version 1.1 or newer as soon they
+* Licensed under the EUPL, Version 1.1 or - as soon they
 * will be approved by the European Commission - subsequent
 * versions of the EUPL (the "Licence");
 * You may not use this work except in compliance with the
@@ -18,11 +18,18 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-%macro sdmxhelp;
+package it.bancaditalia.oss.sdmx.client.custom;
 
-data _null_;
-declare javaobj jClient ( 'it/bancaditalia/oss/sdmx/helper/SDMXHelper' );
-jClient.delete();
-run;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-%mend;
+/**
+ * @author Attilio Mattiocco
+ *
+ */
+public class OECD extends DotStat{
+		
+	public OECD() throws URISyntaxException {
+		super("OECD", new URI("https://stats.oecd.org/restsdmx/sdmx.ashx"), false);
+	}
+}

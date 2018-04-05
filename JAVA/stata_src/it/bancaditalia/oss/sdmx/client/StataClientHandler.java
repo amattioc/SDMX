@@ -21,7 +21,6 @@
 
 package it.bancaditalia.oss.sdmx.client;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -30,28 +29,36 @@ import java.util.logging.Logger;
 import com.stata.sfi.Data;
 import com.stata.sfi.SFIToolkit;
 
+import it.bancaditalia.oss.sdmx.api.BaseObservation;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.helper.SDMXHelper;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+
 /**
- * <p>Java class for optimizing interactions with the SdmxClientHandler in STATA. It uses the
- *  
+ * <p>
+ * Java class for optimizing interactions with the SdmxClientHandler in STATA.
+ * It uses the
+ * 
  * 
  * @author Attilio Mattiocco
  *
  */
-public class StataClientHandler {
-		
+public class StataClientHandler
+{
+
 	protected static Logger logger = Configuration.getSdmxLogger();
 
-	static {
+	static
+	{
 		logger.addHandler(new StataLogHandler());
 	}
-	
-	public static int getTimeSeries(String[] args){
-		List<PortableTimeSeries> tslist = null;
+
+	public static int getTimeSeries(String[] args)
+	{
+		List<PortableTimeSeries<Double>> tslist = null;
 		int returnCode = 0;
-		if(args.length < 2){
+		if (args.length < 2)
+		{
 			SFIToolkit.displayln("The provider name and time series key are required.");
 			return -1;
 		}
@@ -59,143 +66,152 @@ public class StataClientHandler {
 		String tsKey = args[1];
 		String start = "";
 		String end = "";
-		
-		String meta = "0"; //only data
+
+		String meta = "0"; // only data
 		boolean processMeta = false;
 		boolean processData = true;
-		
-		if(args.length >= 3 && !args[2].isEmpty()){
+
+		if (args.length >= 3 && !args[2].isEmpty())
+		{
 			start = args[2];
 		}
-		if(args.length >= 4 && !args[3].isEmpty()){
+		if (args.length >= 4 && !args[3].isEmpty())
+		{
 			end = args[3];
 		}
-		if(args.length >= 5){
+		if (args.length >= 5)
+		{
 			meta = args[4];
-			if(meta.equalsIgnoreCase("")){
+			if (meta.equalsIgnoreCase(""))
+			{
 				meta = "0";
 			}
-			
-			if(meta.equalsIgnoreCase("0")){
-				SFIToolkit.displayln("METADATA is disabled.");	
+
+			if (meta.equalsIgnoreCase("0"))
+			{
+				SFIToolkit.displayln("METADATA is disabled.");
 			}
-			else if(meta.equalsIgnoreCase("1")){
-				SFIToolkit.displayln("METADATA is enabled.");	
+			else if (meta.equalsIgnoreCase("1"))
+			{
+				SFIToolkit.displayln("METADATA is enabled.");
 				processMeta = true;
 			}
-			else if(meta.equalsIgnoreCase("2")){
+			else if (meta.equalsIgnoreCase("2"))
+			{
 				SFIToolkit.displayln("Only METADATA is enabled.");
 				processMeta = true;
 				processData = false;
 			}
-			else{
+			else
+			{
 				SFIToolkit.displayln("Metadata parameter not valid: " + meta);
 			}
 		}
-		try {
+		try
+		{
 			int dataLength = 0;
 			tslist = SdmxClientHandler.getTimeSeries(provider, tsKey, start, end);
-			if(tslist == null){
+			if (tslist == null)
+			{
 				SFIToolkit.displayln("The query did not complete correctly. Check java traces for details.");
 				return -1;
-			} 
-			else{
+			}
+			else
 				SFIToolkit.displayln("The query returned " + tslist.size() + " time series.");
-			}
-			if(processData){
-				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
-					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
-					dataLength += ts.getObservations().size();
-				}
-			}
-			else{
+
+			if (processData)
+				for (PortableTimeSeries<?> ts: tslist)
+					dataLength += ts.size();
+			else
 				dataLength = tslist.size();
-			}
-			
-			if(dataLength > 0){
+
+			if (dataLength > 0)
+			{
 				int name = 0;
 				int date = 0;
 				int val = 0;
-				Data.setObsCount(dataLength);
+				Data.setObsTotal(dataLength);
 				Data.addVarStr("TSNAME", 10);
-				name = Data.getVarIndex("TSNAME") ;
+				name = Data.getVarIndex("TSNAME");
 				int lastPos = name;
 				boolean allNumeric = true;
-				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
-					if(!iterator.next().isNumeric()){
+				for (PortableTimeSeries<?> ts: tslist)
+					if (!ts.isNumeric())
+					{
 						allNumeric = false;
 						break;
 					}
-				}				
-				if(processData){
+				if (processData)
+				{
 					SFIToolkit.displayln("The query returned " + dataLength + " observations.");
 					Data.addVarStr("DATE", 5);
-					if(allNumeric)
+					if (allNumeric)
 						Data.addVarDouble("VALUE");
 					else
 						Data.addVarStr("VALUE", 40);
-					date = Data.getVarIndex("DATE") ;
-					val = Data.getVarIndex("VALUE") ;
+					date = Data.getVarIndex("DATE");
+					val = Data.getVarIndex("VALUE");
 					lastPos = val;
 				}
-				
-				int i = 0; // time series counter
-				int rowOffset = 0; //row counter
-				for (Iterator<PortableTimeSeries> iterator = tslist.iterator(); iterator.hasNext();) {
-					PortableTimeSeries ts = (PortableTimeSeries) iterator.next();
+
+				long i = 0; // time series counter
+				long rowOffset = 0; // row counter
+				for (PortableTimeSeries<?> ts: tslist)
+				{
 					String tsname = ts.getName();
-					if(processData){
-						List<Object> tsobs = ts.getObservations();
-						List<String> tsdates = ts.getTimeSlots();
+					if (processData)
+					{
 						int j = 0; // observation counter
-						for (Iterator<Object> iterator2 = tsobs.iterator(); iterator2.hasNext();) {
-							Data.storeStr(name, rowOffset+j+1, tsname);
-							if(allNumeric){
-								Double tmpValue = (Double)iterator2.next();
-								if(!tmpValue.equals(Double.NaN))
-									Data.storeNum(val, rowOffset+j+1, tmpValue);
-								else
-									Data.storeNum(val, rowOffset+j+1, Data.getMissingValue());
-							}
-							else{
-								Data.storeStr(val, rowOffset+j+1, iterator2.next().toString());
-							}
-							Data.storeStr(date, rowOffset+j+1, tsdates.get(j));
-							if(processMeta){
-								for (Entry<String, String> dim: ts.getDimensionsMap().entrySet()) {
+						for (BaseObservation<?> obs : ts)
+						{
+							Data.storeStr(name, rowOffset + j + 1, tsname);
+							if (allNumeric)
+								Data.storeNum(val, rowOffset + j + 1,
+										obs.getValueAsDouble() == Double.NaN ? Data.getMissingValue()
+												: obs.getValueAsDouble());
+							else
+								Data.storeStr(val, rowOffset + j + 1, obs.getValueAsString());
+							
+							Data.storeStr(date, rowOffset + j + 1, obs.getTimeslot());
+							if (processMeta)
+							{
+								for (Entry<String, String> dim : ts.getDimensionsMap().entrySet())
+								{
 									String key = dim.getKey();
 									String value = dim.getValue();
-									int attrPos = Data.getVarIndex(key) ;
-									if(attrPos > lastPos){
+									int attrPos = Data.getVarIndex(key);
+									if (attrPos > lastPos)
+									{
 										lastPos = attrPos;
-										//not set yet
+										// not set yet
 										Data.addVarStr(key, value.length());
 									}
-									Data.storeStr(attrPos, rowOffset+j+1, value);
+									Data.storeStr(attrPos, rowOffset + j + 1, value);
 								}
-								for (Entry<String, String> attr: ts.getAttributesMap().entrySet()) {
+								
+								for (Entry<String, String> attr : ts.getAttributesMap().entrySet())
+								{
 									String key = attr.getKey();
 									String value = attr.getValue();
-									int attrPos = Data.getVarIndex(key) ;
-									if(attrPos > lastPos){
+									int attrPos = Data.getVarIndex(key);
+									if (attrPos > lastPos)
+									{
 										lastPos = attrPos;
-										//not set yet
+										// not set yet
 										Data.addVarStr(key, value.length());
 									}
-									Data.storeStr(attrPos, rowOffset+j+1, value);
+									Data.storeStr(attrPos, rowOffset + j + 1, value);
 								}
-								List<String> obsAttrNames = ts.getObsLevelAttributesNames();
-								for (Iterator<String> iterator3 = obsAttrNames.iterator(); iterator3.hasNext();) {
-									String attrName = (String) iterator3.next();
-									List<String> obsAttr = ts.getObsLevelAttributes(attrName);
-									if(obsAttr != null && !obsAttr.isEmpty()){
-										int attrPos = Data.getVarIndex(attrName) ;
-										if(attrPos > lastPos){
-											lastPos = attrPos;
-											//not set yet
-											Data.addVarStr(attrName, 1);
-										}
-										Data.storeStr(attrPos, rowOffset+j+1, obsAttr.get(j));
+
+								// Set obs-level attribute values 
+								for (String attrName: ts.getObsLevelAttributesNames())
+								{
+									int attrPos = Data.getVarIndex(attrName);
+									if (attrPos > lastPos)
+									{
+										lastPos = attrPos;
+										// not set yet
+										Data.addVarStr(attrName, 1);
 									}
 								}
 							}
@@ -203,91 +219,106 @@ public class StataClientHandler {
 						}
 						rowOffset += j;
 					}
-					else{
-						Data.storeStr(name, i+1, tsname);
-						for (Entry<String, String> dim: ts.getDimensionsMap().entrySet()) {
+					else
+					{
+						Data.storeStr(name, i + 1, tsname);
+						for (Entry<String, String> dim : ts.getDimensionsMap().entrySet())
+						{
 							String key = dim.getKey();
 							String value = dim.getValue();
-							int attrPos = Data.getVarIndex(key) ;
-							if(attrPos > lastPos){
+							int attrPos = Data.getVarIndex(key);
+							if (attrPos > lastPos)
+							{
 								lastPos = attrPos;
-								//not set yet
+								// not set yet
 								Data.addVarStr(key, value.length());
 							}
-							Data.storeStr(attrPos, rowOffset+i+1, value);
+							Data.storeStr(attrPos, rowOffset + i + 1, value);
 						}
-						for (Entry<String, String> attr: ts.getAttributesMap().entrySet()) {
+						for (Entry<String, String> attr : ts.getAttributesMap().entrySet())
+						{
 							String key = attr.getKey();
 							String value = attr.getValue();
-							int attrPos = Data.getVarIndex(key) ;
-							if(attrPos > lastPos){
+							int attrPos = Data.getVarIndex(key);
+							if (attrPos > lastPos)
+							{
 								lastPos = attrPos;
-								//not set yet
+								// not set yet
 								Data.addVarStr(key, value.length());
 							}
-							Data.storeStr(attrPos, rowOffset+i+1, value);
+							Data.storeStr(attrPos, rowOffset + i + 1, value);
 						}
 					}
 					i++;
 				}
 			}
-			else{
+			else
+			{
 				SFIToolkit.displayln("The query did not return any observations.");
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			SFIToolkit.displayln("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
 			returnCode = -1;
 		}
-				
+
 		return returnCode;
-		
+
 	}
-	
-	public static int sdmxHelper(String[] args){
+
+	public static int sdmxHelper(String[] args)
+	{
 		SDMXHelper.start();
 		return 0;
 	}
-	
-	public static int addProvider(String[] args){
+
+	public static int addProvider(String[] args)
+	{
 		int returnCode = 0;
-		if(args.length < 2){
+		if (args.length < 2)
+		{
 			SFIToolkit.displayln("The provider name and endpoint are required.");
 			return -1;
 		}
 		String name = args[0];
 		String endpoint = args[1];
-		
+
 		boolean needsCredentials = false;
 		boolean needsURLEncoding = false;
 		boolean supportsCompression = false;
 		String description = "";
-		
-		if(args.length >= 3 && !args[2].isEmpty()){
+
+		if (args.length >= 3 && !args[2].isEmpty())
+		{
 			needsCredentials = args[2].equalsIgnoreCase("1") ? true : false;
 		}
-		if(args.length >= 4 && !args[3].isEmpty()){
+		if (args.length >= 4 && !args[3].isEmpty())
+		{
 			needsURLEncoding = args[3].equalsIgnoreCase("1") ? true : false;
 		}
-		if(args.length >= 5 && !args[4].isEmpty()){
+		if (args.length >= 5 && !args[4].isEmpty())
+		{
 			supportsCompression = args[4].equalsIgnoreCase("1") ? true : false;
 		}
-		if(args.length >= 6 && !args[5].isEmpty()){
+		if (args.length >= 6 && !args[5].isEmpty())
+		{
 			description = args[5];
 		}
-		
-		try{
-			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description);
-		} catch (Exception e) {
+
+		try
+		{
+			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression,
+					description);
+		}
+		catch (Exception e)
+		{
 			SFIToolkit.displayln("Exception. Class: " + e.getClass().getName() + " .Message: " + e.getMessage());
 			logger.log(Level.FINER, "", e);
 			returnCode = -1;
 		}
-	
+
 		return returnCode;
 	}
 }
-
-
-
-

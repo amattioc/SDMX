@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd">
+	<body>
+		<menu name="SDMX Connectors">
+			<item name="Home" href="Home.html" />
+			<item name="Microsoft Excel" href="SDMX-Connector-for-EXCEL.html" />
+			<item name="MatLab" href="SDMX-Connector-for-MATLAB.html" />
+			<item name="R" href="SDMX-Connector-for-R-(RJSDMX).html" />
+			<item name="SAS" href="SDMX-Connector-for-SAS.html" />
+			<item name="Stata" href="SDMX-Connector-for-STATA.html" />
+			<item name="Java library" href="SDMX-Connector-library-for-JAVA.html" />
+			<item name="Building queries" href="SDMX-Data-Queries:-HowTo.html" />
+			<item name="System configuration" href="System-Configuration.html" />
+			<item name="System requirements" href="System-Requirements.html" />
+		</menu>
+		<menu name="Java documentation">
+			<item name="Java library" href="SDMX-Connector-library-for-JAVA.html" />
+			<item name="Javadocs" href="apidocs/index.html" />
+		</menu>
+	</body>
+</project>

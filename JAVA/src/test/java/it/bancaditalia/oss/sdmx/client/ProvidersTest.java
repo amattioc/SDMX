@@ -1,6 +1,6 @@
 /* Copyright 2010,2014 Bank Of Italy
 *
-* Licensed under the EUPL, Version 1.1 or newer as soon they
+* Licensed under the EUPL, Version 1.1 or - as soon they
 * will be approved by the European Commission - subsequent
 * versions of the EUPL (the "Licence");
 * You may not use this work except in compliance with the
@@ -18,11 +18,18 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-%macro sdmxhelp;
+package it.bancaditalia.oss.sdmx.client;
 
-data _null_;
-declare javaobj jClient ( 'it/bancaditalia/oss/sdmx/helper/SDMXHelper' );
-jClient.delete();
-run;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 
-%mend;
+import java.util.ServiceLoader;
+
+public class ProvidersTest {
+	public static void main(String[] args){
+		ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
+	
+	    for (GenericSDMXClient provider : ldr) {
+	        System.err.println(provider.getClass().getSimpleName());
+	    }
+	}
+}

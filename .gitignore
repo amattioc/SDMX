@@ -12,3 +12,5 @@ JAVA/bin/
 .project
 .settings
 
+JAVA/target/
+maven-system
