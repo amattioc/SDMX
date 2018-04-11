@@ -5,7 +5,7 @@
 	<!-- set global properties for this build -->
 	<property name="src" location="src/main/java"/>
 	<property name="stata_src" location="stata_src"/>
-	<property name="test" location="test/main/java"/>
+	<property name="test" location="src/test/java"/>
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 	<property name="build_file"  location="../BUILD"/>
