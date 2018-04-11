@@ -39,7 +39,7 @@ public class DimensionsAndCodesTest
     			{ "NBB",      "AFCSURV",                       "FREQUENCY",  "M",   "Monthly",                     "[Dimension [id=AFCSURV_INDIC, position=1, codelist=Codelis" },
     			{ "OECD",     "QNA",                           "FREQUENCY",  "A",   "Annual",                      "[Dimension [id=LOCATION, position=1, codelist=Codelist [id=OECD/CL_QNA_LOCATION, codes={G-7=G7, AUS=Australia, P" },
     			{ "WB",       "WDI",                           "REF_AREA",   "GRL", "Greenland",                   "" }
-    		}, 1);
+    		}, 0);
     }
 
 	@Parameter(0) public String provider;
