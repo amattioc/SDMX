@@ -34,7 +34,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableDataSet;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SASClientHandler;
@@ -42,6 +41,7 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
+@SuppressWarnings("javadoc")
 public class SdmxInterfaceTest {
 	@Test
 	public void testGetAddProvider() throws SdmxException, MalformedURLException {
@@ -125,15 +125,6 @@ public class SdmxInterfaceTest {
 	public void testGetDimensionsFail5() throws SdmxException{
 		SdmxClientHandler.getDimensions("ECB", "FFF");
 	}
-
-	@Test
-	public void testGetDimensions() throws SdmxException {
-		List<Dimension> dim = SdmxClientHandler.getDimensions("OECD", "QNA");
-		assertNotNull("Null getDimensions result QNA", dim);	
-		String result = "[Dimension [id=LOCATION, position=1, codelist=Codelist [id=OECD/CL_QNA_LOCATION, codes={G-7=G7, AUS=Australia, P";
-		assertEquals("Wrong dimensions for QNA", result, dim.toString().substring(0, result.length()));
-	}
-	
 	@Test(expected=SdmxException.class)
 	public void testGetCodesFail1() throws SdmxException{
 		SdmxClientHandler.getCodes(null, "EXR", "FREQ");
@@ -211,7 +202,7 @@ public class SdmxInterfaceTest {
 		assertEquals(true, ts.size() > 0);
 		PortableTimeSeries<Double> ts1 = ts.get(0);
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
-		assertEquals(true, ts1.getObservations().size() == 0 && ts1.getTimeSlots().size() == 0);
+		assertEquals(true, ts1.size() == 0);
 	}
 	@Test
 	public void testGetTimeSeries() throws SdmxException {
@@ -220,8 +211,8 @@ public class SdmxInterfaceTest {
 		assertEquals(true, ts.size() == 1);
 		PortableTimeSeries<?> ts1 = ts.get(0);
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
-		int nobs = ts1.getObservations().size();
-		assertEquals(true,  nobs == ts1.getTimeSlots().size());
+		int nobs = ts1.size();
+		assertEquals(true,  nobs == ts1.size());
 		for (Iterator<String> iterator = ts1.getObsLevelAttributesNames().iterator(); iterator.hasNext();) {
 			String name = (String) iterator.next();
 			Collection<String> att = ts1.getObsLevelAttributes(name);
@@ -235,13 +226,13 @@ public class SdmxInterfaceTest {
 		assertEquals(true, tslist1.size() > 0);
 		PortableTimeSeries<?> ts1 = tslist1.get(0);
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts1.getName());
-		assertEquals(true, ts1.getObservations().size() > 0 && ts1.getTimeSlots().size() > 0);
+		assertEquals(true, ts1.size() > 0);
 		List<PortableTimeSeries<Double>> tslist2 = SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.A.USD.EUR.SP00.A", null, null, "2015-01-01", true);
 		assertNotNull("Null gettimeseries result", tslist2);	
 		assertEquals(true, tslist2.size() > 0);
 		PortableTimeSeries<?> ts2 = tslist2.get(0);
 		assertEquals("EXR.A.USD.EUR.SP00.A", ts2.getName());
-		assertEquals(true, ts2.getObservations().size() > 0 && ts2.getTimeSlots().size() > 0);
+		assertEquals(true, ts2.size() > 0);
 		assertEquals(true, tslist1.size() > tslist2.size());
 	}
 	
