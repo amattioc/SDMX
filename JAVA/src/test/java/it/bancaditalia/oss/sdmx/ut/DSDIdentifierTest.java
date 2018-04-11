@@ -37,7 +37,7 @@ public class DSDIdentifierTest
         		{ "IMF2",             "DS-WHDREO",                     null,       "WHDREO" },
         		{ "ILO",              "DF_YI_FRA_EMP_TEMP_SEX_AGE_NB", "ILO",      "YI_FRA_EMP_TEMP_SEX_AGE_NB" },
         		{ "EUROSTAT",         "prc_hicp_midx",                 null,       "DSD_prc_hicp_midx" }
-    		}, 1);
+    		}, 0);
     }
 
 	@Parameter(0) public String provider;
