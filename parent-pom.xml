@@ -5,6 +5,38 @@
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
+        <name>PARENT</name>
+        <description>Parent pom file</description>
+        <url>https://github.com/amattioc/SDMX/</url>
+
+        <licenses>
+                <license>
+                        <name>European Union Public Licence (EUPL)</name>
+                        <url>https://joinup.ec.europa.eu/software/page/eupl/licence-eupl</url>
+                </license>
+        </licenses>
+
+        <developers>
+                <developer>
+                        <name>Attilio Mattiocco</name>
+                        <email>attilio.mattiocco@bancaditalia.it</email>
+                        <organization>Banca d'Italia</organization>
+                        <organizationUrl>http://www.bancaditalia.it/</organizationUrl>
+                </developer>
+                <developer>
+                        <name>Valentino Pinna</name>
+                        <email>valentino.pinna@bancaditalia.it</email>
+                        <organization>Banca d'Italia</organization>
+                        <organizationUrl>http://www.bancaditalia.it/</organizationUrl>
+                </developer>
+        </developers>
+
+        <scm>
+                <connection>scm:git:https://github.com/amattioc/SDMX.git</connection>
+                <developerConnection>scm:git:https://github.com/amattioc/SDMX.git</developerConnection>
+                <url>https://github.com/amattioc/SDMX/tree/master</url>
+        </scm>
+
 	<properties>
 		<sdmx.version>2.0.6</sdmx.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
