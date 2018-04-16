@@ -162,7 +162,7 @@ convertSingleTS<-function(jpts, plain = F){
 		attributes(result) <- attrs
 	}
 	else{
-		message(paste("Error building timeseries '", name, "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
+		message(paste("Warning building timeseries '", jpts$getName(), "': number of observations and time slots equal to zero, or not matching: ", numOfObs, " ", numOfTimes, "\n"));
 	}
 	return(result)
 }
