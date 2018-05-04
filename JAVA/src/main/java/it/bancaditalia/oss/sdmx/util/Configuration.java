@@ -95,7 +95,7 @@ public class Configuration {
 	private static final String SDMX_DEFAULT_LANG = "en";  
 	private static final String SDMX_DEFAULT_TIMEOUT = "0";  
 	private static final String LOGGER_NAME = "SDMX";
-	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
+	private static String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static final String DUMP_XML_PREFIX = "xml.dump.prefix";
 	private static  String SDMX_LANG = "en";  
 
@@ -201,13 +201,24 @@ public class Configuration {
 		
 		//normal configuration steps:
 		// 1 init logger
-		// 2 search configuration in this order: local, global, Configuration class   
+		// 2 search configuration in this order: system property, local, global, Configuration class   
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
 		//for Matlab: to avoid being considered a browser
 		System.setProperty("http.agent", "SDMX");
 		
 		String confType = null;
+		
+		String conf = System.getProperty("SDMX_CONF");
+		if(conf != null && !conf.isEmpty()){
+			File file = new File(conf); 
+			if(file.exists()){
+				CONFIGURATION_FILE_NAME = conf;
+			}
+			else{
+				System.err.println("Configuration file set by System property: " + conf + " not found.");
+			}
+		}
 		
 		// try local configuration. If found apply and exit
 		File file = new File(CONFIGURATION_FILE_NAME); 
@@ -226,41 +237,46 @@ public class Configuration {
 		else {
 			// try global configuration
 			String central = System.getenv(CENTRAL_CONFIGURATION_FILE_PROP);
-			if(central != null && !central.isEmpty() && (file = new File(central)).exists())
+			if(central != null && !central.isEmpty())
 			{
-				try {
-					init(file);
-					confType = central;
-					SDMX_LOGGER.info("Central configuration file found: " + confType);
-				} catch (SecurityException e) {
-					// impossible
-				} catch (IOException e) {
-					SDMX_LOGGER.finer(logException(e));
+				if((file = new File(central)).exists()){
+					try {
+						init(file);
+						confType = central;
+						SDMX_LOGGER.info("Central configuration file found: " + confType);
+					} catch (SecurityException e) {
+						// impossible
+					} catch (IOException e) {
+						SDMX_LOGGER.finer(logException(e));
+					}
+				}
+				else{
+					System.err.println("Configuration file set by environment variable: " + central + " not found.");
 				}
 			}
-			else 
-			{
-				// try configuration class. 
-				try {
-					Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
-					Method method = clazz.getMethod("init");
-					method.invoke(null);
-					confType = clazz.getCanonicalName();
-					SDMX_LOGGER.info("Class configuration found: " + confType);
-				} catch (ClassNotFoundException e) {
-					SDMX_LOGGER.fine("Class configuration not found, skipping to global conf");
-				} catch (SecurityException e) {
-					// impossible
-				} catch (NoSuchMethodException e) {
-					// impossible
-				} catch (IllegalArgumentException e) {
-					// impossible
-				} catch (IllegalAccessException e) {
-					// impossible
-				} catch (InvocationTargetException e) {
-					SDMX_LOGGER.info("Error during SdmxConfiguration class initialization, skipping to global conf.");
-					SDMX_LOGGER.severe(logException(e.getCause()));
-				}
+		}
+		
+		// try configuration class. 
+		if(confType == null){
+			try {
+				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
+				Method method = clazz.getMethod("init");
+				method.invoke(null);
+				confType = clazz.getCanonicalName();
+				SDMX_LOGGER.info("Class configuration found: " + confType);
+			} catch (ClassNotFoundException e) {
+				SDMX_LOGGER.fine("Class configuration not found, skipping to global conf");
+			} catch (SecurityException e) {
+				// impossible
+			} catch (NoSuchMethodException e) {
+				// impossible
+			} catch (IllegalArgumentException e) {
+				// impossible
+			} catch (IllegalAccessException e) {
+				// impossible
+			} catch (InvocationTargetException e) {
+				SDMX_LOGGER.info("Error during SdmxConfiguration class initialization, skipping to global conf.");
+				SDMX_LOGGER.severe(logException(e.getCause()));
 			}
 		}
 		

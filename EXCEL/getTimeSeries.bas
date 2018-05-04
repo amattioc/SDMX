@@ -24,16 +24,32 @@ Public Sub getTimeSeries()
 '## environment for system call
     Dim SDMX_JAVA As String
     Dim SDMX_LIB As String
+    Dim SDMX_CONF As String
     
-    SDMX_JAVA = Environ("SDMX_JAVA")
+    On Error Resume Next
+    SDMX_JAVA = ActiveWorkbook.Worksheets("SDMX SETTINGS").Cells(1, 3).Value
     If SDMX_JAVA = "" Then
-       SDMX_JAVA = "java"
+        SDMX_JAVA = Environ("SDMX_JAVA")
+    End If
+    If SDMX_JAVA = "" Then
+        SDMX_JAVA = "java"
     End If
     
-    SDMX_LIB = Environ("SDMX_LIB")
+    On Error Resume Next
+    SDMX_LIB = ActiveWorkbook.Worksheets("SDMX SETTINGS").Cells(1, 1).Value
+    If SDMX_LIB = "" Then
+        SDMX_LIB = Environ("SDMX_LIB")
+    End If
     If SDMX_LIB <> "" Then
        'the path to the jar hs to be quoted, for avoiding problems with spaces
        SDMX_LIB = "-cp """ & SDMX_LIB & """"
+    End If
+    
+    On Error Resume Next
+    SDMX_CONF = ActiveWorkbook.Worksheets("SDMX SETTINGS").Cells(1, 2).Value
+    If SDMX_CONF <> "" Then
+       'the path to the jar hs to be quoted, for avoiding problems with spaces
+       SDMX_JAVA = SDMX_JAVA & " -DSDMX_CONF=""" & SDMX_CONF & """"
     End If
     
     Dim ws As Excel.Worksheet
