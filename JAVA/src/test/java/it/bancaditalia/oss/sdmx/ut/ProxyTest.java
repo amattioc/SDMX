@@ -32,12 +32,14 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-public class ProxyTest {
+public class ProxyTest
+{
 	@Test
-	public void testProxyConfiguration() throws URISyntaxException {
+	public void testProxyConfiguration() throws URISyntaxException
+	{
 		SdmxProxySelector noDefault = new SdmxProxySelector(null, 0);
 		noDefault.addToDefaultProxy("toDefault.domain.com");
-		noDefault.addProxy("proxy1.domain.com", "8080", new String[]{"toProxy1.domain.com"});
+		noDefault.addProxy("proxy1.domain.com", "8080", new String[] { "toProxy1.domain.com" });
 		ArrayList<Proxy> result = new ArrayList<Proxy>();
 		result.add(Proxy.NO_PROXY);
 		assertEquals(result, noDefault.select(new URI("http://testnoproxy.domain.com")));
@@ -45,10 +47,10 @@ public class ProxyTest {
 		result = new ArrayList<Proxy>();
 		result.add(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy1.domain.com", 8080)));
 		assertEquals(result, noDefault.select(new URI("http://toProxy1.domain.com")));
-		
+
 		SdmxProxySelector testDefault = new SdmxProxySelector("defaultproxy.domain.com", 8080);
 		testDefault.addToDefaultProxy("toDefault.domain.com");
-		testDefault.addProxy("proxy1.domain.com", "8080", new String[]{"toProxy1.domain.com"});
+		testDefault.addProxy("proxy1.domain.com", "8080", new String[] { "toProxy1.domain.com" });
 		result = new ArrayList<Proxy>();
 		result.add(Proxy.NO_PROXY);
 		assertEquals(result, testDefault.select(new URI("http://testnoproxy.domain.com")));

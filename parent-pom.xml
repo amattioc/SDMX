@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.bancaditalia.oss</groupId>
 	<artifactId>parent-pom</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
         <name>PARENT</name>
@@ -15,6 +15,13 @@
                         <url>https://joinup.ec.europa.eu/software/page/eupl/licence-eupl</url>
                 </license>
         </licenses>
+
+	<repositories>
+		<repository>
+			<id>system-dependencies</id>
+			<url>${local.filerepo}</url>
+		</repository>
+	</repositories>
 
         <developers>
                 <developer>
@@ -38,7 +45,7 @@
         </scm>
 
 	<properties>
-		<sdmx.version>2.0.6</sdmx.version>
+		<sdmx.version>2.0.7</sdmx.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>

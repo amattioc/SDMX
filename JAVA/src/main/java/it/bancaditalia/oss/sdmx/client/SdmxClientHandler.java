@@ -498,15 +498,13 @@ public class SdmxClientHandler
 		boolean first = true;
 		for (PortableTimeSeries<?> series : ts)
 		{
+			if (!first)
+				result.append(";");
+			first = false;
 			result.append(";").append(series.getName());
 			int size = series.size();
 			if (size > maxSize)
 				maxSize = size;
-			if (first)
-			{
-				result.append(";");
-				first = false;
-			}
 			if (Configuration.isReverse())
 			{
 				// reverse the time series for user friendliness

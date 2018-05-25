@@ -94,7 +94,7 @@ public class EUROSTAT extends RestSdmxClient{
 			}
 		}
 		else{
-			return ts;
+			return postProcess(ts);
 		}
 		
 		throw new SdmxXmlContentException("Late retrieval failed.");

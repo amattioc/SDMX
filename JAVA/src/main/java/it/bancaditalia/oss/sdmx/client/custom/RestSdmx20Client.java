@@ -31,7 +31,6 @@ import java.util.Map;
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
@@ -42,26 +41,30 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 
-public abstract class RestSdmx20Client extends RestSdmxClient{
-	
-	private String acceptHdr = null;
-	protected String format = "compact_v2";
+public abstract class RestSdmx20Client extends RestSdmxClient
+{
 
-	public RestSdmx20Client(String name, URI endpoint, boolean needsCredentials, String acceptHdr, String format) {
+	private String		acceptHdr	= null;
+	protected String	format		= "compact_v2";
+
+	public RestSdmx20Client(String name, URI endpoint, boolean needsCredentials, String acceptHdr, String format)
+	{
 		super(name, endpoint, needsCredentials, false, false);
 		this.acceptHdr = acceptHdr;
 		this.format = format;
 	}
-	
+
 	@Override
-	public Map<String, Dataflow> getDataflows() throws SdmxException {
-		
+	public Map<String, Dataflow> getDataflows() throws SdmxException
+	{
+
 		URL query = buildFlowQuery("ALL", null, null);
 		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null);
-		if(dfs.size() > 0)
+		if (dfs.size() > 0)
 		{
 			Map<String, Dataflow> result = new HashMap<>();
-			for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();) {
+			for (Iterator<Dataflow> iterator = dfs.iterator(); iterator.hasNext();)
+			{
 				Dataflow df = (Dataflow) iterator.next();
 				result.put(df.getId(), df);
 			}
@@ -72,21 +75,23 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException 
+	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
-		if(flows.size() >= 1)
-			for (Dataflow item: flows)
-				if(item.getId().equalsIgnoreCase(dataflow))
+		if (flows.size() >= 1)
+			for (Dataflow item : flows)
+				if (item.getId().equalsIgnoreCase(dataflow))
 					return item;
 
 		throw new SdmxXmlContentException("The query returned zero dataflows");
 	}
 
 	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException {
-		if(dsd!=null){
+	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException
+	{
+		if (dsd != null)
+		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
 			return runQuery(new DataStructureParser(), query, null).get(0);
 		}
@@ -95,38 +100,37 @@ public abstract class RestSdmx20Client extends RestSdmxClient{
 	}
 
 	@Override
-	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException {
+	public Map<String, String> getCodes(String codeList, String agency, String version) throws SdmxException
+	{
 		URL query = buildCodelistQuery(codeList, agency, version);
 		return runQuery(new CodelistParser(), query, null);
 	}
 
 	@Override
-	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		return getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-	}
-
-	@Override
-	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
+	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
+			String updatedAfter, boolean includeHistory) throws SdmxException
+	{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		// 20/09/2017: GenericDataParser deleted
-		return runQuery(/*format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) /*: 
-				new GenericDataParser(dsd, dataflow, !serieskeysonly)*/, query, acceptHdr);
+		return runQuery(/* format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) 
+				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, acceptHdr);
 	}
 
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
-		if( endpoint!=null && 
-				dataflow!=null &&
-				resource!=null && !resource.isEmpty()){
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
+			boolean includeHistory) throws SdmxException
+	{
+		if (endpoint != null && dataflow != null && resource != null && !resource.isEmpty())
+		{
 
-			return Sdmx21Queries.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, 
-					startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
+			return Sdmx21Queries
+					.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format)
+					.buildSdmx21Query();
 		}
-		else{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + 
-					" resource=" + resource + " endpoint=" + endpoint);
+		else
+		{
+			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 		}
 	}
-		
+
 }

@@ -22,32 +22,22 @@ package it.bancaditalia.oss.sdmx.ut;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityListTest;
-import it.bancaditalia.oss.sdmx.util.RestQueryBuilderTest;
+import it.bancaditalia.oss.sdmx.it.DSDIdentifiersIT;
+import it.bancaditalia.oss.sdmx.it.DataflowsIT;
+import it.bancaditalia.oss.sdmx.it.DimensionsAndCodesIT;
+import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class,
-						DimensionsAndCodesTest.class,
-						DSDIdentifierTest.class,
-						ISTATTest.class, 
-						ECBTest.class, 
-						OECDTest.class, 
-						ESTATTest.class, 
-						ILOTest.class, 
-						IMF2Test.class, 
-						IMFSDMXCentralTest.class, 
-						InegiTest.class, 
-						WBTest.class,
-						INSEETest.class,
+						DimensionsAndCodesIT.class,
+						DSDIdentifiersIT.class,
 //						NBBTest.class,
-						UNDATATest.class,
-						WITSTest.class,
-						ABSTest.class,
-						UISTest.class,
 						ProxyTest.class,
 //						FileTest.class,
 						LanguagePriorityListTest.class,
-						RestQueryBuilderTest.class
+						RestQueryBuilderTest.class,
+						DataflowsIT.class,
+						TimeSeriesFromIDsIT.class
 						})
 public class AllTests {
 }

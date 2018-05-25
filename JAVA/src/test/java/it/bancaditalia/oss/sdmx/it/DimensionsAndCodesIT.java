@@ -1,4 +1,4 @@
-package it.bancaditalia.oss.sdmx.ut;
+package it.bancaditalia.oss.sdmx.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,7 +18,7 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 @RunWith(Parameterized.class)
-public class DimensionsAndCodesTest
+public class DimensionsAndCodesIT
 {
 	@Parameters(name="{0} - {1}")
     public static Collection<Object[]> data() {

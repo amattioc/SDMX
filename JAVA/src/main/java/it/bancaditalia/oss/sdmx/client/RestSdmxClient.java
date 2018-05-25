@@ -37,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -84,29 +85,29 @@ import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
  */
 public class RestSdmxClient implements GenericSDMXClient
 {
-	private static final String			sourceClass						= RestSdmxClient.class.getSimpleName();
-	protected static final Logger		logger							= Configuration.getSdmxLogger();
+	private static final String		sourceClass						= RestSdmxClient.class.getSimpleName();
+	protected static final Logger	logger							= Configuration.getSdmxLogger();
 
-	protected final String				name;
-	protected final boolean				needsURLEncoding;
-	protected final boolean				supportsCompression;
+	protected final String			name;
+	protected final boolean			needsURLEncoding;
+	protected final boolean			supportsCompression;
 
-	protected SSLSocketFactory sslSocketFactory;
-	protected final boolean				dotStat							= false;
-	protected ProxySelector proxySelector = null;
-	protected /* final */ URI			endpoint;
-	protected boolean					needsCredentials				= false;
-	protected boolean					containsCredentials				= false;
-	protected String					user							= null;
-	protected String					pw								= null;
-	protected int						readTimeout;
-	protected int						connectTimeout;
-	protected LanguagePriorityList		languages;
-	protected RestSdmxEventListener		dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
-	protected RestSdmxEventListener		redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
+	protected SSLSocketFactory		sslSocketFactory;
+	protected final boolean			dotStat							= false;
+	protected ProxySelector			proxySelector					= null;
+	protected /* final */ URI		endpoint;
+	protected boolean				needsCredentials				= false;
+	protected boolean				containsCredentials				= false;
+	protected String				user							= null;
+	protected String				pw								= null;
+	protected int					readTimeout;
+	protected int					connectTimeout;
+	protected LanguagePriorityList	languages;
+	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
+	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
 
-	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials,
-			boolean needsURLEncoding, boolean supportsCompression)
+	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
+			boolean supportsCompression)
 	{
 		this.endpoint = endpoint;
 		this.name = name;
@@ -124,11 +125,13 @@ public class RestSdmxClient implements GenericSDMXClient
 		this(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression);
 	}
 
-	public void setProxySelector(ProxySelector proxySelector) {
+	public void setProxySelector(ProxySelector proxySelector)
+	{
 		this.proxySelector = proxySelector;
 	}
 
-	public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+	public void setSslSocketFactory(SSLSocketFactory sslSocketFactory)
+	{
 		this.sslSocketFactory = sslSocketFactory;
 	}
 
@@ -210,18 +213,16 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource,
-			String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory)
-			throws SdmxException
+	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime,
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		return getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		return postProcess(getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory));
 	}
 
-	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime,
-			String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
+			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter,
-				includeHistory);
+		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query,
 				"application/vnd.sdmx.structurespecificdata+xml;version=2.1");
 		Message msg = ts.getMessage();
@@ -268,11 +269,10 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime,
-			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException
+	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly, String updatedAfter,
+			boolean includeHistory) throws SdmxException
 	{
-		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory)
-				.toString();
+		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory).toString();
 	}
 
 	/**
@@ -321,8 +321,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					handleHttpHeaders((HttpURLConnection) conn, acceptHeader);
 				}
 
-				code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode()
-						: HttpURLConnection.HTTP_OK;
+				code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 
 				if (isRedirection(code))
 				{
@@ -359,9 +358,9 @@ public class RestSdmxClient implements GenericSDMXClient
 					while ((i = stream.read(buf, 0, 4096)) > 0)
 						baos.write(buf, 0, i);
 					baos.close();
-					String resource = url.getPath().replaceAll(endpoint.getPath() + "/", "");
-					File dumpfilename = new File(Configuration.getDumpPrefix(),
-							resource.replaceAll("\\p{Punct}", "_") + ".xml");
+					String resource = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name()).replaceAll(endpoint.getPath() + "/?", "")
+							.replaceFirst("/$", "").replaceAll("\\p{Punct}", "_") + ".xml";
+					File dumpfilename = new File(Configuration.getDumpPrefix(), resource);
 					logger.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
 					FileOutputStream dumpfile = new FileOutputStream(dumpfilename);
 					dumpfile.write(baos.toByteArray());
@@ -444,15 +443,15 @@ public class RestSdmxClient implements GenericSDMXClient
 			conn.setRequestProperty("Accept", "*/*");
 	}
 
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime,
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
+			boolean includeHistory) throws SdmxException
 	{
 		if (endpoint != null && dataflow != null && resource != null && !resource.isEmpty())
-			return Sdmx21Queries.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime,
-					serieskeysonly, updatedAfter, includeHistory, null).buildSdmx21Query();
+			return Sdmx21Queries
+					.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null)
+					.buildSdmx21Query();
 		else
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource
-					+ " endpoint=" + endpoint);
+			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}
 
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
@@ -460,8 +459,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		if (endpoint != null && agency != null && !agency.isEmpty() && dsd != null && !dsd.isEmpty())
 			return Sdmx21Queries.createStructureQuery(endpoint, dsd, agency, version, full).buildSdmx21Query();
 		else
-			throw new RuntimeException(
-					"Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
+			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
 	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
@@ -484,8 +482,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		String location = conn.getHeaderField("Location");
 		if (location == null || location.isEmpty())
 		{
-			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was empty.",
-					null);
+			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was empty.", null);
 		}
 		try
 		{
@@ -493,8 +490,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		}
 		catch (MalformedURLException ex)
 		{
-			throw new SdmxIOException("The endpoint returned redirect code: " + code
-					+ ", but the location was malformed: '" + location + "'.", null);
+			throw new SdmxIOException("The endpoint returned redirect code: " + code + ", but the location was malformed: '" + location + "'.", null);
 		}
 	}
 

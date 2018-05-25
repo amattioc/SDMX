@@ -37,99 +37,77 @@ import java.util.logging.Logger;
  * @author Attilio Mattiocco
  *
  */
-// This proxy selector simulates prvides for an explicit or default proxy handling. If not 
-// explicitly configured, the default proxy is Proxy.NO_PROXY (DIRECT). See alse: the ClientFactory.createClient. 
-// This type of selection startegy is necessary for handling authenticating proxies, that often redirect to themselves 
-public class SdmxProxySelector extends ProxySelector{
-	private final String NO_PROXY = "NOPROXY";
-	private Proxy defaultProxy = Proxy.NO_PROXY;
-	private Map<String, Proxy> proxyTable = null;
+// This proxy selector simulates prvides for an explicit or default proxy handling. If not
+// explicitly configured, the default proxy is Proxy.NO_PROXY (DIRECT). See alse: the ClientFactory.createClient.
+// This type of selection startegy is necessary for handling authenticating proxies, that often redirect to themselves
+public class SdmxProxySelector extends ProxySelector
+{
+	private final String		NO_PROXY		= "NOPROXY";
+	private Proxy				defaultProxy	= Proxy.NO_PROXY;
+	private Map<String, Proxy>	proxyTable		= null;
 
-	private static final String sourceClass = SdmxProxySelector.class.getSimpleName();
-	protected static Logger logger = Configuration.getSdmxLogger();
-
-	public SdmxProxySelector(String defaultProxyHost, int defaultProxyPort){
-		final String sourceMethod = "SdmxProxySelector";
-		logger.entering(sourceClass, sourceMethod);
-
-		if(defaultProxyHost != null && !defaultProxyHost.isEmpty() && !defaultProxyHost.equalsIgnoreCase(NO_PROXY)){
-			defaultProxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(defaultProxyHost,defaultProxyPort));
+	public SdmxProxySelector(String defaultProxyHost, int defaultProxyPort)
+	{
+		if (defaultProxyHost != null && !defaultProxyHost.isEmpty() && !defaultProxyHost.equalsIgnoreCase(NO_PROXY))
+		{
+			defaultProxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(defaultProxyHost, defaultProxyPort));
 		}
-		
+
 		proxyTable = new HashMap<>();
-		
-		logger.exiting(sourceClass, sourceMethod);
 	}
 
 	// the host will be configured for using the default proxy (or DIRECT if not configured)
-	public void addToDefaultProxy(String url){
-		final String sourceMethod = "addProxy";
-		logger.entering(sourceClass, sourceMethod);
+	public void addToDefaultProxy(String url)
+	{
 		Proxy p = proxyTable.get(url);
-		//add url to default proxy only if proxy not explicitly set at init time
-		if(p == null){
-			logger.finer("Default proxy has been added for " + url);		
+
+		// add url to default proxy only if proxy not explicitly set at init time
+		if (p == null)
 			proxyTable.put(url, defaultProxy);
-		}
-		logger.exiting(sourceClass, sourceMethod);
 	}
-	
-	//add a proxy entry for the given URLs 
+
+	// add a proxy entry for the given URLs
 	public void addProxy(String proxyHost, String proxyPort, String... hosts)
 	{
-		final String sourceMethod = "addProxy";
-		logger.entering(sourceClass, sourceMethod);
 		Proxy p = null;
-		if(proxyHost != null && proxyPort != null && !proxyHost.isEmpty() && !proxyPort.isEmpty())
+		if (proxyHost != null && proxyPort != null && !proxyHost.isEmpty() && !proxyPort.isEmpty())
 		{
-			if(!proxyHost.equalsIgnoreCase(NO_PROXY))
-				p = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyHost.trim(),Integer.parseInt(proxyPort.trim())));
+			if (!proxyHost.equalsIgnoreCase(NO_PROXY))
+				p = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost.trim(), Integer.parseInt(proxyPort.trim())));
 			else
 				p = Proxy.NO_PROXY;
 
-			for (String host: hosts)
-				if(host != null && !host.isEmpty())
-				{
+			for (String host : hosts)
+				if (host != null && !host.isEmpty())
 					proxyTable.put(host, p);
-					logger.finer("Proxy has been added: '" + p + "' for " + host);				
-				}
 		}
 		else
 			throw new IllegalArgumentException("Proxy settings must be valid. host: '" + proxyHost + "', port: '" + proxyPort + "'");
-
-		logger.exiting(sourceClass, sourceMethod);
-
-	}
-	
-	@Override
-	public void connectFailed(URI arg0, SocketAddress arg1, IOException arg2) {
-		final String sourceMethod = "connectFailed";
-		logger.entering(sourceClass, sourceMethod);
-		logger.warning("FAILED PROXY CALL to URI: " + arg0 + ", socket: " + arg1);	
-		logger.exiting(sourceClass, sourceMethod);
 	}
 
 	@Override
-	public List<Proxy> select(URI targetURI) {
+	public void connectFailed(URI arg0, SocketAddress arg1, IOException arg2)
+	{
+		// Do nothing
+	}
+
+	@Override
+	public List<Proxy> select(URI targetURI)
+	{
 		final String sourceMethod = "select";
 		List<Proxy> res = new ArrayList<>();
-		logger.entering(sourceClass, sourceMethod);
 		String targetHost = targetURI.getHost();
-		if(targetHost != null)
+		if (targetHost != null)
 		{
-			logger.finer("Getting proxy for host: " + targetHost);	
 			Proxy proxy = proxyTable.get(targetHost);
-			//if no proxy has been found in the table for this URL, then go DIRECT
-			//it's important to behave this way for avoiding problems with the internal infrastructure
-			//like LDAP that needs a direct connection
+			// if no proxy has been found in the table for this URL, then go DIRECT
+			// it's important to behave this way for avoiding problems with the internal infrastructure
+			// like LDAP that needs a direct connection
 			res.add(proxy != null ? proxy : Proxy.NO_PROXY);
-			logger.finer("proxy: " + res);
 		}
-		else{
-			logger.warning("No host component found for " + targetURI);
+		else
 			res.add(Proxy.NO_PROXY);
-		}
-		logger.exiting(sourceClass, sourceMethod);
+
 		return res;
 	}
 
@@ -137,5 +115,4 @@ public class SdmxProxySelector extends ProxySelector{
 	{
 		return proxyTable.put(target.getHost(), proxy);
 	}
-
 }

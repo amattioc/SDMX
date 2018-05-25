@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package it.bancaditalia.oss.sdmx.util;
+package it.bancaditalia.oss.sdmx.ut;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,14 +22,18 @@ import java.net.URL;
 import org.junit.Assert;
 import org.junit.Test;
 
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
+
 /**
  *
  * @author Philippe Charles
  */
-public class RestQueryBuilderTest {
+public class RestQueryBuilderTest
+{
 
 	@Test
-	public void test() throws URISyntaxException, MalformedURLException {
+	public void test() throws URISyntaxException, MalformedURLException
+	{
 		URI entryPoint = new URI("http://ws-entry-point");
 
 		Assert.assertEquals(entryPoint, new RestQueryBuilder(entryPoint).build().toURI());
