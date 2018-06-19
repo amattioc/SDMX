@@ -22,7 +22,7 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 {
 	private static final long			serialVersionUID	= 1L;
 
-	protected final String				timeslot;
+	protected String				timeslot;
 	protected final Map<String, String>	obsAttributes;
 
 	/**
@@ -83,6 +83,14 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	{
 		return timeslot;
 	}
+	
+	/**
+	 * @param Set this observation's timestamp
+	 */
+	public void setTimeslot(String newTime)
+	{
+		this.timeslot = newTime;
+	}
 
 	/**
 	 * @return This observation's value
@@ -90,10 +98,10 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	public abstract T getValue();
 
 	/**
-	 * Get this observation's value as a {@code double} number.<br/>
-	 * If either value is null, is not a {@link Number} instance, or if its {@link T#toString()} method returns an
+	 * Get this observation's value as a {@code double} number.
+	 * If either value is null, is not a {@link Number} instance, or if its {@link Object#toString() toString()} method returns an
 	 * invalid number representation, a {@link Double#NaN} is returned instead.
-	 * <p />
+	 * 
 	 * <b>IMPLEMENTATION NOTE:</b> This method will cause major boxing/unboxing performance impact. It was implemented
 	 * as a compatibility layer for other tools. Please use the specialized instances for series based on primitive types.
 	 * 

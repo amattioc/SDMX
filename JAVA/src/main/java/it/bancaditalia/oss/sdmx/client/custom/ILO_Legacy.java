@@ -36,13 +36,13 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  * @author Attilio Mattiocco
  *
  */
-public class ILO extends RestSdmx20Client {
+public class ILO_Legacy extends RestSdmx20Client {
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
-	public ILO() throws URISyntaxException {
+	public ILO_Legacy() throws URISyntaxException {
 		//the ILO providers supports https but it gets errors with java 1.6
-		super("ILO", new URI("https://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
+		super("ILO_Legacy", new URI("https://www.ilo.org/ilostat/sdmx/ws/rest"), false, "application/vnd.sdmx.structurespecificdata+xml;version=2.1", "");
 	}
 
 	@Override

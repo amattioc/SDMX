@@ -149,5 +149,12 @@ public interface GenericSDMXClient {
 	 * @return the client name
 	 */
 	public String getName();
+	
+	/**
+     * <p>Sets the name of this client 
+     * @param name the name of this client 
+     */
+	
+	public void setName(String name);
 
 }

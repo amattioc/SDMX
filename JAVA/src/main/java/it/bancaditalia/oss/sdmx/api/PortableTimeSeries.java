@@ -689,7 +689,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	 * @deprecated Use this series iterator to extract the status from each
 	 *             {@link BaseObservation#getAttributeValue(String) BaseObservation}.
 	 * 
-	 * @See {@link BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")}
+	 * @see BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")
 	 */
 	@Deprecated
 	public List<String> getStatus()
@@ -704,7 +704,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	 * @deprecated Use this series iterator to extract the status from each
 	 *             {@link BaseObservation#getAttributeValue(String) BaseObservation}.
 	 * 
-	 * @See {@link BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")}
+	 * @see BaseObservation#getAttributeValue(String) BaseObservation.getAttributeValue("OBS_STATUS")
 	 */
 	@Deprecated
 	public String[] getStatusArray()

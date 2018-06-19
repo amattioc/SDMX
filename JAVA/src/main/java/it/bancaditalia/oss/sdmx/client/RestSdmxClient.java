@@ -88,7 +88,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	private static final String		sourceClass						= RestSdmxClient.class.getSimpleName();
 	protected static final Logger	logger							= Configuration.getSdmxLogger();
 
-	protected final String			name;
+	protected String				name;
 	protected final boolean			needsURLEncoding;
 	protected final boolean			supportsCompression;
 
@@ -267,6 +267,12 @@ public class RestSdmxClient implements GenericSDMXClient
 	{
 		return name;
 	}
+	
+	@Override
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
 	@Override
 	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly, String updatedAfter,
@@ -389,8 +395,10 @@ public class RestSdmxClient implements GenericSDMXClient
 			}
 			else
 			{
+				InputStream is = ((HttpURLConnection)conn).getErrorStream();
+				String msg = new BufferedReader(new InputStreamReader(is)).readLine();
 				SdmxException ex = SdmxExceptionFactory.createRestException(code, null, null);
-				logger.severe(ex.getMessage());
+				logger.severe(msg);
 				if (conn instanceof HttpURLConnection)
 					((HttpURLConnection) conn).disconnect();
 				throw ex;

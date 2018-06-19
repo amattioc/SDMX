@@ -65,6 +65,7 @@ public class SDMXClientFactory {
 	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
 	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
 	private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
+	private static final String ILO_PROVIDER = "https://www.ilo.org/sdmx/rest";
 	
 	//read the configuration file
 	static {
@@ -100,6 +101,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
         addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
 	    addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
+	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
 
 
 	    //add internal 2.0 providers
@@ -107,20 +109,13 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true);
 	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true);
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
-	    addBuiltInProvider("ILO", null, false, false, false, "International Labour Organization", true);
+	    addBuiltInProvider("ILO_Legacy", null, false, false, false, "International Labour Organization - Old Endpoint", true);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
 
-	    //addBuiltInProvider("FILE", null, false, false, false, "File offline provider", true);
-
-    	//Legacy 2.0
-    	ServiceLoader<GenericSDMXClient> ldr = ServiceLoader.load(GenericSDMXClient.class);
-        for (GenericSDMXClient provider : ldr) {
-            addProvider(provider.getClass().getSimpleName(), null, null, provider.needsCredentials(), false, false, provider.getClass().getSimpleName(), true);
-        }
 	}
 	
 	/**
@@ -253,9 +248,11 @@ public class SDMXClientFactory {
 		logger.fine("Create an SDMX client for '" + providerName + "'");
 		GenericSDMXClient client = null;
 		Provider provider = providers.get(providerName);
+		if(provider == null){
+			throw new SdmxInvalidParameterException("The provider '" + providerName + "' is not available in this configuration.");
+		}
 		String hostname = null;
 
-		String errorMsg = "The provider '" + providerName + "' is not available in this configuration.";
 		if(provider != null && !provider.isCustom())
 		{
 			hostname = provider.getEndpoint().getHost();
@@ -267,8 +264,7 @@ public class SDMXClientFactory {
 			}
 			else 
 			{
-				logger.severe("The protocol '" + provider.getEndpoint().getScheme() + "' is not supported.");
-				throw new SdmxInvalidParameterException(errorMsg);
+				throw new SdmxInvalidParameterException("The protocol '" + provider.getEndpoint().getScheme() + "' is not supported.");
 			}
 		}
 		else {
@@ -283,6 +279,8 @@ public class SDMXClientFactory {
 
 				if (client.getEndpoint() != null)
 					hostname = client.getEndpoint().getHost();
+				
+				client.setName(providerName);
 			}
 			catch (ClassNotFoundException e) {
 				logger.severe("The provider '" + providerName + "' is not available in this configuration.");

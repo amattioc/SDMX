@@ -200,7 +200,7 @@ public class GenericDataParser implements Parser<DataParsingResult>{
 
 	private static void setSeriesSingleObs(PortableTimeSeries<Double> ts, XMLEventReader eventReader) throws XMLStreamException, SdmxException {
 		String time = null;
-		String val = null;
+		String val = "";
 		Hashtable<String, String> obs_attr = new Hashtable<String, String>();
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
@@ -208,12 +208,32 @@ public class GenericDataParser implements Parser<DataParsingResult>{
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 				if (startElement.getName().getLocalPart() == (OBS_TIME)) {
-					time = startElement.getAttributeByName(new QName(VALUE)).getValue();
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					while (attributes.hasNext())
+					{
+						Attribute attribute = attributes.next();
+						String name = attribute.getName().toString();
+						if (name.equals(VALUE))
+						{
+							time = attribute.getValue();
+						}
+					}
 				}
-				if (startElement.getName().getLocalPart() == (OBS_VALUE)) {
-					val = startElement.getAttributeByName(new QName(VALUE)).getValue();
+				else if (startElement.getName().getLocalPart() == (OBS_VALUE)) {
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					while (attributes.hasNext())
+					{
+						Attribute attribute = attributes.next();
+						String name = attribute.getName().toString();
+						if (name.equals(VALUE))
+						{
+							val = attribute.getValue();
+						}
+					}
 				}
-				if (startElement.getName().getLocalPart() == (ATTRIBUTEVALUE)) {
+				else if (startElement.getName().getLocalPart() == (ATTRIBUTEVALUE)) {
 					String name = startElement.getAttributeByName(new QName(ID)).getValue();
 					String value = startElement.getAttributeByName(new QName(VALUE)).getValue();
 					obs_attr.put(name, value);
@@ -225,6 +245,7 @@ public class GenericDataParser implements Parser<DataParsingResult>{
 					try {
 						ts.add(new DoubleObservation(time, Double.valueOf(val), obs_attr));
 					} catch (NumberFormatException e) {
+						logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + val + ". A NaN will be set.");
 						ts.add(new DoubleObservation(time, Double.NaN, obs_attr));
 					}
 					break;

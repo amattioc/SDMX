@@ -31,7 +31,6 @@ import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class,
 						DimensionsAndCodesIT.class,
 						DSDIdentifiersIT.class,
-//						NBBTest.class,
 						ProxyTest.class,
 //						FileTest.class,
 						LanguagePriorityListTest.class,

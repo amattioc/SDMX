@@ -212,6 +212,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 					try {
 						ts.add(new DoubleObservation(time, Double.valueOf(obs_val), obs_attr));
 					} catch (NumberFormatException e) {
+						logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + obs_val + ". A NaN will be set.");
 						ts.add(new DoubleObservation(time, Double.NaN, obs_attr));
 					}
 					continue;

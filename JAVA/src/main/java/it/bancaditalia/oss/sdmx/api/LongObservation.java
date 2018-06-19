@@ -20,7 +20,6 @@ public class LongObservation extends BaseObservation<Long>
 	 * @param timeslot The timestamp of the observation.
 	 * @param value The value of the observation
 	 * @param obsAttributes A map of observation-level attributes.
-	 * @param frequency The frequency of the series.
 	 */
 	public LongObservation(String timeslot, long value, Map<String, String> obsAttributes)
 	{

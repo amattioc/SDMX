@@ -135,7 +135,8 @@ public class Configuration {
 	
 	public static Logger getSdmxLogger()
 	{
-		return SDMX_LOGGER == null ? (SDMX_LOGGER = Logger.getLogger(LOGGER_NAME)) : SDMX_LOGGER;
+		Logger r = SDMX_LOGGER == null ? (SDMX_LOGGER = Logger.getLogger(LOGGER_NAME)) : SDMX_LOGGER;
+		return r;
 	}
 	
 	public static Properties getConfiguration(){
@@ -229,7 +230,9 @@ public class Configuration {
 				SDMX_LOGGER.info("Local configuration file found: " + confType );
 			} catch (SecurityException e) {
 				// impossible
+				e.printStackTrace();
 			} catch (IOException e) {
+				e.printStackTrace();
 				SDMX_LOGGER.finer(logException(e));
 			}
 		}
@@ -245,8 +248,10 @@ public class Configuration {
 						confType = central;
 						SDMX_LOGGER.info("Central configuration file found: " + confType);
 					} catch (SecurityException e) {
+					e.printStackTrace();
 						// impossible
 					} catch (IOException e) {
+					e.printStackTrace();
 						SDMX_LOGGER.finer(logException(e));
 					}
 				}
@@ -268,13 +273,18 @@ public class Configuration {
 				SDMX_LOGGER.fine("Class configuration not found, skipping to global conf");
 			} catch (SecurityException e) {
 				// impossible
+					e.printStackTrace();
 			} catch (NoSuchMethodException e) {
 				// impossible
+					e.printStackTrace();
 			} catch (IllegalArgumentException e) {
 				// impossible
+					e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// impossible
+					e.printStackTrace();
 			} catch (InvocationTargetException e) {
+					e.printStackTrace();
 				SDMX_LOGGER.info("Error during SdmxConfiguration class initialization, skipping to global conf.");
 				SDMX_LOGGER.severe(logException(e.getCause()));
 			}
