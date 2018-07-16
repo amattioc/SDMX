@@ -163,6 +163,44 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
+	 * Creates a new PortableTimeSeries by changing each timelot of this PortableTimeSeries  
+	 * to the result of respectively applying a function over each of this series' timeslots.
+	 * 
+	 * @param mapper The function that maps timeslots.
+	 * @return The new PortableTimeSeries
+	 * 
+	 * @throws NullPointerException if mapper is null.
+	 */
+	public PortableTimeSeries<T> mapTimeslots(Function<String, String> mapper)
+	{
+		return mapTimeslots(mapper, false);
+	}
+
+	/**
+	 * Creates a new PortableTimeSeries by changing each timelot of this PortableTimeSeries  
+	 * to the result of respectively applying a function over each of this series' timeslots,
+	 * and optionally sort this PortableTimeSeries after timeslots have been mapped.
+	 * 
+	 * @param mapper The function that maps timeslots.
+	 * @param sort True if this PortableTimeSeries has to be mapped.
+	 * @return The new PortableTimeSeries
+	 * 
+	 * @throws NullPointerException if mapper is null.
+	 */
+	public PortableTimeSeries<T> mapTimeslots(Function<String, String> mapper, boolean sort)
+	{
+		PortableTimeSeries<T> newSeries = new PortableTimeSeries<>(this);
+
+		for (BaseObservation<? extends T> obs : this)
+			newSeries.add(obs.mapTimeslot(mapper));
+		
+		if (sort)
+			Collections.sort(newSeries);
+
+		return newSeries;
+	}
+
+	/**
 	 * Creates a new PortableTimeSeries over the same time slots of this series with each of its values being set equal
 	 * to the result of respectively applying a function over each of this series' values.
 	 * 

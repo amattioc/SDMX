@@ -22,7 +22,7 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 {
 	private static final long			serialVersionUID	= 1L;
 
-	protected String				timeslot;
+	protected final String				timeslot;
 	protected final Map<String, String>	obsAttributes;
 
 	/**
@@ -41,7 +41,7 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	}
 
 	/**
-	 * Creates a new observation that is a copy of this Observation.
+	 * Creates a new observation that is a copy of this BaseObservation.
 	 * 
 	 * @param other The Observation to copy.
 	 */
@@ -52,16 +52,22 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	}
 
 	/**
+	 * Creates a new Observation equal to this, with the timestamp set equal to the result of applying a function to this
+	 * Observation timestamp.
+	 * 
+	 * @param mapper The function mapping the timeslot.
+	 * @return A new Observation
+	 */
+	abstract public BaseObservation<T> mapTimeslot(Function<String, String> mapper);
+
+	/**
 	 * Creates a new Observation equal to this, with the value set equal to the result of applying a function to this
 	 * Observation value.
 	 * 
 	 * @param mapper The function mapping the value.
 	 * @return A new Observation
 	 */
-	public <U> BaseObservation<U> mapValue(Function<? super T, U> mapper)
-	{
-		return new Observation<>(this, mapper.apply(getValue()));
-	}
+	abstract public <U> BaseObservation<U> mapValue(Function<? super T, U> mapper);
 
 	/**
 	 * Creates a new Observation equal to this, with the value set equal to the result of applying a function to this
@@ -71,10 +77,7 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	 * @param combiner The function mapping the value.
 	 * @return A new Observation whose value is the result of the function.
 	 */
-	public <U, R> BaseObservation<R> combine(BaseObservation<U> other, BiFunction<? super T, ? super U, R> combiner)
-	{
-		return new Observation<>(this, combiner.apply(getValue(), other.getValue()));
-	}
+	abstract public <U, R> BaseObservation<R> combine(BaseObservation<U> other, BiFunction<? super T, ? super U, R> combiner);
 
 	/**
 	 * @return This observation's timestamp
@@ -84,14 +87,6 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 		return timeslot;
 	}
 	
-	/**
-	 * @param Set this observation's timestamp
-	 */
-	public void setTimeslot(String newTime)
-	{
-		this.timeslot = newTime;
-	}
-
 	/**
 	 * @return This observation's value
 	 */

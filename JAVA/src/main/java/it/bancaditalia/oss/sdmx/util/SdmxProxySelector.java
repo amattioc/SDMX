@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * @author Attilio Mattiocco
@@ -94,7 +93,6 @@ public class SdmxProxySelector extends ProxySelector
 	@Override
 	public List<Proxy> select(URI targetURI)
 	{
-		final String sourceMethod = "select";
 		List<Proxy> res = new ArrayList<>();
 		String targetHost = targetURI.getHost();
 		if (targetHost != null)

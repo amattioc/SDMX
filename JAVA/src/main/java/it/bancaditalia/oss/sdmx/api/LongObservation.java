@@ -2,6 +2,9 @@ package it.bancaditalia.oss.sdmx.api;
 
 import java.util.Map;
 
+import it.bancaditalia.oss.sdmx.util.Utils.BiFunction;
+import it.bancaditalia.oss.sdmx.util.Utils.Function;
+
 /**
  * A specialized implementation of {link {@link BaseObservation} for {@code long} type.
  *
@@ -49,5 +52,23 @@ public class LongObservation extends BaseObservation<Long>
 	public double getValueAsDouble()
 	{
 		return value;
+	}
+
+	@Override
+	public LongObservation mapTimeslot(Function<String, String> mapper)
+	{
+		return new LongObservation(mapper.apply(timeslot), value, obsAttributes);
+	}
+
+	@Override
+	public <U> BaseObservation<U> mapValue(Function<? super Long, U> mapper)
+	{
+		return new Observation<>(this, mapper.apply(value));
+	}
+
+	@Override
+	public <U, R> BaseObservation<R> combine(BaseObservation<U> other, BiFunction<? super Long, ? super U, R> combiner)
+	{
+		return new Observation<>(this, combiner.apply(value, other.getValue()));
 	}
 }
