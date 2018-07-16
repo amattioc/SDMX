@@ -84,7 +84,8 @@ public class EUROSTAT extends RestSdmxClient{
 					}
 					
 					try {
-						return postProcess(runQuery(parser, new URL(msg.getUrl()), null));
+						String dumpName = "data_" + dataflow.getId() + "_" + resource; //.replaceAll("\\p{Punct}", "_");
+						return postProcess(runQuery(parser, new URL(msg.getUrl()), null, dumpName));
 					} catch (MalformedURLException e) {
 						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					} catch (SdmxResponseException e) {

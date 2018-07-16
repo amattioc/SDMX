@@ -6,15 +6,17 @@ import java.util.Map.Entry;
 
 import javax.swing.table.DefaultTableModel;
 
-public class ListTableModel<T> extends DefaultTableModel {
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+
+public class DataflowsModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 3265022631397431923L;
 	
-	public ListTableModel(String keyName, String valueName) {
+	public DataflowsModel() {
 		super();
 		
-		setColumnCount(2);
-		setColumnIdentifiers(new String[] { keyName, valueName });
+		setColumnCount(3);
+		setColumnIdentifiers(new String[] { "Dataflow", "Version", "Description" });
 		setRowCount(0);
 	}
 	
@@ -24,15 +26,15 @@ public class ListTableModel<T> extends DefaultTableModel {
 		
 		if (items != null && items.size() > 0)
 			for (Entry<String, String> item: items.entrySet())
-				addRow(new String[] { item.getKey(), item.getValue() });
+				addRow(new String[] { item.getKey().split(",")[1], item.getKey().split(",")[2], item.getValue() });
 	}
 
-	public void setItems(List<T> items, Mapper<T> mapper)
+	public void setItems(List<Dataflow> items, Mapper<Dataflow> mapper)
 	{
 		setRowCount(0);
 		
 		if (items != null && items.size() > 0)
-			for (T item: items)
+			for (Dataflow item: items)
 				addRow(mapper.toMapEntry(item));
 	}
 

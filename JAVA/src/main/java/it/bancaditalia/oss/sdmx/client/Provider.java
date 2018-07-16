@@ -38,6 +38,11 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
+/**
+ * 
+ * @author Valentino Pinna
+ *
+ */
 public class Provider {
 	private String name;
 	private String description;

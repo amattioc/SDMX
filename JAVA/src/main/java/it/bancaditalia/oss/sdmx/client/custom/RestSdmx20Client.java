@@ -59,7 +59,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	{
 
 		URL query = buildFlowQuery("ALL", null, null);
-		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null);
+		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null, null);
 		if (dfs.size() > 0)
 		{
 			Map<String, Dataflow> result = new HashMap<>();
@@ -78,7 +78,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		URL query = buildFlowQuery(dataflow, agency, version);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, null);
 		if (flows.size() >= 1)
 			for (Dataflow item : flows)
 				if (item.getId().equalsIgnoreCase(dataflow))
@@ -93,7 +93,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 		if (dsd != null)
 		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			return runQuery(new DataStructureParser(), query, null).get(0);
+			return runQuery(new DataStructureParser(), query, null, null).get(0);
 		}
 		else
 			throw new InvalidParameterException("Null dsd in input");
@@ -103,7 +103,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	public Map<String, String> getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
-		return runQuery(new CodelistParser(), query, null);
+		return runQuery(new CodelistParser(), query, null, null);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		// 20/09/2017: GenericDataParser deleted
 		return runQuery(/* format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) 
-				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, acceptHdr);
+				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, acceptHdr, null);
 	}
 
 	@Override

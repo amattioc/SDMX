@@ -37,7 +37,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -165,7 +164,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	{
 		Map<String, Dataflow> result = null;
 		URL query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
 		if (flows.size() > 0)
 		{
 			result = new HashMap<>();
@@ -184,7 +183,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	{
 		Dataflow result = null;
 		URL query = buildFlowQuery(dataflow, agency, version);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
 		if (flows.size() >= 1)
 			result = flows.get(0);
 		else
@@ -201,7 +200,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		else
 		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			return runQuery(new DataStructureParser(), query, null).get(0);
+			return runQuery(new DataStructureParser(), query, null, "datastructure_" + dsd.getId()).get(0);
 		}
 	}
 
@@ -209,7 +208,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Map<String, String> getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
-		return runQuery(new CodelistParser(), query, null);
+		return runQuery(new CodelistParser(), query, null, "codelist_" + codeList);
 	}
 
 	@Override
@@ -223,8 +222,9 @@ public class RestSdmxClient implements GenericSDMXClient
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		String dumpName = "data_" + dataflow.getId() + "_" + resource; //.replaceAll("\\p{Punct}", "_");
 		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query,
-				"application/vnd.sdmx.structurespecificdata+xml;version=2.1");
+				"application/vnd.sdmx.structurespecificdata+xml;version=2.1", dumpName);
 		Message msg = ts.getMessage();
 		if (msg != null)
 		{
@@ -290,7 +290,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	 * 
 	 * @throws SdmxException
 	 */
-	protected final <T> T runQuery(Parser<T> parser, URL query, String acceptHeader) throws SdmxException
+	protected final <T> T runQuery(Parser<T> parser, URL query, String acceptHeader, String dumpName) throws SdmxException
 	{
 		final String sourceMethod = "runQuery";
 		logger.entering(sourceClass, sourceMethod);
@@ -356,7 +356,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					((ZipInputStream) stream).getNextEntry();
 				}
 
-				if (Configuration.isDumpXml() && !(this instanceof FILE)) // skip for local providers
+				if (Configuration.isDumpXml() && !(this instanceof FILE) && dumpName != null) // skip local and non 2.1 providers
 				{
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					byte[] buf = new byte[4096];
@@ -364,21 +364,24 @@ public class RestSdmxClient implements GenericSDMXClient
 					while ((i = stream.read(buf, 0, 4096)) > 0)
 						baos.write(buf, 0, i);
 					baos.close();
-					String resource = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name()).replaceAll(endpoint.getPath() + "/?", "")
-							.replaceFirst("/$", "").replaceAll("\\p{Punct}", "_") + ".xml";
-					File dumpfilename = new File(Configuration.getDumpPrefix(), resource);
-					logger.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
-					FileOutputStream dumpfile = new FileOutputStream(dumpfilename);
-					dumpfile.write(baos.toByteArray());
-					dumpfile.close();
-					stream = new ByteArrayInputStream(baos.toByteArray());
+//					String resource = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.name()).replaceAll(endpoint.getPath() + "/?", "")
+//							.replaceFirst("/$", "").replaceAll("\\p{Punct}", "_") + ".xml";
+					System.err.println(Configuration.getDumpPrefix());
+					File dumpfilename = new File(Configuration.getDumpPrefix() + File.separator + name, dumpName + ".xml");
+					if (!dumpfilename.getParentFile().exists() && !dumpfilename.getParentFile().mkdirs()) {
+					    logger.warning("Error creating path to dump file: " + dumpfilename);
+					}
+					else{
+						logger.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
+						FileOutputStream dumpfile = new FileOutputStream(dumpfilename);
+						dumpfile.write(baos.toByteArray());
+						dumpfile.close();
+						stream = new ByteArrayInputStream(baos.toByteArray());
+					}
 				}
 
-				Reader reader = null;
-
-				try
+				try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8))
 				{
-					reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 					XMLInputFactory inputFactory = XMLInputFactory.newFactory();
 					preventXXE(inputFactory);
 					BufferedReader br = skipBOM(reader);
@@ -386,11 +389,6 @@ public class RestSdmxClient implements GenericSDMXClient
 					XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
 					return parser.parse(eventReader, languages != null ? languages : LanguagePriorityList.ANY);
-				}
-				finally
-				{
-					if (reader != null)
-						reader.close();
 				}
 			}
 			else

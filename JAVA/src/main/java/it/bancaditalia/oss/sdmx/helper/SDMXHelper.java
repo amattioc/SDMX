@@ -101,8 +101,7 @@ public class SDMXHelper extends JFrame
 	private final JButton checkQueryButton;
 	private final JButton btnPrintQuery;
 	private final ButtonGroup selectedProviderGroup = new ButtonGroup();
-	private final ListTableModel<Dataflow> dataflowsTableModel = new ListTableModel<>("Dataflow",
-			"Description");
+	private final DataflowsModel dataflowsTableModel = new DataflowsModel();
 	private final EnumedListTableModel<Dimension> dimensionsTableModel = new EnumedListTableModel<>(
 			"Dimension", "Description");
 	private final HashMap<String, TableRowSorter<CheckboxListTableModel<String>>> codelistSortersMap = new HashMap<>();
@@ -369,8 +368,7 @@ public class SDMXHelper extends JFrame
 		Component horizontalStrut_2 = Box.createHorizontalStrut(10);
 		dataflowFilterPanel.add(horizontalStrut_2);
 
-		final TableRowSorter<ListTableModel<Dataflow>> dataflowsTableSorter = new TableRowSorter<>(
-				dataflowsTableModel);
+		final TableRowSorter<DataflowsModel> dataflowsTableSorter = new TableRowSorter<>(dataflowsTableModel);
 		dataflowsTableSorter.setSortKeys(Collections.singletonList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 
 		dataflowFilterTextField = new JTextField();
@@ -503,7 +501,7 @@ public class SDMXHelper extends JFrame
 					String pattern = codesFilterTextField.getText();
 					if (pattern != null)
 					{
-						((TableRowSorter<ListTableModel<Dataflow>>) codesTable.getRowSorter())
+						((TableRowSorter<DataflowsModel>) codesTable.getRowSorter())
 								.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(pattern)));
 						updateCodelistCount();
 					}
@@ -707,9 +705,11 @@ public class SDMXHelper extends JFrame
 		dataflowsTable.setModel(dataflowsTableModel);
 		dataflowsTable.getColumnModel().getColumn(0).setMinWidth(200);
 		dataflowsTable.getColumnModel().getColumn(0).setMaxWidth(Integer.MAX_VALUE);
-		dataflowsTable.getColumnModel().getColumn(1).setMinWidth(200);
-		dataflowsTable.getColumnModel().getColumn(1).setMaxWidth(Integer.MAX_VALUE);
-		dataflowsTable.getColumnModel().getColumn(1).setPreferredWidth(800);
+		dataflowsTable.getColumnModel().getColumn(1).setMinWidth(60);
+		dataflowsTable.getColumnModel().getColumn(1).setMaxWidth(60);
+		dataflowsTable.getColumnModel().getColumn(2).setMinWidth(200);
+		dataflowsTable.getColumnModel().getColumn(2).setMaxWidth(Integer.MAX_VALUE);
+		dataflowsTable.getColumnModel().getColumn(2).setPreferredWidth(800);
 		dataflowsTable.setRowSorter(dataflowsTableSorter);
 		dataflowsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		dataflowsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()

@@ -2,6 +2,9 @@ package it.bancaditalia.oss.sdmx.api;
 
 import java.util.Map;
 
+import it.bancaditalia.oss.sdmx.util.Utils.BiFunction;
+import it.bancaditalia.oss.sdmx.util.Utils.Function;
+
 /**
  * Generic specialization for a {@link BaseObservation}.
  * 
@@ -40,9 +43,39 @@ public class Observation<T> extends BaseObservation<T>
 		this.value = value;
 	}
 
+	/**
+	 * Creates a new observation that is a copy of this Observation, changing the timeslot.
+	 * 
+	 * @param other The Observation to copy.
+	 * @param timeslot the new timeslot to assign to this Observation
+	 */
+	public Observation(BaseObservation<T> other, String timeslot)
+	{
+		super(timeslot, other.obsAttributes);
+		this.value = other.getValue();
+	}
+
 	@Override
 	public T getValue()
 	{
 		return value;
+	}
+
+	@Override
+	public BaseObservation<T> mapTimeslot(Function<String, String> mapper)
+	{
+		return new Observation<>(this, mapper.apply(timeslot));
+	}
+
+	@Override
+	public <U> BaseObservation<U> mapValue(Function<? super T, U> mapper)
+	{
+		return new Observation<>(this, mapper.apply(getValue()));
+	}
+
+	@Override
+	public <U, R> BaseObservation<R> combine(BaseObservation<U> other, BiFunction<? super T, ? super U, R> combiner)
+	{
+		return new Observation<>(this, combiner.apply(getValue(), other.getValue()));
 	}
 }

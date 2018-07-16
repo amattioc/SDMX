@@ -529,13 +529,9 @@ public class Configuration {
 
 	public static String getDumpPrefix() {
 		String path = props.getProperty(DUMP_XML_PREFIX);
-		if(path != null && !path.isEmpty()){
-			File f = new File(path);
-			if(!f.exists() || !f.isDirectory()){
-				SDMX_LOGGER.warning("The directory set for storing xml files does not exist.");
-				props.remove(DUMP_XML_PREFIX);
-				path = null;
-			}
+		if(path == null || path.isEmpty()){
+			SDMX_LOGGER.warning("The directory set for storing xml files is not correctly set.");
+			props.remove(DUMP_XML_PREFIX);
 		}
 		return path;
 	}
