@@ -170,7 +170,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		{
 			result = new HashMap<>();
 			for (Dataflow dataflow : flows)
-				result.put(dataflow.getId(), dataflow);
+				result.put(dataflow.getFullIdentifier(), dataflow);
 		}
 		else
 		{
