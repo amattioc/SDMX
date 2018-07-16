@@ -108,6 +108,19 @@
 			<build>
 				<plugins>
 					<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<version>3.1.0</version>
 						<executions>
@@ -327,19 +340,6 @@
 						<configuration>
 							<additionalparams>-Xdoclint:none</additionalparams>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
