@@ -656,9 +656,14 @@ public class SdmxClientHandler
 
 			for (Entry<String, Dataflow> entry : flows.entrySet())
 			{
+				String trueName;
+				if (entry.getKey().split(",").length > 2)
+					trueName = entry.getKey().split(",")[1];
+				else
+					trueName = entry.getKey();
 				String description = entry.getValue().getDescription();
 				if (pattern != null && !pattern.trim().isEmpty())
-					if (entry.getKey().matches(pattern) || description.matches(pattern))
+					if (trueName.matches(pattern) || description.matches(pattern))
 						result.put(entry.getKey(), entry.getValue());
 					else
 						;

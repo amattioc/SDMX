@@ -4,8 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,11 +14,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.client.custom.IMF2;
-import it.bancaditalia.oss.sdmx.client.custom.NBB;
-import it.bancaditalia.oss.sdmx.client.custom.OECD;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 @RunWith(Parameterized.class)
@@ -53,8 +50,13 @@ public class DataflowsIT
 	@Test
 	public void getDataflows() throws SdmxException 
 	{
-		Map<String, String> f = SdmxClientHandler.getFlows(provider, dataflowPattern);
-		assertNotNull("Null getFlows result", f);
-		assertEquals("Wrong dataflow description", expectedDescription, f.get(testDataflow)); 
+		Map<String, String> result = new HashMap<>();
+		for (Entry<String, String> entry: SdmxClientHandler.getFlows(provider, dataflowPattern).entrySet())
+			if (entry.getKey().split(",").length > 2)
+				result.put(entry.getKey().split(",")[1], entry.getValue());
+			else
+				result.put(entry.getKey(), entry.getValue());
+		assertNotNull("Null getFlows result", result);
+		assertEquals("Wrong dataflow description", expectedDescription, result.get(testDataflow)); 
 	}
 }
