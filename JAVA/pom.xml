@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>it.bancaditalia.oss</groupId>
 		<artifactId>parent-pom</artifactId>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 		<relativePath>../parent-pom.xml</relativePath>
 	</parent>
 
