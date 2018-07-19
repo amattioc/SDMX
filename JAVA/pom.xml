@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>it.bancaditalia.oss</groupId>
 		<artifactId>parent-pom</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 		<relativePath>../parent-pom.xml</relativePath>
 	</parent>
 
@@ -305,6 +305,7 @@
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
+					<revisionOnScmFailure>SNAPSHOT</revisionOnScmFailure>
 				</configuration>
 			</plugin>
 			<plugin>
