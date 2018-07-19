@@ -356,7 +356,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<excludes>**/AllTests*</excludes>
+					<excludes>
+                                            <exclude>**/AllTests*</exclude>
+                                        </excludes>
 				</configuration>
 			</plugin>
 			<plugin>
