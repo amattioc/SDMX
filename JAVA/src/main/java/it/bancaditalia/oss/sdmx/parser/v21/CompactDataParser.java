@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -96,7 +97,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
-		List<PortableTimeSeries<Double>> tsList = new ArrayList<>();
+		LinkedHashMap<String, PortableTimeSeries<Double>> tsList = new LinkedHashMap<>();
 
 		DataParsingResult result = new DataParsingResult();
 		PortableTimeSeries<Double> ts = null;
@@ -159,6 +160,14 @@ public class CompactDataParser implements Parser<DataParsingResult>
 
 				if (startElement.getName().getLocalPart().equals(OBS) && data)
 				{
+					
+					//now the metadata has been set and we know the series key. We use it to check
+					//if the ts is already present in the result set. (This check has been introduced 
+					//in recent times because some providers started returning the same time series in 
+					//different chunks)
+					
+					ts = tsList.get(ts.getName()) != null ? tsList.get(ts.getName()) : ts;
+					
 					event = eventReader.nextEvent();
 					logger.finest(event.toString());
 					@SuppressWarnings("unchecked")
@@ -225,15 +234,18 @@ public class CompactDataParser implements Parser<DataParsingResult>
 				if (endElement.getName().getLocalPart() == (SERIES))
 				{
 					logger.finer("Adding time series " + ts);
-					int n = ts.size();
-					if (n > 1 && ts.get(n - 1).compareTo(ts.get(0)) < 0)
-						ts.reverse();
-					tsList.add(ts);
+//					int n = ts.size();
+//					if (n > 1 && ts.get(n - 1).compareTo(ts.get(0)) < 0)
+//						ts.reverse();
+					tsList.put(ts.getName(), ts);
 				}
 			}
 
 		}
-		result.setData(tsList);
+		//make sure the time series is ordered by time
+		for (PortableTimeSeries<Double> tts: result) Collections.sort(tts);
+		
+		result.setData(new ArrayList<PortableTimeSeries<Double>>(tsList.values()));
 		logger.exiting(sourceClass, sourceMethod);
 		return result;
 	}

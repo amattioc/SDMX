@@ -30,7 +30,7 @@ assert(length(providers) > 1, 'Error getProviders');
 %% Test 2: getFlows
 flows = getFlows('ECB');
 assert(length(flows) > 1, 'Error flow number');
-assert(strcmp(flows('EXR'), 'Exchange Rates'), 'Error flow names');
+assert(strcmp(flows('ECB,EXR,1.0'), 'Exchange Rates'), 'Error flow names');
 
 %% Test 3: getDimensions
 dims = getDimensions('ECB', 'EXR');

@@ -21,6 +21,7 @@
 package it.bancaditalia.oss.sdmx.api;
 
 import java.io.Serializable;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -413,5 +414,73 @@ public class PortableDataSet<T> implements Serializable
 		}
 
 		logger.exiting(sourceClass, sourceMethod);
+	}
+	
+	/**
+	 * @return a view of this table as a list of columns
+	 */
+	public List<List<Object>> columnsView()
+	{
+		return new AbstractList<List<Object>>() {
+
+			@Override
+			public List<Object> get(final int col)
+			{
+				return new AbstractList<Object>() 
+				{
+					@Override
+					public Object get(final int row)
+					{
+						return (Object) model.getValueAt(row, col);
+					}
+
+					@Override
+					public int size()
+					{
+						return model.getRowCount();
+					}
+				};
+			}
+
+			@Override
+			public int size()
+			{
+				return model.getColumnCount();
+			}
+		};
+	}
+
+	/**
+	 * @return a view of this table as a list of rows
+	 */
+	public List<List<Object>> rowsView()
+	{
+		return new AbstractList<List<Object>>() {
+
+			@Override
+			public List<Object> get(final int row)
+			{
+				return new AbstractList<Object>() 
+				{
+					@Override
+					public Object get(final int col)
+					{
+						return model.getValueAt(row, col);
+					}
+
+					@Override
+					public int size()
+					{
+						return model.getColumnCount();
+					}
+				};
+			}
+
+			@Override
+			public int size()
+			{
+				return model.getRowCount();
+			}
+		};
 	}
 }

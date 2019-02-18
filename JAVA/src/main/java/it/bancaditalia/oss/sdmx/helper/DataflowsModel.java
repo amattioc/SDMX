@@ -1,8 +1,6 @@
 package it.bancaditalia.oss.sdmx.helper;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -15,27 +13,21 @@ public class DataflowsModel extends DefaultTableModel {
 	public DataflowsModel() {
 		super();
 		
-		setColumnCount(3);
-		setColumnIdentifiers(new String[] { "Dataflow", "Version", "Description" });
+		setColumnCount(4);
+		setColumnIdentifiers(new String[] { "Dataflow", "Version", "Agency", "Description" });
 		setRowCount(0);
 	}
 	
-	public void setItems(Map<String, String> items)
+	public void setItems(Map<String, Dataflow> flows)
 	{
 		setRowCount(0);
 		
-		if (items != null && items.size() > 0)
-			for (Entry<String, String> item: items.entrySet())
-				addRow(new String[] { item.getKey().split(",")[1], item.getKey().split(",")[2], item.getValue() });
-	}
-
-	public void setItems(List<Dataflow> items, Mapper<Dataflow> mapper)
-	{
-		setRowCount(0);
-		
-		if (items != null && items.size() > 0)
-			for (Dataflow item: items)
-				addRow(mapper.toMapEntry(item));
+		if (flows != null && flows.size() > 0)
+			for (Dataflow flow: flows.values())
+				addRow(new String[] { flow.getFullIdentifier().split(",")[1], 
+						flow.getFullIdentifier().split(",").length >= 3 ? flow.getFullIdentifier().split(",")[2] : "N/D",
+						flow.getAgency(),
+						flow.getDescription() });
 	}
 
 	@Override

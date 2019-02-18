@@ -34,7 +34,7 @@ public class TimeSeriesFromIDsIT
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A",                                                           null,   null,     16, null,         null },
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A",                                                           "2000", "2010",   16, null,         null },
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1+4...A",                                                         "2000", "2010",   32, null,         null },
-    			{ "ECB",      "EXR/.GBP+USD.EUR.SP00.A",                                                          null,   null,     10, null,         null },
+    			{ "ECB",      "EXR/.GBP+USD...",                                                          null,   null,     16, null,         null },
     			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A",                                                         "2000", "2010",   10, null,         null },
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A",                                        "2000", "2010",    2, null,         null },
     			{ "ILO",      "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null,   null,      1, null,         null },
@@ -46,7 +46,7 @@ public class TimeSeriesFromIDsIT
     			{ "ISTAT",    "115_362/M....",                                                                    null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
     			{ "NBB",      "NICP2013/HEALTH+XEFUN0.M",                                                         "2006", "2010",    0, "2006-06",    "NICP2013.HEALTH.M" },
     			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q",                                                            "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
-    			{ "EUROSTAT", "prc_hicp_midx/..CP00.EU+DE+FR",                                                    "2000", "2013-08", 0, "2000-01",    "prc_hicp_midx.M.I05.CP00.DE" },
+    			{ "EUROSTAT", "prc_hicp_midx/..CP00.EU+DE+FR",                                                    "2000", "2013-08", 0, "2013-08",    "prc_hicp_midx.M.I05.CP00.DE" },
     		}, 0);
     }
     

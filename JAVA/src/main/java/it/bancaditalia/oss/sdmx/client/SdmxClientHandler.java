@@ -199,6 +199,7 @@ public class SdmxClientHandler
 					 * !Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)
 					 */
 					true);
+			
 			if (result != null)
 			{
 				if (!(getClient(provider) instanceof RestSdmx20Client))
@@ -221,10 +222,16 @@ public class SdmxClientHandler
 						if (x.getCodeList() != null
 								&& (x.getCodeList() == null || x.getCodeList().isEmpty()))
 						{
-							Map<String, String> cl = getClient(provider).getCodes(x.getCodeList().getId(),
-									x.getCodeList().getAgency(), x.getCodeList().getVersion());
-							x.getCodeList().setCodes(cl);
-							result.setAttribute(x);
+							// if this fails, let it go...
+							try{
+								Map<String, String> cl = getClient(provider).getCodes(x.getCodeList().getId(),
+										x.getCodeList().getAgency(), x.getCodeList().getVersion());
+								x.getCodeList().setCodes(cl);
+								result.setAttribute(x);
+							}
+							catch(Exception e){
+								//nope
+							}
 						}
 					}
 				}

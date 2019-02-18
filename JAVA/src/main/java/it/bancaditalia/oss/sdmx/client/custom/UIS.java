@@ -40,7 +40,9 @@ public class UIS extends RestSdmxClient{
 	
 	public UIS() throws URISyntaxException {
 		super("UIS", new URI("https://api.uis.unesco.org/sdmx"), false, false, true);
-		apiKey = Configuration.getUISApiKey();
+		apiKey = System.getenv("UIS_API_KEY");
+		if (apiKey == null)
+			apiKey = Configuration.getUISApiKey();
 		if(apiKey == null || apiKey.isEmpty()){
 			final JFrame frame = new JFrame("Authentication");
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

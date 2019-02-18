@@ -44,7 +44,7 @@ public class Sdmx21Queries extends RestQueryBuilder {
 
 		if (endpoint != null && dataflow != null && !dataflow.isEmpty() && resource != null && !resource.isEmpty())
 			return (Sdmx21Queries) new Sdmx21Queries(endpoint).addParams(start, end, serieskeysonly, updatedAfter, includeHistory, format).addPath("data")
-					.addPath(dataflow).addPath(resource).addPath("");
+					.addPath(dataflow).addPath(resource);
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}

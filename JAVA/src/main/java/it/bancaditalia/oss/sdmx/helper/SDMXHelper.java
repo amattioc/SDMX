@@ -945,7 +945,7 @@ public class SDMXHelper extends JFrame
 					codelistSortersMap.clear();
 					try
 					{
-						final Map<String, String> flows = SdmxClientHandler.getFlows(provider, null);
+						final Map<String, Dataflow> flows = SdmxClientHandler.getFlowObjects(provider, null);
 						// UI modification must be invoked later
 						if (!Thread.currentThread().isInterrupted())
 						{

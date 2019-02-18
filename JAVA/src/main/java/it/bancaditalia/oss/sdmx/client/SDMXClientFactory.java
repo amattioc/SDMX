@@ -61,9 +61,9 @@ public class SDMXClientFactory {
 	private static final String INSEE_PROVIDER = "https://bdm.insee.fr/series/sdmx";
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
-	private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
+	//private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
 	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
-	private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
+	//private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
 	private static final String ILO_PROVIDER = "https://www.ilo.org/sdmx/rest";
 	
 	//read the configuration file
@@ -97,9 +97,9 @@ public class SDMXClientFactory {
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
         addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false);
         addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
-        addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
+        //addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
         addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
-	    addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
+	    //addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
 	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
 
 
@@ -113,6 +113,8 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
+	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true);
+	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
 
 	}
