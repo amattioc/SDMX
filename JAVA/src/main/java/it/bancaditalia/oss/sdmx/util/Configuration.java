@@ -378,6 +378,15 @@ public class Configuration {
 			HttpsURLConnection.setDefaultHostnameVerifier(alwaysValid);
 		}
 	}
+	
+	public static void setDefaultProxy(String host, String port, String username, String password) {
+		if(host != null && !host.isEmpty() && port != null && !port.isEmpty()) {
+			SimpleProxySelector sp = new SimpleProxySelector(host, Integer.parseInt(port));
+			ProxySelector.setDefault(sp);
+			if(username != null && !username.isEmpty())
+				setCredentials(PROXY_AUTH_BASIC, username, password);
+		}
+	}
 
 	private static void configureProxy(Properties props) {
 		final String sourceMethod = "configureProxy";
