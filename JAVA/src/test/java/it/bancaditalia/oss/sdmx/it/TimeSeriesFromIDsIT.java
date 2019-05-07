@@ -39,7 +39,7 @@ public class TimeSeriesFromIDsIT
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A",                                        "2000", "2010",    2, null,         null },
     			{ "ILO",      "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463.EMP_TEMP_NB.SEX_F.AGE_10YRBANDS_TOTAL", null,   null,      1, null,         null },
     			{ "ILO",      "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB/YI.MEX.A.463...",                                    null,   null,      0, null,         null },
-    			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP",                                                        "2000", "2015",    0, "2010",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
+    			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP",                                                        "2000", "2015",    0, "2011",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
     			{ "IMF_SDMX_CENTRAL", "SPI.SPI.FR.FPE_IX._Z.D",                                                  "2008", null,       0, "2015-02-02", "SPI.SPI.FR.FPE_IX._Z.D" },
     			{ "INEGI",    "DF_STEI/..C1161+C1162+C5004.....",                                                 "1980", "2010",    0, "2001-01",    "DF_STEI.MX.M.C1161.N.29.Z.Z.2003" },
     			{ "INSEE",    "CNA-2010-CONSO-SI..CNA_CONSO_SI.S15.PCH.P3.A88-88.VALEUR_ABSOLUE.FE.EUR2010.BRUT", null,   null,      1, null,         null },

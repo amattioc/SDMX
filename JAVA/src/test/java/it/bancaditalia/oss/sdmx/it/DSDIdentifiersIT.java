@@ -30,7 +30,7 @@ public class DSDIdentifiersIT
         		{ "UIS",              "CE",                            "UNESCO",   "CE" },
         		{ "OECD",             "QNA",                           null,       "QNA" },
         		{ "NBB",              "AFCSURV",                       null,       "AFCSURV" },
-        		{ "ISTAT",            "144_125",                       null,       "SEP_PREZZI_NIC_FOI_2010" },
+        		{ "ISTAT",            "144_125",                       null,       "DCSP_NICDUE" },
         		{ "INSEE",            "CNA-2010-CONSO-SI",             "FR1",      "CNA-2010-CONSO-SI" },
         		{ "INEGI",            "DF_STEI",                       null,       "DSD_STEI" },
         		{ "IMF_SDMX_CENTRAL", "SPI",                           null,       "ECOFIN_DSD" },

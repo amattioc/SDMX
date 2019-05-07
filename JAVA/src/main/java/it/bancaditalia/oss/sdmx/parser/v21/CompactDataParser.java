@@ -219,7 +219,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 						}
 					}
 					try {
-						ts.add(new DoubleObservation(time, Double.valueOf(obs_val), obs_attr));
+						ts.add(new DoubleObservation(time, Double.valueOf(obs_val != null ? obs_val : ""), obs_attr));
 					} catch (NumberFormatException e) {
 						logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + obs_val + ". A NaN will be set.");
 						ts.add(new DoubleObservation(time, Double.NaN, obs_attr));
@@ -234,10 +234,10 @@ public class CompactDataParser implements Parser<DataParsingResult>
 				if (endElement.getName().getLocalPart() == (SERIES))
 				{
 					logger.finer("Adding time series " + ts);
-//					int n = ts.size();
-//					if (n > 1 && ts.get(n - 1).compareTo(ts.get(0)) < 0)
-//						ts.reverse();
-					tsList.put(ts.getName(), ts);
+					//add empty series only if it is not in the list already
+					if(!tsList.containsKey(ts.getName())){
+						tsList.put(ts.getName(), ts);
+					}
 				}
 			}
 

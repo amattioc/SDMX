@@ -38,7 +38,7 @@ public class DataflowsIT
 				{ "UIS",              null,                              "CE",                            "Cultural employment" },
 				{ "OECD",             "AEO",                             "AEO",                           "African Economic Outlook" },
 				{ "NBB",              "AFCSURV",                         "AFCSURV",                       "Quarterly survey on the assessment of financing conditions" },
-				{ "ISTAT",            null,                              "144_125",                       "Consumer price index for the whole nation - annual average (NIC - until 2010)" },
+				{ "ISTAT",            null,                              "144_125",                       "Nic - annual data until 2010" },
     		}, 0);
     }
 
