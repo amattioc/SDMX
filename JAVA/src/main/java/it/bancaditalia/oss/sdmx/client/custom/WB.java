@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,6 +28,9 @@ import java.net.URL;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -44,5 +48,23 @@ public class WB extends RestSdmxClient{
 		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 	}
 	
+	@Override
+	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException{
+		try {
+			return Sdmx21Queries.createDataflowQuery(endpoint, flow, agency, version+"/").build();
+		} catch (MalformedURLException e) {
+			throw SdmxExceptionFactory.wrap(e);
+		}
+		
+	}
+	
+	@Override
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException {
+		try {
+			return Sdmx21Queries.createStructureQuery(endpoint, dsd, agency, version+"/", true).build();
+		} catch (MalformedURLException e) {
+			throw SdmxExceptionFactory.wrap(e);
+		}
+	}
 	
 }

@@ -60,7 +60,7 @@ public class Sdmx21Queries extends RestQueryBuilder {
 			if (version != null && !version.isEmpty()) {
 				query.addPath(version);
 			}
-			query.addPath("");
+			//query.addPath("");
 			if (full) {
 				query.addParam("references", "children");
 			}
@@ -92,7 +92,7 @@ public class Sdmx21Queries extends RestQueryBuilder {
 		if (version != null)
 			addPath(version);
 		
-		addPath("");
+		//addPath("");
 
 		return this;
 	}

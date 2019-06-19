@@ -1,5 +1,5 @@
 Package: RJSDMX
-Version: 2.2-0
+Version: 2.2-4
 Title: R Interface to SDMX Web Services
 Author: Attilio Mattiocco, Diana Nicoletti, Gianpaolo Lopez, Banca d'Italia
 Maintainer: Attilio Mattiocco <attilio.mattiocco@bancaditalia.it>

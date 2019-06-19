@@ -388,9 +388,11 @@ public class RestSdmxClient implements GenericSDMXClient
 			else
 			{
 				InputStream is = ((HttpURLConnection)conn).getErrorStream();
-				String msg = new BufferedReader(new InputStreamReader(is)).readLine();
+				if(is != null){
+					String msg = new BufferedReader(new InputStreamReader(is)).readLine();
+					logger.severe(msg);
+				}
 				SdmxException ex = SdmxExceptionFactory.createRestException(code, null, null);
-				logger.severe(msg);
 				if (conn instanceof HttpURLConnection)
 					((HttpURLConnection) conn).disconnect();
 				throw ex;
@@ -474,7 +476,8 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	private static boolean isRedirection(int code)
 	{
-		return code >= HttpURLConnection.HTTP_MULT_CHOICE && code <= HttpURLConnection.HTTP_SEE_OTHER;
+		return (code >= HttpURLConnection.HTTP_MULT_CHOICE && code <= HttpURLConnection.HTTP_SEE_OTHER) 
+				|| code == 307; // TEMPORARY REDIRECT
 	}
 
 	private static URL getRedirectionURL(URLConnection conn, int code) throws SdmxIOException
