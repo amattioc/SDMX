@@ -205,8 +205,6 @@ public class Configuration {
 		// 2 search configuration in this order: system property, local, global, Configuration class   
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
-		//for Matlab: to avoid being considered a browser
-		System.setProperty("http.agent", "SDMX");
 		
 		String confType = null;
 		
@@ -290,16 +288,19 @@ public class Configuration {
 			}
 		}
 		
-		// no class or file configuration found, apply some defaults
-		if(confType == null){
-			for (Handler handler: SDMX_LOGGER.getHandlers())
-				handler.setLevel(Level.INFO);
-			confType = "default";
-			SDMX_LOGGER.info("No configuration found. Apply defaults.");
-		} else {
-			if (SDMX_LOGGER.getHandlers().length > 1)
-				SDMX_LOGGER.getHandlers()[0].setLevel(Level.OFF);
-		}
+//		// no class or file configuration found, apply some defaults
+//		if(confType == null){
+//			for (Handler handler: SDMX_LOGGER.getHandlers())
+//				handler.setLevel(Level.INFO);
+//			confType = "default";
+//			SDMX_LOGGER.info("No configuration found. Apply defaults.");
+//		} else {
+//			if (SDMX_LOGGER.getHandlers().length > 1)
+//				SDMX_LOGGER.getHandlers()[0].setLevel(Level.OFF);
+//		}
+		
+		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2"); //fix for WB
+
 	}
 	
 	private static void init(File file) throws SecurityException, IOException 
@@ -475,6 +476,8 @@ public class Configuration {
 					String username = props.getProperty(HTTP_AUTH_USER_PROP);
 					String password = props.getProperty(PROXY_AUTH_PW_PROP);
 					setCredentials(proxyAuth, username, password);
+					//remove the password for security reasons
+					props.remove(PROXY_AUTH_PW_PROP);
 				} else {
 					logger.finer("Authentication type not supported: " + proxyAuth);
 				}
