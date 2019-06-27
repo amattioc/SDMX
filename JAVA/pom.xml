@@ -60,6 +60,22 @@
 	</properties>
 
 	<profiles>
+		<!-- Fix missing Java EE Modules in JDK11 -->
+		<profile>
+			<id>fix-missing-modules-jdk11</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>javax.xml.bind</groupId>
+					<artifactId>jaxb-api</artifactId>
+					<version>2.4.0-b180830.0359</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+            
 		<profile>
 			<id>compile-stata</id>
 			<activation>
