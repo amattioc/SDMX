@@ -62,7 +62,7 @@ public class CheckboxListTableModel<T> extends DefaultTableModel
 	{
 		List<String> codes = new LinkedList<>();
 
-		for (Vector<?> row : (Vector<Vector<?>>) getDataVector())
+		for (Vector row : (Vector<Vector>) getDataVector())
 			// 0 => checkbox column
 			if ((Boolean) row.get(0))
 				// 1 => key column
