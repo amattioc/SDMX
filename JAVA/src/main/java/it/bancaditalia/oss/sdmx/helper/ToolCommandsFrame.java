@@ -27,7 +27,7 @@ class ToolCommandsFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 	    JMenu menu = new JMenu("Edit");
 	    menuBar.add(menu);
-	    JMenuItem menuItem = new JMenuItem(SDMXHelper.copyAction);
+	    JMenuItem menuItem = new JMenuItem(SDMXHelper.COPY_ACTION);
 		menuItem.setText("Copy Selection");
 		menuItem.setMnemonic(KeyEvent.VK_C);
 		menu.add(menuItem);

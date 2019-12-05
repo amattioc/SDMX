@@ -59,8 +59,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.DefaultEditorKit;
@@ -73,22 +74,31 @@ import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.Utils.Function;
 
 public class SDMXHelper extends JFrame
 {
-
-	/**
-	 * 
-	 */
+	public static final Action COPY_ACTION = new DefaultEditorKit.CopyAction();
+	
+	static
+	{
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} 
+		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
+		{
+			throw new RuntimeException("Operating system must provide a valid graphic environment", e);
+		}
+	}
+	
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Configuration.getSdmxLogger();
-
-	private static final String[] help = {
+	private static final Logger LOGGER = Configuration.getSdmxLogger();
+	private static final String[] HELP = {
 			"Obtains a token for accessing Thomson Reuters Datastream Webservices, and print it to standard output.",
 			"", "java " + SDMXHelper.class.getName() + " [-s <provider>]", "",
 			"    -s    Enable \"print query\" button and lock SDMXHelper on the specified provider." };
 
-	static final Action copyAction = new DefaultEditorKit.CopyAction();
 
 	private final JLabel queryLabel;
 	private final JTextField sdmxQueryTextField;
@@ -115,7 +125,7 @@ public class SDMXHelper extends JFrame
 
 		if (args.length > 0 && (args.length == 1 || args.length > 2 || !"-s".equals(args[0])))
 		{
-			for (String helpStr : help)
+			for (String helpStr : HELP)
 				System.err.println(helpStr);
 			System.exit(1);
 		} else
@@ -157,33 +167,11 @@ public class SDMXHelper extends JFrame
 			if ("".equals(lockedProvider.trim()))
 				lockedProvider = null;
 			else
-				logger.info("Picking provider " + lockedProvider);
-		
-		setSize(new java.awt.Dimension(1024, 768));
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e)
-		{
-			e.printStackTrace();
-		} catch (InstantiationException e)
-		{
-			e.printStackTrace();
-		} catch (IllegalAccessException e)
-		{
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e)
-		{
-			e.printStackTrace();
-		}
+				LOGGER.info("Picking provider " + lockedProvider);
 
-		if (exitOnClose)
-		{
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		} else {
-			setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		}
 		setTitle("SDMX Helper Tool");
+		setSize(1024, 768);
+		setDefaultCloseOperation(exitOnClose ? JFrame.EXIT_ON_CLOSE : JFrame.HIDE_ON_CLOSE);
 
 		final JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -195,7 +183,7 @@ public class SDMXHelper extends JFrame
 		mnActions.setMnemonic(KeyEvent.VK_A);
 		menuBar.add(mnActions);
 
-		final JMenuItem mntmCopySelection = new JMenuItem(copyAction);
+		final JMenuItem mntmCopySelection = new JMenuItem(COPY_ACTION);
 		mntmCopySelection.setActionCommand("Copy selection");
 		mntmCopySelection.setMnemonic(KeyEvent.VK_COPY);
 		mntmCopySelection.setText("Copy selection");
@@ -213,10 +201,11 @@ public class SDMXHelper extends JFrame
 						if (selectedProviderGroup.getSelection() != null)
 							new ToolCommandsFrame(sdmxQueryTextField.getText(),
 									selectedProviderGroup.getSelection().getActionCommand());
-					} catch (SdmxException ex)
+					} 
+					catch (SdmxException ex)
 					{
-						logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-						logger.log(Level.FINER, "", ex);
+						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+						LOGGER.log(Level.FINER, "", ex);
 					}
 				}
 			});
@@ -233,7 +222,6 @@ public class SDMXHelper extends JFrame
 				{
 					NewProviderDialog newProviderDialog = new NewProviderDialog();
 					if (newProviderDialog.getResult() == JOptionPane.OK_OPTION)
-					{
 						try
 						{
 							String name = newProviderDialog.getName();
@@ -242,14 +230,11 @@ public class SDMXHelper extends JFrame
 							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, false);
 							providersMenu.removeAll();
 							providersSetup(providersMenu);
-						} catch (SdmxException e)
-						{
-							e.printStackTrace();
-						} catch (URISyntaxException e)
+						} 
+						catch (SdmxException | URISyntaxException e)
 						{
 							e.printStackTrace();
 						}
-					}
 				}
 			});
 		mntmAddProvider.setMnemonic(KeyEvent.VK_P);
@@ -282,11 +267,10 @@ public class SDMXHelper extends JFrame
 		finalqueryPanel.setMinimumSize(new java.awt.Dimension(10, 60));
 		finalqueryPanel.setPreferredSize(new java.awt.Dimension(10, 60));
 		finalqueryPanel.setLayout(new BoxLayout(finalqueryPanel, BoxLayout.X_AXIS));
-		finalqueryPanel
-				.setBorder(new CompoundBorder(
-						new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Query",
-								TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
-						new EmptyBorder(5, 5, 5, 5)));
+		finalqueryPanel.setBorder(new CompoundBorder(
+				new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Query",
+						TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
+				new EmptyBorder(5, 5, 5, 5)));
 		controlsPane.add(finalqueryPanel);
 
 		queryLabel = new JLabel();
@@ -599,30 +583,26 @@ public class SDMXHelper extends JFrame
 												Map<String, String> codes = SdmxClientHandler.getCodes(
 														selectedProviderGroup.getSelection().getActionCommand(),
 														selectedDataflow, selectedDimension);
-												CheckboxListTableModel<String> codeTableModel = new CheckboxListTableModel<String>(
-														"Code ID", "Code Description")
+												CheckboxListTableModel<String> codeTableModel = new CheckboxListTableModel<String>("Code ID", "Code Description");
+												codeTableModel.addTableModelListener(new TableModelListener()
 													{
-														private static final long serialVersionUID = 1L;
-
 														@Override
-														public void setValueAt(Object newValue, int row, int col)
+														public void tableChanged(TableModelEvent var1)
 														{
-															super.setValueAt(newValue, row, col);
 															try
 															{
-																updateSDMXQuery(
-																		selectedProviderGroup.getSelection()
-																				.getActionCommand(),
+																updateSDMXQuery(selectedProviderGroup.getSelection().getActionCommand(),
 																		getSelectedDataflow());
-															} catch (Exception ex)
+															} 
+															catch (Exception ex)
 															{
-																logger.severe(
+																LOGGER.severe(
 																		"Exception. Class: " + ex.getClass().getName()
 																				+ " .Message: " + ex.getMessage());
-																logger.log(Level.FINER, "", ex);
+																LOGGER.log(Level.FINER, "", ex);
 															}
 														}
-													};
+													});
 												codeTableModel.setItems(codes);
 												if (!Thread.currentThread().isInterrupted())
 													codelistSortersMap.put(selectedDimension,
@@ -630,9 +610,9 @@ public class SDMXHelper extends JFrame
 																	codeTableModel));
 											} catch (Exception ex)
 											{
-												logger.severe("Exception. Class: " + ex.getClass().getName()
+												LOGGER.severe("Exception. Class: " + ex.getClass().getName()
 														+ " .Message: " + ex.getMessage());
-												logger.log(Level.FINER, "", ex);
+												LOGGER.log(Level.FINER, "", ex);
 											} finally
 											{
 												if (Thread.currentThread().isInterrupted())
@@ -649,7 +629,8 @@ public class SDMXHelper extends JFrame
 						{
 							final TableRowSorter<CheckboxListTableModel<String>> sorter = codelistSortersMap
 									.get(selectedDimension);
-							codesTable.setModel(sorter.getModel());
+							final CheckboxListTableModel<String> model = sorter.getModel();
+							codesTable.setModel(model);
 							codesTable.setRowSorter(sorter);
 							// replace model and sorter
 							if (sortingKeys == null || sortingKeys.isEmpty())
@@ -721,17 +702,10 @@ public class SDMXHelper extends JFrame
 					if (!e.getValueIsAdjusting() && dataflowID != null)
 					{
 						updateDataflow(dataflowID);
-						SwingUtilities.invokeLater(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									dimensionFilterTextField.setText("");
-									dimensionsTableSorter.setRowFilter(null);
-									checkQueryButton.setEnabled(true);
-									btnPrintQuery.setEnabled(true);
-								}
-							});
+						dimensionFilterTextField.setText("");
+						dimensionsTableSorter.setRowFilter(null);
+						checkQueryButton.setEnabled(true);
+						btnPrintQuery.setEnabled(true);
 					}
 				}
 			});
@@ -748,16 +722,11 @@ public class SDMXHelper extends JFrame
 				public void actionPerformed(ActionEvent paramActionEvent)
 				{
 					if (getSelectedDataflow() != null)
-						SwingUtilities.invokeLater(new Runnable()
-							{
-								@SuppressWarnings("unchecked")
-								@Override
-								public void run()
-								{
-									((CheckboxListTableModel<String>) codesTable.getModel()).uncheckAll();
-									updateCodelistCount();
-								}
-							});
+					{
+						CheckboxListTableModel<?> model = (CheckboxListTableModel<?>) codesTable.getModel();
+						model.uncheckAll();
+						updateCodelistCount();
+					}
 				}
 			});
 		btnClearSelectedDimension.setMaximumSize(new java.awt.Dimension(151, 32768));
@@ -769,7 +738,7 @@ public class SDMXHelper extends JFrame
 		Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 		loggingArea.setFont(font);
 		loggingArea.setEditable(false);
-		logger.addHandler(new HelperHandler(loggingArea));
+		LOGGER.addHandler(new HelperHandler(loggingArea));
 
 		JScrollPane loggingPane = new JScrollPane(loggingArea);
 		loggingPane.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -798,9 +767,10 @@ public class SDMXHelper extends JFrame
 			providersMenu.setText(providersMenu.getText() + ": " + lockedProvider);
 		}
 
-		setVisible(true);
-
 		mainSplitPane.setDividerLocation(0.8);
+		
+		setLocationRelativeTo(null);
+		setVisible(true);
 	}
 
 	private void updateCodelistCount()
@@ -822,28 +792,33 @@ public class SDMXHelper extends JFrame
 				{
 					try
 					{
-						List<Dimension> dims = SdmxClientHandler
+						final List<Dimension> dims = SdmxClientHandler
 								.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID);
 						if (!Thread.currentThread().isInterrupted())
-						{
-							dimensionsTableModel.setItems(dims, new Mapper<Dimension>()
+							SwingUtilities.invokeLater(new Runnable() {
+								
+								@Override
+								public void run() 
 								{
-									@Override
-									public String[] toMapEntry(Dimension item)
+									dimensionsTableModel.setItems(dims, new Function<Dimension, String[]>()
 									{
-										return new String[] { item.getId(), item.getName() };
-									}
-								});
+										@Override
+										public String[] apply(Dimension item)
+										{
+											return new String[] { item.getId(), item.getName() };
+										}
+									});
+								};
+							});
 
 							if (!Thread.currentThread().isInterrupted())
 							{
 								updateSDMXQuery(selectedProviderGroup.getSelection().getActionCommand(), dataflowID);
 							}
-						}
 					} catch (Exception ex)
 					{
-						logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-						logger.log(Level.FINER, "", ex);
+						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+						LOGGER.log(Level.FINER, "", ex);
 					}
 				}
 			});
@@ -886,8 +861,8 @@ public class SDMXHelper extends JFrame
 						}
 					} catch (SdmxException ex)
 					{
-						logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-						logger.log(Level.FINER, "", ex);
+						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+						LOGGER.log(Level.FINER, "", ex);
 					}
 				}
 			});
@@ -942,7 +917,6 @@ public class SDMXHelper extends JFrame
 				@Override
 				public void run()
 				{
-					codelistSortersMap.clear();
 					try
 					{
 						final Map<String, Dataflow> flows = SdmxClientHandler.getFlowObjects(provider, null);
@@ -954,16 +928,17 @@ public class SDMXHelper extends JFrame
 									@Override
 									public void run()
 									{
-										dimensionsTableModel.setRowCount(0);
-										((DefaultTableModel) codesTable.getModel()).setRowCount(0);
+										codelistSortersMap.clear();
+										codesTable.setModel(new CheckboxListTableModel<String>("Code ID", "Code Description"));
+										dimensionsTableModel.clear();
 										dataflowsTableModel.setItems(flows);
 									}
 								});
 						}
 					} catch (SdmxException ex)
 					{
-						logger.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-						logger.log(Level.FINER, "", ex);
+						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
+						LOGGER.log(Level.FINER, "", ex);
 					}
 				}
 			});

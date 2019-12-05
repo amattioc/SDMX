@@ -1,5 +1,7 @@
 package it.bancaditalia.oss.sdmx.helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
@@ -20,14 +22,16 @@ public class DataflowsModel extends DefaultTableModel {
 	
 	public void setItems(Map<String, Dataflow> flows)
 	{
-		setRowCount(0);
+		List<String[]> dataVector = new ArrayList<>(flows.size());
 		
-		if (flows != null && flows.size() > 0)
+		if (flows != null)
 			for (Dataflow flow: flows.values())
-				addRow(new String[] { flow.getFullIdentifier().split(",")[1], 
+				dataVector.add(new String[] { flow.getFullIdentifier().split(",")[1], 
 						flow.getFullIdentifier().split(",").length >= 3 ? flow.getFullIdentifier().split(",")[2] : "N/D",
 						flow.getAgency(),
 						flow.getDescription() });
+
+		setDataVector(dataVector.toArray(new Object[0][]), new String[] { "Dataflow", "Version", "Agency", "Description" });
 	}
 
 	@Override
