@@ -52,4 +52,3 @@ In particular, all information related to configuration (network, tracing, secur
 }
 \author{Attilio Mattiocco, Diana Nicoletti, Bank of Italy, IT Support for the Economic Research 
 \email{attilio.mattiocco@bancaditalia.it, diana.nicoletti@bancaditalia.it}}
-\references{\url{http://sdmx.org/}}
