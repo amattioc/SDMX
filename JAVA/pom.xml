@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>it.bancaditalia.oss</groupId>
 		<artifactId>parent-pom</artifactId>
-		<version>1.0.4</version>
+		<version>1.0.5</version>
 		<relativePath>../parent-pom.xml</relativePath>
 	</parent>
 
@@ -88,6 +88,7 @@
 				<dependency>
 					<groupId>com.stata</groupId>
 					<artifactId>stata-sfi</artifactId>
+					<version>14.0</version>
 				</dependency>
 			</dependencies>
 			<build>

@@ -45,7 +45,6 @@
         </scm>
 
 	<properties>
-		<sdmx.version>2.3.3</sdmx.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
