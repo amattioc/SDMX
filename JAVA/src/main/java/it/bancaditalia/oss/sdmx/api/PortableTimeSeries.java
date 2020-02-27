@@ -153,8 +153,11 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 			if (dataflow != null && dataflow.getName() != null && !dataflow.getName().isEmpty())
 				nameBuilder.append(dataflow.getName());
 
-			for (Entry<String, String> code : dimensions.values())
-				nameBuilder.append(", " + code.getKey() + "(" + (code.getValue() != null ? code.getValue() : "") + ")");
+      for (Entry<String, String> code : dimensions.values()) {
+        if (code != null) {
+          nameBuilder.append(", " + code.getKey() + "(" + (code.getValue() != null ? code.getValue() : "") + ")");
+        }
+      }
 
 			attributes.put(GENERATEDNAME_ATTR_NAME, nameBuilder.toString());
 		}
@@ -291,13 +294,17 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	{
 		Map<String, String> result = new LinkedHashMap<>();
 		for (Entry<String, Entry<String, String>> dimension : dimensions.entrySet())
-			result.put(dimension.getKey(),
-					Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC)
-							? dimension.getValue().getValue()
-							: dimension.getValue().getKey());
-
-		return result;
-	}
+		{
+			if (dimension != null && dimension.getValue() != null)
+			{
+				result.put(dimension.getKey(),
+				Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC)
+					? dimension.getValue().getValue()
+					: dimension.getValue().getKey());
+			}
+		}
+    return result;
+  }
 
 	/**
 	 * @return an array of defined dimensions names.
@@ -704,7 +711,12 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 		String[] result = new String[dimensions.size()];
 		int i = 0;
 		for (Entry<String, Entry<String, String>> code : dimensions.entrySet())
-			result[i++] = code.getKey() + "=" + code.getValue().getKey();
+		{
+			if (code != null && code.getValue() != null)
+			{
+				result[i++] = code.getKey() + "=" + code.getValue().getKey();
+			}
+		}
 		return result;
 	}
 
