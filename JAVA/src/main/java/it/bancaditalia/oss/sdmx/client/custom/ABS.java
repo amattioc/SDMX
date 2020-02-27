@@ -40,18 +40,19 @@ import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 public class ABS extends DotStat{
 		
 	protected static Logger logger = Configuration.getSdmxLogger();
-	
+	public static String ENDPOINT= "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx";
+
 	/**
 	 * @throws URISyntaxException
 	 */
 	public ABS() throws URISyntaxException {
-		super("ABS", new URI("http://stat.data.abs.gov.au/restsdmx/sdmx.ashx"), false);
-	}				
-	
+		super("ABS", new URI(ENDPOINT), false);
+	}
+
 	@Override
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException {
 		if( endpoint!=null  &&
-				dsd!=null && !dsd.isEmpty()){
+				dsd!=null && !dsd.isEmpty()) {
 			// agency=all is not working. we always use ABS
 			try {
 				return new RestQueryBuilder(endpoint).addPath("GetDataStructure").addPath(dsd).addPath("ABS").build();
@@ -81,25 +82,5 @@ public class ABS extends DotStat{
 		}
 		return query.buildSdmx21Query();
 	}
-
-	// https://github.com/amattioc/SDMX/issues/19
-//	private static String fixWildcard(String resource) {
-//		String[] items = resource.split("\\.", -1);
-//		if (items.length <= 1) {
-//			return resource;
-//		}
-//		for (int i = 0; i < items.length; i++) {
-//			String tmp = items[i].trim();
-//			if (tmp.isEmpty() || tmp.equals("*")) {
-//				items[i] = "+";
-//			}
-//		}
-//		StringBuilder result = new StringBuilder();
-//		result.append(items[0]);
-//		for (int i = 1; i < items.length; i++) {
-//			result.append('.').append(items[i]);
-//		}
-//		return result.toString();
-//	}
-
+	
 }
