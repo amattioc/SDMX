@@ -102,7 +102,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
 	    //addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
 	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
-  		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "International Labour Organization", false);
+  		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "Australian Bureau od Statistics - SDMX 2.1", false);
 
 	    //add internal 2.0 providers
         addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true);
@@ -111,7 +111,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
 	    addBuiltInProvider("ILO_Legacy", null, false, false, false, "International Labour Organization - Old Endpoint", true);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
-	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics", true);
+	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics - SDMX 2.0", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
 	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true);
