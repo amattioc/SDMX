@@ -13,6 +13,7 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 
 **Known applications:**
 
+* [VTL Engine & Editor](https://github.com/vpinna80/VTL)
 * [Shiny SDMX Browser](https://rjsdmx.shinyapps.io/sdmxBrowser/) (code [here](https://github.com/bowerth/sdmxBrowser))
 * [Scala SDMX Play application](http://sdmx.rdata.work/) (code [here](https://github.com/bowerth/sdmxPlay))
 * [TSsdmx on CRAN](http://cran.us.r-project.org/web/packages/TSsdmx/index.html) (code [here](http://tsdbi.r-forge.r-project.org/))
