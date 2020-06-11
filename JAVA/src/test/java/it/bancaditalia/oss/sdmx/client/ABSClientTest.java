@@ -27,13 +27,18 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class ABSClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("ABS", null));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_NRP9_ASGS"));
-//		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_NRP9_ASGS", "FREQUENCY"));
-		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ATSI_BIRTHS_SUMM/1+4...A", "2000", "2010"));
-		
+		System.err.println(SdmxClientHandler.getFlows("ABS", null));
+		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_C16_T04_LGA"));
+		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_C16_T04_LGA"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_C16_T04_LGA"));
+		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_C16_T04_LGA", "SEX_ABS"));
+		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ABS_C16_T04_LGA/1.TT.1+2...", "2016", "2016"));
 
+		System.err.println(SdmxClientHandler.getFlows("ABS2", null));
+		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS2", "ABS_C16_T04_SA"));
+		System.err.println(SdmxClientHandler.getDimensions("ABS2", "ABS_C16_T04_SA"));
+		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS2", "ABS_C16_T04_SA"));
+		System.err.println(SdmxClientHandler.getCodes("ABS2", "ABS_C16_T04_SA", "SEX_ABS"));
+		System.err.println(SdmxClientHandler.getTimeSeries("ABS2", "ABS_C16_T04_SA/1.TT.1+2...", "2016", "2016"));
 	}
 }
