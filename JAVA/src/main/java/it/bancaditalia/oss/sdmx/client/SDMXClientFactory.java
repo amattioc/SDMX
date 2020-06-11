@@ -102,7 +102,7 @@ public class SDMXClientFactory {
         addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
 	    //addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
 	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
-  		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "Australian Bureau od Statistics - SDMX 2.1", false);
+  		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "Australian Bureau of Statistics - SDMX 2.1 (experimental)", false);
 
 	    //add internal 2.0 providers
         addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true);
