@@ -113,7 +113,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.needsCredentials = needsCredentials;
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
-		this.sslSocketFactory = null;
+		this.proxySelector = null;
 		this.sslSocketFactory = sslSocketFactory;
 		readTimeout = Configuration.getReadTimeout(getClass().getSimpleName());
 		connectTimeout = Configuration.getConnectTimeout(getClass().getSimpleName());
