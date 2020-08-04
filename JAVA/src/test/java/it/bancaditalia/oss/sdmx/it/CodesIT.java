@@ -37,7 +37,7 @@ public class CodesIT
 				{ "INSEE", "CNA-2010-CONSO-SI", 0,
 						new String[][] { { "T", "Quarterly" } } },
 				{ "INEGI", "DF_STEI", 0, new String[][] { { "VU", "Vanuatu" } } },
-				{ "ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", 0, new String[][] { { "YI", "Yearly indicators" } } },
+				{ "ILO", "DF_YI_ALL_EMP_TEMP_SEX_AGE_NB", 0, new String[][] { { "YI", "Annual indicators" } } },
 				{ "EUROSTAT", "prc_hicp_midx", 0,
 						new String[][] { { "D", "Daily" } } },
 				{ "IMF2", "DS-WHDREO", 0, 

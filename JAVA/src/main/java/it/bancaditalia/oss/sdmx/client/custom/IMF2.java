@@ -42,7 +42,7 @@ public class IMF2 extends RestSdmx20Client{
 	protected static Logger logger = Configuration.getSdmxLogger();
 	
 	public IMF2() throws URISyntaxException {
-		super("IMF2", new URI("http://dataservices.imf.org/REST/SDMX_XML.svc"), false, "", "compact_v2");
+		super("IMF2", new URI("http://dataservices.imf.org/REST/SDMX_XML.svc"), false, "", null);
 	}
 	
 	@Override
