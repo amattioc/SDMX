@@ -285,6 +285,7 @@
 						<manifestEntries>
 							<BUILD>${maven.build.timestamp}</BUILD>
 							<Revision>${buildNumber}</Revision>
+							<Automatic-Module-Name>it.bancaditalia.oss.sdmx</Automatic-Module-Name>
 						</manifestEntries>
 					</archive>
 				</configuration>
