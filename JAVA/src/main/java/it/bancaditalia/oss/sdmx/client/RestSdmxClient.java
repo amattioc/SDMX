@@ -68,6 +68,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxRedirectionException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
@@ -106,6 +107,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected LanguagePriorityList	languages;
 	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
 	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
+	protected int maxRedirects = 20;
 
 	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
 			boolean supportsCompression)
@@ -160,12 +162,17 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	public void setDataFooterMessageEventListener(RestSdmxEventListener eventListener)
 	{
-		dataFooterMessageEventListener = eventListener;
+		this.dataFooterMessageEventListener = eventListener;
 	}
 
 	public void setRedirectionEventListener(RestSdmxEventListener eventListener)
 	{
-		redirectionEventListener = eventListener;
+		this.redirectionEventListener = eventListener;
+	}
+
+	public void setMaxRedirects(int maxRedirects)
+	{
+		this.maxRedirects = maxRedirects;
 	}
 
 	@Override
@@ -317,6 +324,7 @@ public class RestSdmxClient implements GenericSDMXClient
 			Proxy proxy = (proxySelector != null ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
 			logger.fine("Using proxy: " + proxy);
 
+			int redirects = 0;
 			do
 			{
 				conn = url.openConnection(proxy);
@@ -353,9 +361,14 @@ public class RestSdmxClient implements GenericSDMXClient
 					if (conn instanceof HttpURLConnection)
 						((HttpURLConnection) conn).disconnect();
 					url = redirection;
+					redirects++;
 				}
-			} while (isRedirection(code));
-
+			} while (isRedirection(code) && !(isMaxRedirectionReached(redirects)));
+			
+			if (isMaxRedirectionReached(redirects)) {
+				throw new SdmxRedirectionException("Max redirection reached");
+			}
+			
 			if (code == HttpURLConnection.HTTP_OK)
 			{
 				logger.fine("Connection opened. Code: " + code);
@@ -578,4 +591,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	{
 		return result;
 	}
+	
+	private boolean isMaxRedirectionReached(int redirects) {
+		return redirects > maxRedirects;
+        }
 }
