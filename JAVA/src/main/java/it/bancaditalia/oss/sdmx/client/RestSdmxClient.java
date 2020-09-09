@@ -355,11 +355,14 @@ public class RestSdmxClient implements GenericSDMXClient
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
+					if (conn instanceof HttpURLConnection)
+						((HttpURLConnection) conn).disconnect();
+					if (isDowngradingProtocolOnRedirect(url, redirection)) {
+						throw new SdmxRedirectionException("Downgrading protocol on redirect from '" + url + "' to '" + redirection + "'");
+					}
 					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
 					RestSdmxEvent event = new RedirectionEvent(url, redirection);
 					redirectionEventListener.onSdmxEvent(event);
-					if (conn instanceof HttpURLConnection)
-						((HttpURLConnection) conn).disconnect();
 					url = redirection;
 					redirects++;
 				}
@@ -594,5 +597,17 @@ public class RestSdmxClient implements GenericSDMXClient
 	
 	private boolean isMaxRedirectionReached(int redirects) {
 		return redirects > maxRedirects;
-        }
+	}
+	
+	/**
+	 * https://en.wikipedia.org/wiki/Downgrade_attack
+	 *
+	 * @param oldUrl
+	 * @param newUrl
+	 * @return
+	 */
+	private static boolean isDowngradingProtocolOnRedirect(URL oldUrl, URL newUrl) {
+		return "https".equalsIgnoreCase(oldUrl.getProtocol())
+			&& !"https".equalsIgnoreCase(newUrl.getProtocol());
+	}
 }
