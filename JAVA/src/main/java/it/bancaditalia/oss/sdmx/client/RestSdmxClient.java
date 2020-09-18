@@ -77,6 +77,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
+import javax.net.ssl.HostnameVerifier;
 
 /**
  * @author Attilio Mattiocco
@@ -93,6 +94,7 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	protected ProxySelector			proxySelector;
 	protected SSLSocketFactory		sslSocketFactory;
+	protected HostnameVerifier		hostnameVerifier;
 	protected final boolean			dotStat							= false;
 	protected /* final */ URI		endpoint;
 	protected boolean				needsCredentials				= false;
@@ -115,6 +117,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.supportsCompression = supportsCompression;
 		this.proxySelector = null;
 		this.sslSocketFactory = sslSocketFactory;
+		this.hostnameVerifier = null;
 		readTimeout = Configuration.getReadTimeout(getClass().getSimpleName());
 		connectTimeout = Configuration.getConnectTimeout(getClass().getSimpleName());
 		languages = LanguagePriorityList.parse(Configuration.getLang());
@@ -133,6 +136,11 @@ public class RestSdmxClient implements GenericSDMXClient
 	public void setSslSocketFactory(SSLSocketFactory sslSocketFactory)
 	{
 		this.sslSocketFactory = sslSocketFactory;
+	}
+
+	public void setHostnameVerifier(HostnameVerifier hostnameVerifier)
+	{
+		this.hostnameVerifier = hostnameVerifier;
 	}
 
 	public void setReadTimeout(int timeout)
@@ -317,6 +325,12 @@ public class RestSdmxClient implements GenericSDMXClient
 				{
 					logger.fine("Using custom SSLSocketFactory for provider " + name);
 					((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
+				}
+
+				if (conn instanceof HttpsURLConnection && hostnameVerifier != null)
+				{
+					logger.fine("Using custom HostnameVerifier for provider " + name);
+					((HttpsURLConnection) conn).setHostnameVerifier(hostnameVerifier);
 				}
 
 				conn.setReadTimeout(readTimeout);
