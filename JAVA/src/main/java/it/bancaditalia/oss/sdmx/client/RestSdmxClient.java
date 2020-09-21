@@ -347,6 +347,7 @@ public class RestSdmxClient implements GenericSDMXClient
 				if (conn instanceof HttpURLConnection)
 				{
 					((HttpURLConnection) conn).setRequestMethod("GET");
+					((HttpURLConnection) conn).setInstanceFollowRedirects(false);
 					handleHttpHeaders((HttpURLConnection) conn, acceptHeader);
 				}
 
