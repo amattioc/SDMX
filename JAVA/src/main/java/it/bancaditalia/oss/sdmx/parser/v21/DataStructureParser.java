@@ -610,6 +610,9 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					codelistName = agency + "/" + id + "/" + version;
 					logger.finer("Got codelist: " + codelistName);
 					Codelist codes = CodelistParser.getCodes(eventReader, languages);
+					codes.setId(id);
+					codes.setAgency(agency);
+					codes.setVersion(version);
 					codelists.put(codelistName, codes);
 				}
 			}
