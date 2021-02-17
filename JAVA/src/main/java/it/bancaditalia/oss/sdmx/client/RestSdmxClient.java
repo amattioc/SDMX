@@ -71,6 +71,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxRedirectionException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.lib.android.util.Base64;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
@@ -475,7 +476,8 @@ public class RestSdmxClient implements GenericSDMXClient
 		if (containsCredentials)
 		{
 			logger.fine("Setting http authorization");
-			String auth = javax.xml.bind.DatatypeConverter.printBase64Binary((user + ":" + pw).getBytes());
+			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
+			String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
 			conn.setRequestProperty("Authorization", "Basic " + auth);
 		}
 		if (supportsCompression)
