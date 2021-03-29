@@ -15,7 +15,7 @@ public class FilterProvidersToTest
 			"ECB",
 			"EUROSTAT",
 			"ILO",
-			"INEGI",
+//			"INEGI",
 			"INSEE",
 			"IMF2",
 //			"IMF_SDMX_CENTRAL",

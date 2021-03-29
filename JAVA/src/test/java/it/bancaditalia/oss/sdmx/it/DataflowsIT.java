@@ -31,7 +31,7 @@ public class DataflowsIT
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
 				{ "IMF_SDMX_CENTRAL", "SPI",                             "SPI",                           "Stock Market: Share Price Index" },
 				{ "INEGI",            "DF_STEI",                         "DF_STEI",                       "Dataflow Short Term Economic Indicators" },
-				{ "INSEE",            null,                              "CNA-2010-CONSO-SI",             "Final consumption expenditure by institutional sectors" },
+				{ "INSEE",            null,                              "CNA-2010-CONSO-SI",             "Final consumption expenditure by institutional sectors - Results by transaction and product" },
 				{ "WITS",             "*Tariff*",                        "DF_WITS_Tariff_TRAINS",         "WITS - UNCTAD TRAINS Tariff Data" },
 				{ "WB",               "WDI",                             "WDI",                           "World Development Indicators" },
 				{ "UNDATA",           null,                              "DF_UNDATA_COUNTRYDATA",         "SDMX-CountryData" },
