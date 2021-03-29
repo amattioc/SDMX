@@ -61,6 +61,7 @@ import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
+import it.bancaditalia.oss.sdmx.event.OpenEvent;
 import it.bancaditalia.oss.sdmx.event.RedirectionEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEventListener;
@@ -70,6 +71,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxRedirectionException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.lib.android.util.Base64;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
@@ -107,6 +109,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected LanguagePriorityList	languages;
 	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
 	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
+	protected RestSdmxEventListener	openEventListener = RestSdmxEventListener.NO_OP_LISTENER;
 	protected int maxRedirects = 20;
 
 	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
@@ -168,6 +171,11 @@ public class RestSdmxClient implements GenericSDMXClient
 	public void setRedirectionEventListener(RestSdmxEventListener eventListener)
 	{
 		this.redirectionEventListener = eventListener;
+	}
+
+	public void setOpenEventListener(RestSdmxEventListener eventListener)
+	{
+		this.openEventListener = eventListener;
 	}
 
 	public void setMaxRedirects(int maxRedirects)
@@ -323,6 +331,8 @@ public class RestSdmxClient implements GenericSDMXClient
 
 			Proxy proxy = (proxySelector != null ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
 			logger.fine("Using proxy: " + proxy);
+			
+			openEventListener.onSdmxEvent(new OpenEvent(url, acceptHeader, languages, proxy));
 
 			int redirects = 0;
 			do
@@ -466,7 +476,8 @@ public class RestSdmxClient implements GenericSDMXClient
 		if (containsCredentials)
 		{
 			logger.fine("Setting http authorization");
-			String auth = javax.xml.bind.DatatypeConverter.printBase64Binary((user + ":" + pw).getBytes());
+			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
+			String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
 			conn.setRequestProperty("Authorization", "Basic " + auth);
 		}
 		if (supportsCompression)
