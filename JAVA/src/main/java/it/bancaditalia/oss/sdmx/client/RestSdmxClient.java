@@ -61,6 +61,7 @@ import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
+import it.bancaditalia.oss.sdmx.event.OpenEvent;
 import it.bancaditalia.oss.sdmx.event.RedirectionEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEventListener;
@@ -68,7 +69,9 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxRedirectionException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.lib.android.util.Base64;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
@@ -77,6 +80,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
+import javax.net.ssl.HostnameVerifier;
 
 /**
  * @author Attilio Mattiocco
@@ -93,6 +97,7 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	protected ProxySelector			proxySelector;
 	protected SSLSocketFactory		sslSocketFactory;
+	protected HostnameVerifier		hostnameVerifier;
 	protected final boolean			dotStat							= false;
 	protected /* final */ URI		endpoint;
 	protected boolean				needsCredentials				= false;
@@ -104,6 +109,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected LanguagePriorityList	languages;
 	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
 	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
+	protected RestSdmxEventListener	openEventListener = RestSdmxEventListener.NO_OP_LISTENER;
+	protected int maxRedirects = 20;
 
 	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
 			boolean supportsCompression)
@@ -115,6 +122,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.supportsCompression = supportsCompression;
 		this.proxySelector = null;
 		this.sslSocketFactory = sslSocketFactory;
+		this.hostnameVerifier = null;
 		readTimeout = Configuration.getReadTimeout(getClass().getSimpleName());
 		connectTimeout = Configuration.getConnectTimeout(getClass().getSimpleName());
 		languages = LanguagePriorityList.parse(Configuration.getLang());
@@ -135,6 +143,11 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.sslSocketFactory = sslSocketFactory;
 	}
 
+	public void setHostnameVerifier(HostnameVerifier hostnameVerifier)
+	{
+		this.hostnameVerifier = hostnameVerifier;
+	}
+
 	public void setReadTimeout(int timeout)
 	{
 		this.readTimeout = timeout;
@@ -152,12 +165,22 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	public void setDataFooterMessageEventListener(RestSdmxEventListener eventListener)
 	{
-		dataFooterMessageEventListener = eventListener;
+		this.dataFooterMessageEventListener = eventListener;
 	}
 
 	public void setRedirectionEventListener(RestSdmxEventListener eventListener)
 	{
-		redirectionEventListener = eventListener;
+		this.redirectionEventListener = eventListener;
+	}
+
+	public void setOpenEventListener(RestSdmxEventListener eventListener)
+	{
+		this.openEventListener = eventListener;
+	}
+
+	public void setMaxRedirects(int maxRedirects)
+	{
+		this.maxRedirects = maxRedirects;
 	}
 
 	@Override
@@ -308,7 +331,10 @@ public class RestSdmxClient implements GenericSDMXClient
 
 			Proxy proxy = (proxySelector != null ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
 			logger.fine("Using proxy: " + proxy);
+			
+			openEventListener.onSdmxEvent(new OpenEvent(url, acceptHeader, languages, proxy));
 
+			int redirects = 0;
 			do
 			{
 				conn = url.openConnection(proxy);
@@ -319,12 +345,19 @@ public class RestSdmxClient implements GenericSDMXClient
 					((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
 				}
 
+				if (conn instanceof HttpsURLConnection && hostnameVerifier != null)
+				{
+					logger.fine("Using custom HostnameVerifier for provider " + name);
+					((HttpsURLConnection) conn).setHostnameVerifier(hostnameVerifier);
+				}
+
 				conn.setReadTimeout(readTimeout);
 				conn.setConnectTimeout(connectTimeout);
 
 				if (conn instanceof HttpURLConnection)
 				{
 					((HttpURLConnection) conn).setRequestMethod("GET");
+					((HttpURLConnection) conn).setInstanceFollowRedirects(false);
 					handleHttpHeaders((HttpURLConnection) conn, acceptHeader);
 				}
 
@@ -333,15 +366,23 @@ public class RestSdmxClient implements GenericSDMXClient
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
+					if (conn instanceof HttpURLConnection)
+						((HttpURLConnection) conn).disconnect();
+					if (isDowngradingProtocolOnRedirect(url, redirection)) {
+						throw new SdmxRedirectionException("Downgrading protocol on redirect from '" + url + "' to '" + redirection + "'");
+					}
 					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
 					RestSdmxEvent event = new RedirectionEvent(url, redirection);
 					redirectionEventListener.onSdmxEvent(event);
-					if (conn instanceof HttpURLConnection)
-						((HttpURLConnection) conn).disconnect();
 					url = redirection;
+					redirects++;
 				}
-			} while (isRedirection(code));
-
+			} while (isRedirection(code) && !(isMaxRedirectionReached(redirects)));
+			
+			if (isMaxRedirectionReached(redirects)) {
+				throw new SdmxRedirectionException("Max redirection reached");
+			}
+			
 			if (code == HttpURLConnection.HTTP_OK)
 			{
 				logger.fine("Connection opened. Code: " + code);
@@ -435,7 +476,8 @@ public class RestSdmxClient implements GenericSDMXClient
 		if (containsCredentials)
 		{
 			logger.fine("Setting http authorization");
-			String auth = javax.xml.bind.DatatypeConverter.printBase64Binary((user + ":" + pw).getBytes());
+			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
+			String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
 			conn.setRequestProperty("Authorization", "Basic " + auth);
 		}
 		if (supportsCompression)
@@ -563,5 +605,21 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected List<PortableTimeSeries<Double>> postProcess(DataParsingResult result)
 	{
 		return result;
+	}
+	
+	private boolean isMaxRedirectionReached(int redirects) {
+		return redirects > maxRedirects;
+	}
+	
+	/**
+	 * https://en.wikipedia.org/wiki/Downgrade_attack
+	 *
+	 * @param oldUrl
+	 * @param newUrl
+	 * @return
+	 */
+	private static boolean isDowngradingProtocolOnRedirect(URL oldUrl, URL newUrl) {
+		return "https".equalsIgnoreCase(oldUrl.getProtocol())
+			&& !"https".equalsIgnoreCase(newUrl.getProtocol());
 	}
 }
