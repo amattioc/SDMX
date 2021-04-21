@@ -46,7 +46,7 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  *
  */
 public class EUROSTAT extends RestSdmxClient{
-	private static final String EUROSTAT_PROVIDER = "http://ec.europa.eu/eurostat/SDMX/diss-web/rest";
+	private static final String EUROSTAT_PROVIDER = "https://ec.europa.eu/eurostat/SDMX/diss-web/rest";
 	private int sleepTime = 6000;
 	private int retries = Integer.parseInt(Configuration.getLateResponseRetries(10));
 	
