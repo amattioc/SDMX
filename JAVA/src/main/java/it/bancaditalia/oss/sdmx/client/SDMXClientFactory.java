@@ -106,7 +106,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
   		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "Australian Bureau of Statistics - SDMX 2.1 (experimental)", false);
 			addBuiltInProvider("UNICEF", UNICEF_PROVIDER, false, false, true, "UNICEF", false);
-			addBuiltInProvider("BIS", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false);
+			addBuiltInProvider("BIS_PUBLIC", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false);
 
 	    //add internal 2.0 providers
         addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true);
