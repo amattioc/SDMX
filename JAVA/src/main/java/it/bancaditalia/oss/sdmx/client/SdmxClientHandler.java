@@ -703,7 +703,7 @@ public class SdmxClientHandler
 		return newKey;
 	}
 
-	private static String[] extractFlowAndResource(String tsKey) throws SdmxException
+	public static String[] extractFlowAndResource(String tsKey) throws SdmxException
 	{
 		tsKey = tsKey.trim();
 		String delims = "[ /]";

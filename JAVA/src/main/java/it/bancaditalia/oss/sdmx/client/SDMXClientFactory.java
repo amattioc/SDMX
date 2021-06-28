@@ -117,7 +117,6 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
 	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics - SDMX 2.0", true);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
-	    addBuiltInProvider("UIS", null, false, false, false, "Unesco Institute for Statistics", true);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true);
 	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);

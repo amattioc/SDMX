@@ -153,12 +153,12 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 			if (dataflow != null && dataflow.getName() != null && !dataflow.getName().isEmpty())
 				nameBuilder.append(dataflow.getName());
 
-      for (Entry<String, String> code : dimensions.values()) {
-        if (code != null) {
-          nameBuilder.append(", " + code.getKey() + "(" + (code.getValue() != null ? code.getValue() : "") + ")");
-        }
-      }
-
+			for (Entry<String, String> code : dimensions.values()) {
+				if (code != null) {
+					nameBuilder.append(", " + code.getKey() + "(" + (code.getValue() != null ? code.getValue() : "") + ")");
+				}
+			}
+			
 			attributes.put(GENERATEDNAME_ATTR_NAME, nameBuilder.toString());
 		}
 
@@ -303,7 +303,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 					: dimension.getValue().getKey());
 			}
 		}
-    return result;
+		return result;
   }
 
 	/**
