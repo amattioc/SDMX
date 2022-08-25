@@ -38,17 +38,17 @@
 
 	<target name="compile"  depends="clean, init" description="compile the source for base java lib" >
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" target="1.7" source="1.7" />
+		<javac srcdir="${src}" destdir="${build}" target="1.8" source="1.8" />
 	</target>
 
 	<target name="compile-debug"  depends="clean, init" description="compile the source for base java lib with debug info" >
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" target="1.7" source="1.7" debug="true" />
+		<javac srcdir="${src}" destdir="${build}" target="1.8" source="1.8" debug="true" />
 	</target>
 
 	<target name="sdmxunittest" depends="compile" description="compile the test source ">
 		<!-- Compile the java code from ${test} into ${build}, junit libraries are needed in the classpath -->
-		<javac srcdir="${test}" destdir="${build}" target="1.7" source="1.7" />
+		<javac srcdir="${test}" destdir="${build}" target="1.8" source="1.8" />
 	</target>
 
 	<target name="dist" depends="compile"  description="generate the distribution" >
@@ -87,7 +87,7 @@
 
 	<target name="STATA"  depends="dist" description="compile the source for stata java lib" >
 		<!-- Compile the java code from ${src} into ${build} stata java libs (stata-sfi.jar) are needed in the classpath -->
-		<javac srcdir="${stata_src}" destdir="${build}" target="1.7" source="1.7" />
+		<javac srcdir="${stata_src}" destdir="${build}" target="1.8" source="1.8" />
 		<!-- Create the stata enabled jar in the stata plugin jar directory -->
 		<jar jarfile="${stata_libdir}/SDMX.jar" basedir="${build}">
 			<manifest>
