@@ -868,8 +868,13 @@ public class SDMXHelper extends JFrame
 
 	private void updateDataflow(final String dataflowID)
 	{
+		// reset clean state for codesTable before
+		codelistSortersMap.clear();
+		codesTable.setModel(new CheckboxListTableModel<String>("Code ID", "Code Description"));
+		updateCodelistCount();
+		dimsTableModel.clear();
 		// if this is not a provider switch
-		new ProgressViewer<>(this, new AtomicBoolean(false), 
+		new ProgressViewer<>(this, new AtomicBoolean(false),
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
 				dims -> {
 					dimsTableModel.setItems(dims, item -> new String[] { item.getId(), item.getName() });

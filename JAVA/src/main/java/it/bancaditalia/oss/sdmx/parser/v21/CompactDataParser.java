@@ -149,7 +149,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
-					setMetadata(ts, attributes, currentAction, currentValidFromDate, currentValidToDate);
+					setMetadata(ts, attributes);
 				}
 
 				if (startElement.getName().getLocalPart() == (FOOTER))
@@ -217,6 +217,19 @@ public class CompactDataParser implements Parser<DataParsingResult>
 							obs_attr.put(name, value);
 						}
 					}
+					// set validity and action at obs level (for multiple datasets and revisions)
+					if (currentAction != null)
+					{
+						obs_attr.put(ACTION, currentAction);
+					}
+					if (currentValidFromDate != null)
+					{
+						obs_attr.put(VALID_FROM, currentValidFromDate);
+					}
+					if (currentValidToDate != null)
+					{
+						obs_attr.put(VALID_TO, currentValidToDate);
+					}
 					try {
 						ts.add(new DoubleObservation(time, Double.valueOf(obs_val != null ? obs_val : ""), obs_attr));
 					} catch (NumberFormatException e) {
@@ -249,23 +262,22 @@ public class CompactDataParser implements Parser<DataParsingResult>
 		return result;
 	}
 
-	private void setMetadata(PortableTimeSeries<?> ts, Iterator<Attribute> attributes, String action, String validFrom,
-			String validTo)
+	private void setMetadata(PortableTimeSeries<?> ts, Iterator<Attribute> attributes)
 	{
 		final String sourceMethod = "setMetadata";
 		logger.entering(sourceClass, sourceMethod);
-		if (action != null)
-		{
-			ts.addAttribute(ACTION, action);
-		}
-		if (validFrom != null)
-		{
-			ts.addAttribute(VALID_FROM, validFrom);
-		}
-		if (validTo != null)
-		{
-			ts.addAttribute(VALID_TO, validTo);
-		}
+//		if (action != null)
+//		{
+//			ts.addAttribute(ACTION, action);
+//		}
+//		if (validFrom != null)
+//		{
+//			ts.addAttribute(VALID_FROM, validFrom);
+//		}
+//		if (validTo != null)
+//		{
+//			ts.addAttribute(VALID_TO, validTo);
+//		}
 		int size = dsd.getDimensions().size();
 		String[] names = new String[size];
 

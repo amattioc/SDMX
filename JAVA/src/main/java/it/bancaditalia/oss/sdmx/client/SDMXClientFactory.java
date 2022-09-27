@@ -53,16 +53,12 @@ import it.bancaditalia.oss.sdmx.util.SdmxProxySelector;
 public class SDMXClientFactory {
 
 	private static final String ECB_PROVIDER = "https://sdw-wsrest.ecb.europa.eu/service";
-	//private static final String ISTAT_PROVIDER = "http://sdmx.istat.it/SDMXWS/rest";
 	private static final String ISTAT_PROVIDER_POP = "http://sdmx.istat.it/WS_CENSPOP/rest";
 	private static final String ISTAT_PROVIDER_AGR = "http://sdmx.istat.it/WS_CENSAGR/rest";
 	private static final String ISTAT_PROVIDER_IND = "http://sdmx.istat.it/WS_CIS/rest";
 	private static final String INSEE_PROVIDER = "https://bdm.insee.fr/series/sdmx";
 	private static final String UNDATA_PROVIDER = "http://data.un.org/WS/rest";
 	private static final String WITS_PROVIDER = "http://wits.worldbank.org/API/V1/SDMX/V21/rest";
-	//private static final String INEGI_PROVIDER = "http://sdmx.snieg.mx/service/Rest";
-	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
-	//private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
 	private static final String ILO_PROVIDER = "https://www.ilo.org/sdmx/rest";
 	private static final String ABS_PROVIDER = "https://api.data.abs.gov.au";
 	private static final String UNICEF_PROVIDER = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest";
@@ -94,17 +90,13 @@ public class SDMXClientFactory {
      */
 	private static void initBuiltInProviders() throws SdmxException{
         addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false, SDMXClientFactory.SDMX_V2);
-        //addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
         addBuiltInProvider("ISTAT_CENSUS_POP", ISTAT_PROVIDER_POP, false, false, false, "ISTAT - Population and housing census 2011", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("ISTAT_CENSUS_AGR", ISTAT_PROVIDER_AGR, false, false, false, "ISTAT - Agricultural census 2010", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("ISTAT_CENSUS_IND", ISTAT_PROVIDER_IND, false, false, false, "ISTAT - Industry and services census 2011", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false, SDMXClientFactory.SDMX_V2);
-        //addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
-        addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false, SDMXClientFactory.SDMX_V2);
-	    //addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
-	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false, SDMXClientFactory.SDMX_V2);
   		addBuiltInProvider("ABS", ABS_PROVIDER, false, false, false, "Australian Bureau of Statistics - SDMX 2.1", false, SDMXClientFactory.SDMX_V2);
 		addBuiltInProvider("UNICEF", UNICEF_PROVIDER, false, false, true, "UNICEF", false, SDMXClientFactory.SDMX_V2);
 		addBuiltInProvider("BIS_PUBLIC", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false, SDMXClientFactory.SDMX_V2);
@@ -114,7 +106,6 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true, SDMXClientFactory.SDMX_V2);
-	    addBuiltInProvider("ILO_Legacy", null, false, false, false, "International Labour Organization - Old Endpoint", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true, SDMXClientFactory.SDMX_V2);

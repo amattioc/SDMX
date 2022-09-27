@@ -346,11 +346,11 @@ public class RestSdmxClient implements GenericSDMXClient
 		URL url = null;
 		logger.log(Level.INFO, "Contacting web service with query: {0}", query);
 
-		// TODO: implement in Java 7 with try-with-resource
 		try
 		{
 			int code;
 			url = query;
+			URL originalURL = url;
 
 			Proxy proxy = (proxySelector != null ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
 			logger.fine("Using proxy: " + proxy);
@@ -389,10 +389,10 @@ public class RestSdmxClient implements GenericSDMXClient
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
-					if (conn instanceof HttpURLConnection)
-						((HttpURLConnection) conn).disconnect();
-					if (isDowngradingProtocolOnRedirect(url, redirection)) {
-						throw new SdmxRedirectionException("Downgrading protocol on redirect from '" + url + "' to '" + redirection + "'");
+//					if (conn instanceof HttpURLConnection)
+//						((HttpURLConnection) conn).disconnect();
+					if (isDowngradingProtocolOnRedirect(originalURL, redirection)) {
+						throw new SdmxRedirectionException("Downgrading protocol on redirect from '" + originalURL + "' to '" + redirection + "'");
 					}
 					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
 					RestSdmxEvent event = new RedirectionEvent(url, redirection);

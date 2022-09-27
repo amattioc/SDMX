@@ -424,7 +424,7 @@ public class SdmxClientHandler
 			throw new SdmxInvalidParameterException("The name of the dataflow cannot be null");
 		}
 		Provider p = getProvider(provider);
-		Dataflow flow = p.getFlows().get(dataflow);
+		Dataflow flow = p.getFlow(dataflow);
 		if (flow == null)
 		{
 			logger.fine("Dataflow " + dataflow + " not cached. Calling Provider.");

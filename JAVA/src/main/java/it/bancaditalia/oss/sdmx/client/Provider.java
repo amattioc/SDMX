@@ -20,23 +20,19 @@
  */
 package it.bancaditalia.oss.sdmx.client;
 
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
-
 import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+import java.net.URI;
+import java.security.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -54,7 +50,7 @@ public class Provider {
 	private boolean full = false;
 	private boolean isCustom = false;
 
-	// key: flow id (simple) --> flow
+	// key: flow id (full) --> flow
 	private Map<String, Dataflow> flows; 
 	// key: dsd id (full) --> structure
 	private Map<String, DataFlowStructure> dsdNameToStructureCache = null;
@@ -115,28 +111,46 @@ public class Provider {
 	}
 
 	public void setFlow(Dataflow flow) {
-		this.flows.put(flow.getId(), flow);
+		/* BUG: flow is inserted using just the id, but this.flows is set up using the
+		*  full identifier, this creates duplicates inside this.flows. */
+		//this.flows.put(flow.getId(), flow);
+		this.flows.put(flow.getFullIdentifier(), flow);
+	}
+
+
+	public Dataflow getFlow(String dataflow) {
+		if (flows.containsKey(dataflow)) {
+			return flows.get(dataflow);
+		} else {
+			// it could be because we got the simple flow id (e.g. from getTimSeries).
+			// We try to handle it matching the id (if any) and returning the first available agency and the latest version
+			return flows.values()
+					.stream()
+					.filter(df -> df.getId().equals(dataflow))
+					.max(Comparator.comparing(Dataflow::getVersion))
+					.orElse(null);
+		}
 	}
 
 	public Map<String, Dataflow> getFlows() {
 		return flows;
 	}
 
-	public DSDIdentifier getDSDIdentifier(String flow) {
+	public DSDIdentifier getDSDIdentifier(String dataflow) {
 		DSDIdentifier dsdid = null;
-		Dataflow df = flows.get(flow);
+		Dataflow df = getFlow(dataflow);
 		if(df != null){
 			dsdid = df.getDsdIdentifier();
 		}
 		return dsdid;
 	}
 
-	public DataFlowStructure getDSD(String flow) {
-		return dsdNameToStructureCache.get(flow);
+	public DataFlowStructure getDSD(String dsdID) {
+		return dsdNameToStructureCache.get(dsdID);
 	}
 
-	public void setDSD(String flow, DataFlowStructure dsd) {
-		this.dsdNameToStructureCache.put(flow, dsd);
+	public void setDSD(String dsdID, DataFlowStructure dsd) {
+		this.dsdNameToStructureCache.put(dsdID, dsd);
 	}
 
 	public String getDescription() {
