@@ -220,6 +220,27 @@ public class SdmxInterfaceTest
 	{
 		SdmxClientHandler.getTimeSeries("DUMMY", "EXR.A.USD.EUR.SP00.A", null, null);
 	}
+	
+	@Test(expected = SdmxException.class)
+	public void testGetTimeSeriesFail4() throws SdmxException
+	{
+		//dataflow cannot be in series key and in dataflo argument
+		SdmxClientHandler.getTimeSeries("ECB", "EXR", "EXR.A.USD.EUR.SP00.A", null, null, null, false, null, false);
+	}
+
+	@Test(expected = SdmxException.class)
+	public void testGetTimeSeriesFail5() throws SdmxException
+	{
+		//dataflow must be present if series key is not specified at all
+		SdmxClientHandler.getTimeSeries("ECB", null, null, "c[FREQ]=A", null, null, false, null, false);
+	}
+	
+	@Test(expected = SdmxException.class)
+	public void testGetTimeSeriesFail6() throws SdmxException
+	{
+		//dataflow must be present as argument or in series key - no results here
+		SdmxClientHandler.getTimeSeries("ECB", null, "A.USD.EUR.SP00.A", "c[FREQ]=A", null, null, false, null, false);
+	}
 
 	/* TODO: Move to IT tests
 	@Test(expected = SdmxException.class)

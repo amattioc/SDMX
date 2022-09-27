@@ -47,6 +47,7 @@ public class Provider {
 	private String name;
 	private String description;
 	private URI endpoint;
+	private String sdmxVersion;
 	private boolean needsCredentials;
 	private boolean needsURLEncoding;
 	private boolean supportsCompression;
@@ -59,7 +60,9 @@ public class Provider {
 	private Map<String, DataFlowStructure> dsdNameToStructureCache = null;
 	private SSLSocketFactory sslSocketFactory;
 
-	public Provider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException {
+	public Provider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, 
+			boolean needsURLEncoding, boolean supportsCompression, String description, 
+			boolean isCustom, String sdmxVersion) throws SdmxException {
 		this.name = name;
 		this.endpoint = endpoint;
 		this.description = description;
@@ -69,6 +72,7 @@ public class Provider {
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
 		this.isCustom = isCustom;
+		this.sdmxVersion = sdmxVersion;
 		
 	    try {
 			if (trustStore != null)
@@ -185,6 +189,14 @@ public class Provider {
 
 	public SSLSocketFactory getSSLSocketFactory() {
 		return sslSocketFactory;
+	}
+
+	public String getSdmxVersion() {
+		return sdmxVersion;
+	}
+
+	public void setSdmxVersion(String sdmxVersion) {
+		this.sdmxVersion = sdmxVersion;
 	}
 
 }

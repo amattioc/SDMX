@@ -20,6 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
+import java.util.Map;
+
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
@@ -39,12 +41,6 @@ public class ECBClientTest {
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
-		SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null);
-		
-		SdmxClientHandler.addLocalProvider("TEST", "D:\\Dati\\Profili\\e922480\\Desktop\\FILETEST", "my test");
-		System.err.println(SdmxClientHandler.getDimensions("TEST", "EXR"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("TEST", "EXR"));
-		System.err.println(SdmxClientHandler.getCodes("TEST", "EXR", "FREQ"));
-		System.err.println(SdmxClientHandler.getTimeSeries("TEST", "EXR.M.USD.EUR.SP00.A",  null, null));
+//		SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null);
 	}
 }

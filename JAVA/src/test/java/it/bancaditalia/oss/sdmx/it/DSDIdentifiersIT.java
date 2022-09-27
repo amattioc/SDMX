@@ -27,15 +27,12 @@ public class DSDIdentifiersIT
         		{ "WITS",             "DF_WITS_Tariff_TRAINS",         "WBG_WITS", "TARIFF_TRAINS" },
         		{ "WB",               "WDI",                           null,       "WDI" },
         		{ "UNDATA",           "DF_UNDATA_COUNTRYDATA",         "UNSD",     "CountryData" },
-        		{ "UIS",              "CE",                            "UNESCO",   "CE" },
         		{ "OECD",             "QNA",                           null,       "QNA" },
         		{ "NBB",              "AFCSURV",                       null,       "AFCSURV" },
         		{ "ISTAT",            "144_125",                       null,       "DCSP_NICDUE" },
         		{ "INSEE",            "CNA-2010-CONSO-SI",             "FR1",      "CNA-2010-CONSO-SI" },
-        		{ "INEGI",            "DF_STEI",                       null,       "DSD_STEI" },
-        		{ "IMF_SDMX_CENTRAL", "SPI",                           null,       "ECOFIN_DSD" },
         		{ "IMF2",             "DS-WHDREO",                     null,       "WHDREO" },
-        		{ "ILO",              "DF_YI_FRA_EMP_TEMP_SEX_AGE_NB", "ILO",      "YI_FRA_EMP_TEMP_SEX_AGE_NB" },
+        		{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", "ILO",      "EMP_TEMP_SEX_AGE_NB" },
         		{ "EUROSTAT",         "prc_hicp_midx",                 null,       "DSD_prc_hicp_midx" }
     		}, 0);
     }

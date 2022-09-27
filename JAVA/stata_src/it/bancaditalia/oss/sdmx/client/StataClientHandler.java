@@ -111,7 +111,7 @@ public class StataClientHandler
 		try
 		{
 			int dataLength = 0;
-			tslist = SdmxClientHandler.getTimeSeries(provider, tsKey, start, end);
+			tslist = SdmxClientHandler.getTimeSeries(provider, null, tsKey, null, start, end, false, null, false);
 			if (tslist == null)
 			{
 				SFIToolkit.displayln("The query did not complete correctly. Check java traces for details.");

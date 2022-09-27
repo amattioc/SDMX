@@ -20,9 +20,16 @@
 */
 %macro sdmxhelp;
 
+%if %sysfunc(getoption(terminal,keyword)) eq NOTERMINAL %then %do;
+	%put The SDMX Helper can only be used in SAS Foundation Display Manager.;
+	%abort cancel;
+%end; %else %do;
+
 data _null_;
 declare javaobj jClient ( 'it/bancaditalia/oss/sdmx/helper/SDMXHelper' );
 jClient.delete();
 run;
+
+%end;
 
 %mend;

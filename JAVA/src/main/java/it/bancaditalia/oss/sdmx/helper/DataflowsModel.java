@@ -11,12 +11,13 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 public class DataflowsModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 3265022631397431923L;
+	private static final String[] COLUMNS = new String[] { "Dataflow", "Version", "DSD", "DSD Version", "Agency", "Description" };
 	
 	public DataflowsModel() {
 		super();
 		
 		setColumnCount(4);
-		setColumnIdentifiers(new String[] { "Dataflow", "Version", "Agency", "Description" });
+		setColumnIdentifiers(COLUMNS);
 		setRowCount(0);
 	}
 	
@@ -26,12 +27,16 @@ public class DataflowsModel extends DefaultTableModel {
 		
 		if (flows != null)
 			for (Dataflow flow: flows.values())
-				dataVector.add(new String[] { flow.getFullIdentifier().split(",")[1], 
+				dataVector.add(new String[] { 
+						flow.getFullIdentifier().split(",")[1], 
 						flow.getFullIdentifier().split(",").length >= 3 ? flow.getFullIdentifier().split(",")[2] : "N/D",
+						flow.getDsdIdentifier().getId(),
+						flow.getDsdIdentifier().getVersion(),
 						flow.getAgency(),
-						flow.getDescription() });
+						flow.getDescription()
+					});
 
-		setDataVector(dataVector.toArray(new Object[0][]), new String[] { "Dataflow", "Version", "Agency", "Description" });
+		setDataVector(dataVector.toArray(new Object[0][]), COLUMNS);
 	}
 
 	@Override

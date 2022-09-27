@@ -65,7 +65,7 @@ public class GetTimeSeries {
 				}
 			}
 			try {
-				String result = SdmxClientHandler.dumpTimeSeries(provider, query, start, end);
+				String result = SdmxClientHandler.dumpTimeSeries(provider, null, query, null, start, end);
 				System.out.println(result);
 			} catch (Exception e) {
 				System.err.println(e.toString());

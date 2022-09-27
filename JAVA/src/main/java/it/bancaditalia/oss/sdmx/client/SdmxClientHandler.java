@@ -25,12 +25,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
 
@@ -52,7 +55,6 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LoginDialog;
 
-//import it.bancaditalia.oss.sdmx.util.SdmxException;
 /**
  * <p>
  * Java class for optimizing interactions with the SdmxClients in non Java environment. It provides a sort fo 'session',
@@ -90,7 +92,7 @@ public class SdmxClientHandler
 	}
 
 	/**
-	 * Adds a local provider that reads SDMX files in a user specified directory
+	 * Adds a local provider 
 	 * 
 	 * @param provider a non-null, non-empty provider identification short name.
 	 * @param endpoint a non-null existing directory where the SDMX files are stored
@@ -124,7 +126,7 @@ public class SdmxClientHandler
 	}
 
 	/**
-	 * Adds a local provider that reads files on disk
+	 * Adds a local provider 
 	 * 
 	 * @param provider a non-null, non-empty provider identification short name.
 	 * @param endpoint a non-null provider-defined endpoint url for queries
@@ -153,6 +155,44 @@ public class SdmxClientHandler
 		{
 			SDMXClientFactory.addProvider(provider, new URI(endpoint), null, needsCredentials, needsURLEncoding,
 					supportsCompression, description, false);
+		}
+		catch (URISyntaxException e)
+		{
+			throw new SdmxInvalidParameterException(e.getMessage());
+		}
+	}
+
+	/**
+	 * Adds a local provider 
+	 * 
+	 * @param provider a non-null, non-empty provider identification short name.
+	 * @param endpoint a non-null provider-defined endpoint url for queries
+	 * @param needsCredentials true if the provider needs authentication
+	 * @param needsURLEncoding true if the url must be encoded
+	 * @param supportsCompression true if the provider supports message compression
+	 * @param description an optional natural language description of the provider
+	 * @param sdmxVersion the major version of the SDMX standard of this provider (SDMX_V2 or SDMX_V3)
+	 * 
+	 * @throws SdmxException
+	 */
+	public static void addProvider(String provider, String endpoint, boolean needsCredentials, boolean needsURLEncoding,
+			boolean supportsCompression, String description, String sdmxVersion) throws SdmxException
+	{
+
+		if (provider == null || provider.trim().isEmpty())
+		{
+			logger.severe("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+		}
+		if (endpoint == null)
+		{
+			logger.severe("The enpoint of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
+		}
+		try
+		{
+			SDMXClientFactory.addProvider(provider, new URI(endpoint), null, needsCredentials, needsURLEncoding,
+					supportsCompression, description, false, sdmxVersion);
 		}
 		catch (URISyntaxException e)
 		{
@@ -270,7 +310,7 @@ public class SdmxClientHandler
 				result = df.getDsdIdentifier();
 				if (result == null)
 					throw new SdmxXmlContentException("Could not get DSD identifier for dataflow '" + dataflow
-							+ "' in provider: '" + provider + "'");
+							+ "' in provider: '" + provider.getName() + "'");
 			}
 			else
 				throw new SdmxXmlContentException(
@@ -294,6 +334,40 @@ public class SdmxClientHandler
 		return getDataFlowStructure(provider, dataflow).getDimensions();
 	}
 
+	public static Map<String, Map<String, String>> filterCodes(String provider, String dataflow, String filter) throws SdmxException
+	{
+		if (provider == null || provider.trim().isEmpty())
+		{
+			logger.severe("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+		}
+		if (dataflow == null || dataflow.trim().isEmpty())
+		{
+			logger.severe("The name of the dataflow cannot be null");
+			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+		}
+		Map<String, Map<String, String>> codes = new LinkedHashMap<>();
+		Dataflow df = getFlow(provider, dataflow);
+		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
+		Map<String, List<String>> availableCodes = getClient(provider).getAvailableCubeRegion(df, filter, "available");
+		if(availableCodes.size() == dsd.getDimensions().size()){
+			for (Iterator<Dimension> iterator = dsd.getDimensions().iterator(); iterator.hasNext();) {
+				Dimension dim = (Dimension) iterator.next();
+				Map<String, String> dimCodes = getCodes(provider, dataflow, dim.getId())
+						.entrySet()
+		                .stream()
+		                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));;
+				dimCodes.keySet().retainAll(availableCodes.get(dim.getId()));
+				codes.put(dim.getId(), dimCodes);
+			}
+			return codes;
+		}
+		else{
+			throw new SdmxInvalidParameterException("The filter returned and empty cube region");
+		}
+		
+	}
+	
 	public static Map<String, String> getCodes(String provider, String dataflow, String dimension) throws SdmxException
 	{
 		if (provider == null || provider.trim().isEmpty())
@@ -347,7 +421,7 @@ public class SdmxClientHandler
 		if (dataflow == null || dataflow.trim().isEmpty())
 		{
 			logger.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The name of the dataflow cannot be null");
 		}
 		Provider p = getProvider(provider);
 		Dataflow flow = p.getFlows().get(dataflow);
@@ -399,49 +473,79 @@ public class SdmxClientHandler
 		return filterFlows(flows, pattern);
 	}
 
-	public static PortableDataSet<Double> getTimeSeriesTable(String provider, String tsKey, String startTime, String endTime)
+	public static PortableDataSet<Double> getTimeSeriesTable(String provider, String dataflow, String tsKey, String filter, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory)
 			throws SdmxException, DataStructureException
 	{
-		return new PortableDataSet<>(getTimeSeries(provider, tsKey, startTime, endTime, false, null, false));
+		return new PortableDataSet<>(getTimeSeries(provider, dataflow, tsKey, filter, startTime, endTime, serieskeysonly, updatedAfter, includeHistory));
 	}
 
-	public static List<PortableTimeSeries<Double>> getTimeSeries(String provider, String tsKey, String startTime,
-			String endTime) throws SdmxException
+	//shortcut for v2 API
+	public static List<PortableTimeSeries<Double>> getTimeSeries(String provider, String tsKey, String startTime, String endTime) throws SdmxException
 	{
-		return getTimeSeries(provider, tsKey, startTime, endTime, false, null, false);
+		return getTimeSeries(provider, null, tsKey, null, startTime, endTime, false, null, false);
 	}
 
-	public static List<PortableTimeSeries<Double>> getTimeSeriesRevisions(String provider, String tsKey, String startTime,
-			String endTime, String updatedAfter, boolean includeHistory) throws SdmxException
-	{
-		return getTimeSeries(provider, tsKey, startTime, endTime, false, updatedAfter, includeHistory);
-	}
-
-	public static List<PortableTimeSeries<Double>> getTimeSeriesNames(String provider, String tsKey) throws SdmxException
-	{
-		return getTimeSeries(provider, tsKey, null, null, true, null, false);
-	}
-
-	private static List<PortableTimeSeries<Double>> getTimeSeries(String provider, String tsKey, String startTime,
-			String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	//full featured, valid for v2 and v3
+	public static List<PortableTimeSeries<Double>> getTimeSeries(String provider, String dataflow, String tsKey, String filter, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		if (provider == null || provider.trim().isEmpty())
 		{
 			logger.severe("The name of the provider cannot be null");
 			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
 		}
-		if (tsKey == null || tsKey.trim().isEmpty())
+		if ((tsKey == null || tsKey.trim().isEmpty()) && (dataflow == null || dataflow.trim().isEmpty()))
 		{
-			logger.severe("The tsKey cannot be null");
-			throw new SdmxInvalidParameterException("The tsKey cannot be null");
+			logger.severe("Either the ts key or the dataflow must have valid values");
+			throw new SdmxInvalidParameterException("Either the ts key or the dataflow must have valid values");
 		}
 
-		List<PortableTimeSeries<Double>> result = new ArrayList<>();
-		for (String keyId : tsKey.trim().split("\\s*;\\s*"))
-			result.addAll(getSingleTimeSeries(provider, keyId, startTime, endTime, serieskeysonly, updatedAfter,
-					includeHistory));
-
+		List<PortableTimeSeries<Double>> result = new ArrayList<>(); //SDMX 2.0 did not provide a way to specify multiple series keys
+		if(tsKey != null && !tsKey.isEmpty()){
+			for (String keyId : tsKey.trim().split("\\s*;\\s*"))
+				result.addAll(getSingleTimeSeries(provider, dataflow, keyId, filter, startTime, endTime, 
+						serieskeysonly, updatedAfter, includeHistory));
+		}
+		else{
+			result = getSingleTimeSeries(provider, dataflow, null, filter, startTime, endTime, 
+					serieskeysonly, updatedAfter, includeHistory);
+		}
 		return (result);
+	}
+
+	private static List<PortableTimeSeries<Double>> getSingleTimeSeries(String provider, String dataflow, String tsKey, String filter, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	{
+		if (provider == null || provider.trim().isEmpty())
+		{
+			logger.severe("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
+		}
+		if ((tsKey == null || tsKey.trim().isEmpty()) && (dataflow == null || dataflow.trim().isEmpty()))
+		{
+			logger.severe("Either the ts key or the dataflow must have valid values");
+			throw new SdmxInvalidParameterException("Either the ts key or the dataflow must have valid values");
+		}
+	
+		List<PortableTimeSeries<Double>> result = null;
+	
+		if(dataflow == null || dataflow.isEmpty()){
+			String[] tokens = extractFlowAndResource(tsKey);
+			dataflow = tokens[0];
+			tsKey = tokens[1];
+		}
+		
+		Dataflow df = getFlow(provider, dataflow);
+		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
+		result = getClient(provider).getTimeSeries(df, dsd, tsKey, filter, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		if (result == null || result.size() == 0)
+			throw new SdmxXmlContentException(
+					"The query: key=" +tsKey + " and filter="+ filter + " did not match any time series on the provider for dataflow: " + dataflow);
+		return result;
 	}
 
 	public static String getDataURL(String provider, String tsKey, String start, String end, boolean seriesKeysOnly,
@@ -466,36 +570,6 @@ public class SdmxClientHandler
 		String result = getClient(provider).buildDataURL(df, resource, start, end, seriesKeysOnly, updatedAfter,
 				includeHistory);
 		return (result);
-	}
-
-	private static List<PortableTimeSeries<Double>> getSingleTimeSeries(String provider, String tsKey, String startTime,
-			String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
-	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			logger.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (tsKey == null || tsKey.trim().isEmpty())
-		{
-			logger.severe("The tsKey cannot be null");
-			throw new SdmxInvalidParameterException("The tsKey cannot be null");
-		}
-
-		List<PortableTimeSeries<Double>> result = null;
-
-		String[] tokens = extractFlowAndResource(tsKey);
-		String dataflow = tokens[0];
-		String resource = tokens[1];
-
-		Dataflow df = getFlow(provider, dataflow);
-		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
-		result = getClient(provider).getTimeSeries(df, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter,
-				includeHistory);
-		if (result == null || result.size() == 0)
-			throw new SdmxXmlContentException(
-					"The query: " + tsKey + " did not match any time series on the provider.");
-		return result;
 	}
 
 	public static String dumpTimeSeriesList(List<PortableTimeSeries<Double>> ts)
@@ -542,7 +616,7 @@ public class SdmxClientHandler
 		return result.toString();
 	}
 
-	public static String dumpTimeSeries(String provider, String id, String startTime, String endTime)
+	public static String dumpTimeSeries(String provider, String dataflow, String id, String filter, String startTime, String endTime)
 			throws SdmxException, DataStructureException
 	{
 		if (provider == null || provider.trim().isEmpty())
@@ -563,13 +637,13 @@ public class SdmxClientHandler
 		if (!Configuration.isTable())
 		{
 			// Do it as a list of time series
-			List<PortableTimeSeries<Double>> ts = getTimeSeries(provider, id, startTime, endTime);
+			List<PortableTimeSeries<Double>> ts = getTimeSeries(provider, dataflow, id, filter, startTime, endTime, false, null, false);
 			result = dumpTimeSeriesList(ts);
 		}
 		else
 		{
 			// do it as a table
-			result = getTimeSeriesTable(provider, id, startTime, endTime).toString();
+			result = getTimeSeriesTable(provider, dataflow, id, filter, startTime, endTime, false, null, false).toString();
 		}
 		return result;
 	}

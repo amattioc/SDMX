@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
+
 /**
  * URL builder for rest queries.
  *
@@ -35,6 +37,7 @@ public class RestQueryBuilder {
 	protected final URI entryPoint;
 	protected final List<String> paths = new ArrayList<>();
 	protected final Map<String, String> params = new LinkedHashMap<>();
+	protected String filter = null;
 
 	public RestQueryBuilder(URI entryPoint) {
 		this.entryPoint = entryPoint;
@@ -73,7 +76,21 @@ public class RestQueryBuilder {
 		params.put(key, value);
 		return this;
 	}
-	
+
+	/**
+	 * Appends the specified parameter to the current URL.
+	 *
+	 * @param param key=value
+	 * @throws NullPointerException if key or value is null
+	 */
+	public RestQueryBuilder addFilter(String filter) {
+		if (filter == null) {
+			throw new NullPointerException("filter");
+		}
+		this.filter  = filter;
+		return this;
+	}
+
 	/**
 	 * Creates a new URL using the specified path and parameters.
 	 *
@@ -86,17 +103,29 @@ public class RestQueryBuilder {
 			StringBuilder result = new StringBuilder();
 			result.append(entryPoint);
 			
-			for (String path : paths)
-				result.append('/').append(URLEncoder.encode(path, "UTF-8"));
+			if(this instanceof Sdmx21Queries){
+				for (String path : paths)
+					result.append('/').append(URLEncoder.encode(path, "UTF-8"));
+			}
+			else{
+				for (String path : paths)
+					result.append('/').append(path);
+			}
 			
 			boolean first = true;
+			if(filter != null){
+				result.append(first ? '?' : '&');
+				//result.append(URLEncoder.encode(filter, "UTF-8"));
+				result.append(filter);
+				first = false;
+			}
 			for (Entry<String, String> entry: params.entrySet())
 			{
 				result.append(first ? '?' : '&');
 				result.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append('=').append(entry.getValue());
 				first = false;
 			}
-		
+			
 			return new URL(result.toString());
 		} catch (UnsupportedEncodingException e) {
 			// safe to ignore.

@@ -20,24 +20,29 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
+import static javax.swing.KeyStroke.getKeyStroke;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.io.Serializable;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
@@ -45,50 +50,27 @@ import javax.swing.border.EmptyBorder;
  * @author Attilio Mattiocco
  *
  */
-public class ProgressViewer extends JDialog {
-
+public class ProgressViewer<T> implements Serializable
+{
 	private static final long serialVersionUID = -7937931709790747236L;
+	private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 	
-	private static final ExecutorService executorService = Executors.newCachedThreadPool(); 
-	
-	private final JProgressBar progressBar;
 	private final SwingWorker<Void, Void> worker;
-	private final AtomicBoolean interrupted = new AtomicBoolean(false);
-	private Future<?> task = null;
-
-    public ProgressViewer(Component parent, final Runnable executor) {
-    	this.worker = new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception 
-			{
-				try {
-					while (!isVisible() && !interrupted.get())
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// ignore
-						}
-
-					if (!interrupted.get())
-					{
-						task = executorService.submit(executor);
-						task.get();
-					}
-				} finally {
-					setVisible(false);
-					dispose();
-				}
-				
-				return null;
-			}
-    	};
-        
-        JPanel panel = new JPanel();
+	private final JDialog dialog = new JDialog(); 
+	
+    public ProgressViewer(Component parent, Callable<T> task, Consumer<T> onComplete, Consumer<Throwable> onError)
+    {
+    	this(parent, new AtomicBoolean(false), task, onComplete, onError);
+    }
+    
+    public ProgressViewer(Component parent, AtomicBoolean isCancelled, Callable<T> task, Consumer<T> onSuccess, Consumer<Throwable> onError)
+    {
+    	JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        getContentPane().add(panel, BorderLayout.CENTER);
+        dialog.getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new BorderLayout(0, 0));
         
-        progressBar = new JProgressBar();
+        JProgressBar progressBar = new JProgressBar();
         panel.add(progressBar);
         progressBar.setIndeterminate(true);
         
@@ -96,42 +78,58 @@ public class ProgressViewer extends JDialog {
         horizontalBox.setBorder(new EmptyBorder(10, 0, 0, 0));
         panel.add(horizontalBox, BorderLayout.SOUTH);
         
-        Component horizontalGlue = Box.createHorizontalGlue();
-        horizontalBox.add(horizontalGlue);
-        
-        ActionListener cancelListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				while (task == null && !interrupted.get())
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e1) {
-						// ignore
-					}
-				
-				if (task != null && !interrupted.get())
-				{
-					task.cancel(true);
-					interrupted.set(true);
-				}
-			}
-		}; 
-        
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.addActionListener(cancelListener);
+    	JButton btnCancel = new JButton("Cancel");
+        horizontalBox.add(Box.createHorizontalGlue());
         horizontalBox.add(btnCancel);
         
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setSize(300, 103);
-        this.setLocationRelativeTo(parent);
-        this.setModal(true);
-    	this.setResizable(false);
-    	this.setTitle("Executing query...");
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(300, 103);
+        dialog.setLocationRelativeTo(parent);
+        dialog.setModal(true);
+        dialog.setResizable(false);
+        dialog.setTitle("Executing query...");
     	
-    	JRootPane root = getRootPane();
-    	root.setDefaultButton(btnCancel);
-        root.registerKeyboardAction(cancelListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        Future<T> result = EXECUTOR_SERVICE.submit(() -> task.call());
+        final ActionListener cancelListener = e -> {
+        	result.cancel(true);
+        	isCancelled.set(true);
+        };
 
-		worker.execute();
+		btnCancel.addActionListener(cancelListener);
+    	dialog.getRootPane().setDefaultButton(btnCancel);
+        dialog.getRootPane().registerKeyboardAction(cancelListener, getKeyStroke(VK_ESCAPE, 0), WHEN_IN_FOCUSED_WINDOW);
+
+        worker = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				try
+				{
+					while (result == null || (!isCancelled.get() && !result.isDone()))
+						Thread.sleep(100);
+
+					T value = result.get();
+					SwingUtilities.invokeLater(() -> dialog.dispose());
+					if (!isCancelled.get())
+						SwingUtilities.invokeLater(() -> onSuccess.accept(value));
+					return null;
+				}
+				catch (ExecutionException | InterruptedException e)
+				{
+					Throwable t = e instanceof ExecutionException ? e.getCause() : e;
+					isCancelled.set(true);
+					SwingUtilities.invokeLater(() -> dialog.dispose());
+					SwingUtilities.invokeLater(() -> onError.accept(t));
+					return null;
+				}
+			}
+		};
+    }
+    
+    public void start()
+    {
+    	worker.execute();
+    	dialog.setModalityType(APPLICATION_MODAL);
+        dialog.setVisible(true);
     }
 }

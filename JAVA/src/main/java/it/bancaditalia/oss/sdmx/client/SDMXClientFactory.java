@@ -37,7 +37,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
-import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
@@ -65,9 +64,11 @@ public class SDMXClientFactory {
 	private static final String IMF_SDMX_CENTRAL_PROVIDER = "https://sdmxcentral.imf.org/ws/public/sdmxapi/rest";
 	//private static final String WB_PROVIDER = "https://api.worldbank.org/v2/sdmx/rest";
 	private static final String ILO_PROVIDER = "https://www.ilo.org/sdmx/rest";
-	private static final String ABS21_PROVIDER = "http://nsi-stable-siscc.redpelicans.com/rest";
+	private static final String ABS_PROVIDER = "https://api.data.abs.gov.au";
 	private static final String UNICEF_PROVIDER = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest";
 	private static final String BIS_PROVIDER = "https://stats.bis.org/api/v1";
+	public static final String SDMX_V2 = "SDMX_V2"; // 2.0 or 2.1
+	public static final String SDMX_V3 = "SDMX_V3"; //new 3.0
 
 	//read the configuration file
 	static {
@@ -92,34 +93,33 @@ public class SDMXClientFactory {
      *
      */
 	private static void initBuiltInProviders() throws SdmxException{
-        addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false);
+        addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false, SDMXClientFactory.SDMX_V2);
         //addBuiltInProvider("EUROSTAT", EUROSTAT_PROVIDER, false, false, false, "Eurostat", false);
-        addBuiltInProvider("ISTAT_CENSUS_POP", ISTAT_PROVIDER_POP, false, false, false, "ISTAT - Population and housing census 2011", false);
-        addBuiltInProvider("ISTAT_CENSUS_AGR", ISTAT_PROVIDER_AGR, false, false, false, "ISTAT - Agricultural census 2010", false);
-        addBuiltInProvider("ISTAT_CENSUS_IND", ISTAT_PROVIDER_IND, false, false, false, "ISTAT - Industry and services census 2011", false);
-        addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false);
-        addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false);
-        addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false);
+        addBuiltInProvider("ISTAT_CENSUS_POP", ISTAT_PROVIDER_POP, false, false, false, "ISTAT - Population and housing census 2011", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("ISTAT_CENSUS_AGR", ISTAT_PROVIDER_AGR, false, false, false, "ISTAT - Agricultural census 2010", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("ISTAT_CENSUS_IND", ISTAT_PROVIDER_IND, false, false, false, "ISTAT - Industry and services census 2011", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("INSEE", INSEE_PROVIDER, false, false, true, "National Institute of Statistics and Economic Studies", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("UNDATA", UNDATA_PROVIDER, false, false, false, "Data access system to UN databases", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("WITS", WITS_PROVIDER, false, false, false, "World Integrated Trade Solutions", false, SDMXClientFactory.SDMX_V2);
         //addBuiltInProvider("INEGI", INEGI_PROVIDER, false, false, false, "Instituto Nacional de Estadistica y Geografia", false);
-        addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false);
+        addBuiltInProvider("IMF_SDMX_CENTRAL", IMF_SDMX_CENTRAL_PROVIDER, false, false, true, "International Monetary Fund SDMX Central", false, SDMXClientFactory.SDMX_V2);
 	    //addBuiltInProvider("WB", WB_PROVIDER, false, false, false, "World Bank - World Development Indicators", false);
-	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false);
-  		addBuiltInProvider("ABS2", ABS21_PROVIDER, false, false, false, "Australian Bureau of Statistics - SDMX 2.1 (experimental)", false);
-			addBuiltInProvider("UNICEF", UNICEF_PROVIDER, false, false, true, "UNICEF", false);
-			addBuiltInProvider("BIS_PUBLIC", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false);
+	    addBuiltInProvider("ILO", ILO_PROVIDER, false, false, false, "International Labour Organization", false, SDMXClientFactory.SDMX_V2);
+  		addBuiltInProvider("ABS", ABS_PROVIDER, false, false, false, "Australian Bureau of Statistics - SDMX 2.1", false, SDMXClientFactory.SDMX_V2);
+		addBuiltInProvider("UNICEF", UNICEF_PROVIDER, false, false, true, "UNICEF", false, SDMXClientFactory.SDMX_V2);
+		addBuiltInProvider("BIS_PUBLIC", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false, SDMXClientFactory.SDMX_V2);
 
 	    //add internal 2.0 providers
-        addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true);
-	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true);
-	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true);
-	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true);
-	    addBuiltInProvider("ILO_Legacy", null, false, false, false, "International Labour Organization - Old Endpoint", true);
-	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true);
-	    addBuiltInProvider("ABS", null, false, false, false, "Australian Bureau of Statistics - SDMX 2.0", true);
-	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true);
-	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true);
-	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true);
-	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true);
+        addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("ILO_Legacy", null, false, false, false, "International Labour Organization - Old Endpoint", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true, SDMXClientFactory.SDMX_V2);
 	}
 	
 	/**
@@ -147,11 +147,34 @@ public class SDMXClientFactory {
 	 * @param supportsCompression true if the provider supports HTTP compression features.
 	 * @param description The description of the provider
 	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * @param sdmxVersion the major version of the SDMX standard of this provider (SDMX_V2 or SDMX_V3)
 	 * 
 	 * @throws SdmxException if there is an error creating the provider. 
 	 */
-	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
-		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
+	public static void addProvider(String name, URI endpoint, boolean needsCredentials, 
+			boolean needsURLEncoding, boolean supportsCompression, String description, 
+			boolean isCustom, String sdmxVersion) throws SdmxException{
+		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom, sdmxVersion);
+    	providers.put(name, p);
+	}
+
+	/**
+     * General method for creating an SdmxClient.
+     *
+	 * @param name The name of the provider to create.
+	 * @param endpoint the {@link URI} of the provider to create.
+	 * @param needsCredentials true if the provider needs authentication.
+	 * @param needsURLEncoding true if the provider needs the URL to be encoded.
+	 * @param supportsCompression true if the provider supports HTTP compression features.
+	 * @param description The description of the provider
+	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * 
+	 * @throws SdmxException if there is an error creating the provider. 
+	 */
+	public static void addProvider(String name, URI endpoint, boolean needsCredentials, 
+			boolean needsURLEncoding, boolean supportsCompression, String description, 
+			boolean isCustom) throws SdmxException{
+		Provider p = new Provider(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom, SDMX_V2);
     	providers.put(name, p);
 	}
 
@@ -166,19 +189,45 @@ public class SDMXClientFactory {
 	 * @param supportsCompression true if the provider supports HTTP compression features.
 	 * @param description The description of the provider
 	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * @param sdmxVersion the major version of the SDMX standard of this provider (SDMX_V2 or SDMX_V3)
 	 * 
 	 * @throws SdmxException if there is an error creating the provider. 
 	 */
-	public static void addProvider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isCustom) throws SdmxException{
-		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom);
+	public static void addProvider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, 
+			boolean needsURLEncoding, boolean supportsCompression, String description, 
+			boolean isCustom, String sdmxVersion) throws SdmxException{
+		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom, sdmxVersion);
     	providers.put(name, p);
 	}
 
     /**
+	 * General method for creating an SdmxClient.
+	 *
+	 * @param name The name of the provider to create.
+	 * @param endpoint the {@link URI} of the provider to create.
+	 * @param trustStore A truststore to use to connect to this provider.
+	 * @param needsCredentials true if the provider needs authentication.
+	 * @param needsURLEncoding true if the provider needs the URL to be encoded.
+	 * @param supportsCompression true if the provider supports HTTP compression features.
+	 * @param description The description of the provider
+	 * @param isCustom true if the provider has an implementing class in the package it.bancaditalia.oss.sdmx.client.custom
+	 * 
+	 * @throws SdmxException if there is an error creating the provider. 
+	 */
+	public static void addProvider(String name, URI endpoint, KeyStore trustStore, boolean needsCredentials, 
+			boolean needsURLEncoding, boolean supportsCompression, String description, 
+			boolean isCustom) throws SdmxException{
+		Provider p = new Provider(name, endpoint, trustStore, needsCredentials, needsURLEncoding, supportsCompression, description, isCustom, SDMX_V2);
+		providers.put(name, p);
+	}
+
+	/**
      * Add a builtin provider and check whether the default values need to be overwritten with values defined in the configuration file.
      * @throws SdmxException 
      */
-    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, final Boolean needsURLEncoding, final Boolean supportsCompression, final String description, boolean isCustom) throws SdmxException {
+    private static void addBuiltInProvider(final String name, final String endpoint, final Boolean needsCredentials, 
+    		final Boolean needsURLEncoding, final Boolean supportsCompression, final String description, 
+    		boolean isCustom, String sdmxVersion) throws SdmxException {
         try {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
@@ -187,7 +236,8 @@ public class SDMXClientFactory {
             final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
             final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
             final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
-            addProvider(providerName, providerURL, null, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom);
+            final String providerSdmxVersion = Configuration.getConfiguration().getProperty("providers." + name + ".sdmxversion", sdmxVersion.toString());
+            addProvider(providerName, providerURL, null, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom, providerSdmxVersion);
         } catch (URISyntaxException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
@@ -208,6 +258,7 @@ public class SDMXClientFactory {
 		        final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".needsURLEncoding", "false"));
 		        final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + id + ".supportsCompression", "false"));
 		        final String providerDescription = Configuration.getConfiguration().getProperty("providers." + id + ".description", id);
+	            final String providerSdmxVersion = Configuration.getConfiguration().getProperty("providers." + id + ".sdmxversion", SDMXClientFactory.SDMX_V2);
 		        
 		        String trustStoreLocation = Configuration.getConfiguration().getProperty("providers." + id + ".trustStore", "");
 		        KeyStore providerTrustStore = null;
@@ -226,7 +277,7 @@ public class SDMXClientFactory {
 						providerTrustStore = null;
 					}
 		        
-		        addProvider(providerName, providerURL, providerTrustStore, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, false);
+		        addProvider(providerName, providerURL, providerTrustStore, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, false, providerSdmxVersion);
             }
             else{
             	logger.warning("No URL has been configured for the external provider: '" + id + "'. It will be skipped.");
@@ -261,10 +312,15 @@ public class SDMXClientFactory {
 		{
 			hostname = provider.getEndpoint().getHost();
 			if(provider.getEndpoint().getScheme().toLowerCase().startsWith("http")){
-				client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.getSSLSocketFactory(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
-			}
-			else if(provider.getEndpoint().getScheme().toLowerCase().equals("file")){
-				client = new FILE(provider.getName(), provider.getEndpoint());
+				if(provider.getSdmxVersion().trim().equalsIgnoreCase(SDMXClientFactory.SDMX_V2)){
+					client = new RestSdmxClient(provider.getName(), provider.getEndpoint(), provider.getSSLSocketFactory(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
+				}
+				else if(provider.getSdmxVersion().trim().equalsIgnoreCase(SDMXClientFactory.SDMX_V3)){
+					client = new RestSdmx30Client(provider.getName(), provider.getEndpoint(), provider.getSSLSocketFactory(), provider.isNeedsCredentials(), provider.isNeedsURLEncoding(), provider.isSupportsCompression());
+				}
+				else{
+					throw new SdmxInvalidParameterException("The sdmx version '" + provider.getSdmxVersion() + "' is not supported.");
+				}
 			}
 			else 
 			{

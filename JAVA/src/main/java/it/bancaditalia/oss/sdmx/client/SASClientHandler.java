@@ -349,7 +349,7 @@ public class SASClientHandler extends SdmxClientHandler
 		obsmetadata = null;
 		try
 		{
-			List<PortableTimeSeries<Double>> result = SdmxClientHandler.getTimeSeries(provider, tsKey, startTime, endTime);
+			List<PortableTimeSeries<Double>> result = SdmxClientHandler.getTimeSeries(provider, null, tsKey, null, startTime, endTime, false, null, false);
 			if (!result.isEmpty())
 			{
 				// check size of full result as a table

@@ -47,6 +47,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipInputStream;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.stream.XMLEventReader;
@@ -59,7 +60,6 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.custom.FILE;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
 import it.bancaditalia.oss.sdmx.event.OpenEvent;
 import it.bancaditalia.oss.sdmx.event.RedirectionEvent;
@@ -71,7 +71,6 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxIOException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxRedirectionException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.lib.android.util.Base64;
 import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
@@ -80,7 +79,6 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
-import javax.net.ssl.HostnameVerifier;
 
 /**
  * @author Attilio Mattiocco
@@ -91,6 +89,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	private static final String		sourceClass						= RestSdmxClient.class.getSimpleName();
 	protected static final Logger	logger							= Configuration.getSdmxLogger();
 
+	protected String				sdmxVersion = SDMXClientFactory.SDMX_V2;
 	protected String				name;
 	protected final boolean			needsURLEncoding;
 	protected final boolean			supportsCompression;
@@ -236,10 +235,26 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime,
+	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
+			String startTime, String endTime,
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		return postProcess(getData(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory));
+	}
+
+	@Override
+	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String filter, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException {
+		if(filter != null && !filter.isEmpty())
+			throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
+		else
+			return getTimeSeries(dataflow, dsd, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+	}
+
+	@Override
+	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException {
+		throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
 	}
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
@@ -296,6 +311,14 @@ public class RestSdmxClient implements GenericSDMXClient
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	public String getSdmxVersion() {
+		return sdmxVersion;
+	}
+
+	public void setSdmxVersion(String sdmxVersion) {
+		this.sdmxVersion = sdmxVersion;
 	}
 
 	@Override
@@ -398,7 +421,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					((ZipInputStream) stream).getNextEntry();
 				}
 
-				if (Configuration.isDumpXml() && !(this instanceof FILE) && dumpName != null) // skip local and non 2.1 providers
+				if (Configuration.isDumpXml() && dumpName != null) // skip providers < sdmx v2.1
 				{
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					byte[] buf = new byte[4096];
@@ -477,7 +500,8 @@ public class RestSdmxClient implements GenericSDMXClient
 		{
 			logger.fine("Setting http authorization");
 			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
-			String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
+			//String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
+			String auth = java.util.Base64.getEncoder().encodeToString((user + ":" + pw).getBytes());
 			conn.setRequestProperty("Authorization", "Basic " + auth);
 		}
 		if (supportsCompression)
@@ -502,7 +526,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null)
 					.buildSdmx21Query();
 		else
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
 	}
 
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException

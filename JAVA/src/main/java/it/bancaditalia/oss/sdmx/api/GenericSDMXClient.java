@@ -81,11 +81,11 @@ public interface GenericSDMXClient {
      *<p>		'EXR.*.*.EUR.SP00.A' or 'EXR...EUR.SP00.A' or 'EXR/..EUR.SP00.A'
      *<p>		'EXR.A|M.USD.EUR.SP00.A' or 'EXR.A+M.USD.EUR.SP00.A' or 'EXR/A+M.USD.EUR.SP00.A'
      * 
+     * @param dataflow the dataflow of the time series to be gathered
+     * @param dsd the structure of the dataflow of the time series to be gathered
      * @param resource the id of the time series
      * @param startTime start time of the observations to be gathered
      * @param endTime end time of the observations to be gathered
-     * @param dataflow the dataflow of the time series to be gathered
-     * @param dsd the structure of the dataflow of the time series to be gathered
      * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
      * @param updatedAfter if set, only data updated after the given date will be retrieved (e.g. '2014-01-01')
      * @param includeHistory boolean flag for enabling getting the history of revisions
@@ -95,6 +95,38 @@ public interface GenericSDMXClient {
 	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, 
 			String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;
+	
+	/**
+     * <p>Gets a time series list with the specified filters on components. Only in SDMX v3 providers 
+     * 
+     * <p>e.g.
+     *
+     * @param dataflow the dataflow of the time series to be gathered
+     * @param dsd the structure of the dataflow of the time series to be gathered
+     * @param resource the id of the time series
+     * @param filter the filter
+     * @param startTime start time of the observations to be gathered
+     * @param endTime end time of the observations to be gathered
+     * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
+     * @param updatedAfter if set, only data updated after the given date will be retrieved (e.g. '2014-01-01')
+     * @param includeHistory boolean flag for enabling getting the history of revisions
+     * @throws SdmxException 
+     */
+	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String filter, 
+			String startTime, String endTime, 
+			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException;
+	
+	/**
+     * <p>Gets a list of available codes for the various dimensions, with the specified filters on components. Only in SDMX v3 providers 
+     * 
+     * <p>e.g.
+     *
+     * @param dataflow the dataflow of the time series to be gathered
+     * @param filter the filter
+     * @param mode exact or available
+     * @throws SdmxException 
+     */
+	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException;
 	
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 

@@ -60,7 +60,7 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
        
     %try java code
     try
-        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, id, startTime, endTime); 
+        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, '', id, '', startTime, endTime, false, '', false); 
 	catch mexp
         error(sprintf('SDMX getTimeSeries() error:\n %s', mexp.message));            
     end

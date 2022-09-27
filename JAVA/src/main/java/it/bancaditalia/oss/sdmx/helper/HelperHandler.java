@@ -20,25 +20,51 @@
 */
 package it.bancaditalia.oss.sdmx.helper;
 
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static javax.swing.text.StyleConstants.Foreground;
+
+import java.awt.Color;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyledDocument;
 
 public class HelperHandler extends java.util.logging.Handler {
 	private SimpleFormatter formatter = new SimpleFormatter();
 
-    public HelperHandler(JTextArea whereTo) {
+    public HelperHandler(JTextPane loggingArea) {
 		super();
-		this.whereTo = whereTo;
+		this.whereTo = loggingArea;
 	}
 
-	private JTextArea whereTo = null;
+	private JTextPane whereTo = null;
 
     @Override
     public void publish(final LogRecord record) {
-    	whereTo.append(formatter.format(record));
-    	whereTo.setCaretPosition(whereTo.getDocument().getLength());
+    	
+    	int currentLength = whereTo.getDocument().getLength();
+    	try
+		{
+			String message = formatter.format(record);
+			StyledDocument document = (StyledDocument) whereTo.getDocument();
+			document.insertString(currentLength, message, null);
+			MutableAttributeSet colorAttr = new SimpleAttributeSet();
+			if (record.getLevel() == SEVERE || record.getLevel() == WARNING)
+				colorAttr.addAttribute(Foreground, new Color(255, 0, 0));
+			document.setCharacterAttributes(currentLength, message.length(), colorAttr, false);
+			
+	    	whereTo.setCaretPosition(whereTo.getDocument().getLength());
+		}
+		catch (BadLocationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 	@Override

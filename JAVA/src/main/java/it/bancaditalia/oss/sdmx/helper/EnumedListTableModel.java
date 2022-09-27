@@ -1,12 +1,12 @@
 package it.bancaditalia.oss.sdmx.helper;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Function;
 
 import javax.swing.table.AbstractTableModel;
-
-import it.bancaditalia.oss.sdmx.util.Utils.Function;
 
 public class EnumedListTableModel<T> extends AbstractTableModel
 {
@@ -28,35 +28,22 @@ public class EnumedListTableModel<T> extends AbstractTableModel
 		fireTableDataChanged();
 	}
 
-	public void setItems(Map<String, String> itemMap)
-	{
-		Object[][] items = new Object[itemMap.size()][];
-
-		int i = 0;
-		if (itemMap != null)
-			for (Entry<String, String> item : itemMap.entrySet())
-				items[i] = new Object[] { i++, item.getKey(), item.getValue() };
-
-		this.items = items;
-
-		fireTableDataChanged();
-	}
-
+	@SuppressWarnings("unchecked")
 	public void setItems(List<T> itemMap, Function<? super T, String[]> mapper)
 	{
 		Object[][] items = new Object[itemMap.size()][];
 
-		int i = 0;
 		if (itemMap != null)
-			for (T item : itemMap)
+		{
+			final Object[] array = itemMap.toArray();
+			for (int i = 0; i < array.length; i++)
 			{
-				Object row[] = new Object[] { i, null, null };
-				System.arraycopy(mapper.apply(item), 0, row, 1, 2);
-				items[i++] = row;
+				items[i] = new Object[] { i, null, null, array[i] };
+				System.arraycopy(mapper.apply((T) array[i]), 0, items[i], 1, 2);
 			}
+		}
 
 		this.items = items;
-		
 		fireTableDataChanged();
 	}
 
@@ -94,5 +81,14 @@ public class EnumedListTableModel<T> extends AbstractTableModel
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		return items[rowIndex][columnIndex];
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<T> getSource()
+	{
+		return Arrays.stream(items)
+			.map(item -> item[3])
+			.map(item -> (T) item)
+			.collect(toList());
 	}
 }
