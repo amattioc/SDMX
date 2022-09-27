@@ -21,15 +21,13 @@ getTimeSeriesRevisions(provider, id, start = "", end = "",
   TRUE the full list of revisions will be returned}
 }
 \description{
-Extract a list of time series starting from a specific
-update time and with history of revisions. This function
-works as \bold{getTimeSeries} and \bold{getSDMX} but the
+Extract time series starting from a specific update time and 
+with history of revisions. This function works as getTimeSeriesTable but the 
 query can be narrowed to getting only observations that
-were updated after a specific point in time, and eventually
-it returns the revision history of the matching time
-series. This means that the result list can contain
-multiple instances of the same time series, each with the
-specific action and validity attributes.
+were updated after a specific point in time, 
+and eventually it returns the revision history of the matching time series. 
+
+The result is packed into a data.frame
 }
 \details{
 getTimeSeriesRevisions(provider, id, start, end,

@@ -210,8 +210,8 @@ getTimeSeriesTable <- function(provider, id, start='', end='', dataflow='', filt
 
 #' get data revisions
 #'
-#' Extract a list of time series starting from a specific update time and 
-#' with history of revisions. This function works as \bold{getTimeSeries} but the 
+#' Extract time series starting from a specific update time and 
+#' with history of revisions. This function works as \bold{getTimeSeriesTable} but the 
 #' query can be narrowed to getting only observations that
 #' were updated after a specific point in time, and eventually it returns the revision history of
 #' the matching time series. The result is packed into a data.frame

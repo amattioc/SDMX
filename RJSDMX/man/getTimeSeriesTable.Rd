@@ -1,8 +1,8 @@
-\name{getTimeSeriesTableTable}
-\alias{getTimeSeriesTableTable}
+\name{getTimeSeriesTable}
+\alias{getTimeSeriesTable}
 \title{get time series and return a data.frame}
 \usage{
-getTimeSeriesTableTable(provider, id, start='', end='', dataflow='', filter='')
+getTimeSeriesTable(provider, id, start='', end='', dataflow='', filter='')
 }
 \arguments{
   \item{id}{identifier of the time series}
@@ -20,7 +20,7 @@ getTimeSeriesTableTable(provider, id, start='', end='', dataflow='', filter='')
 \description{
 Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
 
-getTimeSeriesTableTable(provider, id, start, end, dataflow, filter)
+getTimeSeriesTable(provider, id, start, end, dataflow, filter)
 }
 \examples{
 \dontrun{

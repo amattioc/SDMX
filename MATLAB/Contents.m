@@ -13,6 +13,8 @@
 %	and return a cell of timeseries
 %	getTimeSeriesTable - get the list of time series that match the input query
 %	and return a table
+%	getTimeSeriesRevisions - get the list of time series that match the input query
+%	and return a table. Revisions in observation values are returned too.
 %	sdmxtable - converts the results of the getTimeSeries call from a cell
 %	array of timeseries to a table
 %	sdmxHelp - opena graphical metadata browser that helps building  data queries
