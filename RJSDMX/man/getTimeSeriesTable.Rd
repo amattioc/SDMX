@@ -44,11 +44,14 @@ my_ts=getTimeSeriesTable('ECB', dataflow='EXR', id='.USD.EUR.SP00.A')
 #or
 
 ## get single time series: EXR.A.USD.EUR.SP00.A
-my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
 ## get monthly and annual frequency: 
-my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
 ## get all available frequencies: 
-my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
 }
 }
 
