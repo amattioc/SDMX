@@ -4,6 +4,7 @@
     </description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src/main/java"/>
+	<property name="resources" location="src/main/resources"/>
 	<property name="stata_src" location="stata_src"/>
 	<property name="test" location="src/test/java"/>
 	<property name="build" location="build"/>
@@ -54,6 +55,8 @@
 	<target name="dist" depends="compile"  description="generate the distribution" >
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}/lib"/>
+		<!-- copy resources -->
+		<copydir src="${resources}" dest="${build}" />
 		<!-- Put everything in ${build} into the jar file -->
 		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}">
 			<manifest>
@@ -71,6 +74,8 @@
 	<target name="dist-debug" depends="compile-debug"  description="generate the distribution with debug info" >
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}/lib"/>
+		<!-- copy resources -->
+                <copydir src="${resources}" dest="${build}" />
 		<!-- Put everything in ${build} into the jar file -->
 		<jar jarfile="${dist}/lib/SDMX.jar" basedir="${build}">
 			<manifest>
@@ -88,6 +93,8 @@
 	<target name="STATA"  depends="dist" description="compile the source for stata java lib" >
 		<!-- Compile the java code from ${src} into ${build} stata java libs (stata-sfi.jar) are needed in the classpath -->
 		<javac srcdir="${stata_src}" destdir="${build}" target="1.8" source="1.8" />
+		<!-- copy resources -->
+                <copydir src="${resources}" dest="${build}" />
 		<!-- Create the stata enabled jar in the stata plugin jar directory -->
 		<jar jarfile="${stata_libdir}/SDMX.jar" basedir="${build}">
 			<manifest>
