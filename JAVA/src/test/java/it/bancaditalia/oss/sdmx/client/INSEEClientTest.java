@@ -26,7 +26,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class INSEEClientTest {
 	public static void main(String[] args) throws SdmxException{
-		//System.err.println(SdmxClientHandler.getTimeSeries("INSEE", "IPI-1970-DET/.50.", null, null));
-		System.err.println(SdmxClientHandler.getFlows("INSEE", null));
+		//System.err.println(SdmxClientHandler.getTimeSeries("INSEE", "BALANCE-PAIEMENTS/M.BALANCE_DES_PAIEMENTS.CREDITS.205.VALEUR_ABSOLUE.FE.EUROS.BRUT.SO", null, null));
+		System.err.println(SdmxClientHandler.getFlow("INSEE", "BALANCE-PAIEMENTS"));
 	}
 }

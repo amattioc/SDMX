@@ -13,14 +13,8 @@ public class EnumedListTableModel<T> extends AbstractTableModel
 
 	private static final long serialVersionUID = 3265022631397431923L;
 
-	private final String columnIdentifiers[];
 	private Object       items[][] = new Object[0][];
 
-	public EnumedListTableModel(String keyName, String valueName)
-	{
-		columnIdentifiers = new String[] { "", keyName, valueName };
-	}
-	
 	public void clear()
 	{
 		items = new Object[0][];
@@ -57,12 +51,6 @@ public class EnumedListTableModel<T> extends AbstractTableModel
 	public Class<?> getColumnClass(int column)
 	{
 		return column == 0 ? Integer.class : String.class;
-	}
-
-	@Override
-	public String getColumnName(int column)
-	{
-		return columnIdentifiers[column];
 	}
 
 	@Override

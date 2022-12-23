@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
@@ -65,16 +64,9 @@ public abstract class DotStat extends RestSdmx20Client {
 		if(dsds.size() > 0)
 		{
 			DataFlowStructure dsd = dsds.get(0);
-			Dataflow result = new Dataflow();
-			result.setAgency(dsd.getAgency());
-			result.setId(dsd.getId());
-			result.setVersion(dsd.getVersion());
+			Dataflow result = new Dataflow(dsd);
 			result.setName(dsd.getName());
-			DSDIdentifier dsdId = new  DSDIdentifier();
-			dsdId.setAgency(dsd.getAgency());
-			dsdId.setId(dsd.getId());
-			dsdId.setVersion(dsd.getVersion());
-			result.setDsdIdentifier(dsdId);
+			result.setDsdIdentifier(dsd);
 			return result;
 		}
 		else
@@ -92,16 +84,9 @@ public abstract class DotStat extends RestSdmx20Client {
 			for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) 
 			{
 				DataFlowStructure dsd = (DataFlowStructure) iterator.next();
-				Dataflow df = new Dataflow();
-				df.setAgency(dsd.getAgency());
-				df.setId(dsd.getId());
-				df.setVersion(dsd.getVersion());
+				Dataflow df = new Dataflow(dsd);
 				df.setName(dsd.getName());
-				DSDIdentifier dsdId = new  DSDIdentifier();
-				dsdId.setAgency(dsd.getAgency());
-				dsdId.setId(dsd.getId());
-				dsdId.setVersion(dsd.getVersion());
-				df.setDsdIdentifier(dsdId);
+				df.setDsdIdentifier(dsd);
 				result.put(dsd.getId(), df);
 			}
 			

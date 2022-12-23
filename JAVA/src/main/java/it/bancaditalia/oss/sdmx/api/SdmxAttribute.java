@@ -23,4 +23,9 @@ package it.bancaditalia.oss.sdmx.api;
 
 
 public class SdmxAttribute extends SdmxMetaElement{
+	
+	public SdmxAttribute(String id)
+	{
+		super(id);
+	}
 }

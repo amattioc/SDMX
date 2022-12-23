@@ -22,7 +22,7 @@ package it.bancaditalia.oss.sdmx.ut;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import it.bancaditalia.oss.sdmx.it.DSDIdentifiersIT;
+import it.bancaditalia.oss.sdmx.it.SDMXReferenceIT;
 import it.bancaditalia.oss.sdmx.it.DataflowsIT;
 import it.bancaditalia.oss.sdmx.it.CodesIT;
 import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
@@ -30,14 +30,11 @@ import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
 @RunWith(Suite.class)
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class,
 						CodesIT.class,
-						DSDIdentifiersIT.class,
+						SDMXReferenceIT.class,
 						ProxyTest.class,
-//						FileTest.class,
-						LanguagePriorityListTest.class,
 						RestQueryBuilderTest.class,
 						DataflowsIT.class,
 						TimeSeriesFromIDsIT.class
 						})
 public class AllTests {
 }
-

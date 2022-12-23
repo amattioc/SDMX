@@ -11,12 +11,12 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 @RunWith(Parameterized.class)
-public class DSDIdentifiersIT
+public class SDMXReferenceIT
 {
 	@Parameters(name="{0} - {1}")
     public static Collection<Object[]> data() {
@@ -40,14 +40,14 @@ public class DSDIdentifiersIT
 	@Parameter(0) public String provider;
     @Parameter(1) public String dataflow;
     @Parameter(2) public String expectedAgency;
-    @Parameter(3) public String expectedDSDIdent;
+    @Parameter(3) public String expectedRef;
     
 	@Test
 	public void testDSDIdentifier() throws SdmxException {
-		DSDIdentifier keyF = SdmxClientHandler.getDSDIdentifier(provider, dataflow);
+		SDMXReference keyF = SdmxClientHandler.getDSDIdentifier(provider, dataflow);
 		assertNotNull("Null key family", keyF);
 		if (expectedAgency != null)
 			assertEquals("Wrong agency", expectedAgency, keyF.getAgency());
-		assertEquals("Wrong Key Family", expectedDSDIdent, keyF.getId());
+		assertEquals("Wrong Key Family", expectedRef, keyF.getId());
 	}
 }

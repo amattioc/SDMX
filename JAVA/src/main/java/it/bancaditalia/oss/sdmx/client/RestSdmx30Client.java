@@ -41,6 +41,7 @@ import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
 import it.bancaditalia.oss.sdmx.parser.v30.AvailabilityParser;
 import it.bancaditalia.oss.sdmx.parser.v30.Sdmx30Queries;
+import it.bancaditalia.oss.sdmx.parser.v30.SeriesCountParser;
 
 /**
  * @author Attilio Mattiocco
@@ -82,6 +83,12 @@ public class RestSdmx30Client extends RestSdmxClient
 		return runQuery(new AvailabilityParser(), query, null, null);
 	}
 
+	@Override
+	public Integer getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
+		URL query = buildAvailabilityQueryByKey(dataflow, filter, "exact");
+		return runQuery(new SeriesCountParser(), query, null, null);
+	}
+
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String tsKey, String filter, String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
@@ -108,7 +115,7 @@ public class RestSdmx30Client extends RestSdmxClient
 		Message msg = ts.getMessage();
 		if (msg != null)
 		{
-			logger.log(Level.INFO, "The sdmx call returned messages in the footer:\n {0}", msg);
+			LOGGER.log(Level.INFO, "The sdmx call returned messages in the footer:\n {0}", msg);
 			RestSdmxEvent event = new DataFooterMessageEvent(query, msg);
 			dataFooterMessageEventListener.onSdmxEvent(event);
 		}
@@ -164,5 +171,9 @@ public class RestSdmx30Client extends RestSdmxClient
 		return Sdmx30Queries.createAvailabilityQuery(endpoint, dataflow.getFullIdentifier(), filter, mode).buildQuery();
 	}
 
+	protected URL buildAvailabilityQueryByKey(Dataflow dataflow, String filter, String mode) throws SdmxException
+	{
+		return Sdmx30Queries.createAvailabilityQueryByKey(endpoint, dataflow.getFullIdentifier(), filter, mode).buildQuery();
+	}
 
 }

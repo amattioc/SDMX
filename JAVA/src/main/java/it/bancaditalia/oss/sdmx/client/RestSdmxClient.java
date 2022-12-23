@@ -13,12 +13,16 @@
 * Unless required by applicable law or agreed to in
 * writing, software distributed under the Licence is
 * distributed on an "AS IS" basis,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY_LANGUAGE KIND, either
 * express or implied.
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
 package it.bancaditalia.oss.sdmx.client;
+
+import static it.bancaditalia.oss.sdmx.util.Configuration.getLanguages;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -40,6 +44,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,10 +59,11 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
@@ -78,7 +84,6 @@ import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 
 /**
  * @author Attilio Mattiocco
@@ -86,10 +91,10 @@ import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
  */
 public class RestSdmxClient implements GenericSDMXClient
 {
-	private static final String		sourceClass						= RestSdmxClient.class.getSimpleName();
-	protected static final Logger	logger							= Configuration.getSdmxLogger();
+	private static final String		SOURCE_CLASS					= RestSdmxClient.class.getSimpleName();
+	protected static final Logger	LOGGER							= Configuration.getSdmxLogger();
 
-	protected String				sdmxVersion = SDMXClientFactory.SDMX_V2;
+	protected String				sdmxVersion 					= SDMXClientFactory.SDMX_V2;
 	protected String				name;
 	protected final boolean			needsURLEncoding;
 	protected final boolean			supportsCompression;
@@ -105,14 +110,12 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected String				pw								= null;
 	protected int					readTimeout;
 	protected int					connectTimeout;
-	protected LanguagePriorityList	languages;
 	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
 	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
-	protected RestSdmxEventListener	openEventListener = RestSdmxEventListener.NO_OP_LISTENER;
+	protected RestSdmxEventListener	openEventListener				= RestSdmxEventListener.NO_OP_LISTENER;
 	protected int maxRedirects = 20;
 
-	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
-			boolean supportsCompression)
+	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
 	{
 		this.endpoint = endpoint;
 		this.name = name;
@@ -124,7 +127,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.hostnameVerifier = null;
 		readTimeout = Configuration.getReadTimeout(getClass().getSimpleName());
 		connectTimeout = Configuration.getConnectTimeout(getClass().getSimpleName());
-		languages = LanguagePriorityList.parse(Configuration.getLang());
+//		languages = LanguageRange.parse(Configuration.getLang());
 	}
 
 	public RestSdmxClient(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
@@ -157,10 +160,10 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.connectTimeout = timeout;
 	}
 
-	public void setLanguages(LanguagePriorityList languages)
-	{
-		this.languages = languages;
-	}
+//	public void setLanguages(List<LanguageRange> languages)
+//	{
+//		this.languages = languages;
+//	}
 
 	public void setDataFooterMessageEventListener(RestSdmxEventListener eventListener)
 	{
@@ -216,7 +219,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException
+	public DataFlowStructure getDataFlowStructure(SDMXReference dsd, boolean full) throws SdmxException
 	{
 		if (dsd == null)
 			throw new SdmxInvalidParameterException("getDataFlowStructure(): Null dsd in input");
@@ -228,7 +231,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public Map<String, String> getCodes(String codeList, String agency, String version) throws SdmxException
+	public Codelist getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
 		return runQuery(new CodelistParser(), query, null, "codelist_" + codeList);
@@ -257,6 +260,11 @@ public class RestSdmxClient implements GenericSDMXClient
 		throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
 	}
 
+	@Override
+	public Integer getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
+		throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
+	}
+
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
@@ -267,7 +275,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		Message msg = ts.getMessage();
 		if (msg != null)
 		{
-			logger.log(Level.INFO, "The sdmx call returned messages in the footer:\n {0}", msg);
+			LOGGER.log(Level.INFO, "The sdmx call returned messages in the footer:\n {0}", msg);
 			RestSdmxEvent event = new DataFooterMessageEvent(query, msg);
 			dataFooterMessageEventListener.onSdmxEvent(event);
 		}
@@ -340,11 +348,11 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected final <T> T runQuery(Parser<T> parser, URL query, String acceptHeader, String dumpName) throws SdmxException
 	{
 		final String sourceMethod = "runQuery";
-		logger.entering(sourceClass, sourceMethod);
+		LOGGER.entering(SOURCE_CLASS, sourceMethod);
 
 		URLConnection conn = null;
 		URL url = null;
-		logger.log(Level.INFO, "Contacting web service with query: {0}", query);
+		LOGGER.log(Level.INFO, "Contacting web service with query: {0}", query);
 
 		try
 		{
@@ -353,9 +361,9 @@ public class RestSdmxClient implements GenericSDMXClient
 			URL originalURL = url;
 
 			Proxy proxy = (proxySelector != null ? proxySelector : ProxySelector.getDefault()).select(url.toURI()).get(0);
-			logger.fine("Using proxy: " + proxy);
+			LOGGER.fine("Using proxy: " + proxy);
 			
-			openEventListener.onSdmxEvent(new OpenEvent(url, acceptHeader, languages, proxy));
+			openEventListener.onSdmxEvent(new OpenEvent(url, acceptHeader, getLanguages(), proxy));
 
 			int redirects = 0;
 			do
@@ -364,13 +372,13 @@ public class RestSdmxClient implements GenericSDMXClient
 
 				if (conn instanceof HttpsURLConnection && sslSocketFactory != null)
 				{
-					logger.fine("Using custom SSLSocketFactory for provider " + name);
+					LOGGER.fine("Using custom SSLSocketFactory for provider " + name);
 					((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
 				}
 
 				if (conn instanceof HttpsURLConnection && hostnameVerifier != null)
 				{
-					logger.fine("Using custom HostnameVerifier for provider " + name);
+					LOGGER.fine("Using custom HostnameVerifier for provider " + name);
 					((HttpsURLConnection) conn).setHostnameVerifier(hostnameVerifier);
 				}
 
@@ -394,7 +402,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					if (isDowngradingProtocolOnRedirect(originalURL, redirection)) {
 						throw new SdmxRedirectionException("Downgrading protocol on redirect from '" + originalURL + "' to '" + redirection + "'");
 					}
-					logger.log(Level.INFO, "Redirecting to: {0}", redirection);
+					LOGGER.log(Level.INFO, "Redirecting to: {0}", redirection);
 					RestSdmxEvent event = new RedirectionEvent(url, redirection);
 					redirectionEventListener.onSdmxEvent(event);
 					url = redirection;
@@ -408,7 +416,7 @@ public class RestSdmxClient implements GenericSDMXClient
 			
 			if (code == HttpURLConnection.HTTP_OK)
 			{
-				logger.fine("Connection opened. Code: " + code);
+				LOGGER.fine("Connection opened. Code: " + code);
 				InputStream stream = conn.getInputStream();
 				String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
 				if (encoding.equalsIgnoreCase("gzip"))
@@ -434,10 +442,10 @@ public class RestSdmxClient implements GenericSDMXClient
 					System.err.println(Configuration.getDumpPrefix());
 					File dumpfilename = new File(Configuration.getDumpPrefix() + File.separator + name, dumpName + ".xml");
 					if (!dumpfilename.getParentFile().exists() && !dumpfilename.getParentFile().mkdirs()) {
-					    logger.warning("Error creating path to dump file: " + dumpfilename);
+					    LOGGER.warning("Error creating path to dump file: " + dumpfilename);
 					}
 					else{
-						logger.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
+						LOGGER.info("Dumping xml to file " + dumpfilename.getAbsolutePath());
 						FileOutputStream dumpfile = new FileOutputStream(dumpfilename);
 						dumpfile.write(baos.toByteArray());
 						dumpfile.close();
@@ -453,7 +461,7 @@ public class RestSdmxClient implements GenericSDMXClient
 					// InputStream in = new ByteArrayInputStream(xmlBuffer);
 					XMLEventReader eventReader = inputFactory.createXMLEventReader(br);
 
-					return parser.parse(eventReader, languages != null ? languages : LanguagePriorityList.ANY);
+					return parser.parse(eventReader, getLanguages());
 				}
 			}
 			else
@@ -461,7 +469,7 @@ public class RestSdmxClient implements GenericSDMXClient
 				InputStream is = ((HttpURLConnection)conn).getErrorStream();
 				if(is != null){
 					String msg = new BufferedReader(new InputStreamReader(is)).readLine();
-					logger.severe(msg);
+					LOGGER.severe(msg);
 				}
 				SdmxException ex = SdmxExceptionFactory.createRestException(code, null, null);
 				if (conn instanceof HttpURLConnection)
@@ -471,20 +479,20 @@ public class RestSdmxClient implements GenericSDMXClient
 		}
 		catch (IOException e)
 		{
-			logger.severe("Exception. Class: " + e.getClass().getName() + " - Message: " + e.getMessage());
-			logger.log(Level.FINER, "Exception: ", e);
+			LOGGER.severe("Exception. Class: " + e.getClass().getName() + " - Message: " + e.getMessage());
+			LOGGER.log(Level.FINER, "Exception: ", e);
 			throw SdmxExceptionFactory.wrap(e);
 		}
 		catch (XMLStreamException e)
 		{
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
+			LOGGER.severe("Exception caught parsing results from call to provider " + name);
+			LOGGER.log(Level.FINER, "Exception: ", e);
 			throw SdmxExceptionFactory.wrap(e);
 		}
 		catch (URISyntaxException e)
 		{
-			logger.severe("Exception caught parsing results from call to provider " + name);
-			logger.log(Level.FINER, "Exception: ", e);
+			LOGGER.severe("Exception caught parsing results from call to provider " + name);
+			LOGGER.log(Level.FINER, "Exception: ", e);
 			throw SdmxExceptionFactory.wrap(e);
 		}
 		finally
@@ -496,9 +504,13 @@ public class RestSdmxClient implements GenericSDMXClient
 
 	protected void handleHttpHeaders(HttpURLConnection conn, String acceptHeader)
 	{
+		String lList = Configuration.getLanguages().stream()
+			.map(lr -> format(Locale.US, "%s;q=%.1f", lr.getRange(), lr.getWeight()))
+			.collect(joining(","));
+		conn.addRequestProperty("Accept-Language", lList);
 		if (containsCredentials)
 		{
-			logger.fine("Setting http authorization");
+			LOGGER.fine("Setting http authorization");
 			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
 			//String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
 			String auth = java.util.Base64.getEncoder().encodeToString((user + ":" + pw).getBytes());
@@ -508,18 +520,13 @@ public class RestSdmxClient implements GenericSDMXClient
 		{
 			conn.addRequestProperty("Accept-Encoding", "gzip,deflate");
 		}
-		if (languages != null)
-		{
-			conn.addRequestProperty("Accept-Language", languages.toString());
-		}
 		if (acceptHeader != null && !"".equals(acceptHeader))
 			conn.setRequestProperty("Accept", acceptHeader);
 		else
 			conn.setRequestProperty("Accept", "*/*");
 	}
 
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
-			boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		if (endpoint != null && dataflow != null && resource != null && !resource.isEmpty())
 			return Sdmx21Queries
@@ -577,7 +584,7 @@ public class RestSdmxClient implements GenericSDMXClient
 			@Override
 			public void close() throws IOException
 			{
-				logger.fine("GenericDataParser::skipBOM: closing stream.");
+				LOGGER.fine("GenericDataParser::skipBOM: closing stream.");
 				super.close();
 			}
 		};
@@ -588,15 +595,15 @@ public class RestSdmxClient implements GenericSDMXClient
 			// TODO: Source of problems here
 			br.mark(1);
 			br.read(cbuf, 0, 1);
-			logger.fine(String.format("0x%2s", Integer.toHexString(cbuf[0])));
+			LOGGER.fine(String.format("0x%2s", Integer.toHexString(cbuf[0])));
 			if ((byte) cbuf[0] == (byte) 0xfeff)
 			{
-				logger.fine("BOM found and skipped");
+				LOGGER.fine("BOM found and skipped");
 			}
 			else
 			{
 				// TODO: Source of problems here
-				logger.fine("GenericDataParser::skipBOM: Resetting stream.");
+				LOGGER.fine("GenericDataParser::skipBOM: Resetting stream.");
 				br.reset();
 			}
 		}

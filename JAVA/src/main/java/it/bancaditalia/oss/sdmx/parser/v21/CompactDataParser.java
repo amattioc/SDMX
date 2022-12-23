@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -53,7 +55,6 @@ import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -90,7 +91,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 	}
 
 	@Override
-	public DataParsingResult parse(XMLEventReader eventReader, LanguagePriorityList languages)
+	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
 	{
 		final String sourceMethod = "parse";
@@ -201,7 +202,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 								SdmxAttribute sdmxattr = dsd.getAttribute(name);
 								if (sdmxattr != null)
 								{
-									Codelist cl = sdmxattr.getCodeList();
+									Codelist cl = (Codelist) sdmxattr.getCodeList();
 									if (cl != null)
 									{
 										desc = cl.get(value);
@@ -301,7 +302,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 				Dimension dim = dsd.getDimension(id);
 				if (dim != null)
 				{
-					Codelist cl = dim.getCodeList();
+					Codelist cl = (Codelist) dim.getCodeList();
 					if (cl != null)
 						desc = cl.get(value);
 				}
@@ -316,7 +317,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 					SdmxAttribute sdmxattr = dsd.getAttribute(id);
 					if (sdmxattr != null)
 					{
-						Codelist cl = sdmxattr.getCodeList();
+						Codelist cl = (Codelist) sdmxattr.getCodeList();
 						if (cl != null)
 						{
 							desc = cl.get(value);
@@ -343,7 +344,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 		logger.exiting(sourceClass, sourceMethod);
 	}
 
-	private void setFooter(XMLEventReader eventReader, LanguagePriorityList languages, DataParsingResult parsingResult)
+	private void setFooter(XMLEventReader eventReader, List<LanguageRange> languages, DataParsingResult parsingResult)
 			throws XMLStreamException
 	{
 		final String sourceMethod = "setFooter";

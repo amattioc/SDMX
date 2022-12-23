@@ -80,7 +80,7 @@ public class RestQueryBuilder {
 	/**
 	 * Appends the specified parameter to the current URL.
 	 *
-	 * @param param key=value
+	 * @param filter 
 	 * @throws NullPointerException if key or value is null
 	 */
 	public RestQueryBuilder addFilter(String filter) {

@@ -56,19 +56,30 @@ public interface GenericSDMXClient {
 	 * @return the dimensions and (if configured) code lists
 	 * @throws SdmxException 
 	 */
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException;
-
+	public DataFlowStructure getDataFlowStructure(SDMXReference dsd, boolean full) throws SdmxException;
 	
 	/**
 	 * <p>Gets all the codes from this provider for the specified codelist
 	 * 
-	 * @param codeList name of the codelist to get
+	 * @param id name of the codelist to get
 	 * @param agency agency of the codelist to get
 	 * @param version version of the codelist to get
 	 * @return A map of codes with symbols as keys and descriptions as values.
 	 * @throws SdmxException
 	 */
-	public Map<String,String> getCodes(String codeList, String agency, String version) throws SdmxException;
+	public Codelist getCodes(String id, String agency, String version) throws SdmxException;
+
+	/**
+	 * <p>Gets all the codes from this provider for the specified codelist
+	 * 
+	 * @param cl The SDMX coordinates of the codelist
+	 * @return A map of codes with symbols as keys and descriptions as values.
+	 * @throws SdmxException
+	 */
+	public default Codelist getCodes(SDMXReference cl) throws SdmxException
+	{
+		return getCodes(cl.getId(), cl.getAgency(), cl.getVersion());
+	}
 
 	/**
      * <p>Gets a time series list with the specified classification keys. The id is in a dot separated
@@ -107,7 +118,6 @@ public interface GenericSDMXClient {
      * @param filter the filter
      * @param startTime start time of the observations to be gathered
      * @param endTime end time of the observations to be gathered
-     * @param seriesKeyOnly boolean flag for disabling data and attributes processing (usually for getting the only dataflow contents)
      * @param updatedAfter if set, only data updated after the given date will be retrieved (e.g. '2014-01-01')
      * @param includeHistory boolean flag for enabling getting the history of revisions
      * @throws SdmxException 
@@ -128,6 +138,17 @@ public interface GenericSDMXClient {
      */
 	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException;
 	
+	/**
+     * <p>Gets the number of the time series matching the selection, with the specified filters on components. Only in SDMX v3 providers 
+     * 
+     * <p>e.g.
+     *
+     * @param df the dataflow of the time series to be gathered
+     * @param filter the filter
+     * @throws SdmxException 
+     */
+	public Integer getAvailableTimeSeriesNumber(Dataflow df, String filter) throws SdmxException;
+
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 
      * with setCredentials()
@@ -188,5 +209,4 @@ public interface GenericSDMXClient {
      */
 	
 	public void setName(String name);
-
 }

@@ -35,14 +35,19 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -61,6 +66,11 @@ public class Configuration {
 	
 	// TODO: will be replaced by StandardCharsets#UTF_8 in Java 7
 	public static final Charset UTF_8 = Charset.forName("UTF-8");
+	public static final String SDMX_CODES_POLICY_ID = "code";
+	public static final String SDMX_CODES_POLICY_DESC= "description";
+	public static final String SDMX_CODES_POLICY_BOTH = "both";
+	public static final String SDMX_CODES_POLICY_ATTRIBUTES = "attributes";
+	public static final String LOG_FORMAT = "%1$tFT%1$tT.%1$tL %2$-10s [%3$s] %4$s%5$s%n"; 
 	
 	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
 	protected static final String PROXY_AUTH_DIGEST = "digest";
@@ -83,26 +93,20 @@ public class Configuration {
 	protected static final String TABLE_DUMP_PROP = "table.dump";  
 	protected static final String READ_TIMEOUT_PROP = "read.timeout";  
 	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";  
+	protected static final Logger SDMX_LOGGER = Logger.getLogger("SDMX");
+	protected static List<LanguageRange> SDMX_LANG = LanguageRange.parse("en");  
+	
 	private static final String UIS_API_KEY_PROP = "uis.api.key";
 	private static final String SDMX_CODES_POLICY = "handle.sdmx.codes";
-	public static final String SDMX_CODES_POLICY_ID = "code";
-	public static final String SDMX_CODES_POLICY_DESC= "description";
-	public static final String SDMX_CODES_POLICY_BOTH = "both";
-	public static final String SDMX_CODES_POLICY_ATTRIBUTES = "attributes";
 
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
 	private static final String SDMX_DEFAULT_LANG = "en";  
 	private static final String SDMX_DEFAULT_TIMEOUT = "0";  
-	private static final String LOGGER_NAME = "SDMX";
-	private static String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static final String DUMP_XML_PREFIX = "xml.dump.prefix";
-	private static  String SDMX_LANG = "en";  
-
 	private static final String sourceClass = Configuration.class.getSimpleName();
-
-	protected static Logger SDMX_LOGGER = Logger.getLogger(LOGGER_NAME);
-
+	
+	private static String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static Properties props = new Properties();
 	private static boolean inited = false;
 	private static Subject subject;
@@ -131,12 +135,41 @@ public class Configuration {
 			handler.setLevel(Level.INFO);
 			SDMX_LOGGER.addHandler(handler);
 		}
+		else if (handlers.size() == 1 && handlers.get(0) instanceof ConsoleHandler && handlers.get(0).getFormatter() instanceof SimpleFormatter)
+			handlers.get(0).setFormatter(new Formatter() {
+				final Date dat = new Date();
+				@Override
+				public String format(LogRecord record)
+				{
+					  dat.setTime(record.getMillis());
+				        String source;
+				        if (record.getSourceClassName() != null) {
+				            source = record.getSourceClassName();
+				            if (record.getSourceMethodName() != null) {
+				               source += " " + record.getSourceMethodName();
+				            }
+				        } else {
+				            source = record.getLoggerName();
+				        }
+				        String message = formatMessage(record);
+				        String throwable = "";
+				        if (record.getThrown() != null) {
+				            StringWriter sw = new StringWriter();
+				            PrintWriter pw = new PrintWriter(sw);
+				            pw.println();
+				            record.getThrown().printStackTrace(pw);
+				            pw.close();
+				            throwable = sw.toString();
+				        }
+			        return String.format(LOG_FORMAT, dat, record.getLevel().getName(), source, message, throwable);
+				 }
+				
+			});
 	}
 	
 	public static Logger getSdmxLogger()
 	{
-		Logger r = SDMX_LOGGER == null ? (SDMX_LOGGER = Logger.getLogger(LOGGER_NAME)) : SDMX_LOGGER;
-		return r;
+		return SDMX_LOGGER;
 	}
 	
 	public static Properties getConfiguration(){
@@ -182,7 +215,9 @@ public class Configuration {
 		return policy;
 	}
 
-	public static String getLang(){
+	public static List<LanguageRange> getLanguages()
+	{
+		init();
 		return SDMX_LANG;
 	}
 
@@ -190,8 +225,9 @@ public class Configuration {
 		return props.getProperty(Configuration.LATE_RESP_RETRIES_PROP, Integer.toString(defaultRetries));
 	}
 
-	public static void setLang(String lang){
-		SDMX_LANG = lang;
+	public static void setLanguages(String languages)
+	{
+		SDMX_LANG = LanguageRange.parse(languages);
 	}
 
 	private static void init() {
@@ -201,7 +237,7 @@ public class Configuration {
 		}
 		
 		//normal configuration steps:
-		// 1 init logger
+		// 1 init LOGGER
 		// 2 search configuration in this order: system property, local, global, Configuration class   
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
@@ -323,8 +359,8 @@ public class Configuration {
 		
 		setupTrustAllCerts();
 		
-		//configure default language if not already set explicitly
-		SDMX_LANG = props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG);
+		// configure default language if not already set explicitly
+		SDMX_LANG = LanguageRange.parse(props.getProperty(SDMX_LANG_PROP, SDMX_DEFAULT_LANG));
 		
 		configureProxy(props);
 	}
@@ -489,10 +525,10 @@ public class Configuration {
 	}
 
 	private static void setCredentials(String scheme, String username, String password) {
-		// Logger logger = SDMX_LOGGER;
+		// Logger LOGGER = SDMX_LOGGER;
 		System.setProperty(HTTP_AUTH_PREF_PROP, scheme);
 		if (username == null || password == null) {
-			// logger.warning("Proxy User and password not found.");
+			// LOGGER.warning("Proxy User and password not found.");
 			final JFrame frame = new JFrame("Proxy Authentication");
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			LoginDialog loginDlg = new LoginDialog(frame, "Proxy Authentication");

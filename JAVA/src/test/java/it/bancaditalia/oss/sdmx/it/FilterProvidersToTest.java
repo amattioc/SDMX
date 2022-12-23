@@ -11,7 +11,7 @@ import java.util.Set;
 public class FilterProvidersToTest
 {
 	private static final Set<String> keepProviders = new HashSet<>(Arrays.asList(new String[] {
-			"ABS",
+//			"ABS",
 			"ECB",
 			"EUROSTAT",
 			"ILO",
@@ -20,7 +20,6 @@ public class FilterProvidersToTest
 			"ISTAT",
 			"OECD",
 			"UNDATA",
-			"WB",
 			"WITS",
 		}));
 

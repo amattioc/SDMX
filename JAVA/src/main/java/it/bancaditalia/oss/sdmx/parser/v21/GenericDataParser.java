@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -45,7 +46,6 @@ import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 
 /**
  * @author Attilio Mattiocco
@@ -75,7 +75,7 @@ public class GenericDataParser implements Parser<DataParsingResult>{
 		this.data = data;
 	}
 	
-	public DataParsingResult parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException {
 		DataParsingResult result = new DataParsingResult();
 		List<PortableTimeSeries<Double>> tsList = new ArrayList<>();
 		PortableTimeSeries<Double> ts = null;

@@ -54,6 +54,7 @@ public class SDMXClientFactory {
 
 	private static final String ECB_PROVIDER = "https://sdw-wsrest.ecb.europa.eu/service";
 	private static final String ISTAT_PROVIDER_POP = "http://sdmx.istat.it/WS_CENSPOP/rest";
+	private static final String ISTAT_RI_PROVIDER = "https://esploradati.istat.it/SDMXWS/rest";
 	private static final String ISTAT_PROVIDER_AGR = "http://sdmx.istat.it/WS_CENSAGR/rest";
 	private static final String ISTAT_PROVIDER_IND = "http://sdmx.istat.it/WS_CIS/rest";
 	private static final String INSEE_PROVIDER = "https://bdm.insee.fr/series/sdmx";
@@ -90,6 +91,7 @@ public class SDMXClientFactory {
      */
 	private static void initBuiltInProviders() throws SdmxException{
         addBuiltInProvider("ECB", ECB_PROVIDER, false, false, true, "European Central Bank", false, SDMXClientFactory.SDMX_V2);
+        addBuiltInProvider("ISTAT_RI", ISTAT_RI_PROVIDER, false, false, false, "Italian National Institute of Statistics", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("ISTAT_CENSUS_POP", ISTAT_PROVIDER_POP, false, false, false, "ISTAT - Population and housing census 2011", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("ISTAT_CENSUS_AGR", ISTAT_PROVIDER_AGR, false, false, false, "ISTAT - Agricultural census 2010", false, SDMXClientFactory.SDMX_V2);
         addBuiltInProvider("ISTAT_CENSUS_IND", ISTAT_PROVIDER_IND, false, false, false, "ISTAT - Industry and services census 2011", false, SDMXClientFactory.SDMX_V2);

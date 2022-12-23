@@ -20,53 +20,44 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-public class Dimension extends SdmxMetaElement {
-	
+public class Dimension extends SdmxMetaElement
+{
 	private int position;
-	
+
 	/**
-	 * Creates a Dimension with given attributes. 
+	 * Creates a Dimension with given attributes.
 	 * 
-	 * @param id The dimension id
+	 * @param id       The dimension id
 	 * @param position The dimension ordinality in the dataflow structure
 	 * @param codeList the Codelist object associated with this dimension.
 	 */
-	public Dimension(String id, int position, Codelist codeList) {
-		super(id, codeList);
+	public Dimension(String id, int position, Codelist codeList)
+	{
+		super(id);
 		this.position = position;
+		setCodeList(codeList);
 	}
-	
+
 	/**
 	 * Creates an empty dimension.
 	 */
-	public Dimension() {
-		super();
-	}
-        
-	/**
-	 * @return The dimension ordinality in the dataflow structure.
-	 */
-	public int getPosition() {
-		return position;
-	}
-
-	/**
-	 * @param position
-	 */
-	public void setPosition(int position) {
+	public Dimension(String id, int position)
+	{
+		super(id);
 		this.position = position;
 	}
 
-	/* (non-Javadoc)
-	 * @see it.bancaditalia.oss.sdmx.api.SdmxMetaElement#toString()
+	/**
+	 * @return The dimension ordinality in the dataflow structure.
 	 */
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Dimension [id=").append(getId())
-				.append(", position=").append(position)
-				.append(", codelist=").append(getCodeList()).append("]\n");
-		return builder.toString();
+	public int getPosition()
+	{
+		return position;
 	}
 
+	@Override
+	public String toString()
+	{
+		return String.format("Dimension [id=%s, position=%d, codelist=%s]\n", getId(), position, getCodeList());
+	}
 }

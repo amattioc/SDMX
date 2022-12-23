@@ -20,13 +20,15 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v20;
 
+import java.util.List;
+import java.util.Locale.LanguageRange;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
 import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 
 /**
  * @author Attilio Mattiocco
@@ -40,11 +42,8 @@ public class CodelistParser implements Parser<Codelist>{
 	static final String DESCRIPTION = "Description";
 
 	@Override
-	public Codelist parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	public Codelist parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException 
+	{
 		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.parse(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
-	}
-	
-	public static Codelist getCodelist(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
-		return it.bancaditalia.oss.sdmx.parser.v21.CodelistParser.getCodes(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
 } 

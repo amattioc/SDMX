@@ -85,7 +85,7 @@ public class AboutContentFrame extends JDialog
 		buf.append("<h2 style='text-align:center'>Project information and code available on GitHub:</h2>");
 		buf.append(
 				"<p style='text-align:center; font-family: monospace; font-weight: bold'><a href='https://github.com/amattioc/SDMX'><b>amattioc/SDMX</b></a></p>");
-		buf.append("<p style='margin: 50px 0 30px 0; font-size: 90%'>Copyright 2010,2017 Bank Of Italy</p>");
+		buf.append("<p style='margin: 50px 0 30px 0; font-size: 90%'>Copyright 2010-2023 Bank Of Italy</p>");
 		buf.append("<div style='font-style: italic'>");
 		buf.append(
 				"<p><a href='http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2017.128.01.0059.01.ENG'>");

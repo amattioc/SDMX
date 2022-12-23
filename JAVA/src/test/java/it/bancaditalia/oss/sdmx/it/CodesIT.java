@@ -32,9 +32,9 @@ public class CodesIT
 				{ "UNDATA", "DF_UNDATA_COUNTRYDATA", 0,
 						new String[][] { { "3A", "Three-year average" } } },
 				{ "ISTAT", "144_125", 0,
-						new String[][] { { "D", "daily" } } },
-				{ "INSEE", "CNA-2010-CONSO-SI", 0,
-						new String[][] { { "T", "Quarterly" } } },
+						new String[][] { { "D", "giornaliero" } } },
+//				{ "INSEE", "FREQ", 0,
+//						new String[][] { { "T", "Quarterly" } } },
 				{ "ILO", "DF_EMP_TEMP_SEX_AGE_NB", 0, new String[][] { { "ABW", "Aruba" } } },
 				{ "EUROSTAT", "prc_hicp_midx", 0,
 						new String[][] { { "D", "Daily" } } },
@@ -65,7 +65,7 @@ public class CodesIT
 	public void testCodes() throws SdmxException
 	{
 		List<Dimension> dimensions = SdmxClientHandler.getDimensions(provider, dataflow);
-		Codelist codelist = dimensions.get(position).getCodeList();
+		Codelist codelist = (Codelist) dimensions.get(position).getCodeList();
 		assertTrue("Code not found in codelist " + codelist.getFullIdentifier(), codelist.containsKey(expectedCode));
 		assertEquals("Wrong code description for code " + expectedCode + " in codelist " + codelist.getFullIdentifier(), expectedValue,
 				codelist.get(expectedCode));

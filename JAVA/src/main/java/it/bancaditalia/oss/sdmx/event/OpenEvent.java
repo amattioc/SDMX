@@ -1,17 +1,18 @@
 package it.bancaditalia.oss.sdmx.event;
 
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.List;
+import java.util.Locale.LanguageRange;
 
 public class OpenEvent implements RestSdmxEvent
 {
 	private final URL url;
 	private final String mediaType;
-	private final LanguagePriorityList languages;
+	private final List<LanguageRange> languages;
 	private final Proxy proxy;
 
-	public OpenEvent(URL url, String mediaType, LanguagePriorityList languages, Proxy proxy)
+	public OpenEvent(URL url, String mediaType, List<LanguageRange> languages, Proxy proxy)
 	{
 		this.url = url;
 		this.mediaType = mediaType;
@@ -29,7 +30,7 @@ public class OpenEvent implements RestSdmxEvent
 		return mediaType;
 	}
 
-	public LanguagePriorityList getLanguages()
+	public List<LanguageRange> getLanguages()
 	{
 		return languages;
 	}

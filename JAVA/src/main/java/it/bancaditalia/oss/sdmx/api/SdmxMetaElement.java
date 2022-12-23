@@ -20,84 +20,89 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import java.util.Objects;
 
 /**
  * 
  * @author Valentino Pinna
  */
-public class SdmxMetaElement {
-	
+public class SdmxMetaElement
+{
+
 	private String id = null;
-	private Codelist  codeList = null;
+	private SDMXReference codeList = null;
 	private String name;
-	
+
 	/**
 	 * Creates an empty sdmx metadata element.
 	 */
-	public SdmxMetaElement() {
+	public SdmxMetaElement()
+	{
 		super();
 	}
 
 	/**
 	 * Creates a sdmx metadata element with id and codelist
 	 * 
-	 * @param id The id of this metadata element
-	 * @param codeList The codelist of this metadata element
+	 * @param id       The id of this metadata element
 	 */
-	public SdmxMetaElement(String id, Codelist codeList) {
+	public SdmxMetaElement(String id)
+	{
 		super();
 		this.id = id;
-		this.codeList = codeList;
 	}
 
 	/**
 	 * @return The id of this metadata element
 	 */
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
-	/**
-	 * @param id The id of this metadata element
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+
 	/**
 	 * @return The codelist of this metadata element
 	 */
-	public Codelist getCodeList() {
+	public SDMXReference getCodeList()
+	{
 		return codeList;
 	}
+
 	/**
 	 * @param codeList The codelist of this metadata element
 	 */
-	public void setCodeList(Codelist  codeList) {
-		this.codeList = codeList;
+	public void setCodeList(SDMXReference codeList)
+	{
+		this.codeList = Objects.requireNonNull(codeList);
 	}
 
-    /**
-     * @return The name of this metadata element
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * @return The name of this metadata element
+	 */
+	public String getName()
+	{
+		return name;
+	}
 
-    /**
-     * @param name The name of this metadata element
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-        
-	/* (non-Javadoc)
+	/**
+	 * @param name The name of this metadata element
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("Attribute [id=").append(id)
-				.append(", name=").append(name)
-				.append(", codelist=").append(codeList).append("]\n");
+		builder.append("Attribute [id=").append(id).append(", name=").append(name).append(", codelist=")
+				.append(codeList).append("]\n");
 		return builder.toString();
 	}
 

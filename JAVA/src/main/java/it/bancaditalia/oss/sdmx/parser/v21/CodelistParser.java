@@ -23,6 +23,8 @@ package it.bancaditalia.oss.sdmx.parser.v21;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -33,11 +35,11 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -58,34 +60,34 @@ public class CodelistParser implements Parser<Codelist>
 	static final String			REF			= "Ref";
 
 	@Override
-	public Codelist parse(XMLEventReader eventReader, LanguagePriorityList languages)
+	public Codelist parse(XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
 	{
 		return parse(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
 
-	public static Codelist parse(XMLEventReader eventReader, LanguagePriorityList languages, String codelist,
+	public static Codelist parse(XMLEventReader eventReader, List<LanguageRange> languages, String codelist,
 			String code, String id, String description) throws XMLStreamException, SdmxException
 	{
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
-		Codelist codes = getCodes(eventReader, languages, codelist, code, id, description);
+		Codelist codes = getCodes(new SDMXReference(null, null, null), eventReader, languages, codelist, code, id, description);
 
 		logger.exiting(sourceClass, sourceMethod);
 		return codes;
 	}
 
-	public static Codelist getCodes(XMLEventReader eventReader, LanguagePriorityList languages)
+	public static Codelist getCodes(SDMXReference coordinates, XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
 	{
-		return getCodes(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
+		return getCodes(coordinates, eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
 	}
 
-	public static Codelist getCodes(XMLEventReader eventReader, LanguagePriorityList languages,
-			String codelist, String code, String id, String description) throws XMLStreamException, SdmxException
+	public static Codelist getCodes(SDMXReference coordinates, XMLEventReader eventReader, List<LanguageRange> languages,
+			String codelistEvent, String codeEvent, String id, String descriptionEvent) throws XMLStreamException, SdmxException
 	{
-		Map<String, String> codes = new LinkedHashMap<>();
+		Map<String, LocalizedText> codes = new LinkedHashMap<>();
 		Map<String, String> parents = new HashMap<>();
 
 		String key = null;
@@ -98,9 +100,9 @@ public class CodelistParser implements Parser<Codelist>
 			if (event.isStartElement())
 			{
 				StartElement startElement = event.asStartElement();
-				if (code.equals(startElement.getName().getLocalPart()))
+				if (codeEvent.equals(startElement.getName().getLocalPart()))
 				{
-					value.clear();
+					value = new LocalizedText(languages);
 					key = null;
 
 					@SuppressWarnings("unchecked")
@@ -112,7 +114,7 @@ public class CodelistParser implements Parser<Codelist>
 							key = attr.getValue();
 					}
 				}
-				else if (description.equals(startElement.getName().getLocalPart()))
+				else if (descriptionEvent.equals(startElement.getName().getLocalPart()))
 					value.setText(startElement, eventReader);
 				else if (PARENT.equals(startElement.getName().getLocalPart()))
 					parent = true;
@@ -135,15 +137,15 @@ public class CodelistParser implements Parser<Codelist>
 			if (event.isEndElement())
 			{
 				String eventName = event.asEndElement().getName().getLocalPart();
-				if (code.equals(eventName))
+				if (codeEvent.equals(eventName))
 					if (key != null)
 					{
 						logger.finer("Got code " + key + ", " + value.getText());
-						codes.put(key, value.getText());
+						codes.put(key, value);
 					}
 					else
 						throw new SdmxXmlContentException("Error during Codelist Parsing. Invalid code id: " + key);
-				else if (eventName.equals(codelist))
+				else if (codelistEvent.equals(eventName))
 					// stop after first codelist
 					break;
 				else if (PARENT.equals(eventName))
@@ -151,6 +153,6 @@ public class CodelistParser implements Parser<Codelist>
 			}
 		}
 		
-		return new Codelist(codes, parents);
+		return new Codelist(coordinates, codes, parents);
 	}
 }

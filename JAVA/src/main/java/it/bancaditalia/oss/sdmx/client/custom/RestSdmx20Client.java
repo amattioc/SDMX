@@ -28,9 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
+import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
@@ -88,7 +89,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	}
 
 	@Override
-	public DataFlowStructure getDataFlowStructure(DSDIdentifier dsd, boolean full) throws SdmxException
+	public DataFlowStructure getDataFlowStructure(SDMXReference dsd, boolean full) throws SdmxException
 	{
 		if (dsd != null)
 		{
@@ -100,7 +101,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	}
 
 	@Override
-	public Map<String, String> getCodes(String codeList, String agency, String version) throws SdmxException
+	public Codelist getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
 		return runQuery(new CodelistParser(), query, null, null);

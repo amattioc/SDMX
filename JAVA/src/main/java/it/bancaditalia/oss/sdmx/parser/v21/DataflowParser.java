@@ -22,8 +22,8 @@
 package it.bancaditalia.oss.sdmx.parser.v21;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
@@ -33,11 +33,10 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -55,7 +54,7 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String REF = "Ref";
 
 	@Override
-	public List<Dataflow> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException {
+	public List<Dataflow> parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException {
 		List<Dataflow> dfList = new ArrayList<>();
 
 		Dataflow df = null;
@@ -68,59 +67,40 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 
-				if (startElement.getName().getLocalPart() == (DATAFLOW)) {
-					df = new Dataflow();
-					currentName.clear();
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext()) {
-						Attribute attr = attributes.next();
-						String id = null;
-						String agency = null;
-						String version = null;
-						if (attr.getName().toString().equals(ID)) {
-							id = attr.getValue();
-							df.setId(id);
+				if (startElement.getName().getLocalPart() == (DATAFLOW)) 
+				{
+					currentName = new LocalizedText(languages);
+					String id = null, agency = null, version = null;
+					for (Attribute attr: (Iterable<Attribute>) startElement::getAttributes)
+						switch (attr.getName().toString())
+						{
+							case ID: id = attr.getValue(); break;
+							case AGENCY: agency = attr.getValue(); break;
+							case VERSION: version = attr.getValue(); break;
 						}
-						else if (attr.getName().toString().equals(AGENCY)) {
-							agency = attr.getValue();
-							df.setAgency(agency);
-						}
-						else if (attr.getName().toString().equals(VERSION)) {
-							version = attr.getValue();
-							df.setVersion(version);
-						}
-					}
-				}
-				else if (startElement.getName().getLocalPart() == (NAME)) {
-					currentName.setText(startElement, eventReader);
 					
+					df = new Dataflow(id, agency, version);
 				}
-				else if (startElement.getName().getLocalPart() == (REF)) {
-					String id = null;
-					String agency = null;
-					String version = null;
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext()) {
-						Attribute attr = attributes.next();
-						if (attr.getName().toString().equals(ID)) {
-							id = attr.getValue();
+				if (startElement.getName().getLocalPart() == (NAME))
+					currentName.setText(startElement, eventReader);
+				if (startElement.getName().getLocalPart() == (REF))
+				{
+					String id = null, agency = null, version = null;
+					for (Attribute attr: (Iterable<Attribute>) startElement::getAttributes)
+						switch (attr.getName().toString())
+						{
+							case ID: id = attr.getValue(); break;
+							case AGENCY: agency = attr.getValue(); break;
+							case VERSION: version = attr.getValue(); break;
 						}
-						else if (attr.getName().toString().equals(AGENCY)) {
-							agency = attr.getValue();
-						}
-						else if (attr.getName().toString().equals(VERSION)) {
-							version = attr.getValue();
-						}
-					}
-					DSDIdentifier dsd = new DSDIdentifier(id, agency, version);
-					df.setDsdIdentifier(dsd);
+					
+					df.setDsdIdentifier(new SDMXReference(id, agency, version));
 				}
 			}
 			if (event.isEndElement()) {
 				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
+				if (endElement.getName().getLocalPart() == (DATAFLOW)) 
+				{
 					df.setName(currentName.getText());
 					dfList.add(df);
 				}

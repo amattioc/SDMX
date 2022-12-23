@@ -22,6 +22,9 @@ package it.bancaditalia.oss.sdmx.util;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
@@ -29,22 +32,22 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
-public class LocalizedText {
+public class LocalizedText
+{
 	private static final String LANG = "lang";
 	
-	private final LanguagePriorityList languages;
-	private final Map<String, String> data;
+	private final List<LanguageRange> languages;
+	private final Map<String, String> data = new LinkedHashMap<>();
 
-	public LocalizedText(LanguagePriorityList languages) {
-		super();
+	public LocalizedText(List<LanguageRange> languages)
+	{
 		this.languages = languages;
-		this.data = new LinkedHashMap<>();
 	}
 
-	private void put(String lang, String text) {
-		if (text != null) {
+	private void put(String lang, String text)
+	{
+		if (text != null)
 			data.put(lang, text);
-		}
 	}
 	
 	/**
@@ -52,26 +55,24 @@ public class LocalizedText {
 	 * @return a text by using the best matching language if available
 	 * or the first parsed text otherwise or null if nothing is available
 	 */
-	public String getText() {
-		if (data.isEmpty()) {
+	public String getText()
+	{
+		if (data.isEmpty())
 			return null;
-		}
-		String lang = languages.lookupTag(data.keySet());
+
+		String lang = Locale.lookupTag(languages, data.keySet());
 		return lang != null ? data.get(lang) : data.values().iterator().next();
 	}
 
-	public void setText(StartElement startElement, XMLEventReader eventReader) throws XMLStreamException{
+	public void setText(StartElement startElement, XMLEventReader eventReader) throws XMLStreamException
+	{
 		@SuppressWarnings("unchecked")
 		Iterator<Attribute> attributes = startElement.getAttributes();
-		while (attributes.hasNext()) {
+		while (attributes.hasNext())
+		{
 			Attribute attribute = attributes.next();
-			if (attribute.getName().getLocalPart().equals(LANG)) {
+			if (attribute.getName().getLocalPart().equals(LANG))
 				put(attribute.getValue(), eventReader.getElementText());
-			}
 		}
-	}
-	
-	public void clear(){
-		data.clear();
 	}
 }

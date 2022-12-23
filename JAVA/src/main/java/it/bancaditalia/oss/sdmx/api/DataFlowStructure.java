@@ -33,13 +33,9 @@ import java.util.Map;
  * @author Attilio Mattiocco
  *
  */
-public class DataFlowStructure
+public class DataFlowStructure extends SDMXReference
 {
-
-	private String								id;
 	private String								name;
-	private String								agency;
-	private String								version;
 	private String								timeDimension;
 	private String								primaryMeasure;
 
@@ -48,22 +44,11 @@ public class DataFlowStructure
 	private final Map<String, Dimension>		dimensions	= new HashMap<>();
 	private final Map<String, SdmxAttribute>	attributes	= new HashMap<>();
 
-	/**
-	 * @return This dataflow structure id
-	 */
-	public String getId()
+	public DataFlowStructure(String id, String agency, String version)
 	{
-		return id;
+		super(id, agency, version);
 	}
-
-	/**
-	 * @param id
-	 */
-	public void setId(String id)
-	{
-		this.id = id;
-	}
-
+	
 	/**
 	 * @param name This dataflow structure name
 	 */
@@ -78,38 +63,6 @@ public class DataFlowStructure
 	public String getName()
 	{
 		return name;
-	}
-
-	/**
-	 * @return This dataflow structure agency
-	 */
-	public String getAgency()
-	{
-		return agency;
-	}
-
-	/**
-	 * @param agency This dataflow structure agency
-	 */
-	public void setAgency(String agency)
-	{
-		this.agency = agency;
-	}
-
-	/**
-	 * @return This dataflow structure version
-	 */
-	public String getVersion()
-	{
-		return version;
-	}
-
-	/**
-	 * @param version This dataflow structure version
-	 */
-	public void setVersion(String version)
-	{
-		this.version = version;
 	}
 
 	/**
@@ -210,23 +163,6 @@ public class DataFlowStructure
 	public String getTimeDimension()
 	{
 		return timeDimension;
-	}
-
-	/**
-	 * @return The full identifier of this dataflow structure in the form "agency/id/version".
-	 */
-	public String getFullIdentifier()
-	{
-		String dsd = id;
-		if (agency != null)
-		{
-			dsd = agency + "/" + dsd;
-		}
-		if (version != null)
-		{
-			dsd = dsd + "/" + version;
-		}
-		return dsd;
 	}
 
 	/*

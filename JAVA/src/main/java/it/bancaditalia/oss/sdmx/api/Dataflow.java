@@ -27,114 +27,72 @@ package it.bancaditalia.oss.sdmx.api;
  * @author Attilio Mattiocco
  * 
  */
-public class Dataflow {
-
-	private String id;
+public class Dataflow extends SDMXReference
+{
 	private String name; // the description
-	private String agency;
-	private String version;
-	private DSDIdentifier dsdIdentifier;
+	private SDMXReference dsdIdentifier;
 
-	/**
-	 * @return This dataflow id
-	 */
-	public String getId() {
-		return id;
+	public Dataflow(SDMXReference other)
+	{
+		super(other);
 	}
-
-	/**
-	 * @param id
-	 */
-	public void setId(String id) {
-		this.id = id;
+	
+	public Dataflow(String id, String agency, String version)
+	{
+		super(id, agency, version);
 	}
 
 	/**
 	 * @return The dataflow description.
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return name;
 	}
 
 	/**
-	 * @return The dataflow extended name in the form "agency/id/version ; description". 
+	 * @return The dataflow extended name in the form "agency/id/version ;
+	 *         description".
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return getFullIdentifier() + " ; " + name;
 	}
 
 	/**
 	 * @param name
 	 */
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 
 	/**
-	 * @return The dataflow agency
+	 * @return The DSDIdentifier for this dataflow
 	 */
-	public String getAgency() {
-		return agency;
-	}
-
-	/**
-	 * @param agency
-	 */
-	public void setAgency(String agency) {
-		this.agency = agency;
-	}
-
-	/**
-	 * @return The dataflow version
-	 */
-	public String getVersion() {
-		return version;
-	}
-
-	/**
-	 * @param version
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	/**
-	 * @return The DSDIdentifier for this dataflow 
-	 */
-	public DSDIdentifier getDsdIdentifier() {
+	public SDMXReference getDsdIdentifier()
+	{
 		return dsdIdentifier;
 	}
 
 	/**
 	 * @param dsdIdentifier
 	 */
-	public void setDsdIdentifier(DSDIdentifier dsdIdentifier) {
+	public void setDsdIdentifier(SDMXReference dsdIdentifier)
+	{
 		this.dsdIdentifier = dsdIdentifier;
 	}
-
-	/**
-	 * @return The full identifier of this dataflow in the form "agency/id/version".
-	 */
-	public String getFullIdentifier() {
-		String dsd = id;
-		if(agency!=null){
-			dsd = agency + "," + dsd;
-		}
-		if(version!=null){
-			dsd = dsd +  "," + version;
-		}
-		return dsd;
+	
+	// TODO: use super
+	@Override
+	public String getFullIdentifier()
+	{
+		return getFullIdWithSep(',');
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Dataflow [id=").append(getFullIdentifier())
-			.append(",\n name=").append(name)
-			.append(",\n dsd=").append(dsdIdentifier).append("]");
-		return builder.toString();
+	public String toString()
+	{
+		return String.format("Dataflow [id=%s,\n name=%s,\n dsd=%s]", getFullIdentifier(), name, dsdIdentifier);
 	}
 }

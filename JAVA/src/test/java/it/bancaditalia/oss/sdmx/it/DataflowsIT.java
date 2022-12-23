@@ -29,12 +29,12 @@ public class DataflowsIT
 				{ "EUROSTAT",         "prc_hicp_midx",                   "prc_hicp_midx",                 "HICP - monthly data (index)" },
 				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", "DF_EMP_TEMP_SEX_AGE_NB", "Employment by sex and age" },
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
-				{ "INSEE",            null,                              "CNA-2010-CONSO-SI",             "Final consumption expenditure by institutional sectors - Results by transaction and product" },
+				{ "INSEE",            "BALANCE-PAIEMENTS",               "BALANCE-PAIEMENTS",             "Balance of payments" },
 				{ "WITS",             "*Tariff*",                        "DF_WITS_Tariff_TRAINS",         "WITS - UNCTAD TRAINS Tariff Data" },
 				{ "WB",               "WDI",                             "WDI",                           "World Development Indicators" },
 				{ "UNDATA",           null,                              "DF_UNDATA_COUNTRYDATA",         "SDMX-CountryData" },
 				{ "OECD",             "AEO",                             "AEO",                           "African Economic Outlook" },
-				{ "ISTAT",            null,                              "144_125",                       "Nic - annual data until 2010" },
+				{ "ISTAT",            null,                              "144_125",                       "Nic - annuali sino al  2010" },
     		}, 0);
     }
 

@@ -76,7 +76,7 @@ public class EUROSTAT extends RestSdmxClient{
 				
 				for(int i = 1; i <= retries; i++)
 				{
-					logger.info("Trying late retrieval with URL: " + url + ". Attempt n: " + i);
+					LOGGER.info("Trying late retrieval with URL: " + url + ". Attempt n: " + i);
 					try {
 						Thread.sleep(sleepTime);
 					} catch (InterruptedException e1) {
@@ -87,9 +87,9 @@ public class EUROSTAT extends RestSdmxClient{
 						String dumpName = "data_" + dataflow.getId() + "_" + resource; //.replaceAll("\\p{Punct}", "_");
 						return postProcess(runQuery(parser, new URL(msg.getUrl()), null, dumpName));
 					} catch (MalformedURLException e) {
-						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						LOGGER.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					} catch (SdmxResponseException e) {
-						logger.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						LOGGER.info("Late retrieval attempt " + i + " failed with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
 					}
 				}
 			}

@@ -4,25 +4,43 @@ import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlow;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries;
 import static java.lang.Integer.MAX_VALUE;
+import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Collections.singletonList;
+import static java.util.Locale.forLanguageTag;
+import static java.util.ResourceBundle.getBundle;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINEST;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static java.util.stream.Collectors.joining;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import static javax.swing.SortOrder.ASCENDING;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,17 +78,20 @@ import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultEditorKit;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
@@ -85,6 +106,8 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
 
 public class SDMXHelper extends JFrame
 {
+	private static final String TOOLTIP_FORMAT = "<html><p style='text-align: center'>%1$tF<br />%1$tT.%1$tL</p></html>";
+
 	public static final Action COPY_ACTION = new DefaultEditorKit.CopyAction();
 
 	static final Image ICON_MIN;
@@ -98,26 +121,25 @@ public class SDMXHelper extends JFrame
 		} 
 		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
 		{
-			throw new RuntimeException("Operating system must provide a valid graphic environment", e);
+			final ExceptionInInitializerError e1 = new ExceptionInInitializerError("Operating system must provide a valid graphic environment."); //$NON-NLS-1$
+			e1.initCause(e);
+			throw e1;
 		}
 		
 		try
 		{
-			ICON_MIN = ImageIO.read(SDMXHelper.class.getResourceAsStream("min.png"));
-			ICON_MAX = ImageIO.read(SDMXHelper.class.getResourceAsStream("max.png"));
+			ICON_MIN = ImageIO.read(SDMXHelper.class.getResourceAsStream("min.png")); //$NON-NLS-1$
+			ICON_MAX = ImageIO.read(SDMXHelper.class.getResourceAsStream("max.png")); //$NON-NLS-1$
 		}
 		catch (Exception e)
 		{
 			final AtomicBoolean finished = new AtomicBoolean(false);
-			if (!GraphicsEnvironment.isHeadless())
-				SwingUtilities.invokeLater(() -> {
-						JOptionPane.showMessageDialog(null, "Cannot load resources from jar file.", "SDMX Helper", JOptionPane.ERROR_MESSAGE);
-						finished.set(true);
-					});
-			else
-				finished.set(true);
+			SwingUtilities.invokeLater(() -> {
+					JOptionPane.showMessageDialog(null, "Cannot load resources from jar file.", "SDMXHelper", ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+					finished.set(true);
+				});
 			
-			while (!finished.get() && !Thread.interrupted())
+			while (!finished.get() && !Thread.currentThread().isInterrupted())
 				try
 				{
 					Thread.sleep(500);
@@ -134,44 +156,68 @@ public class SDMXHelper extends JFrame
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Configuration.getSdmxLogger();
 	private static final String[] HELP = {
-			"Obtains a token for accessing Thomson Reuters Datastream Webservices, and print it to standard output.",
-			"", "java " + SDMXHelper.class.getName() + " [-s <provider>]", "",
-			"    -s    Enable \"print query\" button and lock SDMXHelper on the specified provider." };
+			"Opens the SDMX Helper navigation tool window.", //$NON-NLS-1$
+			"", "java " + SDMXHelper.class.getName() + " [-s <provider>]", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"    -s    Enable \"print query\" button and lock SDMXHelper on the specified provider." }; //$NON-NLS-1$
 
-
-	private final JLabel queryLabel;
+	private final JLabel queryLabel = new JLabel();
 	private final JTextField sdmxQueryTextField = new JTextField();
 	private final JTextField codesFilterTextField = new JTextField();
-	private final JTextField dataflowFilterTextField;
+	private final JTextField dataflowFilterTextField = new JTextField();
 	private final JTable dataflowsTable = new JTable();
-	private final JLabel codelistLabel;
-	private final JTable dimensionsTable;
-	private final JTable codesTable;
-	private final JButton checkQueryButton;
-	private final JButton btnPrintQuery;
+	private final JLabel codelistLabel = new JLabel();
+	private final JTable dimensionsTable = new JTable();
+	private final JTable codesTable = new JTable();
+	private final JButton checkQueryButton = new JButton();
+	private final JButton btnPrintQuery = new JButton();
 	private final ButtonGroup selectedProviderGroup = new ButtonGroup();
 	private final DataflowsModel dataflowsTableModel = new DataflowsModel();
-	private final EnumedListTableModel<Dimension> dimsTableModel = new EnumedListTableModel<>(
-			"Dimension", "Description");
+	private final EnumedListTableModel<Dimension> dimsTableModel = new EnumedListTableModel<>();
 	private final HashMap<String, TableRowSorter<CheckboxListTableModel<String>>> codelistSortersMap = new HashMap<>();
-	private final JCheckBox regexSearchCLCheckbox = new JCheckBox("Regular expression");
-	private final JCheckBox caseSearchCLCheckbox = new JCheckBox("Case sensitive");
-	private final JCheckBox wholeWordCLCheckbox = new JCheckBox("Whole word");
-	private final JRadioButton searchCodeCLRadio = new JRadioButton("Code");
-	private final JRadioButton searchDescCLRadio = new JRadioButton("Description");
-	private final JRadioButton searchBothCLRadio = new JRadioButton("Search Both");
+	private final JCheckBox regexSearchCLCheckbox = new JCheckBox();
+	private final JCheckBox caseSearchCLCheckbox = new JCheckBox();
+	private final JCheckBox wholeWordCLCheckbox = new JCheckBox();
+	private final JRadioButton searchCodeCLRadio = new JRadioButton();
+	private final JRadioButton searchDescCLRadio = new JRadioButton();
+	private final JRadioButton searchBothCLRadio = new JRadioButton();
 	private final ButtonGroup codeSearchRadioGroup = new ButtonGroup();
-	private final JRadioButton searchCodeFlowRadio = new JRadioButton("Search Dataflow Code");
-	private final JRadioButton searchDSDFlowRadio = new JRadioButton("Search DSD Code");
-	private final JRadioButton searchDescFlowRadio = new JRadioButton("Search Description");
-	private final JRadioButton searchAllFlowRadio = new JRadioButton("Search all fields");
-	private final JCheckBox wholeWordFlowCheckbox = new JCheckBox("Whole word");
-	private final JCheckBox caseSearchFlowCheckbox = new JCheckBox("Case sensitive");
-	private final JCheckBox regexSearchFlowCheckbox = new JCheckBox("Regular expression");
+	private final JRadioButton searchCodeFlowRadio = new JRadioButton();
+	private final JRadioButton searchDSDFlowRadio = new JRadioButton();
+	private final JRadioButton searchDescFlowRadio = new JRadioButton();
+	private final JRadioButton searchAllFlowRadio = new JRadioButton();
+	private final JCheckBox wholeWordFlowCheckbox = new JCheckBox();
+	private final JCheckBox caseSearchFlowCheckbox = new JCheckBox();
+	private final JCheckBox regexSearchFlowCheckbox = new JCheckBox();
 	private final ButtonGroup flowSearchRadioGroup = new ButtonGroup();
 	private final JTextField dimensionFilterTextField = new JTextField();
 	private final TableRowSorter<EnumedListTableModel<Dimension>> dimTableSorter = new TableRowSorter<>(dimsTableModel);
-
+	private final JMenuItem mntmAddProvider = new JMenuItem();
+	private final JMenuItem mntmBuildCommands = new JMenuItem();
+	private final JMenuItem mntmCopySelection = new JMenuItem(COPY_ACTION);
+	private final JMenu mnActions = new JMenu();
+	private final JMenu providersMenu = new JMenu();
+	private final JMenu mnLanguage = new JMenu(); 
+	private final JMenu mnLogLevel = new JMenu();
+	private final JMenu mnHelp = new JMenu();
+	private final JMenuItem mntmAboutSdmxConnectors = new JMenuItem();
+	private final JLabel dataflowFilterLabel = new JLabel();
+	private final JLabel dimensionLabel = new JLabel();
+	private final JButton toggleVisibleButton = new JButton();
+	private final JButton btnClearSelectedDimension = new JButton();
+	private final TitledBorder dataflowsPanelBorder = createTitledBorder();
+	private final TitledBorder finalqueryPanelBorder = createTitledBorder();
+	private final TitledBorder dimensionsPanelBorder = createTitledBorder();
+	private final TitledBorder codesPanelBorder = createTitledBorder();
+	private final JRadioButtonMenuItem mntmLogLevels[] = {
+			new JRadioButtonMenuItem(),
+			new JRadioButtonMenuItem(),
+			new JRadioButtonMenuItem("", true), //$NON-NLS-1$
+			new JRadioButtonMenuItem(),
+			new JRadioButtonMenuItem()
+		};
+	private String noResultsMessage;
+	private String resultsCountMessage;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -179,7 +225,7 @@ public class SDMXHelper extends JFrame
 	{
 		String lockedProvider = null;
 
-		if (args.length > 0 && (args.length == 1 || args.length > 2 || !"-s".equals(args[0])))
+		if (args.length > 0 && (args.length == 1 || args.length > 2 || !"-s".equals(args[0]))) //$NON-NLS-1$
 		{
 			for (String helpStr : HELP)
 				System.err.println(helpStr);
@@ -225,33 +271,29 @@ public class SDMXHelper extends JFrame
 	 */
 	public SDMXHelper(boolean exitOnClose, String lockedProvider)
 	{
+		String preferredLanguage = Configuration.getLanguages().iterator().next().getRange();
+		ResourceBundle bundle = getBundle("it.bancaditalia.oss.sdmx.helper.bundles.HelperResources", forLanguageTag(preferredLanguage));
 		if (lockedProvider != null)
-			if ("".equals(lockedProvider.trim()))
+			if ("".equals(lockedProvider.trim())) //$NON-NLS-1$
 				lockedProvider = null;
 			else
-				LOGGER.info("Picking provider " + lockedProvider);
-
-		setTitle("SDMX Helper Tool");
+				LOGGER.info(bundle.getString("SDMXHelper.28") + lockedProvider); //$NON-NLS-1$
+		
 		setSize(1024, 768);
 		setDefaultCloseOperation(exitOnClose ? JFrame.EXIT_ON_CLOSE : JFrame.HIDE_ON_CLOSE);
 
 		final JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		final JMenu providersMenu = new JMenu("Providers");
 		menuBar.add(providersMenu);
 
-		final JMenu mnActions = new JMenu("Actions");
 		mnActions.setMnemonic(KeyEvent.VK_A);
 		menuBar.add(mnActions);
 
-		final JMenuItem mntmCopySelection = new JMenuItem(COPY_ACTION);
-		mntmCopySelection.setActionCommand("Copy selection");
+		mntmCopySelection.setActionCommand(bundle.getString("SDMXHelper.33")); //$NON-NLS-1$
 		mntmCopySelection.setMnemonic(KeyEvent.VK_COPY);
-		mntmCopySelection.setText("Copy selection");
 		mnActions.add(mntmCopySelection);
 
-		final JMenuItem mntmBuildCommands = new JMenuItem("Build commands");
 		mntmBuildCommands.setMnemonic(KeyEvent.VK_B);
 		mntmBuildCommands.addActionListener(paramActionEvent -> {
 				try
@@ -262,16 +304,11 @@ public class SDMXHelper extends JFrame
 				} 
 				catch (SdmxException ex)
 				{
-					LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-					LOGGER.log(Level.FINER, "", ex);
+					LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+					LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
 				}
 			});
-		mnActions.add(mntmBuildCommands);
 
-		JSeparator separator = new JSeparator();
-		mnActions.add(separator);
-
-		JMenuItem mntmAddProvider = new JMenuItem("Add provider...");
 		mntmAddProvider.addActionListener(event -> {
 					NewProviderDialog newProviderDialog = new NewProviderDialog();
 					if (newProviderDialog.getResult() == JOptionPane.OK_OPTION)
@@ -291,12 +328,48 @@ public class SDMXHelper extends JFrame
 						}
 				});
 		mntmAddProvider.setMnemonic(KeyEvent.VK_P);
-		mnActions.add(mntmAddProvider);
 
-		JMenu mnHelp = new JMenu("Help");
+		ButtonGroup langGroup = new ButtonGroup();
+		HashSet<String> guiLanguages = new HashSet<>();
+		guiLanguages.add("en"); //$NON-NLS-1$
+		guiLanguages.add("it"); //$NON-NLS-1$
+		guiLanguages.add("fr"); //$NON-NLS-1$
+		for (LanguageRange r: LanguageRange.parse("en,de,fr,it"))
+		{
+			final String langCode = r.getRange();
+			Locale locale = Locale.forLanguageTag(langCode);
+			ResourceBundle localBundle = getBundle("it.bancaditalia.oss.sdmx.helper.bundles.HelperResources", locale);
+			String langName = locale.getDisplayLanguage(locale).substring(0, 1).toUpperCase() + locale.getDisplayLanguage(locale).substring(1);
+			JRadioButtonMenuItem mntmLanguage = new JRadioButtonMenuItem(
+					String.format(localBundle.getString("SDMXHelper.8"), langName), langCode.equals(preferredLanguage)); //$NON-NLS-1$
+			mntmLanguage.addActionListener(e -> {
+				LOGGER.info(format(localBundle.getString("SDMXHelper.7"), langName)); //$NON-NLS-1$
+				updateBundle(localBundle);
+			});
+			langGroup.add(mntmLanguage);
+			mnLanguage.add(mntmLanguage);
+		}
+
+		mnActions.add(mntmBuildCommands);
+		mnActions.add(new JSeparator());
+		mnActions.add(mntmAddProvider);
+		mnActions.add(new JSeparator());
+		mnActions.add(mnLanguage);
+
+		Level levelVals[] = { SEVERE, WARNING, INFO, FINE, FINEST }; 
+		ButtonGroup logGroup = new ButtonGroup();
+		for (int i = 0; i < mntmLogLevels.length; i++)
+		{
+			JRadioButtonMenuItem level = mntmLogLevels[i];
+			Level val = levelVals[i];
+			level.addActionListener(e -> Configuration.getSdmxLogger().setLevel(val));
+			logGroup.add(level);
+			mnLogLevel.add(level);
+		}
+		mnActions.add(mnLogLevel);
+
 		menuBar.add(mnHelp);
 
-		JMenuItem mntmAboutSdmxConnectors = new JMenuItem("About SDMX Connectors...");
 		mntmAboutSdmxConnectors.addActionListener(event -> new AboutContentFrame());
 		mnHelp.add(mntmAboutSdmxConnectors);
 
@@ -314,15 +387,10 @@ public class SDMXHelper extends JFrame
 		finalqueryPanel.setMinimumSize(new java.awt.Dimension(10, 70));
 		finalqueryPanel.setPreferredSize(new java.awt.Dimension(10, 60));
 		finalqueryPanel.setLayout(new BoxLayout(finalqueryPanel, BoxLayout.X_AXIS));
-		finalqueryPanel.setBorder(new CompoundBorder(
-				new EmptyBorder(5, 5, 0, 5), new CompoundBorder(
-					new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Query",
-						TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
-					new EmptyBorder(5, 5, 5, 5))));
+		finalqueryPanel.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 0, 5), 
+				new CompoundBorder(finalqueryPanelBorder, new EmptyBorder(5, 5, 5, 5))));
 		queryAndFlowPanel.add(finalqueryPanel);
 
-		queryLabel = new JLabel();
-		queryLabel.setText("Result query:");
 		queryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		queryLabel.setPreferredSize(new java.awt.Dimension(150, 14));
 		queryLabel.setMinimumSize(new java.awt.Dimension(200, 14));
@@ -341,21 +409,19 @@ public class SDMXHelper extends JFrame
 		Component horizontalStrut_1 = Box.createHorizontalStrut(10);
 		finalqueryPanel.add(horizontalStrut_1);
 
-		checkQueryButton = new JButton("Check query");
 		checkQueryButton.setEnabled(false);
-		checkQueryButton.setPreferredSize(new java.awt.Dimension(120, 23));
-		checkQueryButton.setMinimumSize(new java.awt.Dimension(120, 23));
-		checkQueryButton.setMaximumSize(new java.awt.Dimension(120, 23));
+//		checkQueryButton.setPreferredSize(new java.awt.Dimension(170, 23));
+		checkQueryButton.setMinimumSize(new java.awt.Dimension(100, 23));
+		checkQueryButton.setMaximumSize(new java.awt.Dimension(300, 23));
 		checkQueryButton.addActionListener(e -> displayQueryResults());
 		finalqueryPanel.add(checkQueryButton);
 
 		Component horizontalStrut_5 = Box.createHorizontalStrut(10);
 
-		btnPrintQuery = new JButton("Print query & exit");
 		btnPrintQuery.setEnabled(false);
-		btnPrintQuery.setPreferredSize(new java.awt.Dimension(120, 23));
-		btnPrintQuery.setMinimumSize(new java.awt.Dimension(120, 23));
-		btnPrintQuery.setMaximumSize(new java.awt.Dimension(120, 23));
+		btnPrintQuery.setPreferredSize(new java.awt.Dimension(240, 23));
+		btnPrintQuery.setMinimumSize(new java.awt.Dimension(240, 23));
+		btnPrintQuery.setMaximumSize(new java.awt.Dimension(240, 23));
 		btnPrintQuery.addActionListener(e -> {
 				System.out.println(sdmxQueryTextField.getText());
 				System.exit(0);
@@ -370,11 +436,8 @@ public class SDMXHelper extends JFrame
 		JPanel dataflowsPanel = new JPanel();
 		dataflowsPanel.setPreferredSize(new java.awt.Dimension(10, 150));
 		dataflowsPanel.setMinimumSize(new java.awt.Dimension(10, 150));
-		dataflowsPanel.setBorder(new CompoundBorder(
-				new EmptyBorder(0, 5, 5, 5), new CompoundBorder(
-					new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Dataflow selection",
-						TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
-					new EmptyBorder(10, 10, 10, 10))));
+		dataflowsPanel.setBorder(new CompoundBorder( new EmptyBorder(0, 5, 5, 5), 
+				new CompoundBorder(dataflowsPanelBorder, new EmptyBorder(10, 10, 10, 10))));
 		queryAndFlowPanel.add(dataflowsPanel);
 		dataflowsPanel.setLayout(new BoxLayout(dataflowsPanel, BoxLayout.Y_AXIS));
 
@@ -383,8 +446,6 @@ public class SDMXHelper extends JFrame
 		dataflowsPanel.add(dataflowFilterPanel);
 		dataflowFilterPanel.setLayout(new BoxLayout(dataflowFilterPanel, BoxLayout.X_AXIS));
 
-		// Dataflow selection filter
-		JLabel dataflowFilterLabel = new JLabel("Filter flows by name or description:");
 		dataflowFilterPanel.add(dataflowFilterLabel);
 
 		Component horizontalStrut_2 = Box.createHorizontalStrut(10);
@@ -393,16 +454,15 @@ public class SDMXHelper extends JFrame
 		final TableRowSorter<DataflowsModel> dataflowsTableSorter = new TableRowSorter<>(dataflowsTableModel);
 		dataflowsTableSorter.setSortKeys(singletonList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 
-		dataflowFilterTextField = new JTextField();
 		dataflowFilterTextField.setPreferredSize(new java.awt.Dimension(6, 25));
 		dataflowFilterTextField.setMaximumSize(new java.awt.Dimension(2147483647, 25));
 		dataflowFilterTextField.setFont(new Font(null, Font.BOLD, 16));
 		dataflowFilterTextField.setForeground(Color.RED);
 			
 		final DoFilterListener flowListener = new DoFilterListener(dataflowFilterTextField, text -> {
-				String searchPattern = caseSearchFlowCheckbox.isSelected() ? "": "(?i)";
+				String searchPattern = caseSearchFlowCheckbox.isSelected() ? "": "(?i)"; //$NON-NLS-1$ //$NON-NLS-2$
 				searchPattern += regexSearchFlowCheckbox.isSelected() ? text : Pattern.quote(text);
-				searchPattern = wholeWordFlowCheckbox.isSelected() ? "^" + searchPattern + "$" : searchPattern;  
+				searchPattern = wholeWordFlowCheckbox.isSelected() ? "^" + searchPattern + "$" : searchPattern;   //$NON-NLS-1$ //$NON-NLS-2$
 				
 				try 
 				{
@@ -441,11 +501,8 @@ public class SDMXHelper extends JFrame
 		horizontalSplitPane.setLeftComponent(dimensionsPanel);
 		dimensionsPanel.setPreferredSize(new java.awt.Dimension(400, 200));
 		dimensionsPanel.setMinimumSize(new java.awt.Dimension(200, 150));
-		dimensionsPanel.setBorder(new CompoundBorder(
-				new EmptyBorder(5, 5, 5, 5), new CompoundBorder(
-					new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Dimension selection",
-						TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
-					new EmptyBorder(10, 10, 10, 10))));
+		dimensionsPanel.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), 
+				new CompoundBorder(dimensionsPanelBorder, new EmptyBorder(10, 10, 10, 10))));
 		dimensionsPanel.setLayout(new BoxLayout(dimensionsPanel, BoxLayout.Y_AXIS));
 
 		Box dimensionFilterBox = Box.createHorizontalBox();
@@ -454,7 +511,6 @@ public class SDMXHelper extends JFrame
 		dimensionFilterBox.setMaximumSize(new java.awt.Dimension(32768, 25));
 		dimensionsPanel.add(dimensionFilterBox);
 
-		JLabel dimensionLabel = new JLabel("Dimension to edit:");
 		dimensionFilterBox.add(dimensionLabel);
 
 		Component horizontalStrut_3 = Box.createHorizontalStrut(10);
@@ -473,11 +529,8 @@ public class SDMXHelper extends JFrame
 		horizontalSplitPane.setRightComponent(codesPanel);
 		codesPanel.setPreferredSize(new java.awt.Dimension(400, 200));
 		codesPanel.setMinimumSize(new java.awt.Dimension(200, 150));
-		codesPanel.setBorder(new CompoundBorder(
-				new EmptyBorder(5, 5, 5, 5), new CompoundBorder(
-					new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Codelist selection",
-						TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)),
-					new EmptyBorder(10, 10, 10, 10))));
+		codesPanel.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new CompoundBorder(
+					codesPanelBorder, new EmptyBorder(10, 10, 10, 10))));
 		codesPanel.setLayout(new BoxLayout(codesPanel, BoxLayout.Y_AXIS));
 
 		Box codesFilterBox = Box.createHorizontalBox();
@@ -486,7 +539,6 @@ public class SDMXHelper extends JFrame
 		codesFilterBox.setMaximumSize(new java.awt.Dimension(32768, 25));
 		codesPanel.add(codesFilterBox);
 
-		codelistLabel = new JLabel("Filter codes:");
 		codesFilterBox.add(codelistLabel);
 
 		Component horizontalStrut_4 = Box.createHorizontalStrut(10);
@@ -498,22 +550,10 @@ public class SDMXHelper extends JFrame
 		codeOptionsPane.setMaximumSize(new java.awt.Dimension(32768, 25));
 		codesPanel.add(codeOptionsPane);
 
-		codesTable = new JTable() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void editingStopped(ChangeEvent e)
-			{
-				super.editingStopped(e);
-
-				updateCodelistCount();
-			}
-		};
-		
 		final DoFilterListener codeFilterListener = new DoFilterListener(codesFilterTextField, text -> {
-				String searchPattern = caseSearchCLCheckbox.isSelected() ? "": "(?i)";
+				String searchPattern = caseSearchCLCheckbox.isSelected() ? "": "(?i)"; //$NON-NLS-1$ //$NON-NLS-2$
 				searchPattern += regexSearchCLCheckbox.isSelected() ? text : Pattern.quote(text);
-				searchPattern = wholeWordCLCheckbox.isSelected() ? "^" + searchPattern + "$" : searchPattern;  
+				searchPattern = wholeWordCLCheckbox.isSelected() ? "^" + searchPattern + "$" : searchPattern;   //$NON-NLS-1$ //$NON-NLS-2$
 				
 				try 
 				{
@@ -587,11 +627,10 @@ public class SDMXHelper extends JFrame
 		codesPanel.add(codelistScrollPane);
 
 		codesFilterTextField.setForeground(Color.RED);
-		codesFilterTextField.setFont(new Font("Dialog", Font.BOLD, 16));
+		codesFilterTextField.setFont(new Font("Dialog", Font.BOLD, 16)); //$NON-NLS-1$
 		codesFilterTextField.getDocument().addDocumentListener(codeFilterListener);
 		codesFilterBox.add(codesFilterTextField);
 
-		JButton toggleVisibleButton = new JButton("Toggle unfiltered rows");
 		toggleVisibleButton.addActionListener(e -> {
 					for (int i = 0; i < codesTable.getRowCount(); i++)
 						codesTable.setValueAt(
@@ -604,13 +643,11 @@ public class SDMXHelper extends JFrame
 		codesTable.setAutoCreateColumnsFromModel(false);
 		DefaultTableColumnModel codesTableColumnModel = new DefaultTableColumnModel();
 		TableColumn columns[] = new TableColumn[] { new TableColumn(0), new TableColumn(1), new TableColumn(2) };
-		String columnHeaders[] = { "", "Code ID", "Code Description" };
 		int minWidths[] =        { 30, 100,       200 };
 		int maxWidths[] =        { 30, MAX_VALUE, MAX_VALUE };
 		int preferredWidths[] =  { 30, 100,       400 };
 		for (int i = 0; i < columns.length; i++)
 		{
-			columns[i].setHeaderValue(columnHeaders[i]);
 			columns[i].setMinWidth(minWidths[i]);
 			columns[i].setMaxWidth(maxWidths[i]);
 			columns[i].setPreferredWidth(preferredWidths[i]);
@@ -620,11 +657,23 @@ public class SDMXHelper extends JFrame
 		codesTable.setColumnModel(codesTableColumnModel);
 		codesTable.getTableHeader().setReorderingAllowed(false);
 		codesTable.getTableHeader().setResizingAllowed(true);
+		codesTable.getDefaultEditor(Boolean.class).addCellEditorListener(new CellEditorListener() {
+			@Override
+			public void editingStopped(ChangeEvent e)
+			{
+				updateCodelistCount();
+			}
+			
+			@Override
+			public void editingCanceled(ChangeEvent e)
+			{
+
+			}
+		});
 		codelistScrollPane.setViewportView(codesTable);
 
 		dimTableSorter.setSortKeys(singletonList(new SortKey(0, SortOrder.ASCENDING)));
 
-		dimensionsTable = new JTable();
 		dimensionsTable.setModel(dimsTableModel);
 		dimensionsTable.getColumnModel().getColumn(0).setMinWidth(20);
 		dimensionsTable.getColumnModel().getColumn(0).setMaxWidth(20);
@@ -641,7 +690,7 @@ public class SDMXHelper extends JFrame
 		dimensionFilterTextField.setFont(new Font(null, Font.BOLD, 16));
 		dimensionFilterTextField.setForeground(Color.RED);
 		dimensionFilterTextField.getDocument().addDocumentListener(new DoFilterListener(dimensionFilterTextField, 
-				pattern -> dimTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(pattern)))));
+				pattern -> dimTableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(pattern))))); //$NON-NLS-1$
 		dimensionFilterBox.add(dimensionFilterTextField);
 
 		// Dataflow table setup
@@ -727,27 +776,65 @@ public class SDMXHelper extends JFrame
 		dataflowsScrollPane.setViewportView(dataflowsTable);
 		dataflowsPanel.add(dataflowsScrollPane);
 
-		JButton btnClearSelectedDimension = new JButton("Clear selected dimension");
 		btnClearSelectedDimension.addActionListener(e -> {
 					if (getSelectedDataflow() != null)
 					{
-						CheckboxListTableModel<?> model = (CheckboxListTableModel<?>) codesTable.getModel();
-						model.uncheckAll();
+						((CheckboxListTableModel<?>) codesTable.getModel()).uncheckAll();
 						updateCodelistCount();
 					}
 				});
 		btnClearSelectedDimension.setMaximumSize(new java.awt.Dimension(151, 32768));
 		dimensionFilterBox.add(btnClearSelectedDimension);
 
-		JTextPane loggingArea = new JTextPane();
+		JTextPane loggingArea = new JTextPane() {
+				private static final long serialVersionUID = 1L;
+
+				public String getToolTipText(MouseEvent e)
+				{
+					int pos = viewToModel(e.getPoint());
+					if (pos >= 0)
+					{
+						AttributeSet attrs = getStyledDocument().getCharacterElement(pos).getAttributes();
+						return attrs.getAttribute("TIME") == null ? null : String.format(TOOLTIP_FORMAT, new Date());
+					}
+					else
+						return null;
+				}
+			};
 		loggingArea.setBorder(new EmptyBorder(0, 0, 0, 0));
 		loggingArea.setBackground(new Color(224, 224, 224));
 		Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 		loggingArea.setFont(font);
 		loggingArea.setEditable(false);
+		ToolTipManager.sharedInstance().registerComponent(loggingArea);
+		loggingArea.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				int pos = loggingArea.viewToModel(e.getPoint());
+				if (pos >= 0)
+				{
+					AttributeSet attrs = loggingArea.getStyledDocument().getCharacterElement(pos).getAttributes();
+					Object link = attrs.getAttribute("URL");
+					if (link != null)
+						try
+						{
+							Desktop.getDesktop().browse(new URI(link.toString()));
+						}
+						catch (IOException | URISyntaxException e1)
+						{
+							
+						}
+				}
+			}
+		});
 		LOGGER.addHandler(new HelperHandler(loggingArea));
 
-		JScrollPane loggingPane = new JScrollPane(loggingArea);
+		JPanel noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(loggingArea);
+		
+		JScrollPane loggingPane = new JScrollPane(noWrapPanel);
 		loggingPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		final JSplitPane mainSplitPane = new JSplitPane();
@@ -771,9 +858,10 @@ public class SDMXHelper extends JFrame
 			finalqueryPanel.add(horizontalStrut_5);
 			finalqueryPanel.add(btnPrintQuery);
 			providersMenu.setEnabled(false);
-			providersMenu.setText(providersMenu.getText() + ": " + lockedProvider);
+			providersMenu.setText(providersMenu.getText() + ": " + lockedProvider); //$NON-NLS-1$
 		}
 
+		updateBundle(bundle);
 		
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -783,13 +871,73 @@ public class SDMXHelper extends JFrame
 			});
 	}
 
+	private void updateBundle(ResourceBundle b)
+	{
+		setTitle(b.getString("SDMXHelper.30")); //$NON-NLS-1$
+		Configuration.setLanguages(b.getLocale().toLanguageTag() + ",en;q=0.8,*;q=0.6"); //$NON-NLS-1$
+		btnClearSelectedDimension.setText(b.getString("SDMXHelper.72")); //$NON-NLS-1$
+		btnPrintQuery.setText(b.getString("SDMXHelper.51")); //$NON-NLS-1$
+		caseSearchCLCheckbox.setText(b.getString("SDMXHelper.14")); //$NON-NLS-1$
+		caseSearchFlowCheckbox.setText(b.getString("SDMXHelper.24")); //$NON-NLS-1$
+		checkQueryButton.putClientProperty("FORMAT", b.getString("SDMXHelper.50")); //$NON-NLS-1$
+		checkQueryButton.setText(String.format(b.getString("SDMXHelper.50"), "")); //$NON-NLS-1$ //$NON-NLS-2$
+		codelistLabel.setText(b.getString("SDMXHelper.61")); //$NON-NLS-1$
+		codesPanelBorder.setTitle(b.getString("SDMXHelper.60")); //$NON-NLS-1$
+		codesTable.getColumnModel().getColumn(0).setHeaderValue(""); //$NON-NLS-1$
+		codesTable.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.69")); //$NON-NLS-1$
+		codesTable.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.70")); //$NON-NLS-1$
+		dataflowFilterLabel.setText(b.getString("SDMXHelper.53")); //$NON-NLS-1$
+		dataflowsPanelBorder.setTitle(b.getString("SDMXHelper.52")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(0).setHeaderValue(b.getString("SDMXHelper.0")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.1")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.2")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(3).setHeaderValue(b.getString("SDMXHelper.3")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(4).setHeaderValue(b.getString("SDMXHelper.4")); //$NON-NLS-1$
+		dataflowsTable.getColumnModel().getColumn(5).setHeaderValue(b.getString("SDMXHelper.5")); //$NON-NLS-1$
+		dimensionLabel.setText(b.getString("SDMXHelper.59")); //$NON-NLS-1$
+		dimensionsPanelBorder.setTitle(b.getString("SDMXHelper.58")); //$NON-NLS-1$
+		dimensionsTable.getColumnModel().getColumn(0).setHeaderValue(""); //$NON-NLS-1$
+		dimensionsTable.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.11")); //$NON-NLS-1$
+		dimensionsTable.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.12")); //$NON-NLS-1$
+		finalqueryPanelBorder.setTitle(b.getString("SDMXHelper.48")); //$NON-NLS-1$
+		mnActions.setText(b.getString("SDMXHelper.32")); //$NON-NLS-1$
+		mnHelp.setText(b.getString("SDMXHelper.46")); //$NON-NLS-1$
+		mnLanguage.setText(b.getString("SDMXHelper.6")); //$NON-NLS-1$
+		mnLogLevel.setText(b.getString("SDMXHelper.40")); //$NON-NLS-1$
+		mntmAddProvider.setText(b.getString("SDMXHelper.39")); //$NON-NLS-1$
+		mntmAboutSdmxConnectors.setText(b.getString("SDMXHelper.47")); //$NON-NLS-1$
+		mntmBuildCommands.setText(b.getString("SDMXHelper.35")); //$NON-NLS-1$
+		mntmCopySelection.setText(b.getString("SDMXHelper.34")); //$NON-NLS-1$
+		mntmLogLevels[0].setText(b.getString("SDMXHelper.41")); //$NON-NLS-1$
+		mntmLogLevels[1].setText(b.getString("SDMXHelper.42")); //$NON-NLS-1$
+		mntmLogLevels[2].setText(b.getString("SDMXHelper.43")); //$NON-NLS-1$
+		mntmLogLevels[3].setText(b.getString("SDMXHelper.44")); //$NON-NLS-1$
+		mntmLogLevels[4].setText(b.getString("SDMXHelper.45")); //$NON-NLS-1$
+		providersMenu.setText(b.getString("SDMXHelper.31")); //$NON-NLS-1$
+		queryLabel.setText(b.getString("SDMXHelper.49")); //$NON-NLS-1$
+		regexSearchCLCheckbox.setText(b.getString("SDMXHelper.13")); //$NON-NLS-1$
+		regexSearchFlowCheckbox.setText(b.getString("SDMXHelper.25")); //$NON-NLS-1$
+		searchAllFlowRadio.setText(b.getString("SDMXHelper.22")); //$NON-NLS-1$
+		searchBothCLRadio.setText(b.getString("SDMXHelper.18")); //$NON-NLS-1$
+		searchCodeCLRadio.setText(b.getString("SDMXHelper.16")); //$NON-NLS-1$
+		searchCodeFlowRadio.setText(b.getString("SDMXHelper.19")); //$NON-NLS-1$
+		searchDescCLRadio.setText(b.getString("SDMXHelper.17")); //$NON-NLS-1$
+		searchDescFlowRadio.setText(b.getString("SDMXHelper.21")); //$NON-NLS-1$
+		searchDSDFlowRadio.setText(b.getString("SDMXHelper.20")); //$NON-NLS-1$
+		toggleVisibleButton.setText(b.getString("SDMXHelper.67")); //$NON-NLS-1$
+		wholeWordCLCheckbox.setText(b.getString("SDMXHelper.15")); //$NON-NLS-1$
+		wholeWordFlowCheckbox.setText(b.getString("SDMXHelper.23")); //$NON-NLS-1$
+		noResultsMessage = b.getString("SDMXHelper.89"); //$NON-NLS-1$
+		resultsCountMessage = b.getString("SDMXHelper.91"); //$NON-NLS-1$
+	}
+
 	private void flowSelListener(ListSelectionEvent e)
 	{
 		String dataflowID = getSelectedDataflow();
 		if (!e.getValueIsAdjusting() && dataflowID != null)
 		{
 			updateDataflow(dataflowID);
-			dimensionFilterTextField.setText("");
+			dimensionFilterTextField.setText(""); //$NON-NLS-1$
 			dimTableSorter.setRowFilter(null);
 			checkQueryButton.setEnabled(true);
 			btnPrintQuery.setEnabled(true);
@@ -809,80 +957,81 @@ public class SDMXHelper extends JFrame
 		String selectedDataflow = getSelectedDataflow();
 		AtomicBoolean interrupted = new AtomicBoolean(false);
 		
-//		if (!codelistSortersMap.containsKey(selectedDimension))
-			new ProgressViewer<>(this, interrupted, () -> 
-				SDMXClientFactory.getProviders().get(provider).getSdmxVersion().equals(SDMXClientFactory.SDMX_V3) ?
-					SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
-					:
-					getCodes(provider, selectedDataflow, selectedDimension)	
-					,
-				codes -> {
-					CheckboxListTableModel<String> model = null;
-					if(!codelistSortersMap.containsKey(selectedDimension)){
-						model = new CheckboxListTableModel<String>("Code ID", "Code Description");
-						model.addTableModelListener(event -> sdmxQueryTextField.setText(createSDMXQuery(selectedDataflow, dimsTableModel.getSource())));
-					}
-					else{
-						model = codelistSortersMap.get(selectedDimension).getModel();
-					}
-					
-					model.setItems(codes);
-					
-					TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
-					codelistSortersMap.put(selectedDimension, sorter);
-				},
-				ex -> {
-					interrupted.set(true);
-					LOGGER.severe("Exception. Class: " + ex.getClass().getName()
-							+ " .Message: " + ex.getMessage());
-					LOGGER.log(Level.FINER, "", ex);
+		new ProgressViewer<>(this, interrupted, () -> 
+			SDMXClientFactory.getProviders().get(provider).getSdmxVersion().equals(SDMXClientFactory.SDMX_V3) ?
+				SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
+				:
+				getCodes(provider, selectedDataflow, selectedDimension)	
+				,
+			codes -> {
+				CheckboxListTableModel<String> model = null;
+				if(!codelistSortersMap.containsKey(selectedDimension)){
+					model = new CheckboxListTableModel<String>();
+					model.addTableModelListener(event -> sdmxQueryTextField.setText(createQuery(selectedDataflow, dimsTableModel.getSource())));
+					if (SDMXClientFactory.SDMX_V3.equals(SDMXClientFactory.getProviders().get(provider).getSdmxVersion()))
+						model.addTableModelListener(event -> formatQueryButton(selectedDataflow, dimsTableModel.getSource()));
 				}
-			).start();
-
-		if (!interrupted.get())
-			SwingUtilities.invokeLater(() -> {
-				TableRowSorter<CheckboxListTableModel<String>> sorter = codelistSortersMap.get(selectedDimension);
-				codesTable.setModel(sorter.getModel());
-				codesTable.setRowSorter(sorter);
-				if (sortingKeys == null || sortingKeys.isEmpty())
-					sorter.setSortKeys(singletonList(new SortKey(1, ASCENDING)));
 				else
-					sorter.setSortKeys(sortingKeys);
-				sorter.setSortable(codesTable.convertColumnIndexToView(0), false);
-				sorter.setRowFilter(null);
+					model = codelistSortersMap.get(selectedDimension).getModel();
 				
-				codesFilterTextField.setText("");
-				codesTable.revalidate();
-				updateCodelistCount();
+				model.setItems(codes);
+				
+				TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
+				codelistSortersMap.put(selectedDimension, sorter);
+			},
+			ex -> {
+				interrupted.set(true);
+				LOGGER.severe("Exception " + ex.getClass().getName() + ": " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+				LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
+			}
+		).start();
+
+		SwingUtilities.invokeLater(() -> {
+				if (!interrupted.get())
+				{
+					TableRowSorter<CheckboxListTableModel<String>> sorter = codelistSortersMap.get(selectedDimension);
+					codesTable.setModel(sorter.getModel());
+					codesTable.setRowSorter(sorter);
+					if (sortingKeys == null || sortingKeys.isEmpty())
+						sorter.setSortKeys(singletonList(new SortKey(1, ASCENDING)));
+					else
+						sorter.setSortKeys(sortingKeys);
+					sorter.setSortable(codesTable.convertColumnIndexToView(0), false);
+					sorter.setRowFilter(null);
+					
+					codesFilterTextField.setText(""); //$NON-NLS-1$
+					codesTable.revalidate();
+					updateCodelistCount();
+				}
 			});
 	}
-	
+
 	private void updateCodelistCount()
 	{
 		int selected = 0;
 		for (int i = 0; i < codesTable.getRowCount(); i++)
 			selected += (Boolean) codesTable.getModel().getValueAt(codesTable.convertRowIndexToModel(i), 0) ? 1 : 0;
 
-		codelistLabel.setText("Filter codes (" + selected + "/" + codesTable.getRowCount() + "):");
+		codelistLabel.setText("Filter codes (" + selected + "/" + codesTable.getRowCount() + "):"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private void updateDataflow(final String dataflowID)
 	{
 		// reset clean state for codesTable before
 		codelistSortersMap.clear();
-		codesTable.setModel(new CheckboxListTableModel<String>("Code ID", "Code Description"));
-		updateCodelistCount();
+		((CheckboxListTableModel<?>) codesTable.getModel()).clear();
 		dimsTableModel.clear();
+
 		// if this is not a provider switch
 		new ProgressViewer<>(this, new AtomicBoolean(false),
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
 				dims -> {
 					dimsTableModel.setItems(dims, item -> new String[] { item.getId(), item.getName() });
-					sdmxQueryTextField.setText(createSDMXQuery(dataflowID, dims));
+					sdmxQueryTextField.setText(createQuery(dataflowID, dims));
 				},
 				ex -> {
-						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-						LOGGER.log(Level.FINER, "", ex);
+						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
 					}).start();
 	}
 
@@ -909,7 +1058,7 @@ public class SDMXHelper extends JFrame
 							throw e;
 						
 						isCancelled.set(true);
-						JOptionPane.showMessageDialog(null, "No results for selected query parameters.", "SDMX Helper", JOptionPane.WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(null, noResultsMessage, "SDMX Helper", JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 						return new SimpleEntry<Dataflow, List<PortableTimeSeries<Double>>>(null, null);
 					}
 				},
@@ -922,14 +1071,14 @@ public class SDMXHelper extends JFrame
 						// Open a new window to browse query results
 						final JFrame wnd = new ResultsFrame(getCurrentProvider(), result);
 
-						wnd.setTitle(result.size() + " results" + " - " + df.getDescription());
+						wnd.setTitle(String.format(resultsCountMessage, result.size(), df.getDescription())); //$NON-NLS-1$ //$NON-NLS-2$
 						wnd.setVisible(true);
 						wnd.toFront();
 					}
 				},
 				ex -> {
-					LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-					LOGGER.log(Level.FINER, "", ex);
+					LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+					LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
 				}).start();
 	}
 
@@ -940,27 +1089,23 @@ public class SDMXHelper extends JFrame
 			final String provider = providerEntry.getKey();
 			final String sdmxVersion = providerEntry.getValue().getSdmxVersion();
 			final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
-					"[" + sdmxVersion + "] " + provider + ": " + providerEntry.getValue().getDescription());
+					"[" + sdmxVersion + "] " + provider + ": " + providerEntry.getValue().getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			menuItem.setActionCommand(provider);
-			menuItem.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent paramActionEvent)
+			menuItem.addActionListener(e -> {
+					try
 					{
-						try
-						{
-							menuItem.setSelected(true);
-							// Refresh dataflows on provider selection
-							updateSource(provider);
-							checkQueryButton.setEnabled(false);
-							btnPrintQuery.setEnabled(false);
-							sdmxQueryTextField.setText("");
-							dataflowFilterTextField.setText("");
-							queryLabel.setText("Provider: " + provider);
-						} catch (Exception ex)
-						{
-							ex.printStackTrace();
-						}
+						menuItem.setSelected(true);
+						// Refresh dataflows on provider selection
+						updateSource(provider);
+						checkQueryButton.setEnabled(false);
+						btnPrintQuery.setEnabled(false);
+						sdmxQueryTextField.setText(""); //$NON-NLS-1$
+						dataflowFilterTextField.setText(""); //$NON-NLS-1$
+						queryLabel.setText(queryLabel.getText().split(":")[0] + ": " + provider); //$NON-NLS-1$ //$NON-NLS-2$
+					} 
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
 					}
 				});
 			providersMenu.add(menuItem);
@@ -981,7 +1126,7 @@ public class SDMXHelper extends JFrame
 				if (!isCancelled.get())
 				{
 					codelistSortersMap.clear();
-					codesTable.setModel(new CheckboxListTableModel<String>("Code ID", "Code Description"));
+					codesTable.setModel(new CheckboxListTableModel<String>()); //$NON-NLS-1$ //$NON-NLS-2$
 					dimsTableModel.clear();
 					dataflowsTableModel.setItems(flows);
 					TableRowSorter<DataflowsModel> rowSorter = new TableRowSorter<>(dataflowsTableModel);
@@ -990,68 +1135,47 @@ public class SDMXHelper extends JFrame
 				}
 			},
 			ex -> {
-				LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage());
-				LOGGER.log(Level.FINER, "", ex);
+				LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+				LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
 			}).start();
 	}
 
-	private String createSDMXQuery(String dataflow, List<Dimension> dims)
+	private String createQuery(String dataflow, List<Dimension> dims)
 	{
-		StringBuffer query = new StringBuffer(dataflow + "/");
-		boolean first = true;
-		for (Dimension dim : dims)
-		{
-			if (!first)
-				query.append(".");
+		return dataflow + "/" + createFilter(dims);
+	}
 
-			if (codelistSortersMap.containsKey(dim.getId()))
-			{
-				CheckboxListTableModel<String> model = codelistSortersMap.get(dim.getId()).getModel();
-
-				first = true;
-				for (String code : model.getCheckedCodes())
-				{
-					if (!first)
-						query.append("+");
-					query.append(code);
-					first = false;
-				}
-			}
-
-			first = false;
-		}
-
-		return query.toString();
+	private String createFilter(List<Dimension> dims)
+	{
+		return dims.stream()
+			.map(Dimension::getId)
+			.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
+			.collect(joining("."));
 	}
 	
+	private void formatQueryButton(String dataflow, List<Dimension> dims)
+	{
+		try
+		{
+			int count = SdmxClientHandler.getSeriesCount(selectedProviderGroup.getSelection().getActionCommand(), dataflow, createFilter(dims));
+			String formatted = (String) checkQueryButton.getClientProperty("FORMAT"); //$NON-NLS-1$
+			checkQueryButton.setText(String.format(formatted, count <= 0 ? "" : ": " + count)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		catch (SdmxException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	private String createAvailabilityFilter() throws SdmxException
 	{
-		StringBuffer query = new StringBuffer();
-		boolean firstDim = true;
-		List<Dimension> dims = SdmxClientHandler.getDimensions(getCurrentProvider(), getSelectedDataflow()); 
-		for (Dimension dim : dims)
-		{	
-			if (codelistSortersMap.containsKey(dim.getId()))
-			{
-				CheckboxListTableModel<String> model = codelistSortersMap.get(dim.getId()).getModel();
-				StringBuffer subquery = new StringBuffer(!firstDim ? "&" : "");
-				subquery.append("c[" + dim.getId() + "]=");
-				boolean firstCode = true;
-				for (String code : model.getCheckedCodes())
-				{
-					if (!firstCode)
-						subquery.append(",");
-					subquery.append(code);
-					firstCode = false;
-				}
-				if(!firstCode){
-					query.append(subquery);
-				}
-			}
-			firstDim = false;
-		}
-
-		return query.toString();
+		List<Dimension> dims = SdmxClientHandler.getDimensions(getCurrentProvider(), getSelectedDataflow());
+		return dims.stream()
+			.map(Dimension::getId)
+			.filter(codelistSortersMap::containsKey)
+			.filter(id -> codelistSortersMap.get(id).getModel().getCheckedCodesCount() > 0)
+			.map(id -> "c[" + id + "]=" + join(",", codelistSortersMap.get(id).getModel().getCheckedCodes())) 
+			.collect(joining("&"));
 	}
 
 	private String getSelectedDataflow()
@@ -1068,5 +1192,11 @@ public class SDMXHelper extends JFrame
 		return rowSelected != -1
 				? dimensionsTable.getValueAt(rowSelected, dimensionsTable.convertColumnIndexToView(1)).toString()
 				: null;
+	}
+
+	private TitledBorder createTitledBorder()
+	{
+		return new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), 
+				"", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)); //$NON-NLS-1$
 	}
 }

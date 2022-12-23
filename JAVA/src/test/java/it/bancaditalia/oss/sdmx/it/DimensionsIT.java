@@ -25,7 +25,7 @@ public class DimensionsIT
     public static Collection<Object[]> data() {
         return FilterProvidersToTest.filter(new Object[][] 
     		{
-    			{ "ABS",              "ATSI_BIRTHS_SUMM",              0, "MEASURE",       "ABS/CL_ATSI_BIRTHS_SUMM_MEASURE" },
+    			{ "ABS",              "ATSI_BIRTHS_SUMM",              0, "MEASURE",       "ABS/CL_BIRTHS_MEASURE/1.0.0" },
     			{ "ECB",              "EXR",                           0, "FREQ",          "ECB/CL_FREQ/1.0",                },
     			{ "WITS",             "DF_WITS_Tariff_TRAINS",         0, "FREQ",          "WBG_WITS/CL_FREQ_WITS/1.0",      },
     			{ "UNDATA",           "DF_UNDATA_COUNTRYDATA",         0, "FREQ",          "IAEG/CL_FREQ_MDG/1.0",           },
@@ -54,7 +54,7 @@ public class DimensionsIT
 		assertTrue("Not enough dimensions in result", dimensions.size() > position);
 		Dimension dim = dimensions.get(position);
 		assertEquals("Wrong dimension id in position " + position, expectedDimensionID, dim.getId());
-		Codelist codelist = dim.getCodeList();
+		Codelist codelist = (Codelist) dim.getCodeList();
 		assertNotNull("Null Codelist for dimension " + dim.getId(), codelist);
 		assertEquals("Wrong codelist for dimension " + dim.getId(), expectedCodelistId, codelist.getFullIdentifier());
 	}

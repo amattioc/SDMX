@@ -20,30 +20,31 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.io.Serializable;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
+
 /**
  * @author Valentino Pinna
  *
  */
-public class Codelist implements Iterable<String>, Map<String, String>, Serializable
+public class Codelist extends SDMXReference implements Iterable<String>, Map<String, String>, Serializable
 {
 	/**
 	 * 
 	 */
 	private static final long			serialVersionUID	= 1L;
 
-	private String						id					= null;
-	private String						agency				= null;
-	private String						version				= null;
-
-	private final Map<String, String>	codes				= new HashMap<>();
-	private final Map<String, String>	parents				= new HashMap<>();
+	private final Map<String, LocalizedText>	codes	= new HashMap<>();
+	private final Map<String, String>			parents	= new HashMap<>();
 
 	/**
 	 * Creates a codelist with givem id, agency and version.
@@ -54,90 +55,22 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	 */
 	public Codelist(String id, String agency, String version)
 	{
-		this.id = id;
-		this.agency = agency;
-		this.version = version;
+		super(id, agency, version);
 	}
 
-	/**
-	 * Creates an empty codelist.
-	 */
-	public Codelist()
+	public Codelist(SDMXReference coordinates, Map<String, LocalizedText> codes, Map<String, String> parents)
 	{
-		this.id = null;
-		this.agency = null;
-		this.version = null;
-	}
-
-	/**
-	 * @param codes
-	 * @param parents
-	 */
-	public Codelist(Map<String, String> codes, Map<String, String> parents)
-	{
-		this();
-		putAll(codes);
-		this.parents.putAll(parents);
+		super(coordinates);
+		if (codes != null)
+			this.codes.putAll(codes);
+		if (parents != null)
+			this.parents.putAll(parents);
 	}
 
 	@Override
 	public Iterator<String> iterator()
 	{
 		return keySet().iterator();
-	}
-
-	/*
-	/** 
-	 * @return A depth-first view over the hierarchy of this codelist
-	 */
-	/*
-	 * public Iterator<String> depthFirstIterator() { final Map<String, Collection<String>> children = new HashMap<>();
-	 * final Set<String> roots = new HashSet<>(codes.keySet());
-	 * 
-	 * for (Entry<String, String> child : parents.entrySet()) { if (!children.containsKey(child.getValue()))
-	 * children.put(child.getValue(), new ArrayList<String>());
-	 * 
-	 * children.get(child.getValue()).add(child.getKey()); roots.remove(child.getKey()); }
-	 * 
-	 * final Stack<Iterator<String>> stack = new Stack<>(); stack.push(roots.iterator());
-	 * 
-	 * return new Iterator<String>() { String current;
-	 * 
-	 * @Override public boolean hasNext() { if (stack.peek().hasNext()) return true;
-	 * 
-	 * while (!stack.isEmpty() && !stack.peek().hasNext()) stack.pop();
-	 * 
-	 * return !stack.isEmpty() && stack.peek().hasNext(); }
-	 * 
-	 * @Override public String next() { current = stack.peek().next(); if (children.containsKey(current))
-	 * stack.push(children.get(current).iterator());
-	 * 
-	 * return current; }
-	 * 
-	 * @Override public void remove() { throw new UnsupportedOperationException("Not implemented"); } }; }
-	 */
-
-	/**
-	 * @param codes
-	 */
-	public void setCodes(Map<String, String> codes)
-	{
-		if (codes != null)
-		{
-			clear();
-			parents.clear();
-			putAll(codes);
-		}
-	}
-
-	/**
-	 * @deprecated Use {@link #entrySet()}.
-	 * @return A map of codes names and descriptions in this codelist
-	 */
-	@Deprecated
-	public Map<String, String> getCodes()
-	{
-		return this;
 	}
 
 	/**
@@ -163,79 +96,10 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 		return get(code);
 	}
 
-	/**
-	 * @return The codelist id
-	 */
-	public String getId()
-	{
-		return id;
-	}
-
-	/**
-	 * @param id
-	 */
-	public void setId(String id)
-	{
-		this.id = id;
-	}
-
-	/**
-	 * @return The codelist agency
-	 */
-	public String getAgency()
-	{
-		return agency;
-	}
-
-	/**
-	 * @param agency
-	 */
-	public void setAgency(String agency)
-	{
-		this.agency = agency;
-	}
-
-	/**
-	 * @return The codelist version
-	 */
-	public String getVersion()
-	{
-		return version;
-	}
-
-	/**
-	 * @param version
-	 */
-	public void setVersion(String version)
-	{
-		this.version = version;
-	}
-
-	/**
-	 * @return The full identifier of this codelist in the form "agency/id/version".
-	 */
-	public String getFullIdentifier()
-	{
-		String codelist = id;
-		if (agency != null)
-		{
-			codelist = agency + "/" + codelist;
-		}
-
-		if (version != null)
-		{
-			codelist = codelist + "/" + version;
-		}
-		return codelist;
-	}
-
 	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("Codelist [id=").append(getFullIdentifier()).append(", codes=").append(codes.toString())
-				.append("]");
-		return builder.toString();
+		return String.format("Codelist [id=%s, codes=%s]", getFullIdentifier(), codes);
 	}
 
 	@Override
@@ -259,7 +123,7 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	@Override
 	public Set<Entry<String, String>> entrySet()
 	{
-		return codes.entrySet();
+		return codes.keySet().stream().map(c -> new SimpleEntry<>(c, codes.get(c).getText())).collect(toSet());
 	}
 
 	@Override
@@ -271,7 +135,7 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	@Override
 	public String get(Object key)
 	{
-		return codes.get(key);
+		return codes.get(key).getText();
 	}
 
 	@Override
@@ -293,21 +157,15 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	}
 
 	@Override
-	public String put(String key, String value)
-	{
-		return codes.put(key, value);
-	}
-
-	@Override
 	public void putAll(Map<? extends String, ? extends String> m)
 	{
-		codes.putAll(m);
+		throw new UnsupportedOperationException("putAll");
 	}
 
 	@Override
 	public String remove(Object key)
 	{
-		return codes.remove(key);
+		throw new UnsupportedOperationException("remove");
 	}
 
 	@Override
@@ -319,6 +177,17 @@ public class Codelist implements Iterable<String>, Map<String, String>, Serializ
 	@Override
 	public Collection<String> values()
 	{
-		return codes.values();
+		return codes.values().stream().map(LocalizedText::getText).collect(toSet());
+	}
+
+	@Override
+	public String put(String key, String value)
+	{
+		throw new UnsupportedOperationException("put");
+	}
+
+	public Map<String, LocalizedText> localizedCodes()
+	{
+		return codes;
 	}
 }

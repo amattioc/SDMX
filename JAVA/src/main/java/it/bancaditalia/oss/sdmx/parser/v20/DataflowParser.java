@@ -22,8 +22,8 @@
 package it.bancaditalia.oss.sdmx.parser.v20;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Locale.LanguageRange;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
@@ -33,12 +33,11 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LanguagePriorityList;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 /**
@@ -59,95 +58,72 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String KF_VER = "Version";
 
 	@Override
-	public List<Dataflow> parse(XMLEventReader eventReader, LanguagePriorityList languages) throws XMLStreamException, SdmxException {
+	public List<Dataflow> parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException {
 		List<Dataflow> dfList = new ArrayList<>();
 
 		Dataflow df = null;
 
 		LocalizedText currentName = new LocalizedText(languages);
-		while (eventReader.hasNext()) {
+		while (eventReader.hasNext()) 
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
 
-			if (event.isStartElement()) {
+			if (event.isStartElement()) 
+			{
 				StartElement startElement = event.asStartElement();
 
-				if (startElement.getName().getLocalPart() == (DATAFLOW)) {
+				if (startElement.getName().getLocalPart() == (DATAFLOW)) 
+				{
+					currentName = new LocalizedText(languages);
+					String id = null, agency = null, version = null;
+					for (Attribute attr: (Iterable<Attribute>) startElement::getAttributes)
+						switch (attr.getName().toString())
+						{
+							case ID: id = attr.getValue(); break;
+							case AGENCY: agency = attr.getValue(); break;
+							case VERSION: version = attr.getValue(); break;
+						}
 
-					df = new Dataflow();
-					currentName.clear();
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext()) {
-						Attribute attr = attributes.next();
-						String id = null;
-						String agency = null;
-						String version = null;
-						if (attr.getName().toString().equals(ID)) {
-							id = attr.getValue();
-							df.setId(id);
-						}
-						else if (attr.getName().toString().equals(AGENCY)) {
-							agency = attr.getValue();
-							df.setAgency(agency);
-						}
-						else if (attr.getName().toString().equals(VERSION)) {
-							version = attr.getValue();
-							df.setVersion(version);
-						}
-					}
+					df = new Dataflow(id, agency, version);
 				}
-				else if (startElement.getName().getLocalPart() == (NAME)) {
+				if (startElement.getName().getLocalPart() == (NAME))
 					currentName.setText(startElement, eventReader);
-				}
-				else if (startElement.getName().getLocalPart() == (KF_REF)) {
+				if (startElement.getName().getLocalPart() == (KF_REF))
 					setKeyFamily(df, eventReader);
-				}
 			}
-			if (event.isEndElement()) {
+			if (event.isEndElement()) 
+			{
 				EndElement endElement = event.asEndElement();
 				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
 					df.setName(currentName.getText());
 					dfList.add(df);
 				}
 			}
-
 		}
 		
 		return dfList;
 	}
-	private static void setKeyFamily(Dataflow df, XMLEventReader eventReader) throws XMLStreamException{
-		String id = null;
-		String agency = null;
-		String version = null;
 
-		while (eventReader.hasNext()) {
+	private static void setKeyFamily(Dataflow df, XMLEventReader eventReader) throws XMLStreamException{
+		String id = null, agency = null, version = null;
+		while (eventReader.hasNext()) 
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
-			if (event.isStartElement()) {
-				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_ID)) {
-					id = eventReader.getElementText();
+			if (event.isStartElement())
+				switch (event.asStartElement().getName().getLocalPart())
+				{
+					case KF_ID: id = eventReader.getElementText(); break;
+					case KF_AGID: agency = eventReader.getElementText(); break;
+					case KF_VER: version = eventReader.getElementText(); break;
 				}
-				else if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_AGID)) {
-					agency = eventReader.getElementText();
-				}
-				else if (startElement.getName().getLocalPart().equalsIgnoreCase(KF_VER)) {
-					version = eventReader.getElementText();
-				}
-				
-			}
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (KF_REF)) {
-					DSDIdentifier dsd = new DSDIdentifier(id, agency, version);
-					df.setDsdIdentifier(dsd);
-					break;
-				}
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (KF_REF))
+			{	
+				df.setDsdIdentifier(new SDMXReference(id, agency, version));
+				break;
 			}
 		}
-		
 	}
-
 } 
 

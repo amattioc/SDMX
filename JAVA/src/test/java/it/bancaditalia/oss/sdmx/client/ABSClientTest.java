@@ -27,12 +27,12 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class ABSClientTest {
 	public static void main(String[] args) throws SdmxException{
-		System.err.println(SdmxClientHandler.getFlows("ABS", null));
+//		System.err.println(SdmxClientHandler.getFlows("ABS", null));
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("ABS", "ABS_NRP9_ASGS"));
 //		System.err.println(SdmxClientHandler.getDimensions("ABS", "ABS_NRP9_ASGS"));
 //		System.err.println(SdmxClientHandler.getDataFlowStructure("ABS", "ABS_NRP9_ASGS"));
 //		System.err.println(SdmxClientHandler.getCodes("ABS", "ABS_NRP9_ASGS", "FREQUENCY"));
-//		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ATSI_BIRTHS_SUMM/1+4...A", "2000", "2010"));
+		System.err.println(SdmxClientHandler.getTimeSeries("ABS", "ATSI_BIRTHS_SUMM/1+4...A", "2000", "2010"));
 		
 
 	}

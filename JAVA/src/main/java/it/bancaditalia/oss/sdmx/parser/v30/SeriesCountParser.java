@@ -20,12 +20,9 @@
 */
 package it.bancaditalia.oss.sdmx.parser.v30;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale.LanguageRange;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLEventReader;
@@ -36,40 +33,31 @@ import javax.xml.stream.events.XMLEvent;
 
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class AvailabilityParser implements Parser<Map<String, List<String>>>
+public class SeriesCountParser implements Parser<Integer>
 {
-	private static final String	sourceClass	= AvailabilityParser.class.getSimpleName();
+	private static final String	sourceClass	= SeriesCountParser.class.getSimpleName();
 	protected static Logger		logger		= Configuration.getSdmxLogger();
 
 	// valid in V.3.0
-	static final String			KEYVAL		= "KeyValue";
+	static final String			ANNOTATION		= "Annotation";
 	static final String			ID			= "id";
-	static final String			VALUE	= "Value";
+	static final String			ANNOTATION_TITLE	= "AnnotationTitle";
+	static final String			SERIES_COUNT	= "series_count";
 
 	@Override
-	public Map<String, List<String>> parse(XMLEventReader eventReader, List<LanguageRange> languages)
+	public Integer parse(XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
-	{
-		return parse(eventReader, languages, KEYVAL, ID, VALUE);
-	}
-
-	public static Map<String, List<String>> parse(XMLEventReader eventReader, List<LanguageRange> languages, String keyval, String id, String value) throws XMLStreamException, SdmxException
 	{
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
 
-		Map<String, List<String>> dimensions = new LinkedHashMap<>();
-		List<String> codes = null;
-		String dimension = null;
-		
+		boolean isTSNumber = false;
 		while (eventReader.hasNext())
 		{
 			XMLEvent event = eventReader.nextEvent();
@@ -77,43 +65,23 @@ public class AvailabilityParser implements Parser<Map<String, List<String>>>
 			if (event.isStartElement())
 			{
 				StartElement startElement = event.asStartElement();
-				if (keyval.equals(startElement.getName().getLocalPart()))
+				if (ANNOTATION.equals(startElement.getName().getLocalPart()))
 				{
-					codes = new ArrayList<String>();
-
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
-						if (id.equals(attr.getName().getLocalPart()))
-							dimension = attr.getValue();
+						if (ID.equals(attr.getName().getLocalPart()) && attr.getValue().equals(SERIES_COUNT))
+							isTSNumber=true;
 					}
 				}
-				else if (value.equals(startElement.getName().getLocalPart()))
-					codes.add(eventReader.getElementText());
+				else if (ANNOTATION_TITLE.equals(startElement.getName().getLocalPart()) && isTSNumber)
+					return Integer.parseInt(eventReader.getElementText());
 				
-			}
-
-			if (event.isEndElement())
-			{
-				String eventName = event.asEndElement().getName().getLocalPart();
-				if (keyval.equals(eventName))
-					if (dimension != null)
-					{
-						if(codes.size() > 0){
-							logger.finer("Got dimension " + dimension);
-							dimensions.put(dimension, codes);
-						}
-						else{
-							throw new SdmxInvalidParameterException("The selection identifies an empty cube region");
-						}
-					}
-					else
-						throw new SdmxXmlContentException("Error during Codelist Parsing. Invalid dimension");
 			}
 		}
 		
-		return dimensions;
+		return null;
 	}
 }

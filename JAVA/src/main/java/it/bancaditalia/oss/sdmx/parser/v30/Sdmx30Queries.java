@@ -60,6 +60,15 @@ public class Sdmx30Queries extends RestQueryBuilder {
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " filter=" + filter + " endpoint=" + endpoint);
 	}
+	
+	public static Sdmx30Queries createAvailabilityQueryByKey(URI endpoint, String dataflow, String key,
+			String mode)  throws SdmxInvalidParameterException {
+		if (endpoint != null && dataflow != null && !dataflow.isEmpty())
+			return (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(null, null, null, false, null, false, mode).addPath("availability")
+					.addPath("dataflow").addPath(dataflow.replace(",", "/")).addPath(key);
+		else
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " filter=" + key + " endpoint=" + endpoint);
+	}
 
 	public static Sdmx30Queries createStructureQuery(URI endpoint, String dsd, String agency, String version) throws SdmxException {
 		return createStructureQuery(endpoint, dsd, agency, version, false);

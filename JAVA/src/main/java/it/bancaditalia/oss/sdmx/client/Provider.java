@@ -20,19 +20,24 @@
  */
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.api.DSDIdentifier;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import java.net.URI;
-import java.security.*;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * 
@@ -136,8 +141,8 @@ public class Provider {
 		return flows;
 	}
 
-	public DSDIdentifier getDSDIdentifier(String dataflow) {
-		DSDIdentifier dsdid = null;
+	public SDMXReference getDSDIdentifier(String dataflow) {
+		SDMXReference dsdid = null;
 		Dataflow df = getFlow(dataflow);
 		if(df != null){
 			dsdid = df.getDsdIdentifier();
