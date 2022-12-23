@@ -3,7 +3,7 @@ Sdmx Connectors
 
 Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/latest) <br><br>
-
+CRAN Downloads: ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
 ![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx2.png)
 
@@ -35,4 +35,6 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 **NEW: The SDMX helper can be used from within any statistical tool or as a standalone application (just double click the SDMX.jar)**
 
 ![Helper](https://github.com/amattioc/SDMX/blob/master/docs/resources/helper.png)
+
+
 
