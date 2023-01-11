@@ -18,6 +18,7 @@ public class FilterProvidersToTest
 			"INSEE",
 			"IMF2",
 			"ISTAT",
+			"ISTAT_RI",
 			"OECD",
 			"UNDATA",
 			"WITS",

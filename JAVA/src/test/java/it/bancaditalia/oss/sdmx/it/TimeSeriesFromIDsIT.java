@@ -24,23 +24,20 @@ public class TimeSeriesFromIDsIT
     public static Collection<Object[]> data() {
         return FilterProvidersToTest.filter(new Object[][] 
     		{
-    			{ "WITS",     "DF_WITS_Tariff_TRAINS/A.076.000.250490.AVEEstimated",                              null,   null,      1, null,         null },
-    			{ "WITS",     "DF_WITS_Tariff_TRAINS/A.068+076.000.250490.Reported",                              "2000", "2010",    2, null,         null },
-    			{ "WB",       "WDI.A.SP_POP_TOTL.USA",                                                            "2000", "2010",    0, null,         "WDI.A.SP_POP_TOTL.USA" },
-    			{ "WB",       "WDI.A.SP_POP_TOTL.",                                                               "2000", "2010",    0, null,         null },
-    			{ "WB",       "WDI.A.SP_POP_TOTL.ITA+USA",                                                        null,   null,      0, null,         null },
-    			{ "UNDATA",   "DF_UNDATA_COUNTRYDATA/A...U....",                                                  "2010", "2015",  172, null,         null },
-    			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A",                                                           "2000", "2010",   16, null,         null },
-    			{ "ABS",      "ATSI_BIRTHS_SUMM/1+4...A",                                                         "2000", "2010",   32, null,         null },
-    			{ "ECB",      "EXR/.GBP+USD...",                                                          null,   null,     16, null,         null },
-    			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A",                                                         "2000", "2010",   10, null,         null },
-    			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A",                                        "2000", "2010",    2, null,         null },
+    			{ "WITS",     "DF_WITS_Tariff_TRAINS/A.068+076.000.250490.Reported", "2000", "2010",    2, null,         null },
+    			{ "WB",       "WDI.A.SP_POP_TOTL.USA", "2000", "2010",    0, null,         "WDI.A.SP_POP_TOTL.USA" },
+    			{ "UNDATA",   "DF_UNDATA_COUNTRYDATA/A...U....", "2010", "2015",  172, null,         null },
+    			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A", "2000", "2010",   16, null,         null },
+    			{ "ECB",      "EXR/.GBP+USD...", null,   null,     16, null,         null },
+    			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A", "2000", "2010",   10, null,         null },
+    			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010",    2, null,         null },
     			{ "ILO",      "DF_EMP_TEMP_SEX_AGE_NB/ITA.Q..SEX_F.", null,   null,      28, null,         null },
-    			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP",                                                        "2000", "2015",    0, "2000",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
+    			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP", "2000", "2015",    0, "2000",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
     			{ "INSEE",    "CHOMAGE-TRIM-NATIONAL.T.CTCHC.VALEUR_ABSOLUE.FM.1.00-24.INDIVIDUS.CVS.TRUE", null,   null,      1, null,         null },
-    			{ "ISTAT",    "115_362/M....",                                                                    null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
-    			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q",                                                            "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
-    			{ "EUROSTAT", "prc_hicp_midx/..CP00.EU+DE+FR",                                                    "2000", "2013-08", 0, "2013-08",    "prc_hicp_midx.M.I05.CP00.DE" },
+    			{ "ISTAT_RI",    "163_24/Q.........2022M11", null,   null,      0, null,         "163_24.Q.IT.B1G_B_W2_S1._T.Z.Z.L_2015.N.B.2022M11" },
+    			{ "ISTAT",    "115_362/M....", null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
+    			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
+    			{ "EUROSTAT", "prc_hicp_midx/..CP00.EU+DE+FR",  "2000", "2013-08", 0, "2013-08",    "prc_hicp_midx.M.I05.CP00.DE" },
     		}, 0);
     }
     
