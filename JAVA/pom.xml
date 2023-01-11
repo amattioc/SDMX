@@ -4,7 +4,7 @@
 
 	<groupId>it.bancaditalia.oss</groupId>
 	<artifactId>sdmx</artifactId>
-	<version>3.0.4</version>
+	<version>3.0.3</version>
 
 	<name>SDMX</name>
 	<description>Sdmx Connectors for Statistical Software</description>
@@ -304,7 +304,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
+				<version>3.4.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -312,8 +312,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
-							<additionalparams>-Xdoclint:none</additionalparams>
-							<source>1.7</source>
+							<doclint>none</doclint>
 						</configuration>
 					</execution>
 				</executions>
