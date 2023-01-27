@@ -55,6 +55,7 @@ import java.util.zip.ZipInputStream;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import javax.swing.LayoutFocusTraversalPolicy;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -91,10 +92,10 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  */
 public class RestSdmxClient implements GenericSDMXClient
 {
-	private static final String		SOURCE_CLASS					= RestSdmxClient.class.getSimpleName();
-	protected static final Logger	LOGGER							= Configuration.getSdmxLogger();
+	private static final String		SOURCE_CLASS = RestSdmxClient.class.getSimpleName();
+	protected static final Logger	LOGGER = Configuration.getSdmxLogger();
 
-	protected String				sdmxVersion 					= SDMXClientFactory.SDMX_V2;
+	protected String				sdmxVersion = SDMXClientFactory.SDMX_V2;
 	protected String				name;
 	protected final boolean			needsURLEncoding;
 	protected final boolean			supportsCompression;
@@ -114,6 +115,10 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected RestSdmxEventListener	redirectionEventListener		= RestSdmxEventListener.NO_OP_LISTENER;
 	protected RestSdmxEventListener	openEventListener				= RestSdmxEventListener.NO_OP_LISTENER;
 	protected int maxRedirects = 20;
+	
+	protected final String LATEST_VERSION	= "latest";
+	protected final String ALL_AGENCIES	= "all";
+	protected String latestKeyword = LATEST_VERSION;
 
 	public RestSdmxClient(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
 	{
@@ -189,7 +194,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
-		URL query = buildFlowQuery(SdmxClientHandler.ALL_AGENCIES, "all", SdmxClientHandler.LATEST_VERSION);
+		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
 		if (flows.size() > 0)
 		{
@@ -208,6 +213,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		Dataflow result = null;
+		if(agency == null) agency = ALL_AGENCIES;
+		if(version == null) version = this.latestKeyword;
 		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
 		if (flows.size() >= 1)

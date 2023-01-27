@@ -85,21 +85,15 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 							case VERSION: version = attr.getValue(); break;
 						}
 
-					df = new Dataflow(id, agency, version);
+					df = new Dataflow(id, agency, version, currentName);
 				}
 				if (startElement.getName().getLocalPart() == (NAME))
 					currentName.setText(startElement, eventReader);
 				if (startElement.getName().getLocalPart() == (KF_REF))
 					setKeyFamily(df, eventReader);
 			}
-			if (event.isEndElement()) 
-			{
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (DATAFLOW)) {
-					df.setName(currentName.getText());
-					dfList.add(df);
-				}
-			}
+			else if (event.isEndElement() && DATAFLOW.equals(event.asEndElement().getName().getLocalPart()))
+				dfList.add(df);
 		}
 		
 		return dfList;

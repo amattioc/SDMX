@@ -22,8 +22,7 @@ package it.bancaditalia.oss.sdmx.parser.v21;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale.LanguageRange;
@@ -35,7 +34,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -75,183 +73,154 @@ public class GenericDataParser implements Parser<DataParsingResult>{
 		this.data = data;
 	}
 	
-	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException {
+	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException
+	{
 		DataParsingResult result = new DataParsingResult();
 		List<PortableTimeSeries<Double>> tsList = new ArrayList<>();
-		PortableTimeSeries<Double> ts = null;
-
-		while (eventReader.hasNext()) {
+		Map<String, Entry<String, String>> dimKeys = null;
+		Map<String, String> attrValues = null;
+		List<DoubleObservation> obs = new ArrayList<>();
+		
+		while (eventReader.hasNext())
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
-			
-			if (event.isStartElement()) {
+	
+			if (event.isStartElement())
+			{
 				StartElement startElement = event.asStartElement();
 
-				if (startElement.getName().getLocalPart() == (SERIES)) {
-					ts = new PortableTimeSeries<>();
-					ts.setDataflow(dataflow);
-				}
-
-				if (startElement.getName().getLocalPart() == (SERIES_KEY)) {
-					setSeriesKey(ts, eventReader, dsd);
-				}
-
-				if (startElement.getName().getLocalPart() == (ATTRIBUTES)) {
-					setSeriesAttributes(ts, eventReader);
-				}
-
-				if (startElement.getName().getLocalPart() == (OBS)  && data) {
-					setSeriesSingleObs(ts, eventReader);
-				}
-				
-			}
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (SERIES)) {
-					tsList.add(ts);
+				switch (startElement.getName().getLocalPart())
+				{
+					case SERIES_KEY: dimKeys = getSeriesKey(eventReader, dsd); break;
+					case ATTRIBUTES: attrValues = getSeriesAttributes(eventReader); break;
+					case OBS: if (data) obs.add(getObservation(eventReader)); break;
 				}
 			}
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
+				tsList.add(new PortableTimeSeries<>(dataflow, dimKeys, attrValues, obs));
 		}
+		
 		result.setData(tsList);
 		return result;
 	}
 
-	private void setSeriesKey(PortableTimeSeries<Double> ts, XMLEventReader eventReader, DataFlowStructure dsd) throws XMLStreamException {
+	private Map<String, Entry<String, String>> getSeriesKey(XMLEventReader eventReader, DataFlowStructure dsd) throws XMLStreamException
+	{
 		String id = null;
 		int size = dsd.getDimensions().size();
 		@SuppressWarnings("unchecked")
 		Entry<String, String> values[] = new Entry[size];
 		String[] names = new String[size];
 		Map<String, Entry<String, String>> dimensions = new LinkedHashMap<>();
-		while (eventReader.hasNext()) {
+
+		while (eventReader.hasNext())
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
-			if (event.isStartElement()) {
+			
+			if (event.isStartElement())
+			{
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext()) {
-						Attribute attribute = attributes.next();
-						if (attribute.getName().toString().equalsIgnoreCase(ID)) {
-							id=attribute.getValue();
-						}
-						else if (attribute.getName().toString().equalsIgnoreCase(VALUE)) {
+				if (VALUE.equalsIgnoreCase(startElement.getName().getLocalPart()))
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
+						if (ID.equalsIgnoreCase(attribute.getName().toString()))
+							id = attribute.getValue();
+						else if (VALUE.equalsIgnoreCase(attribute.getName().toString()))
+						{
 							String val = attribute.getValue();
 							names[dsd.getDimensionPosition(id) - 1] = id;
 							values[dsd.getDimensionPosition(id) - 1] = new SimpleEntry<>(val, "");
-							if(id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY")){
-								ts.setFrequency(val);
-							}
 						}
-					}
-				}
-			}
-			
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (SERIES_KEY)) {
-					for (int i = 0; i < size; i++){
-						dimensions.put(names[i], values[i]);
-					}
-					ts.setDimensions(dimensions);
-					break;
-				}
+			} 
+			else if (event.isEndElement() && SERIES_KEY.equals(event.asEndElement().getName().getLocalPart()))
+			{
+				for (int i = 0; i < size; i++)
+					dimensions.put(names[i], values[i]);
+				return dimensions;
 			}
 		}
+		
+		throw new XMLStreamException("EOF while reading dimensions."); 
 	}
 	
-	private static void setSeriesAttributes(PortableTimeSeries<Double> ts, XMLEventReader eventReader) throws XMLStreamException {
-		String id = null;
-		String val = null;
-		while (eventReader.hasNext()) {
+	private static Map<String, String> getSeriesAttributes(XMLEventReader eventReader) throws XMLStreamException
+	{
+		Map<String, String> attributes = new HashMap<>();
+	
+		while (eventReader.hasNext())
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
-			if (event.isStartElement()) {
+			
+			if (event.isStartElement())
+			{
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext()) {
-						Attribute attribute = attributes.next();
-						if (attribute.getName().toString().equalsIgnoreCase(ID)) {
-							id=attribute.getValue();
-						}
-						else if (attribute.getName().toString().equalsIgnoreCase(VALUE)) {
-							val=attribute.getValue();
-						}
+				if (startElement.getName().getLocalPart().equalsIgnoreCase(VALUE))
+				{
+					String id = null, val = null;
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
+					{
+						if (attribute.getName().toString().equalsIgnoreCase(ID))
+							id = attribute.getValue();
+						else if (attribute.getName().toString().equalsIgnoreCase(VALUE))
+							val = attribute.getValue();
 					}
+					
+					attributes.put(id, val);
 				}
 			}
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart().equalsIgnoreCase(VALUE)) {
-					ts.addAttribute(id, val);
-				}
-			}
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (ATTRIBUTES)) {
-					break;
-				}
-			}
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (ATTRIBUTES))
+				return attributes;
 		}
+
+		throw new XMLStreamException("EOF while reading attributes."); 
 	}
 
-	private static void setSeriesSingleObs(PortableTimeSeries<Double> ts, XMLEventReader eventReader) throws XMLStreamException, SdmxException {
+	private static DoubleObservation getObservation(XMLEventReader eventReader) throws XMLStreamException, SdmxException
+	{
 		String time = null;
 		String val = "";
-		Hashtable<String, String> obs_attr = new Hashtable<String, String>();
-		while (eventReader.hasNext()) {
+		Map<String, String> obs_attr = new HashMap<>();
+		
+		while (eventReader.hasNext())
+		{
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
+			
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart() == (OBS_TIME)) {
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext())
-					{
-						Attribute attribute = attributes.next();
-						String name = attribute.getName().toString();
-						if (name.equals(VALUE))
-						{
+				if (startElement.getName().getLocalPart() == (OBS_TIME))
+				{
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
+						if (attribute.getName().toString().equals(VALUE))
 							time = attribute.getValue();
-						}
-					}
 				}
-				else if (startElement.getName().getLocalPart() == (OBS_VALUE)) {
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext())
-					{
-						Attribute attribute = attributes.next();
-						String name = attribute.getName().toString();
-						if (name.equals(VALUE))
-						{
+				else if (startElement.getName().getLocalPart() == (OBS_VALUE))
+				{
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
+						if (attribute.getName().toString().equals(VALUE))
 							val = attribute.getValue();
-						}
-					}
 				}
-				else if (startElement.getName().getLocalPart() == (ATTRIBUTEVALUE)) {
+				else if (startElement.getName().getLocalPart() == (ATTRIBUTEVALUE))
+				{
 					String name = startElement.getAttributeByName(new QName(ID)).getValue();
 					String value = startElement.getAttributeByName(new QName(VALUE)).getValue();
 					obs_attr.put(name, value);
 				}
 			}
-			if (event.isEndElement()) {
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (OBS)) {
-					try {
-						ts.add(new DoubleObservation(time, Double.valueOf(val), obs_attr));
-					} catch (NumberFormatException e) {
-						logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + val + ". A NaN will be set.");
-						ts.add(new DoubleObservation(time, Double.NaN, obs_attr));
-					}
-					break;
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (OBS))
+				try
+				{
+					return new DoubleObservation(time, Double.valueOf(val), obs_attr);
 				}
-			}
+				catch (NumberFormatException e)
+				{
+					logger.fine("Non-numeric value for observation at date " + time + ". Using NaN instead.");
+					return new DoubleObservation(time, Double.NaN, obs_attr);
+				}
 		}
-	}
 
+		throw new XMLStreamException("EOF while reading an observation."); 
+	}
 } 

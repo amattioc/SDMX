@@ -58,6 +58,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 
 	static final String			CODELISTS				= "Codelists";
 	static final String			CODELIST				= "Codelist";
+	static final String			CODE					= "Code";
 
 	static final String			CONCEPTS				= "Concepts";
 	static final String			CONCEPT					= "Concept";
@@ -176,12 +177,15 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					logger.finer("Got codelist");
 					SDMXReference coordinates = getRefCoordinates(eventReader);
 					// now set codes
-					if (codelists != null && currentAttribute != null)
+					if (codelists != null && currentAttribute != null && coordinates != null)
 					{
-						if (coordinates != null && codelists.containsKey(coordinates.getFullIdentifier()))
+						if (codelists.containsKey(coordinates.getFullIdentifier())){
 							currentAttribute.setCodeList(codelists.get(coordinates.getFullIdentifier()));
-						else
-							logger.finer("No code list for attribute: " + currentAttribute.getId());
+						}
+						else{
+							// Store only the codelist ref to retrieve the codes later
+							currentAttribute.setCodeList(new Codelist(coordinates, null, null));
+						}
 					}
 				}
 				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity")))
@@ -299,12 +303,12 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					logger.finer("Got codelist");
 					SDMXReference coordinates = getRefCoordinates(eventReader);
 					// now set codes
-					if (codelists != null && currentDimension != null)
-						if (codelists.containsKey(coordinates.getFullIdentifier()))
+					if (currentDimension != null)
+						if (codelists != null && codelists.containsKey(coordinates.getFullIdentifier()))
 							currentDimension.setCodeList(codelists.get(coordinates.getFullIdentifier()));
 						else
 							// Store only the codelist ref to retrieve the codes later
-							currentDimension.setCodeList(coordinates);
+							currentDimension.setCodeList(new Codelist(coordinates, null, null));
 				}
 				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity")))
 				{
@@ -481,7 +485,6 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					String id = null;
 					String agency = null;
 					String version = null;
-					String codelistName = "";
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
@@ -498,10 +501,9 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 							version = attr.getValue();
 						}
 					}
-					codelistName = agency + "/" + id + "/" + version;
-					logger.finer("Got codelist: " + codelistName);
+					logger.finer("Got codelist: " + id);
 					Codelist codes = CodelistParser.getCodes(new SDMXReference(id, agency, version), eventReader, languages);
-					codelists.put(codelistName, codes);
+					codelists.put(codes.getFullIdentifier(), codes);
 				}
 			}
 			if (event.isEndElement())

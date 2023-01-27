@@ -53,43 +53,75 @@ public class CodelistParser implements Parser<Codelist>
 
 	// valid in V.2.1
 	static final String			CODELIST	= "Codelist";
-	static final String			CODE		= "Code";
+	static final String			CODE_ID		= "Code";
 	static final String			ID			= "id";
-	static final String			DESCRIPTION	= "Name";
+	static final String			CODE_DESCRIPTION	= "Name";
 	static final String			PARENT		= "Parent";
 	static final String			REF			= "Ref";
+	static final String 		AGENCY 		= "agencyID";
+	static final String 		VERSION 	= "version";
+
 
 	@Override
 	public Codelist parse(XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
 	{
-		return parse(eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
+		return getCodeList(eventReader, languages);
 	}
 
-	public static Codelist parse(XMLEventReader eventReader, List<LanguageRange> languages, String codelist,
-			String code, String id, String description) throws XMLStreamException, SdmxException
-	{
-		final String sourceMethod = "parse";
-		logger.entering(sourceClass, sourceMethod);
-
-		Codelist codes = getCodes(new SDMXReference(null, null, null), eventReader, languages, codelist, code, id, description);
-
-		logger.exiting(sourceClass, sourceMethod);
-		return codes;
-	}
-
-	public static Codelist getCodes(SDMXReference coordinates, XMLEventReader eventReader, List<LanguageRange> languages)
+	public static Codelist getCodeList(XMLEventReader eventReader, List<LanguageRange> languages)
 			throws XMLStreamException, SdmxException
 	{
-		return getCodes(coordinates, eventReader, languages, CODELIST, CODE, ID, DESCRIPTION);
+		String cl_id = null;
+		String agency = null;
+		String version = null;
+		while (eventReader.hasNext())
+		{
+			XMLEvent event = eventReader.nextEvent();
+			logger.finest(event.toString());
+			if (event.isStartElement())
+			{
+				StartElement startElement = event.asStartElement();
+				if (CODELIST.equalsIgnoreCase(startElement.getName().getLocalPart()))
+				{
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					while (attributes.hasNext())
+					{
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(ID))
+						{
+							cl_id = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(AGENCY))
+						{
+							agency = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(VERSION))
+						{
+							version = attr.getValue();
+						}
+					}
+					logger.finest("Got codelist: " + cl_id);
+					break;
+				}
+			}
+		}
+		return getCodes(new SDMXReference(cl_id, agency, version), eventReader, languages);
 	}
 
+	public static Codelist getCodes(SDMXReference coordinates, XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException
+	{
+		return getCodes(coordinates, eventReader, languages, ID, CODE_DESCRIPTION);
+	}
+	
 	public static Codelist getCodes(SDMXReference coordinates, XMLEventReader eventReader, List<LanguageRange> languages,
-			String codelistEvent, String codeEvent, String id, String descriptionEvent) throws XMLStreamException, SdmxException
+									String valueID, String codeDescription) throws XMLStreamException, SdmxException
 	{
 		Map<String, LocalizedText> codes = new LinkedHashMap<>();
 		Map<String, String> parents = new HashMap<>();
-
+		Codelist result = null;
+		
 		String key = null;
 		LocalizedText value = new LocalizedText(languages);
 		boolean parent = false;
@@ -100,7 +132,7 @@ public class CodelistParser implements Parser<Codelist>
 			if (event.isStartElement())
 			{
 				StartElement startElement = event.asStartElement();
-				if (codeEvent.equals(startElement.getName().getLocalPart()))
+				if (CODE_ID.equals(startElement.getName().getLocalPart()))
 				{
 					value = new LocalizedText(languages);
 					key = null;
@@ -110,11 +142,11 @@ public class CodelistParser implements Parser<Codelist>
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
-						if (id.equals(attr.getName().getLocalPart()))
+						if (valueID.equals(attr.getName().getLocalPart()))
 							key = attr.getValue();
 					}
 				}
-				else if (descriptionEvent.equals(startElement.getName().getLocalPart()))
+				else if (codeDescription.equals(startElement.getName().getLocalPart()))
 					value.setText(startElement, eventReader);
 				else if (PARENT.equals(startElement.getName().getLocalPart()))
 					parent = true;
@@ -125,7 +157,7 @@ public class CodelistParser implements Parser<Codelist>
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
-						if (id.equals(attr.getName().getLocalPart()))
+						if (valueID.equals(attr.getName().getLocalPart()))
 						{
 							parents.put(key, attr.getValue());
 							logger.finest("PARENT: " + key + " = " + attr.getValue());
@@ -137,22 +169,22 @@ public class CodelistParser implements Parser<Codelist>
 			if (event.isEndElement())
 			{
 				String eventName = event.asEndElement().getName().getLocalPart();
-				if (codeEvent.equals(eventName))
+				if (CODE_ID.equals(eventName))
 					if (key != null)
 					{
-						logger.finer("Got code " + key + ", " + value.getText());
+						logger.finest("Got code " + key + ", " + value.getText());
 						codes.put(key, value);
 					}
 					else
 						throw new SdmxXmlContentException("Error during Codelist Parsing. Invalid code id: " + key);
-				else if (codelistEvent.equals(eventName))
-					// stop after first codelist
-					break;
 				else if (PARENT.equals(eventName))
 					parent = false;
+				else if (CODELIST.equalsIgnoreCase(eventName)){
+					result = new Codelist(coordinates, codes, parents);
+					break;
+				}
 			}
 		}
-		
-		return new Codelist(coordinates, codes, parents);
+		return result;
 	}
 }

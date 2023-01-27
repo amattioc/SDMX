@@ -50,17 +50,21 @@ import it.bancaditalia.oss.sdmx.parser.v30.SeriesCountParser;
 public class RestSdmx30Client extends RestSdmxClient
 {
 
+	protected final String						LATEST_VERSION	= "+";
+
 	public RestSdmx30Client(String name, URI endpoint, SSLSocketFactory sslSocketFactory, boolean needsCredentials, boolean needsURLEncoding,
 			boolean supportsCompression)
 	{
 		super(name, endpoint, sslSocketFactory, needsCredentials, needsURLEncoding, supportsCompression);
 		this.sdmxVersion = SDMXClientFactory.SDMX_V3;
+		this.latestKeyword = this.LATEST_VERSION;
 	}
 
 	public RestSdmx30Client(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression)
 	{
 		this(name, endpoint, null, needsCredentials, needsURLEncoding, supportsCompression);
 		this.sdmxVersion = SDMXClientFactory.SDMX_V3;
+		this.latestKeyword = this.LATEST_VERSION;
 	}
 	
 	@Override

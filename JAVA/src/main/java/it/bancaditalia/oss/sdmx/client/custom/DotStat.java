@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
@@ -59,13 +58,12 @@ public abstract class DotStat extends RestSdmx20Client {
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery(dataflow, SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		URL query = buildFlowQuery(dataflow, ALL_AGENCIES, LATEST_VERSION );
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null, null);
 		if(dsds.size() > 0)
 		{
 			DataFlowStructure dsd = dsds.get(0);
-			Dataflow result = new Dataflow(dsd);
-			result.setName(dsd.getName());
+			Dataflow result = new Dataflow(dsd, dsd.getName());
 			result.setDsdIdentifier(dsd);
 			return result;
 		}
@@ -76,7 +74,7 @@ public abstract class DotStat extends RestSdmx20Client {
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery("ALL", SdmxClientHandler.ALL_AGENCIES, SdmxClientHandler.LATEST_VERSION );
+		URL query = buildFlowQuery("ALL", ALL_AGENCIES, LATEST_VERSION );
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null, null);
 		if(dsds.size() > 0)
 		{
@@ -84,8 +82,7 @@ public abstract class DotStat extends RestSdmx20Client {
 			for (Iterator<DataFlowStructure> iterator = dsds.iterator(); iterator.hasNext();) 
 			{
 				DataFlowStructure dsd = (DataFlowStructure) iterator.next();
-				Dataflow df = new Dataflow(dsd);
-				df.setName(dsd.getName());
+				Dataflow df = new Dataflow(dsd, dsd.getName());
 				df.setDsdIdentifier(dsd);
 				result.put(dsd.getId(), df);
 			}

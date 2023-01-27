@@ -34,8 +34,8 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.parser.v20.CodelistParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
@@ -103,8 +103,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	@Override
 	public Codelist getCodes(String codeList, String agency, String version) throws SdmxException
 	{
-		URL query = buildCodelistQuery(codeList, agency, version);
-		return runQuery(new CodelistParser(), query, null, null);
+		throw new SdmxInvalidParameterException("This method can only be called on SDMX V2.1+ providers.");
 	}
 
 	@Override

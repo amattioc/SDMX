@@ -21,6 +21,8 @@
 
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
+
 /**
  * This is a Java container for dataflow information.
  * 
@@ -29,17 +31,19 @@ package it.bancaditalia.oss.sdmx.api;
  */
 public class Dataflow extends SDMXReference
 {
-	private String name; // the description
+	private LocalizedText name; // the description
 	private SDMXReference dsdIdentifier;
 
-	public Dataflow(SDMXReference other)
+	public Dataflow(SDMXReference other, String name)
 	{
 		super(other);
+		this.name = new LocalizedText(name);
 	}
 	
-	public Dataflow(String id, String agency, String version)
+	public Dataflow(String id, String agency, String version, LocalizedText name)
 	{
 		super(id, agency, version);
+		this.name = name;
 	}
 
 	/**
@@ -47,7 +51,7 @@ public class Dataflow extends SDMXReference
 	 */
 	public String getDescription()
 	{
-		return name;
+		return name.getText();
 	}
 
 	/**
@@ -57,14 +61,6 @@ public class Dataflow extends SDMXReference
 	public String getName()
 	{
 		return getFullIdentifier() + " ; " + name;
-	}
-
-	/**
-	 * @param name
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 
 	/**

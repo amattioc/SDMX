@@ -103,7 +103,7 @@ public class SDMXClientFactory {
 		addBuiltInProvider("UNICEF", UNICEF_PROVIDER, false, false, true, "UNICEF", false, SDMXClientFactory.SDMX_V2);
 		addBuiltInProvider("BIS_PUBLIC", BIS_PROVIDER, false, false, true, "Bank for International Settlements", false, SDMXClientFactory.SDMX_V2);
 
-	    //add internal 2.0 providers
+	    //add internal providers
         addBuiltInProvider("ISTAT", null, false, false, false, "Italian National Institute of Statistics ", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("OECD", null, false, false, false, "The Organisation for Economic Co-operation and Development", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true, SDMXClientFactory.SDMX_V2);
@@ -113,6 +113,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("BBK", null, false, false, false, "Deutsche Bundesbank", true, SDMXClientFactory.SDMX_V2);
 	}
 	
 	/**

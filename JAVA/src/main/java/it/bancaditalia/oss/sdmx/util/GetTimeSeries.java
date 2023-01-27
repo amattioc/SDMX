@@ -33,6 +33,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
  */
 public class GetTimeSeries {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException{
 		if(args.length < 2 || args.length > 6 || args.length == 5){
 			System.err.println("usage: GetTimeSeries <provider> <query> [start] [end] [username password]");

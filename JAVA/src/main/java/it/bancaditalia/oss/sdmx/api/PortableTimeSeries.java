@@ -20,6 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.AbstractMap;
@@ -108,6 +110,23 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 
 	}
 
+	public PortableTimeSeries(Dataflow dataflow, Map<String, Entry<String, String>> dimensions, Map<String, String> attributes, List<? extends BaseObservation<? extends T>> obs)
+	{
+		this.dataflow = dataflow;
+		this.attributes.putAll(attributes);
+		this.dimensions.putAll(dimensions);
+
+		if (dimensions.containsKey("FREQ"))
+			this.frequency = dimensions.get("FREQ").getKey();
+		else if (dimensions.containsKey("freq"))
+			this.frequency = dimensions.get("freq").getKey();
+		else if (dimensions.containsKey("FREQUENCY"))
+			this.frequency = dimensions.get("FREQUENCY").getKey();
+		
+		useGeneratedName = true;
+		observations.addAll(obs);
+	}
+	
 	/**
 	 * Build an empty series which has the same attributes and dimensions as another non-null series
 	 * 
@@ -270,6 +289,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	 * 
 	 * @param attributes A non-null map containing attribute bindings.
 	 */
+	@Deprecated
 	public void setAttributes(Map<String, String> attributes)
 	{
 		getAttributesMap().clear();
@@ -282,6 +302,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	 * @param key The name of series' attribute. Must be non-null.
 	 * @param value The value of the attribute.
 	 */
+	@Deprecated
 	public void addAttribute(String key, String value)
 	{
 		this.getAttributesMap().put(key, value);
@@ -326,6 +347,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	/**
 	 * @param dimensions
 	 */
+	@Deprecated
 	public void setDimensions(Map<String, Entry<String, String>> dimensions)
 	{
 		this.dimensions.clear();
@@ -489,6 +511,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	/**
 	 * @param frequency
 	 */
+	@Deprecated
 	public void setFrequency(String frequency)
 	{
 		this.frequency = frequency;

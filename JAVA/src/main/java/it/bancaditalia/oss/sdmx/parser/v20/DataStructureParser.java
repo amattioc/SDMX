@@ -59,8 +59,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 
 	static final String			CODELISTS				= "CodeLists";
 	static final String			CODELIST				= "CodeList";
-	static final String			CODELIST2				= "codelist";
 	static final String			CODELISTAGENCY			= "codelistAgency";
+	static final String 		CODE 					= "Code";
+	static final String 		CODE_ID 				= "value";
+	static final String 		CODE_DESCRIPTION 		= "Description";
 
 	static final String			CONCEPTS				= "Concepts";
 	static final String			CONCEPTSCHEME			= "ConceptScheme";
@@ -89,7 +91,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 		logger.entering(sourceClass, sourceMethod);
 
 		List<DataFlowStructure> result = new ArrayList<>();
-		Map<String, Map<String, LocalizedText>> codelists = null;
+		Map<String, Codelist> codelists = null;
 		Map<String, String> concepts = null;
 		DataFlowStructure currentStructure = null;
 
@@ -160,7 +162,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 	}
 
 	private static void setStructureDimensionsAndAttributes(DataFlowStructure currentStructure,
-			XMLEventReader eventReader, Map<String, Map<String, LocalizedText>> codelistCodes, Map<String, String> concepts)
+			XMLEventReader eventReader, Map<String, Codelist> codelists, Map<String, String> concepts)
 			throws XMLStreamException
 	{
 		final String sourceMethod = "setStructureDimensions";
@@ -194,7 +196,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 						Attribute attribute = attributes.next();
 						if (attribute.getName().toString().equals(CONCEPT_REF))
 							id = attribute.getValue();
-						else if (attribute.getName().toString().equals(CODELIST2))
+						else if (attribute.getName().toString().equalsIgnoreCase(CODELIST))
 							codelistID = attribute.getValue();
 						else if (attribute.getName().toString().equals(CODELISTAGENCY))
 							codelistAgency = attribute.getValue();
@@ -213,8 +215,8 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					if (codelistID != null && !codelistID.isEmpty())
 					{
 						SDMXReference cl = new SDMXReference(codelistID, codelistAgency != null ? codelistAgency : agency, null);
-						if (codelistCodes != null)
-							currentElement.setCodeList(new Codelist(cl, codelistCodes.get(cl.getFullIdentifier()), null));
+						if (codelists != null)
+							currentElement.setCodeList(codelists.get(cl.getFullIdentifier()));
 					}
 					else
 					{
@@ -328,10 +330,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 		logger.exiting(sourceClass, sourceMethod);
 	}
 
-	private static Map<String, Map<String, LocalizedText>> getCodelists(XMLEventReader eventReader,
+	private static Map<String, Codelist> getCodelists(XMLEventReader eventReader,
 			List<LanguageRange> languages) throws XMLStreamException, SdmxException
 	{
-		Map<String, Map<String, LocalizedText>> codelists = new HashMap<>();
+		Map<String, Codelist> codelists = new HashMap<>();
 		while (eventReader.hasNext())
 		{
 			XMLEvent event = eventReader.nextEvent();
@@ -340,13 +342,12 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 			{
 				StartElement startElement = event.asStartElement();
 
-				if (startElement.getName().getLocalPart().equals(CODELIST))
+				if (startElement.getName().getLocalPart().equalsIgnoreCase(CODELIST))
 				{
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
 					String agency = null;
-					String codelistName = "";
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
@@ -356,10 +357,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 							agency = attr.getValue();
 					}
 
-					codelistName = agency + "/" + id;
-					logger.finer("Got codelist: " + codelistName);
-					codelists.put(codelistName, CodelistParser.getCodes(null, eventReader, languages, 
-							"CodeList", "Code", "value", "Description").localizedCodes());
+					logger.finer("Got codelist: " + id);
+					Codelist codes = CodelistParser.getCodes(new SDMXReference(id, agency, null), eventReader, languages, 
+							CODE_ID, CODE_DESCRIPTION);
+					codelists.put(codes.getFullIdentifier(), codes);
 				}
 			}
 			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(CODELISTS))

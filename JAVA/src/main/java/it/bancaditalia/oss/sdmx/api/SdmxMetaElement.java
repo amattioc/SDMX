@@ -30,7 +30,7 @@ public class SdmxMetaElement
 {
 
 	private String id = null;
-	private SDMXReference codeList = null;
+	private Codelist codeList = null;
 	private String name;
 
 	/**
@@ -63,7 +63,7 @@ public class SdmxMetaElement
 	/**
 	 * @return The codelist of this metadata element
 	 */
-	public SDMXReference getCodeList()
+	public Codelist getCodeList()
 	{
 		return codeList;
 	}
@@ -71,7 +71,7 @@ public class SdmxMetaElement
 	/**
 	 * @param codeList The codelist of this metadata element
 	 */
-	public void setCodeList(SDMXReference codeList)
+	public void setCodeList(Codelist codeList)
 	{
 		this.codeList = Objects.requireNonNull(codeList);
 	}

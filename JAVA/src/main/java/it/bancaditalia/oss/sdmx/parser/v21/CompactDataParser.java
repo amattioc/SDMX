@@ -29,7 +29,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale.LanguageRange;
@@ -40,7 +39,6 @@ import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -91,8 +89,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 	}
 
 	@Override
-	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages)
-			throws XMLStreamException, SdmxException
+	public DataParsingResult parse(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException, SdmxException
 	{
 		final String sourceMethod = "parse";
 		logger.entering(sourceClass, sourceMethod);
@@ -100,11 +97,13 @@ public class CompactDataParser implements Parser<DataParsingResult>
 		LinkedHashMap<String, PortableTimeSeries<Double>> tsList = new LinkedHashMap<>();
 
 		DataParsingResult result = new DataParsingResult();
-		PortableTimeSeries<Double> ts = null;
 		String currentAction = null;
 		String currentValidFromDate = null;
 		String currentValidToDate = null;
-
+		Entry<Map<String, Entry<String, String>>, Map<String, String>> metadata = null;
+		List<DoubleObservation> obs = new ArrayList<>();
+		Message message = null;
+		
 		while (eventReader.hasNext())
 		{
 			XMLEvent event = eventReader.nextEvent();
@@ -117,187 +116,131 @@ public class CompactDataParser implements Parser<DataParsingResult>
 				if (startElement.getName().getLocalPart() == (DATASET))
 				{
 					logger.finer("Got new dataset");
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext())
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
 					{
-						Attribute attr = attributes.next();
-						String id = attr.getName().getLocalPart().toString();
-						String value = attr.getValue();
-						if (id.equalsIgnoreCase(ACTION))
-						{
-							logger.finer("action: " + value);
-							currentAction = value;
-						}
-						else if (id.equalsIgnoreCase(VALID_FROM))
-						{
-							logger.finer("VALID_FROM: " + value);
-							currentValidFromDate = value;
-						}
-						else if (id.equalsIgnoreCase(VALID_TO))
-						{
-							logger.finer("VALID_TO: " + value);
-							currentValidToDate = value;
-						}
+						String id = attribute.getName().getLocalPart().toString();
+						
+						if (ACTION.equalsIgnoreCase(id))
+							currentAction = attribute.getValue();
+						else if (VALID_FROM.equalsIgnoreCase(id))
+							currentValidFromDate = attribute.getValue();
+						else if (VALID_TO.equalsIgnoreCase(id))
+							currentValidToDate = attribute.getValue();
 					}
 				}
-
-				if (startElement.getName().getLocalPart() == (SERIES))
+				else if (startElement.getName().getLocalPart() == (SERIES))
 				{
 					logger.finer("Got new time series");
-					ts = new PortableTimeSeries<>();
-					ts.setDataflow(dataflow);
-
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					setMetadata(ts, attributes);
+					metadata = getMetadata(startElement::getAttributes);
 				}
-
-				if (startElement.getName().getLocalPart() == (FOOTER))
-				{
-					setFooter(eventReader, languages, result);
-				}
-
-				if (startElement.getName().getLocalPart().equals(OBS) && data)
-				{
-					
-					//now the metadata has been set and we know the series key. We use it to check
-					//if the ts is already present in the result set. (This check has been introduced 
-					//in recent times because some providers started returning the same time series in 
-					//different chunks)
-					
-					ts = tsList.get(ts.getName()) != null ? tsList.get(ts.getName()) : ts;
-					
-					event = eventReader.nextEvent();
-					logger.finest(event.toString());
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					String time = null;
-					String obs_val = null;
-					Map<String, String> obs_attr = new HashMap<>();
-					while (attributes.hasNext())
-					{
-						Attribute attribute = attributes.next();
-						String name = attribute.getName().toString();
-						if (name.equals(dsd.getTimeDimension()))
-						{
-							time = attribute.getValue();
-						}
-						// workaround for some flows (e.g. in OECD) that do not respect the declared
-						// time dimension
-						else if (name.equals("TIME") && time == null)
-						{
-							time = attribute.getValue();
-						}
-						else if (name.equals(dsd.getMeasure()))
-						{
-							obs_val = attribute.getValue();
-						}
-						else
-						{
-							String value = attribute.getValue();
-							String desc = null;
-							if (!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID))
-							{
-								SdmxAttribute sdmxattr = dsd.getAttribute(name);
-								if (sdmxattr != null)
-								{
-									Codelist cl = (Codelist) sdmxattr.getCodeList();
-									if (cl != null)
-									{
-										desc = cl.get(value);
-										if (desc != null)
-										{
-											value = Configuration.getCodesPolicy()
-													.equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc
-															: value + "(" + desc + ")";
-										}
-									}
-								}
-							}
-							obs_attr.put(name, value);
-						}
-					}
-					// set validity and action at obs level (for multiple datasets and revisions)
-					if (currentAction != null)
-					{
-						obs_attr.put(ACTION, currentAction);
-					}
-					if (currentValidFromDate != null)
-					{
-						obs_attr.put(VALID_FROM, currentValidFromDate);
-					}
-					if (currentValidToDate != null)
-					{
-						obs_attr.put(VALID_TO, currentValidToDate);
-					}
-					try {
-						ts.add(new DoubleObservation(time, Double.valueOf(obs_val != null ? obs_val : ""), obs_attr));
-					} catch (NumberFormatException e) {
-						logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + obs_val + ". A NaN will be set.");
-						ts.add(new DoubleObservation(time, Double.NaN, obs_attr));
-					}
-					continue;
-				}
+				else if (startElement.getName().getLocalPart() == (FOOTER))
+					message = getMessage(eventReader, languages);
+				else if (startElement.getName().getLocalPart().equals(OBS) && data)
+					obs.add(getObservation(eventReader, currentAction, currentValidFromDate, currentValidToDate, startElement::getAttributes));
 			}
-
-			if (event.isEndElement())
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
 			{
-				EndElement endElement = event.asEndElement();
-				if (endElement.getName().getLocalPart() == (SERIES))
-				{
-					logger.finer("Adding time series " + ts);
-					//add empty series only if it is not in the list already
-					if(!tsList.containsKey(ts.getName())){
-						tsList.put(ts.getName(), ts);
-					}
-				}
+				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
+				tsList.putIfAbsent(ts.getName(), ts);
+				obs = new ArrayList<>();
 			}
-
 		}
+
 		//make sure the time series is ordered by time
-		for (PortableTimeSeries<Double> tts: result) Collections.sort(tts);
+		for (PortableTimeSeries<Double> tts: result)
+			Collections.sort(tts);
 		
+		if (message != null)
+			result.setMessage(message);
 		result.setData(new ArrayList<PortableTimeSeries<Double>>(tsList.values()));
 		logger.exiting(sourceClass, sourceMethod);
 		return result;
 	}
 
-	private void setMetadata(PortableTimeSeries<?> ts, Iterator<Attribute> attributes)
+	private DoubleObservation getObservation(XMLEventReader eventReader,
+			String currentAction, String currentValidFromDate, String currentValidToDate, Iterable<Attribute> attributes) throws XMLStreamException
+	{
+		XMLEvent event = eventReader.nextEvent();
+		logger.finest(event.toString());
+
+		String time = null;
+		String obs_val = null;
+		Map<String, String> obs_attr = new HashMap<>();
+		for (Attribute attribute: attributes)
+		{
+			String name = attribute.getName().toString();
+			if (name.equals(dsd.getTimeDimension()))
+				time = attribute.getValue();
+			// workaround for some flows (e.g. in OECD) that do not respect the declared
+			// time dimension
+			else if (name.equals("TIME") && time == null)
+				time = attribute.getValue();
+			else if (name.equals(dsd.getMeasure()))
+				obs_val = attribute.getValue();
+			else
+			{
+				String value = attribute.getValue();
+				String desc = null;
+				if (!Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID))
+				{
+					SdmxAttribute sdmxattr = dsd.getAttribute(name);
+					if (sdmxattr != null)
+					{
+						Codelist cl = (Codelist) sdmxattr.getCodeList();
+						if (cl != null)
+						{
+							desc = cl.get(value);
+							if (desc != null)
+							{
+								value = Configuration.getCodesPolicy()
+										.equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_DESC) ? desc
+												: value + "(" + desc + ")";
+							}
+						}
+					}
+				}
+				obs_attr.put(name, value);
+			}
+		}
+		// set validity and action at obs level (for multiple datasets and revisions)
+		if (currentAction != null)
+			obs_attr.put(ACTION, currentAction);
+		if (currentValidFromDate != null)
+			obs_attr.put(VALID_FROM, currentValidFromDate);
+		if (currentValidToDate != null)
+			obs_attr.put(VALID_TO, currentValidToDate);
+
+		try
+		{
+			return new DoubleObservation(time, Double.valueOf(obs_val != null ? obs_val : ""), obs_attr);
+		}
+		catch (NumberFormatException e)
+		{
+			logger.fine("The date: " + time + "has an obs value that is not parseable to a numer: " + obs_val + ". A NaN will be set.");
+			return new DoubleObservation(time, Double.NaN, obs_attr);
+		}
+	}
+
+	private Entry<Map<String, Entry<String, String>>, Map<String, String>> getMetadata(Iterable<Attribute> attributes)
 	{
 		final String sourceMethod = "setMetadata";
 		logger.entering(sourceClass, sourceMethod);
-//		if (action != null)
-//		{
-//			ts.addAttribute(ACTION, action);
-//		}
-//		if (validFrom != null)
-//		{
-//			ts.addAttribute(VALID_FROM, validFrom);
-//		}
-//		if (validTo != null)
-//		{
-//			ts.addAttribute(VALID_TO, validTo);
-//		}
 		int size = dsd.getDimensions().size();
 		String[] names = new String[size];
+		Map<String, String> attrValues = new HashMap<>();
 
-		@SuppressWarnings("unchecked")
-		Entry<String, String> values[] = new Entry[size];
+		List<Entry<String, String>> values = new ArrayList<>(size);
+		for (int i = 0; i < size; i++)
+			values.add(null);
 
-		while (attributes.hasNext())
+		for (Attribute attribute: attributes)
 		{
-			Attribute attr = attributes.next();
-			String id = attr.getName().toString();
-			String value = attr.getValue();
+			String id = attribute.getName().toString();
+			String value = attribute.getValue();
 			if (dsd.isDimension(id))
 			{
 				String desc = null;
 				names[dsd.getDimensionPosition(id) - 1] = id;
-				if (id.equalsIgnoreCase("FREQ") || id.equalsIgnoreCase("FREQUENCY"))
-				{
-					ts.setFrequency(value);
-				}
 
 				Dimension dim = dsd.getDimension(id);
 				if (dim != null)
@@ -307,7 +250,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 						desc = cl.get(value);
 				}
 
-				values[dsd.getDimensionPosition(id) - 1] = new SimpleEntry<>(value, desc);
+				values.set(dsd.getDimensionPosition(id) - 1, new SimpleEntry<>(value, desc));
 			}
 			else
 			{
@@ -332,24 +275,24 @@ public class CompactDataParser implements Parser<DataParsingResult>
 					}
 				}
 
-				ts.addAttribute(id, value);
+				attrValues.put(id, value);
 			}
 		}
 
 		Map<String, Entry<String, String>> dimensions = new LinkedHashMap<>();
 		for (int i = 0; i < size; i++)
-			dimensions.put(names[i], values[i]);
+			dimensions.put(names[i], values.get(i));
 
-		ts.setDimensions(dimensions);
 		logger.exiting(sourceClass, sourceMethod);
+		return new SimpleEntry<>(dimensions, attrValues);
 	}
 
-	private void setFooter(XMLEventReader eventReader, List<LanguageRange> languages, DataParsingResult parsingResult)
-			throws XMLStreamException
+	private Message getMessage(XMLEventReader eventReader, List<LanguageRange> languages) throws XMLStreamException
 	{
 		final String sourceMethod = "setFooter";
 		logger.entering(sourceClass, sourceMethod);
 		Message msg = null;
+		
 		while (eventReader.hasNext())
 		{
 			XMLEvent event = eventReader.nextEvent();
@@ -361,24 +304,17 @@ public class CompactDataParser implements Parser<DataParsingResult>
 				if (startElement.getName().getLocalPart() == (MESSAGE))
 				{
 					msg = new Message();
-					@SuppressWarnings("unchecked")
-					Iterator<Attribute> attributes = startElement.getAttributes();
-					while (attributes.hasNext())
+					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
 					{
-						Attribute attr = attributes.next();
-						String id = attr.getName().toString();
-						String value = attr.getValue();
+						String id = attribute.getName().toString();
+						String value = attribute.getValue();
 						if (id.equalsIgnoreCase(CODE))
-						{
 							msg.setCode(value);
-						}
 						else if (id.equalsIgnoreCase(SEVERITY))
-						{
 							msg.setSeverity(value);
-						}
 					}
 				}
-				if (startElement.getName().getLocalPart() == (TEXT))
+				else if (startElement.getName().getLocalPart() == (TEXT))
 				{
 					String item = null;
 					LocalizedText text = new LocalizedText(languages);
@@ -393,23 +329,17 @@ public class CompactDataParser implements Parser<DataParsingResult>
 					}
 					catch (MalformedURLException e)
 					{
+						
 					}
 				}
 			}
-
-			if (event.isEndElement())
+			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (MESSAGE))
 			{
-				EndElement endElement = event.asEndElement();
-				// just get the first message for now
-				if (endElement.getName().getLocalPart() == (MESSAGE))
-				{
-					logger.finer("Adding footer message");
-					parsingResult.setMessage(msg);
-					break;
-				}
+				logger.finer("Adding footer message");
+				return msg;
 			}
 		}
-		logger.exiting(sourceClass, sourceMethod);
-	}
 
+		return null;
+	}
 }

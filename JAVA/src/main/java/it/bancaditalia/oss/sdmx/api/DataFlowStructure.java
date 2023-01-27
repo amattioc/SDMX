@@ -173,10 +173,7 @@ public class DataFlowStructure extends SDMXReference
 	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("DSD [id=").append(getFullIdentifier()).append(", name=").append(name).append(", dimensions=\n")
-				.append(dimensions).append(", attributes=\n").append(attributes).append("]");
-		return builder.toString();
+		return String.format("DSD [id=%s, name=%s, dimensions=\n%s, attributes=\n%s]", getFullIdentifier(), name, dimensions, attributes);
 	}
 
 	/**

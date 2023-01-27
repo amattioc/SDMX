@@ -18,34 +18,38 @@
 * See the Licence for the specific language governing
 * permissions and limitations under the Licence.
 */
-package it.bancaditalia.oss.sdmx.parser.v21;
+package it.bancaditalia.oss.sdmx.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import it.bancaditalia.oss.sdmx.api.Message;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-
-public class DataParsingResult extends ArrayList<PortableTimeSeries<Double>>
+public class Measure extends SdmxMetaElement
 {
-	private static final long serialVersionUID = 1L;
-	
-	private Message message = null;
-	
-	public void setData(List<PortableTimeSeries<Double>> data)
+	private int position;
+
+	/**
+	 * Creates an empty dimension.
+	 */
+	public Measure(String id, int position)
 	{
-		clear();
-		for (PortableTimeSeries<Double> ts: data)
-			add(ts);
+		super(id);
+		this.position = position;
+	}
+
+	/**
+	 * @return The dimension ordinality in the dataflow structure.
+	 */
+	public int getPosition()
+	{
+		return position;
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("Measure [id=%s, position=%d, codelist=%s]\n", getId(), position);
 	}
 	
-	public Message getMessage()
+	@Override
+	public Codelist getCodeList()
 	{
-		return message;
-	}
-	
-	public void setMessage(Message message)
-	{
-		this.message = message;
+		throw new UnsupportedOperationException("No codelists for Measures.");
 	}
 }

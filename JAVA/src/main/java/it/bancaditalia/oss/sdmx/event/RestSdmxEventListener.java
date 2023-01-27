@@ -6,14 +6,7 @@ package it.bancaditalia.oss.sdmx.event;
  */
 public interface RestSdmxEventListener 
 {
-	public static final RestSdmxEventListener NO_OP_LISTENER = new RestSdmxEventListener() {
-
-		@Override
-		public void onSdmxEvent(RestSdmxEvent event)
-		{
-			// Do nothing
-		}
-	};
+	public static final RestSdmxEventListener NO_OP_LISTENER = event -> {};
 	
 	public void onSdmxEvent(RestSdmxEvent event);
 }

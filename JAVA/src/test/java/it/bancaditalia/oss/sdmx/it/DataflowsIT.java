@@ -26,16 +26,17 @@ public class DataflowsIT
     		{
 				{ "ABS",              null,                              "ATSI_BIRTHS_SUMM",              "Aboriginal and Torres Strait Islander births and confinements, summary, by state" },
 				{ "ECB",              "*Exchange*",                      "EXR",                           "Exchange Rates" },
-				{ "EUROSTAT",         "prc_hicp_midx",                   "prc_hicp_midx",                 "HICP - monthly data (index)" },
-				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", "DF_EMP_TEMP_SEX_AGE_NB", "Employment by sex and age" },
+				{ "EUROSTAT",         "PRC_HICP_MIDX",                   "PRC_HICP_MIDX",                 "HICP - monthly data (index)" },
+				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", 		 "DF_EMP_TEMP_SEX_AGE_NB", 		  "Employment by sex and age" },
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
 				{ "INSEE",            "BALANCE-PAIEMENTS",               "BALANCE-PAIEMENTS",             "Balance of payments" },
 				{ "WITS",             "*Tariff*",                        "DF_WITS_Tariff_TRAINS",         "WITS - UNCTAD TRAINS Tariff Data" },
 				{ "WB",               "WDI",                             "WDI",                           "World Development Indicators" },
 				{ "UNDATA",           null,                              "DF_UNDATA_COUNTRYDATA",         "SDMX-CountryData" },
 				{ "OECD",             "AEO",                             "AEO",                           "African Economic Outlook" },
-				{ "ISTAT_RI",            null,                              "163_24",                       "Principali aggregati trimestrali di Contabilità Nazionale" },
+				{ "ISTAT_RI",         null,                              "163_24",                        "Principali aggregati trimestrali di Contabilità Nazionale" },
 				{ "ISTAT",            null,                              "144_125",                       "Nic - annuali sino al  2010" },
+				{ "BBK",          	  null,                              "BBASV",                         "Deutsche Bundesbank, Statistics on Insurance Corporations (Solvency I + II)" }
     		}, 0);
     }
 

@@ -20,20 +20,19 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
-public class UISClientTest {
+public class BBKClientTest {
 	public static void main(String[] args) throws SdmxException{
-//		System.err.println(SdmxClientHandler.getFlows("UIS", null));
-//		System.err.println(SdmxClientHandler.getFlow("UIS", "SCN_DS"));
-//		System.err.println(SdmxClientHandler.getDSDIdentifier("UIS", "SCN_DS"));
-//		System.err.println(SdmxClientHandler.getDimensions("UIS", "SCN_DS"));
-		System.err.println(SdmxClientHandler.getDataFlowStructure("UIS", "DEM_ECO"));
-//		System.err.println(SdmxClientHandler.getCodes("UIS", "SCN_DS", "LOCATION"));
-		System.err.println(SdmxClientHandler.getTimeSeries("UIS", "DEM_ECO.DEC.LCU_USD._Z._Z.AF", null, null));
+//		System.err.println(SdmxClientHandler.getFlows("BBK", null));
+		System.err.println(SdmxClientHandler.getFlow("BBK", "BBASV"));
+//		System.err.println(SdmxClientHandler.getDSDIdentifier("BBK", "BBASV"));
+//		System.err.println(SdmxClientHandler.getDimensions("BBK", "BBASV"));
+//		System.err.println(SdmxClientHandler.getDataFlowStructure("BBK", "BBASV"));
+//		System.err.println(SdmxClientHandler.getCodes("BBK", "BBASV", "BBK_ACS2_REF_AREA"));
+//		System.err.println(SdmxClientHandler.getTimeSeries("UIS", "DEM_ECO.DEC.LCU_USD._Z._Z.AF", null, null));
 
 	}
 }

@@ -30,11 +30,12 @@ public class SDMXReferenceIT
         		{ "OECD",             "QNA",                           null,       "QNA" },
         		{ "NBB",              "AFCSURV",                       null,       "AFCSURV" },
         		{ "ISTAT",            "144_125",                       null,       "DCSP_NICDUE" },
-        		{ "ISTAT_RI",            "163_24",                       null,       "DCCN_QNA" },
+        		{ "ISTAT_RI",            "163_24",                       null,     "DCCN_QNA" },
         		{ "INSEE",            "CNA-2010-CONSO-SI",             "FR1",      "CNA-2010-CONSO-SI" },
         		{ "IMF2",             "DS-WHDREO",                     null,       "WHDREO" },
-        		{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 		"ILO",      "EMP_TEMP_SEX_AGE_NB" },
-        		{ "EUROSTAT",         "prc_hicp_midx",                 null,       "DSD_prc_hicp_midx" }
+        		{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 		"ILO",     "EMP_TEMP_SEX_AGE_NB" },
+        		{ "EUROSTAT",         "PRC_HICP_MIDX",                 null,       "PRC_HICP_MIDX" },
+        		{ "BBK",              "BBASV",                 		   "BBK",      "BBK_ACS2" }
     		}, 0);
     }
 

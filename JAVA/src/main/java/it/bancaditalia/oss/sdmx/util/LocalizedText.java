@@ -20,12 +20,15 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import static java.util.Collections.singletonList;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -39,10 +42,23 @@ public class LocalizedText
 	private final List<LanguageRange> languages;
 	private final Map<String, String> data = new LinkedHashMap<>();
 
+	public LocalizedText(String universalName)
+	{
+		languages = singletonList(new LanguageRange("*"));
+		put("en", universalName);
+	}
+	
 	public LocalizedText(List<LanguageRange> languages)
 	{
 		this.languages = languages;
 	}
+
+//	public LocalizedText(List<LanguageRange> languages, List<TextTypeWrapper> texts)
+//	{
+//		this.languages = languages;
+//		for (TextTypeWrapper text: texts)
+//			put(text.getLocale(), text.getValue());
+//	}
 
 	private void put(String lang, String text)
 	{
@@ -64,6 +80,13 @@ public class LocalizedText
 		return lang != null ? data.get(lang) : data.values().iterator().next();
 	}
 
+	/**
+	 * Parse a SDMX message snippet to retrieve a localized text
+	 * 
+	 * @param startElement
+	 * @param eventReader
+	 * @throws XMLStreamException
+	 */
 	public void setText(StartElement startElement, XMLEventReader eventReader) throws XMLStreamException
 	{
 		@SuppressWarnings("unchecked")
@@ -74,5 +97,13 @@ public class LocalizedText
 			if (attribute.getName().getLocalPart().equals(LANG))
 				put(attribute.getValue(), eventReader.getElementText());
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "LocalizedText [" + data.entrySet()
+        .stream()
+        .map(entry -> entry.getKey() + " - " + entry.getValue())
+        .collect(Collectors.joining(", ")) + "]";
 	}
 }

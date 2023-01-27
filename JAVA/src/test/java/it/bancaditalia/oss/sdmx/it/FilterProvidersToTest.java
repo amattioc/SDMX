@@ -22,6 +22,7 @@ public class FilterProvidersToTest
 			"OECD",
 			"UNDATA",
 			"WITS",
+			"BBK"
 		}));
 
 	public static List<Object[]> filter(Object[][] parameters, final int index)

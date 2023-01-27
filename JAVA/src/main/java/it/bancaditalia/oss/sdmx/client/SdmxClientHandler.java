@@ -69,10 +69,6 @@ public class SdmxClientHandler
 	protected static final Logger					LOGGER			= Configuration.getSdmxLogger();
 	private static final String						sourceClass		= SdmxClientHandler.class.getSimpleName();
 
-	// we only manage 'latest' and 'all' as starting points, for now
-	public static final String						LATEST_VERSION	= "latest";
-	public static final String						ALL_AGENCIES	= "all";
-
 	// key: provider name --> client
 	private static Map<String, GenericSDMXClient>	clients			= new HashMap<>();
 
@@ -233,33 +229,38 @@ public class SdmxClientHandler
 		if (result == null)
 		{
 			LOGGER.finer("DSD for " + keyF.getFullIdentifier() + " not cached. Calling Provider.");
-			result = getClient(provider).getDataFlowStructure(keyF,
-					/*
-					 * TODO: Find a way to obtain dimension description without a full query. Original code:
-					 * !Configuration.getCodesPolicy().equalsIgnoreCase(Configuration.SDMX_CODES_POLICY_ID)
-					 */
-					true);
+			result = getClient(provider).getDataFlowStructure(keyF, true);
 			
 			if (result != null)
 			{
 				if (!(getClient(provider) instanceof RestSdmx20Client))
 				{
-					// workaround: some providers do not set in the dsd response all the referenced codelists
+					// workaround only for V2.1+ : some providers do not set in the dsd response all the referenced codelists
+					// and this is a problem, especially for dimensions.
+					// we try to fill it with a direct codelist call
 					for (Dimension dim: result.getDimensions())
 					{
-						SDMXReference cl = dim.getCodeList();
-						if (cl != null && !(cl instanceof Codelist))
+						Codelist cl = dim.getCodeList();
+						if (cl != null && cl.isEmpty())
 						{
-							dim.setCodeList(getClient(provider).getCodes(cl));
+							// we do not allow uncoded dimensions
+							Codelist codes = getClient(provider).getCodes(cl);
+							if(codes == null || codes.isEmpty()){
+								throw new SdmxXmlContentException(
+										"Could not find codelist  for '" + cl + "' in provider: '" + provider + "'");
+
+							}
+							dim.setCodeList(codes);
 							result.setDimension(dim);
 						}
 					}
 					
 					for (SdmxAttribute attr: result.getAttributes())
 					{
-						SDMXReference cl = attr.getCodeList();
-						if (cl != null && !(cl instanceof Codelist))
+						Codelist cl = attr.getCodeList();
+						if (cl != null && cl.isEmpty())
 						{
+							//for attributes we let it go even if we don't fine the codes
 							attr.setCodeList(getClient(provider).getCodes(cl));
 							result.setAttribute(attr);
 						}
@@ -293,7 +294,7 @@ public class SdmxClientHandler
 		if (result == null)
 		{
 			LOGGER.finer("DSD identifier for dataflow " + dataflow + " not cached. Calling Provider.");
-			Dataflow df = getClient(providerName).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
+			Dataflow df = getClient(providerName).getDataflow(dataflow, null, null);
 			if (df != null)
 			{
 				provider.setFlow(df);
@@ -394,12 +395,12 @@ public class SdmxClientHandler
 		}
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
 		Dimension dim = dsd.getDimension(dimension);
-		SDMXReference codes = null;
+		Codelist codes = null;
 		if (dim != null)
 		{
 			codes = dim.getCodeList();
-			if (codes instanceof Codelist)
-				return (Codelist) codes;
+			if (codes != null && !codes.isEmpty())
+				return codes;
 			else
 			{
 				// this is a 2.1 provider
@@ -416,7 +417,7 @@ public class SdmxClientHandler
 			throw new SdmxXmlContentException(
 					"The dimension: '" + dimension + "' does not exist in dataflow: '" + dataflow + "'");
 
-		return (Codelist) codes;
+		return codes;
 	}
 
 	public static Dataflow getFlow(String provider, String dataflow) throws SdmxException
@@ -436,7 +437,8 @@ public class SdmxClientHandler
 		if (flow == null)
 		{
 			LOGGER.fine("Dataflow " + dataflow + " not cached. Calling Provider.");
-			flow = getClient(provider).getDataflow(dataflow, ALL_AGENCIES, LATEST_VERSION);
+			//we get the latest version and all agencies. Hopefully we have only one
+			flow = getClient(provider).getDataflow(dataflow, null, null);
 			if (flow != null)
 				p.setFlow(flow);
 			else
