@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
@@ -177,7 +178,7 @@ public class Codelist extends SDMXReference implements Iterable<String>, Map<Str
 	@Override
 	public Collection<String> values()
 	{
-		return codes.values().stream().map(LocalizedText::getText).collect(toSet());
+		return codes.values().stream().map(LocalizedText::getText).collect(toList());
 	}
 
 	@Override
