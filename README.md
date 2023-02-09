@@ -3,6 +3,8 @@ Sdmx Connectors
 
 Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/latest) <br><br>
+[![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)](http://www.awesomeofficialstatistics.org)
+
 CRAN:  
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
