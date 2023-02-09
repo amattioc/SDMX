@@ -113,6 +113,10 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("EUROSTAT", null, false, false, false, "Eurostat", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("EUROSTAT_COMEXT", null, false, false, false, "Eurostat - COMEXT", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("EUROSTAT_GROW", null, false, false, false, "Eurostat - DG GROW", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("EUROSTAT_COMP", null, false, false, false, "Eurostat - DG COMP", true, SDMXClientFactory.SDMX_V2);
+	    addBuiltInProvider("EUROSTAT_EMPL", null, false, false, false, "Eurostat - DG EMPL", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("BBK", null, false, false, false, "Deutsche Bundesbank", true, SDMXClientFactory.SDMX_V2);
 	}
 	
@@ -226,12 +230,12 @@ public class SDMXClientFactory {
             final String providerName = Configuration.getConfiguration().getProperty("providers." + name + ".name", name);
             final String providerEndpoint = Configuration.getConfiguration().getProperty("providers." + name + ".endpoint", endpoint);
             final URI providerURL = null != providerEndpoint ? new URI(providerEndpoint) : null;
-            final boolean provdiderNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
+            final boolean providerNeedsCredentials = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsCredentials", needsCredentials.toString()));
             final boolean providerNeedsURLEncoding = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".needsURLEncoding", needsURLEncoding.toString()));
             final boolean providerSupportsCompression = Boolean.parseBoolean(Configuration.getConfiguration().getProperty("providers." + name + ".supportsCompression", supportsCompression.toString()));
             final String providerDescription = Configuration.getConfiguration().getProperty("providers." + name + ".description", description);
             final String providerSdmxVersion = Configuration.getConfiguration().getProperty("providers." + name + ".sdmxversion", sdmxVersion.toString());
-            addProvider(providerName, providerURL, null, provdiderNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom, providerSdmxVersion);
+            addProvider(providerName, providerURL, null, providerNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, isCustom, providerSdmxVersion);
         } catch (URISyntaxException e) {
             logger.log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[]{e.getClass().getName(), e.getMessage()});
             logger.log(Level.FINER, "", e);
