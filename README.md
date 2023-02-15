@@ -6,9 +6,8 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 ![Latest Release](https://img.shields.io/github/v/release/amattioc/SDMX)   ![Latest Release downloads](https://img.shields.io/github/downloads/amattioc/SDMX/latest/total)
 
 
-![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)]
+![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)
 
-CRAN:  
 ![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
 ![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx2.png)
