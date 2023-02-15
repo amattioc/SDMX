@@ -6,7 +6,7 @@ Latest **stable release**: [here](https://github.com/amattioc/SDMX/releases/late
 [![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)](http://www.awesomeofficialstatistics.org)
 
 CRAN:  
-![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
+![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
 ![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx2.png)
 
