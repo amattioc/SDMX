@@ -194,7 +194,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
-		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
+		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword,"allstubs");
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
 		if (flows.size() > 0)
 		{
@@ -215,7 +215,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		Dataflow result = null;
 		if(agency == null) agency = ALL_AGENCIES;
 		if(version == null) version = this.latestKeyword;
-		URL query = buildFlowQuery(dataflow, agency, version);
+		URL query = buildFlowQuery(dataflow, agency, version, null);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
 		if (flows.size() >= 1)
 			result = flows.get(0);
@@ -413,6 +413,15 @@ public class RestSdmxClient implements GenericSDMXClient
 					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 
 				}
+				if (code == HttpURLConnection.HTTP_INTERNAL_ERROR)
+				{
+					LOGGER.log(Level.SEVERE, "Error on the provider side. Second attempt...");
+					conn = url.openConnection(proxy);
+					((HttpURLConnection) conn).setRequestMethod("GET");
+					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
+
+				}
+				
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
@@ -563,9 +572,9 @@ public class RestSdmxClient implements GenericSDMXClient
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
-	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
+	protected URL buildFlowQuery(String dataflow, String agency, String version, String detail) throws SdmxException
 	{
-		return Sdmx21Queries.createDataflowQuery(endpoint, dataflow, agency, version).buildSdmx21Query();
+		return Sdmx21Queries.createDataflowQuery(endpoint, dataflow, agency, version, detail).buildSdmx21Query();
 	}
 
 	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException

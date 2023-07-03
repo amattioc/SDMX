@@ -182,7 +182,7 @@ public class SDMXHelper extends JFrame
 	private final JRadioButton rdSearchBothCL = new JRadioButton();
 	private final ButtonGroup codeSearchRadioGroup = new ButtonGroup();
 	private final JRadioButton rdSearchCodeFlow = new JRadioButton();
-	private final JRadioButton rdSearchDSDFlow = new JRadioButton();
+	//private final JRadioButton rdSearchDSDFlow = new JRadioButton();
 	private final JRadioButton rdSearchDescFlow = new JRadioButton();
 	private final JRadioButton rdSearchAllFlow = new JRadioButton();
 	private final JCheckBox cbWholeWordFlow = new JCheckBox();
@@ -476,8 +476,8 @@ public class SDMXHelper extends JFrame
 					
 					if (rdSearchCodeFlow.isSelected())
 						indices = indicesCode;
-					else if (rdSearchDSDFlow.isSelected())
-						indices = indicesDSD;
+					//else if (rdSearchDSDFlow.isSelected())
+						//indices = indicesDSD;
 					else if (rdSearchDescFlow.isSelected())
 						indices = indicesDesc;
 					else
@@ -699,6 +699,7 @@ public class SDMXHelper extends JFrame
 		tblDataflows.getColumnModel().getColumn(0).setMaxWidth(Integer.MAX_VALUE);
 		tblDataflows.getColumnModel().getColumn(1).setMinWidth(60);
 		tblDataflows.getColumnModel().getColumn(1).setMaxWidth(60);
+		/*
 		tblDataflows.getColumnModel().getColumn(2).setMinWidth(120);
 		tblDataflows.getColumnModel().getColumn(2).setMaxWidth(Integer.MAX_VALUE);
 		tblDataflows.getColumnModel().getColumn(3).setMinWidth(60);
@@ -708,6 +709,13 @@ public class SDMXHelper extends JFrame
 		tblDataflows.getColumnModel().getColumn(5).setMinWidth(200);
 		tblDataflows.getColumnModel().getColumn(5).setMaxWidth(Integer.MAX_VALUE);
 		tblDataflows.getColumnModel().getColumn(5).setPreferredWidth(800);
+		*/
+		tblDataflows.getColumnModel().getColumn(2).setMinWidth(60);
+		tblDataflows.getColumnModel().getColumn(2).setMaxWidth(60);
+		tblDataflows.getColumnModel().getColumn(3).setMinWidth(200);
+		tblDataflows.getColumnModel().getColumn(3).setMaxWidth(Integer.MAX_VALUE);
+		tblDataflows.getColumnModel().getColumn(3).setPreferredWidth(800);
+		
 		tblDataflows.setRowSorter(dataflowsTableSorter);
 		tblDataflows.setAutoCreateColumnsFromModel(false);
 		tblDataflows.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -751,9 +759,9 @@ public class SDMXHelper extends JFrame
 		Component horizontalStrut_4_3_1 = Box.createHorizontalStrut(10);
 		flowOptionsPane.add(horizontalStrut_4_3_1);
 		
-		rdSearchDSDFlow.addActionListener(e -> flowListener.filter());
-		flowSearchRadioGroup.add(rdSearchDSDFlow);
-		flowOptionsPane.add(rdSearchDSDFlow);
+		//rdSearchDSDFlow.addActionListener(e -> flowListener.filter());
+		//flowSearchRadioGroup.add(rdSearchDSDFlow);
+		//flowOptionsPane.add(rdSearchDSDFlow);
 		
 		Component horizontalStrut_4_4_1 = Box.createHorizontalStrut(10);
 		flowOptionsPane.add(horizontalStrut_4_4_1);
@@ -914,16 +922,18 @@ public class SDMXHelper extends JFrame
 		rdSearchCodeFlow.setText(b.getString("SDMXHelper.19")); //$NON-NLS-1$
 		rdSearchDescCL.setText(b.getString("SDMXHelper.17")); //$NON-NLS-1$
 		rdSearchDescFlow.setText(b.getString("SDMXHelper.21")); //$NON-NLS-1$
-		rdSearchDSDFlow.setText(b.getString("SDMXHelper.20")); //$NON-NLS-1$
+		//rdSearchDSDFlow.setText(b.getString("SDMXHelper.20")); //$NON-NLS-1$
 		tblCodes.getColumnModel().getColumn(0).setHeaderValue(""); //$NON-NLS-1$
 		tblCodes.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.69")); //$NON-NLS-1$
 		tblCodes.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.70")); //$NON-NLS-1$
 		tblDataflows.getColumnModel().getColumn(0).setHeaderValue(b.getString("SDMXHelper.0")); //$NON-NLS-1$
 		tblDataflows.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.1")); //$NON-NLS-1$
-		tblDataflows.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.2")); //$NON-NLS-1$
-		tblDataflows.getColumnModel().getColumn(3).setHeaderValue(b.getString("SDMXHelper.3")); //$NON-NLS-1$
-		tblDataflows.getColumnModel().getColumn(4).setHeaderValue(b.getString("SDMXHelper.4")); //$NON-NLS-1$
-		tblDataflows.getColumnModel().getColumn(5).setHeaderValue(b.getString("SDMXHelper.5")); //$NON-NLS-1$
+		//tblDataflows.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.2")); //$NON-NLS-1$
+		//tblDataflows.getColumnModel().getColumn(3).setHeaderValue(b.getString("SDMXHelper.3")); //$NON-NLS-1$
+		//tblDataflows.getColumnModel().getColumn(4).setHeaderValue(b.getString("SDMXHelper.4")); //$NON-NLS-1$
+		//tblDataflows.getColumnModel().getColumn(5).setHeaderValue(b.getString("SDMXHelper.5")); //$NON-NLS-1$
+		tblDataflows.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.4")); //$NON-NLS-1$
+		tblDataflows.getColumnModel().getColumn(3).setHeaderValue(b.getString("SDMXHelper.5")); //$NON-NLS-1$
 		tblDimensions.getColumnModel().getColumn(0).setHeaderValue(""); //$NON-NLS-1$
 		tblDimensions.getColumnModel().getColumn(1).setHeaderValue(b.getString("SDMXHelper.11")); //$NON-NLS-1$
 		tblDimensions.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.12")); //$NON-NLS-1$
@@ -1185,7 +1195,23 @@ public class SDMXHelper extends JFrame
 				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(0)).toString()
 				: null;
 	}
+	
+	private String getSelectedDataflowVersion()
+	{
+		int rowSelected = tblDataflows.getSelectedRow();
+		return rowSelected != -1
+				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(1)).toString()
+				: null;
+	}	
 
+	private String getSelectedDataflowAgency()
+	{
+		int rowSelected = tblDataflows.getSelectedRow();
+		return rowSelected != -1
+				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(2)).toString()
+				: null;
+	}
+	
 	private String getSelectedDimension()
 	{
 		int rowSelected = tblDimensions.getSelectedRow();

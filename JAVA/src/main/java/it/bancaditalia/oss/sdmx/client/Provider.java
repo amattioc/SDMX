@@ -52,7 +52,6 @@ public class Provider {
 	private boolean needsCredentials;
 	private boolean needsURLEncoding;
 	private boolean supportsCompression;
-	private boolean full = false;
 	private boolean isCustom = false;
 
 	// key: flow id (full) --> flow
@@ -174,13 +173,6 @@ public class Provider {
 		this.needsCredentials = needsCredentials;
 	}
 
-	public void setFull(boolean full) {
-		this.full = full;
-	}
-
-	public boolean isFull() {
-		return full;
-	}
 
 	public boolean isNeedsURLEncoding() {
 		return needsURLEncoding;

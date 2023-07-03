@@ -58,7 +58,7 @@ public abstract class DotStat extends RestSdmx20Client {
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery(dataflow, ALL_AGENCIES, LATEST_VERSION );
+		URL query = buildFlowQuery(dataflow, ALL_AGENCIES, LATEST_VERSION, null );
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null, null);
 		if(dsds.size() > 0)
 		{
@@ -74,7 +74,7 @@ public abstract class DotStat extends RestSdmx20Client {
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException {
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery("ALL", ALL_AGENCIES, LATEST_VERSION );
+		URL query = buildFlowQuery("ALL", ALL_AGENCIES, LATEST_VERSION, "allstubs" );
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null, null);
 		if(dsds.size() > 0)
 		{
@@ -94,7 +94,7 @@ public abstract class DotStat extends RestSdmx20Client {
 	}
 	
 	@Override
-	protected URL buildFlowQuery(String flow, String agency, String version)  throws SdmxException{
+	protected URL buildFlowQuery(String flow, String agency, String version, String detail)  throws SdmxException{
 		return(buildDSDQuery(flow, agency, version, false));
 	}
 
