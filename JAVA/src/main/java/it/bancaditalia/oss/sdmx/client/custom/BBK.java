@@ -50,8 +50,9 @@ public class BBK extends RestSdmxClient{
 	}
 
 	@Override
-	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException{
+	protected URL buildFlowQuery(String dataflow, String agency, String version, String detail) throws SdmxException{
 		try {
+			
 			return new URL(endpoint + "/metadata/dataflow/BBK" + (dataflow.equalsIgnoreCase("all") ? "" : ("/" + dataflow)));
 		} catch (MalformedURLException e) {
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);

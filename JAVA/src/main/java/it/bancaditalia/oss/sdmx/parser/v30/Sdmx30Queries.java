@@ -27,6 +27,7 @@ import java.net.URL;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
@@ -83,16 +84,16 @@ public class Sdmx30Queries extends RestQueryBuilder {
 			}
 			//query.addPath("");
 			if (full) {
-				query.addParam("references", "children");
+				query.addParam("references", "children"); //.addParam("detail", "allstubs");
 			}
 			return query;
 		} else
 			throw new SdmxInvalidParameterException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
-	public static Sdmx30Queries createDataflowQuery(URI endpoint, String dataflow, String agency, String version) throws SdmxInvalidParameterException {
+	public static Sdmx30Queries createDataflowQuery(URI endpoint, String dataflow, String agency, String version, String detail) throws SdmxInvalidParameterException {
 		if (endpoint != null || dataflow != null)
-			return ((Sdmx30Queries) new Sdmx30Queries(endpoint).addPath("structure").addPath("dataflow").addParam("format", "sdmx-2.1")).addResourceId(agency, dataflow, version);		
+			return ((Sdmx30Queries) new Sdmx30Queries(endpoint).addDetail(detail).addPath("structure").addPath("dataflow").addParam("format", "sdmx-2.1")).addResourceId(agency, dataflow, version);		
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 	}
@@ -137,6 +138,12 @@ public class Sdmx30Queries extends RestQueryBuilder {
 		
 		return this;
 	}
+
+	public Sdmx30Queries addDetail(String value) {
+		if (value != null && !value.isEmpty())
+			addParam("detail", value);
+		return this;
+	}		
 	
 	/**
 	 * Just a convenience wrapper around {@link RestQueryBuilder#build()}

@@ -160,9 +160,9 @@ public class RestSdmx30Client extends RestSdmxClient
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
-	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
+	protected URL buildFlowQuery(String dataflow, String agency, String version, String detail) throws SdmxException
 	{
-		return Sdmx30Queries.createDataflowQuery(endpoint, dataflow, agency, version).buildQuery();
+		return Sdmx30Queries.createDataflowQuery(endpoint, dataflow, agency, version, detail).buildQuery();
 	}
 
 	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException
