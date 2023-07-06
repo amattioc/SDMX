@@ -470,9 +470,9 @@ public class SDMXHelper extends JFrame
 
 					final int indices[];
 					int indicesCode[] = { 0 };
-					int indicesDSD[] = { 2 };
-					int indicesDesc[] = { 5 };
-					int indicesAll[] = { 0, 2, 5 };
+					//int indicesDSD[] = { 2 };
+					int indicesDesc[] = { 3 };
+					int indicesAll[] = { 0, 2, 3 };
 					
 					if (rdSearchCodeFlow.isSelected())
 						indices = indicesCode;
