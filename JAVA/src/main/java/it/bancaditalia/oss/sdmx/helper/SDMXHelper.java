@@ -1031,7 +1031,8 @@ public class SDMXHelper extends JFrame
 		codelistSortersMap.clear();
 		((CheckboxListTableModel<?>) tblCodes.getModel()).clear();
 		dimsTableModel.clear();
-
+		String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+		btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		// if this is not a provider switch
 		new ProgressViewer<>(this, new AtomicBoolean(false),
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
@@ -1109,6 +1110,8 @@ public class SDMXHelper extends JFrame
 						updateSource(provider);
 						btnCheckQuery.setEnabled(false);
 						btnPrintQuery.setEnabled(false);
+						String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+						btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 						tfSdmxQuery.setText(""); //$NON-NLS-1$
 						tfDataflowFilter.setText(""); //$NON-NLS-1$
 						lblQuery.setText(lblQuery.getText().split(":")[0] + ": " + provider); //$NON-NLS-1$ //$NON-NLS-2$
