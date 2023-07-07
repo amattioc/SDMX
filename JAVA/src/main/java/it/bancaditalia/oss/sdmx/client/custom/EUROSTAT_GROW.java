@@ -34,6 +34,6 @@ public class EUROSTAT_GROW extends RestSdmxClient{
 
 
 	public EUROSTAT_GROW() throws URISyntaxException {
-		super("Eurostat", new URI(EUROSTAT_GROW_PROVIDER), false, false, false);
+		super("Eurostat", new URI(EUROSTAT_GROW_PROVIDER), false, false, true);
 	}
 }

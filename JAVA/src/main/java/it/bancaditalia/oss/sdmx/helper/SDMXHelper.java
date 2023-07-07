@@ -1199,22 +1199,6 @@ public class SDMXHelper extends JFrame
 				: null;
 	}
 	
-	private String getSelectedDataflowVersion()
-	{
-		int rowSelected = tblDataflows.getSelectedRow();
-		return rowSelected != -1
-				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(1)).toString()
-				: null;
-	}	
-
-	private String getSelectedDataflowAgency()
-	{
-		int rowSelected = tblDataflows.getSelectedRow();
-		return rowSelected != -1
-				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(2)).toString()
-				: null;
-	}
-	
 	private String getSelectedDimension()
 	{
 		int rowSelected = tblDimensions.getSelectedRow();

@@ -56,7 +56,7 @@ public class EUROSTAT extends RestSdmxClient
 
 	public EUROSTAT() throws URISyntaxException
 	{
-		super("Eurostat", new URI(EUROSTAT_PROVIDER), false, false, false);
+		super("Eurostat", new URI(EUROSTAT_PROVIDER), false, false, true);
 	}
 	
 	@Override

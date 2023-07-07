@@ -745,7 +745,6 @@ public class SdmxClientHandler
 		{
 			if (pattern != null && !pattern.trim().isEmpty())
 				pattern = pattern.replaceAll("\\*", ".*").replaceAll("\\?", ".");
-			LOGGER.fine("Pattern:"+ pattern);
 			for (Entry<String, Dataflow> entry : flows.entrySet())
 			{
 				String trueName;

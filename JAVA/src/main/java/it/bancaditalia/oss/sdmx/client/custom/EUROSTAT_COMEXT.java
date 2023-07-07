@@ -33,6 +33,6 @@ public class EUROSTAT_COMEXT extends RestSdmxClient{
 	private static final String EUROSTAT_COMEXT_PROVIDER = "https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/2.1";
 
 	public EUROSTAT_COMEXT() throws URISyntaxException {
-		super("Eurostat", new URI(EUROSTAT_COMEXT_PROVIDER), false, false, false);
+		super("Eurostat", new URI(EUROSTAT_COMEXT_PROVIDER), false, false, true);
 	}
 }
