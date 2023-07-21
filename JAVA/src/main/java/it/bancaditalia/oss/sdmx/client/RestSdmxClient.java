@@ -400,7 +400,19 @@ public class RestSdmxClient implements GenericSDMXClient
 				}
 
 				code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
+				if (code == HttpURLConnection.HTTP_PROXY_AUTH)
+				{
+					LOGGER.fine("Error with proxy. Second attempt after forcing acces to http website in first place.");
+					URI uritest= new URI("http://google.com");
+					URL urltest = uritest.toURL();
+					conn = urltest.openConnection(proxy);
+					((HttpURLConnection) conn).setRequestMethod("GET");
+					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
+					conn = url.openConnection(proxy);
+					((HttpURLConnection) conn).setRequestMethod("GET");
+					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 
+				}
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
