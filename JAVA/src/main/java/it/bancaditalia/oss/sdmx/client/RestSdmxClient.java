@@ -49,13 +49,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
-import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-import javax.swing.LayoutFocusTraversalPolicy;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -107,6 +104,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected /* final */ URI		endpoint;
 	protected boolean				needsCredentials				= false;
 	protected boolean				containsCredentials				= false;
+	protected boolean				RaisedWarning				    = false;
 	protected String				user							= null;
 	protected String				pw								= null;
 	protected int					readTimeout;
@@ -190,11 +188,17 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.maxRedirects = maxRedirects;
 	}
 
+	public void setRaisedWarning(boolean RaisedWarning)
+	{
+		this.RaisedWarning = RaisedWarning;
+	}
+	
+	
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
-		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
+		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword,"allstubs");
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
 		if (flows.size() > 0)
 		{
@@ -215,7 +219,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		Dataflow result = null;
 		if(agency == null) agency = ALL_AGENCIES;
 		if(version == null) version = this.latestKeyword;
-		URL query = buildFlowQuery(dataflow, agency, version);
+		URL query = buildFlowQuery(dataflow, agency, version, null);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
 		if (flows.size() >= 1)
 			result = flows.get(0);
@@ -360,7 +364,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		URLConnection conn = null;
 		URL url = null;
 		LOGGER.log(Level.INFO, "Contacting web service with query: {0}", query);
-
+		LOGGER.log(Level.FINE, "Supports compression: {0}", this.supportsCompression);
 		try
 		{
 			int code;
@@ -410,9 +414,20 @@ public class RestSdmxClient implements GenericSDMXClient
 					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 					conn = url.openConnection(proxy);
 					((HttpURLConnection) conn).setRequestMethod("GET");
+					((HttpURLConnection) conn).setInstanceFollowRedirects(false);
+					handleHttpHeaders((HttpURLConnection) conn, acceptHeader);
 					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
 
 				}
+				if (code == HttpURLConnection.HTTP_INTERNAL_ERROR)
+				{
+					LOGGER.log(Level.SEVERE, "Error on the provider side. Second attempt...");
+					conn = url.openConnection(proxy);
+					((HttpURLConnection) conn).setRequestMethod("GET");
+					code = conn instanceof HttpURLConnection ? ((HttpURLConnection) conn).getResponseCode() : HttpURLConnection.HTTP_OK;
+
+				}
+				
 				if (isRedirection(code))
 				{
 					URL redirection = getRedirectionURL(conn, code);
@@ -440,13 +455,27 @@ public class RestSdmxClient implements GenericSDMXClient
 				String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
 				if (encoding.equalsIgnoreCase("gzip"))
 					stream = new GZIPInputStream(stream);
-				else if (encoding.equalsIgnoreCase("deflate"))
+				else if(this.supportsCompression)
+				{
+					String disposition = conn.getHeaderField("Content-Disposition") == null ? "" : conn.getHeaderField("Content-Disposition");
+					LOGGER.fine("Content-Disposition: " + disposition );
+					if(disposition.contains(".gz"))
+					{
+						if(this.RaisedWarning == false)
+							{
+							LOGGER.warning("Content-Encoding header is missing in the response");
+							setRaisedWarning(true);
+							}
+						stream = new GZIPInputStream(stream);
+					}
+				}
+					/*else if (encoding.equalsIgnoreCase("deflate"))
 					stream = new InflaterInputStream(stream);
 				else if (conn.getContentType() != null && conn.getContentType().contains("application/octet-stream"))
 				{
 					stream = new ZipInputStream(stream);
 					((ZipInputStream) stream).getNextEntry();
-				}
+				}*/
 
 				if (Configuration.isDumpXml() && dumpName != null) // skip providers < sdmx v2.1
 				{
@@ -470,6 +499,16 @@ public class RestSdmxClient implements GenericSDMXClient
 						dumpfile.close();
 						stream = new ByteArrayInputStream(baos.toByteArray());
 					}
+				}
+				else if (this.supportsCompression)
+				{
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					byte[] buf = new byte[4096];
+					int i;
+					while ((i = stream.read(buf, 0, 4096)) > 0)
+						baos.write(buf, 0, i);
+					baos.close();
+					stream = new ByteArrayInputStream(baos.toByteArray());
 				}
 
 				try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8))
@@ -537,7 +576,10 @@ public class RestSdmxClient implements GenericSDMXClient
 		}
 		if (supportsCompression)
 		{
-			conn.addRequestProperty("Accept-Encoding", "gzip,deflate");
+			LOGGER.fine("--> Ask for compression");
+			// with deflate, response is not always compressed...
+			//conn.addRequestProperty("Accept-Encoding", "gzip,deflate");
+			conn.addRequestProperty("Accept-Encoding", "gzip");
 		}
 		if (acceptHeader != null && !"".equals(acceptHeader))
 			conn.setRequestProperty("Accept", acceptHeader);
@@ -563,9 +605,9 @@ public class RestSdmxClient implements GenericSDMXClient
 			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
-	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
+	protected URL buildFlowQuery(String dataflow, String agency, String version, String detail) throws SdmxException
 	{
-		return Sdmx21Queries.createDataflowQuery(endpoint, dataflow, agency, version).buildSdmx21Query();
+		return Sdmx21Queries.createDataflowQuery(endpoint, dataflow, agency, version, detail).buildSdmx21Query();
 	}
 
 	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException

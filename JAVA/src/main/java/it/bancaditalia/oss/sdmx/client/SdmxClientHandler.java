@@ -294,7 +294,8 @@ public class SdmxClientHandler
 		if (result == null)
 		{
 			LOGGER.finer("DSD identifier for dataflow " + dataflow + " not cached. Calling Provider.");
-			Dataflow df = getClient(providerName).getDataflow(dataflow, null, null);
+			result = provider.getFlow(dataflow);
+			Dataflow df = getClient(providerName).getDataflow(result.getId(), result.getAgency(), result.getVersion());
 			if (df != null)
 			{
 				provider.setFlow(df);
@@ -468,14 +469,14 @@ public class SdmxClientHandler
 		Map<String, Dataflow> flows = null;
 		Provider p = getProvider(provider);
 		flows = p.getFlows();
-		if (flows == null || flows.size() == 0 || !p.isFull())
+		if (flows == null || flows.size() == 0)
 		{
 			LOGGER.fine("Flows for " + provider + " not cached. Calling Provider.");
 			flows = getClient(provider).getDataflows();
 			if (flows != null && flows.size() != 0)
 			{
 				p.setFlows(flows);
-				p.setFull(true);
+				
 			}
 			else
 				throw new SdmxXmlContentException("Could not get dataflows from provider: '" + provider + "'");
@@ -744,7 +745,6 @@ public class SdmxClientHandler
 		{
 			if (pattern != null && !pattern.trim().isEmpty())
 				pattern = pattern.replaceAll("\\*", ".*").replaceAll("\\?", ".");
-
 			for (Entry<String, Dataflow> entry : flows.entrySet())
 			{
 				String trueName;
@@ -762,7 +762,8 @@ public class SdmxClientHandler
 					result.put(entry.getKey(), entry.getValue());
 			}
 		}
-
+		else
+			LOGGER.fine("No flows to filter");
 		LOGGER.exiting(sourceClass, sourceMethod);
 		return result;
 	}

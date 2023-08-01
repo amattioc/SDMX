@@ -33,6 +33,6 @@ public class EUROSTAT_COMP extends RestSdmxClient{
 	private static final String EUROSTAT_COMP_PROVIDER = "https://webgate.ec.europa.eu/comp/redisstat/api/dissemination/sdmx/2.1";
 
 	public EUROSTAT_COMP() throws URISyntaxException {
-		super("Eurostat", new URI(EUROSTAT_COMP_PROVIDER), false, false, false);
+		super("Eurostat", new URI(EUROSTAT_COMP_PROVIDER), false, false, true);
 	}
 }

@@ -59,7 +59,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 
-		URL query = buildFlowQuery("ALL", null, null);
+		URL query = buildFlowQuery("ALL", null, null, null);
 		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null, null);
 		if (dfs.size() > 0)
 		{
@@ -78,7 +78,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	@Override
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
-		URL query = buildFlowQuery(dataflow, agency, version);
+		URL query = buildFlowQuery(dataflow, agency, version, null);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, null);
 		if (flows.size() >= 1)
 			for (Dataflow item : flows)

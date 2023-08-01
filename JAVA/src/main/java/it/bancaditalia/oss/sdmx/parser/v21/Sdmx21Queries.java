@@ -62,16 +62,16 @@ public class Sdmx21Queries extends RestQueryBuilder {
 			}
 			//query.addPath("");
 			if (full) {
-				query.addParam("references", "children");
+				query.addParam("references", "children"); //.addParam("detail", "allstubs");
 			}
 			return query;
 		} else
 			throw new SdmxInvalidParameterException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + endpoint);
 	}
 
-	public static Sdmx21Queries createDataflowQuery(URI endpoint, String dataflow, String agency, String version) throws SdmxInvalidParameterException {
+	public static Sdmx21Queries createDataflowQuery(URI endpoint, String dataflow, String agency, String version, String detail) throws SdmxInvalidParameterException {
 		if (endpoint != null || dataflow != null)
-			return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addPath("dataflow")).addResourceId(agency, dataflow, version);
+			return ((Sdmx21Queries) new Sdmx21Queries(endpoint).addDetail(detail).addPath("dataflow")).addResourceId(agency, dataflow, version);
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 	}
@@ -112,6 +112,12 @@ public class Sdmx21Queries extends RestQueryBuilder {
 			addParam("format", format);
 		return this;
 	}
+
+	public Sdmx21Queries addDetail(String value) {
+		if (value != null && !value.isEmpty())
+			addParam("detail", value);
+		return this;
+	}	
 	
 	/**
 	 * Just a convenience wrapper around {@link RestQueryBuilder#build()}

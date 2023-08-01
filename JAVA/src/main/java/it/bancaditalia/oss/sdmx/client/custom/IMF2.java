@@ -46,7 +46,7 @@ public class IMF2 extends RestSdmx20Client{
 	}
 	
 	@Override
-	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException{
+	protected URL buildFlowQuery(String flow, String agency, String version, String detail) throws SdmxException{
 		if( endpoint!=null){
 			try {
 				return new RestQueryBuilder(endpoint).addPath("Dataflow").build();

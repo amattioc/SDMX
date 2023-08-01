@@ -48,9 +48,9 @@ public class WB extends RestSdmxClient{
 	}
 	
 	@Override
-	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException{
+	protected URL buildFlowQuery(String flow, String agency, String version, String detail) throws SdmxException{
 		try {
-			return Sdmx21Queries.createDataflowQuery(endpoint, flow, agency, version+"/").build();
+			return Sdmx21Queries.createDataflowQuery(endpoint, flow, agency, version+"/", null).build();
 		} catch (MalformedURLException e) {
 			throw SdmxExceptionFactory.wrap(e);
 		}
