@@ -165,6 +165,12 @@ public interface GenericSDMXClient {
 	public void setCredentials(String user, String pw);
 
 	/**
+	 * Set the Bearer token
+	 * @param token The token string
+	 */
+	void setBearerToken(String token);
+
+	/**
      * <p>Gets the URL of the web service for this provider client
      * @return the endpoint URL
 	 * @throws SdmxException 

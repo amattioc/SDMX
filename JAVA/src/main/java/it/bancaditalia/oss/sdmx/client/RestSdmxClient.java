@@ -106,9 +106,9 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected final boolean			dotStat							= false;
 	protected /* final */ URI		endpoint;
 	protected boolean				needsCredentials				= false;
-	protected boolean				containsCredentials				= false;
 	protected String				user							= null;
 	protected String				pw								= null;
+	protected String                bearerToken                     = null;
 	protected int					readTimeout;
 	protected int					connectTimeout;
 	protected RestSdmxEventListener	dataFooterMessageEventListener	= RestSdmxEventListener.NO_OP_LISTENER;
@@ -190,12 +190,14 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.maxRedirects = maxRedirects;
 	}
 
+	public static final String ACCEPT_XML = "application/xml";
+
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
 		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, ACCEPT_XML, "dataflow_all");
 		if (flows.size() > 0)
 		{
 			result = new HashMap<>();
@@ -216,7 +218,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		if(agency == null) agency = ALL_AGENCIES;
 		if(version == null) version = this.latestKeyword;
 		URL query = buildFlowQuery(dataflow, agency, version);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, ACCEPT_XML, "dataflow_" + dataflow);
 		if (flows.size() >= 1)
 			result = flows.get(0);
 		else
@@ -233,7 +235,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		else
 		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			return runQuery(new DataStructureParser(), query, null, "datastructure_" + dsd.getId()).get(0);
+			return runQuery(new DataStructureParser(), query, ACCEPT_XML, "datastructure_" + dsd.getId()).get(0);
 		}
 	}
 
@@ -241,7 +243,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Codelist getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
-		return runQuery(new CodelistParser(), query, null, "codelist_" + codeList);
+		return runQuery(new CodelistParser(), query, ACCEPT_XML, "codelist_" + codeList);
 	}
 
 	@Override
@@ -301,7 +303,15 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.user = user;
 		this.pw = pw;
 		this.needsCredentials = false;
-		this.containsCredentials = true;
+		this.bearerToken = null;
+	}
+
+	@Override
+	public void setBearerToken(final String token)
+	{
+		this.bearerToken = token;
+		this.user = null;
+		this.pw = null;
 	}
 
 	@Override
@@ -356,6 +366,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	{
 		final String sourceMethod = "runQuery";
 		LOGGER.entering(SOURCE_CLASS, sourceMethod);
+
+		acceptHeader = ACCEPT_XML;
 
 		URLConnection conn = null;
 		URL url = null;
@@ -527,9 +539,14 @@ public class RestSdmxClient implements GenericSDMXClient
 			.map(lr -> format(Locale.US, "%s;q=%.1f", lr.getRange(), lr.getWeight()))
 			.collect(joining(","));
 		conn.addRequestProperty("Accept-Language", lList);
-		if (containsCredentials)
+		if (bearerToken != null)
 		{
-			LOGGER.fine("Setting http authorization");
+			LOGGER.fine("Setting http authorization token");
+			conn.setRequestProperty("Authorization", "Bearer " + bearerToken);
+		}
+		else if (user != null && pw != null)
+		{
+			LOGGER.fine("Setting http authorization credentials");
 			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
 			//String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
 			String auth = java.util.Base64.getEncoder().encodeToString((user + ":" + pw).getBytes());

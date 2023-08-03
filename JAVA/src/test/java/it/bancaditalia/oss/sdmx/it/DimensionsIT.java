@@ -60,4 +60,13 @@ public class DimensionsIT
 		assertNotNull("Null Codelist for dimension " + dim.getId(), codelist);
 		assertEquals("Wrong codelist for dimension " + dim.getId(), expectedCodelistId, codelist.getFullIdentifier());
 	}
+
+    @Test
+    public void testGetFlows() throws SdmxException {
+//		SdmxClientHandler.addProvider("IMFEPMCustom", "https://apim-imfeid-dev-01.azure-api.net/uatsdmx/api/v1/workspaces/default:integration/registry/sdmx/2.1",
+//				false, false, false, RestSdmxClient.ACCEPT_XML);
+//  		SdmxClientHandler.getFlows("IMFEPMCustom", "");
+
+        SdmxClientHandler.getFlows("IMF_EPM", "");
+    }
 }

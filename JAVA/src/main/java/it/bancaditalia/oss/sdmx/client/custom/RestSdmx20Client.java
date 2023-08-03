@@ -60,7 +60,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	{
 
 		URL query = buildFlowQuery("ALL", null, null);
-		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null, null);
+		List<Dataflow> dfs = runQuery(new DataflowParser(), query, acceptHdr, null);
 		if (dfs.size() > 0)
 		{
 			Map<String, Dataflow> result = new HashMap<>();

@@ -109,6 +109,7 @@ public class SDMXClientFactory {
 	    addBuiltInProvider("StatsEE", null, false, false, false, "Statistics Estonia (BETA)", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("OECD_RESTR", null, true, false, false, "The Organisation for Economic Co-operation and Development, RESTRICTED ACCESS", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("IMF2", null, false, false, false, "New International Monetary Fund endpoint", true, SDMXClientFactory.SDMX_V2);
+		addBuiltInProvider("IMF_EPM", null, true, false, true, "IMF experimental point", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("NBB", null, false, false, false, "National Bank Belgium", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("WB", null, false, false, false, "World Bank - World Development Indicators", true, SDMXClientFactory.SDMX_V2);
 	    addBuiltInProvider("INEGI", null, false, false, false, "Instituto Nacional de Estadistica y Geografia", true, SDMXClientFactory.SDMX_V2);

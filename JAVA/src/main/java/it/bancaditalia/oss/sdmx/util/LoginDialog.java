@@ -96,7 +96,7 @@ public class LoginDialog extends JDialog {
 			panel.add(user, constraints);
 		}
 		
-		labelPw = new JLabel(twoFields ? "Password: " : "Key:");
+		labelPw = new JLabel(twoFields ? "Password(Token): " : "Key:");
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		constraints.gridwidth = 1;

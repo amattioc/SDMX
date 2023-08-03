@@ -710,6 +710,10 @@ public class SdmxClientHandler
 
 	}
 
+	private static boolean isToken(final String user) {
+		return user == null || user.trim().isEmpty();
+	}
+
 	private static void handlePassword(GenericSDMXClient client, String user, String pw) throws SdmxException
 	{
 		if (client == null)
@@ -719,18 +723,34 @@ public class SdmxClientHandler
 		}
 		if (client.needsCredentials())
 		{
-			if (user == null || pw == null)
+			if (user != null && pw != null)
+			{
+				if (isToken(user))
+				{
+					client.setBearerToken(pw);
+				}
+				else
+				{
+					client.setCredentials(user, pw);
+				}
+			}
+			else
 			{
 				final JFrame frame = new JFrame("Authentication");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				LoginDialog loginDlg = new LoginDialog(frame, client.getName() + " Authentication");
 				loginDlg.setVisible(true);
-				client.setCredentials(loginDlg.getUsername(), loginDlg.getPassword());
+				String dlgUser = loginDlg.getUsername();
+				String dlgPass = loginDlg.getPassword();
+				if (isToken(dlgUser))
+				{
+					client.setBearerToken(dlgPass);
+				}
+				else
+				{
+					client.setCredentials(dlgUser, dlgPass);
+				}
 				frame.dispose();
-			}
-			else
-			{
-				client.setCredentials(user, pw);
 			}
 		}
 	}
