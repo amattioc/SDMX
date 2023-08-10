@@ -190,12 +190,14 @@ public class RestSdmxClient implements GenericSDMXClient
 		this.maxRedirects = maxRedirects;
 	}
 
+	public static final String ACCEPT_XML = "application/xml";
+
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
 		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_all");
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, ACCEPT_XML, "dataflow_all");
 		if (flows.size() > 0)
 		{
 			result = new HashMap<>();
@@ -216,7 +218,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		if(agency == null) agency = ALL_AGENCIES;
 		if(version == null) version = this.latestKeyword;
 		URL query = buildFlowQuery(dataflow, agency, version);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, "dataflow_" + dataflow);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, ACCEPT_XML, "dataflow_" + dataflow);
 		if (flows.size() >= 1)
 			result = flows.get(0);
 		else
@@ -233,7 +235,7 @@ public class RestSdmxClient implements GenericSDMXClient
 		else
 		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			return runQuery(new DataStructureParser(), query, null, "datastructure_" + dsd.getId()).get(0);
+			return runQuery(new DataStructureParser(), query, ACCEPT_XML, "datastructure_" + dsd.getId()).get(0);
 		}
 	}
 
@@ -241,7 +243,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Codelist getCodes(String codeList, String agency, String version) throws SdmxException
 	{
 		URL query = buildCodelistQuery(codeList, agency, version);
-		return runQuery(new CodelistParser(), query, null, "codelist_" + codeList);
+		return runQuery(new CodelistParser(), query, ACCEPT_XML, "codelist_" + codeList);
 	}
 
 	@Override

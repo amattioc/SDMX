@@ -83,7 +83,7 @@ public class BBK extends RestSdmxClient{
 	{
 		URL query = buildDataQuery(new Dataflow(dataflow.getId(), null, null, null), resource, startTime, endTime, false, null, false);
 		DataParsingResult ts = runQuery(new GenericDataParser(dsd, dataflow, !serieskeysonly), query,
-				"application/xml", null);
+				RestSdmxClient.ACCEPT_XML, null);
 		Message msg = ts.getMessage();
 		if (msg != null)
 		{
