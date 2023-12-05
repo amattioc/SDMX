@@ -35,7 +35,7 @@ classdef testSDMX < matlab.unittest.TestCase
             % Test 2: getFlows
             flows = sdmx.getFlows('ECB');
             tc.verifyNotEmpty(flows)
-            tc.verifyEqual(flows('ECB,EXR,1.0'), 'Exchange Rates')
+            tc.verifyEqual(flows('ECB,EXR,1.0'), "Exchange Rates")
         end
 
         function tGetDimensions(tc)
@@ -53,7 +53,7 @@ classdef testSDMX < matlab.unittest.TestCase
 
         function tGetCodes(tc)
             map = sdmx.getCodes('ECB','ECB,EXR,1.0', 'FREQ');
-            tc.verifyEqual(map('A'), 'Annual')
+            tc.verifyEqual(map('A'), "Annual")
         end
 
     end
