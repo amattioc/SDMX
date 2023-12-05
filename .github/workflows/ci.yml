@@ -54,7 +54,7 @@ jobs:
             
         # Sets up MATLAB on the GitHub Actions runner
         - name: Show jar
-          run: MATLAB && ls MATLAB/lib
+          run: ls MATLAB && ls MATLAB/lib
 
 
         
