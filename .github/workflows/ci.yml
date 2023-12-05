@@ -34,7 +34,8 @@ jobs:
           with:
             name: SDMX
             path: MATLAB/lib/SDMX.jar
-            if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+            if-no-files-found: error
+            retention-days: 1
 
     build-test-matlab:
       needs: build-java

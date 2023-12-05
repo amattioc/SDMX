@@ -18,9 +18,34 @@ assert(isempty(issues.Issues),formattedDisplayText( ...
 end
 
 function testTask(~)
+
 % Run unit tests
-results = runtests(IncludeSubfolders=true,OutputDetail="terse");
+import matlab.unittest.TestRunner;
+import matlab.unittest.TestSuite;
+import matlab.unittest.plugins.TestReportPlugin;
+import matlab.unittest.plugins.CodeCoveragePlugin
+import matlab.unittest.plugins.codecoverage.CoverageReport
+import matlab.unittest.plugins.codecoverage.CoverageResult
+
+suite = TestSuite.fromProject(currentProject);
+
+runner = TestRunner.withTextOutput;
+htmlFolder = 'tests/results';
+plugin = TestReportPlugin.producingHTML(htmlFolder);
+runner.addPlugin(plugin);
+
+sourceCodeFolder = "tbx";
+reportFolder = "tests/coverageReport";
+reportFormat = CoverageReport(reportFolder);
+format = CoverageResult;
+plugin = CodeCoveragePlugin.forFolder(sourceCodeFolder,"Producing",[reportFormat,format], ...
+    IncludingSubfolders = true);
+runner.addPlugin(plugin)
+
+results = runner.run(suite);
+
 assertSuccess(results);
+
 end
 
 function archiveTask(~)
