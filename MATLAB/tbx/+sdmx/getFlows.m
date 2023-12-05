@@ -58,8 +58,8 @@ function flows = getFlows(provider, pattern)
     end
     
     %create Map
-	ids = cell(result.keySet.toArray);
-	description = cell(result.values.toArray);
-	flows = containers.Map(ids, description);
+	ids = string(result.keySet.toArray);
+	description = string(result.values.toArray);
+	flows = dictionary(ids, description);
     
 end
