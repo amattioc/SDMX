@@ -51,6 +51,12 @@ classdef testSDMX < matlab.unittest.TestCase
             tc.verifyLength(tts, 2)
         end
 
+        function tGetTimeSeriesTable(tc)
+            % Test 4: getTimeSeries
+            tts = sdmx.getTimeSeriesTable('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
+            tc.verifyClass(tts, 'table')            
+        end
+
         function tGetCodes(tc)
             map = sdmx.getCodes('ECB','ECB,EXR,1.0', 'FREQ');
             tc.verifyEqual(map('A'), "Annual")
