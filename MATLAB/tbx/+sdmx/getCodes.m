@@ -55,8 +55,8 @@ if (~ isa(result,'java.util.Map'))
 end
 
 %create Map
-ids         = cell(result.keySet.toArray);
-description = cell(result.values.toArray);
-codes       = containers.Map(ids, description);
+ids         = string(result.keySet.toArray);
+description = string(result.values.toArray);
+codes       = dictionary(ids, description);
 
 end

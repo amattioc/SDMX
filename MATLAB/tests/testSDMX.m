@@ -52,7 +52,7 @@ classdef testSDMX < matlab.unittest.TestCase
         end
 
         function tGetCodes(tc)
-            map = getCodes('ECB','ECB,EXR,1.0', 'FREQ');
+            map = sdmx.getCodes('ECB','ECB,EXR,1.0', 'FREQ');
             tc.verifyEqual(map('A'), 'Annual')
         end
 
