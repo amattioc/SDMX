@@ -51,12 +51,10 @@ jobs:
           with:
             name: SDMX
             path: MATLAB/lib
-
-        - name: Move JAR to MATLAB folder
-          run: mv SDMX.jar MATLAB/lib
-
-
+            
         # Sets up MATLAB on the GitHub Actions runner
         - name: Show jar
           run: ls && ls MATALB && ls/MATLAB/lib
 
+
+        
