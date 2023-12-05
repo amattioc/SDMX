@@ -32,9 +32,9 @@ jobs:
         - name: Archive MATLAB JAR for next job
           uses: actions/upload-artifact@v3
           with:
-            name: MATLAB-JAR
-            path: |
-              MATLAB/lib/SDMX.jar
+            name: SDMX
+            path: MATLAB/lib/SDMX.jar
+            if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
 
     build-test-matlab:
       needs: build-java
