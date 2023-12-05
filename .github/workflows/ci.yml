@@ -50,16 +50,27 @@ jobs:
           uses: actions/download-artifact@v3
           with:
             name: SDMX
-            path: MATLAB/lib
+            path: MATLAB/tbx/lib
             
         # Sets up MATLAB on the GitHub Actions runner
         - name: Setup MATLAB
           uses: matlab-actions/setup-matlab@v1
+          with:
+            release: R2023a
 
+        # Run buildtool to test and package MATLAB.
         - name: Run buildtool
           uses: matlab-actions/run-command@v1
           with: 
             command: cd('MATLAB'), buildtool
+
+        - name: Archive MATLAB Toolbox
+          uses: actions/upload-artifact@v3
+          with:
+            name: MatSDMX
+            path: MATLAB/releases/SDMX.mltbx
+            if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+
 
 
         
