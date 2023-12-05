@@ -69,7 +69,10 @@ jobs:
           uses: actions/upload-artifact@v3
           with:
             name: MatSDMX
-            path: MATLAB/releases/SDMX.mltbx
+            path: |
+              MATLAB/releases/SDMX.mltbx
+              MATLAB/tests/results
+              MATLAB/tests/coverageReport
             if-no-files-found: error
 
 
