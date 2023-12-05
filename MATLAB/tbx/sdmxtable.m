@@ -58,7 +58,7 @@ function tstable = sdmxtable(tslist, meta)
     tableList = cell(1, tsNumber);
     
     % retieve all attribute names in all time series
-    allVariables = containers.Map;
+    allVariables = dictionary;
     if meta == true
         % add metadata entries too
         for i = 1:tsNumber
@@ -78,7 +78,7 @@ function tstable = sdmxtable(tslist, meta)
         end
         nobs = length(tslist{i}.Data);
         varNames = cell({'ID', 'TIME_PERIOD', 'OBS_VALUE'});
-        varValues = cell({cellstr(repmat(tslist{i}.Name, [nobs 1])), ...
+        varValues = cell({string(repmat(tslist{i}.Name, [nobs 1])), ...
                             tslist{i}.getabstime, ...
                             tslist{i}.Data});
         
@@ -86,7 +86,7 @@ function tstable = sdmxtable(tslist, meta)
         if meta == true
             keys = allVariables.keys;
             for j = 1:length(keys)
-                key = keys{j};
+                key = keys(j);
                 try
                     value = tslist{i}.UserData(key);
                 catch
