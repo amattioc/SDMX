@@ -61,7 +61,7 @@ function list = getTimeSeries(provider, id, startTime, endTime)
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries(provider, '', id, '', startTime, endTime, false, '', false); 
 	catch mexp
-        error(sprintf('SDMX getTimeSeries() error:\n %s', mexp.message));      
+        error('SDMX getTimeSeries() error:\n %s', mexp.message);      
     end
     
     %verify returned class type

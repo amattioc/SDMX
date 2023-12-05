@@ -74,7 +74,7 @@ function tt = getTimeSeriesRevisions(provider, id, startTime, endTime, updatedAf
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, '', id, '', startTime, endTime, false, updatedAfter, includeHistory); 
 	catch mexp
-        error(sprintf('SDMX getTimeSeries() error:\n %s', mexp.message));            
+        error('SDMX getTimeSeries() error:\n %s', mexp.message);            
     end
     
     %verify returned class type

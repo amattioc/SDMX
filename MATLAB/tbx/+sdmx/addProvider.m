@@ -67,7 +67,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
     try
         it.bancaditalia.oss.sdmx.client.SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description); 
 	catch mexp
-        error(sprintf('SDMX addProvider() error:\n %s', mexp.message));            
+        error('SDMX addProvider() error:\n %s', mexp.message);            
     end
         
 end

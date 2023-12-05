@@ -115,28 +115,29 @@ end
 
 function dates = convertDates(freq, dates, iso8601Date)
     
-    if(nargin == 3 && iso8601Date == true)
-        dates = datestr(datetime(dates,'InputFormat','uuuu-MM-dd''T''HH:mm:ss','TimeZone','UTC'));
-    elseif(strcmp(freq, 'Q'))
-		dates=regexprep(dates, 'Q1', '03-31');
-		dates=regexprep(dates, 'Q2', '06-30');
-		dates=regexprep(dates, 'Q3', '09-30');
-		dates=regexprep(dates, 'Q4', '12-31');   
-		dates=(cell2mat(dates));
-	elseif(strcmp(freq, 'A'))
-		dates=strcat(cell2mat(dates), '-12-31');
-	elseif(strcmp(freq, 'H'))
-		dates=regexprep(dates, 'S1', '06-30');   
-		dates=regexprep(dates, 'S2', '12-31'); 
-		dates=(cell2mat(dates));
-	elseif(strcmp(freq, 'W'))
-		for i = 1 : length(dates)
-			dates{i} = char(it.bancaditalia.oss.sdmx.util.WeekConverter.convert(dates{i}));
-		end
-		dates=(cell2mat(dates));
-	else
-		dates=(cell2mat(dates));
-	end
+if(nargin == 3 && iso8601Date == true)
+    dates = string(datetime(dates,'InputFormat','uuuu-MM-dd''T''HH:mm:ss','TimeZone','UTC'));
+elseif(strcmp(freq, 'Q'))
+    dates=regexprep(dates, 'Q1', '03-31');
+    dates=regexprep(dates, 'Q2', '06-30');
+    dates=regexprep(dates, 'Q3', '09-30');
+    dates=regexprep(dates, 'Q4', '12-31');
+    dates=(cell2mat(dates));
+elseif(strcmp(freq, 'A'))
+    dates=strcat(cell2mat(dates), '-12-31');
+elseif(strcmp(freq, 'H'))
+    dates=regexprep(dates, 'S1', '06-30');
+    dates=regexprep(dates, 'S2', '12-31');
+    dates=(cell2mat(dates));
+elseif(strcmp(freq, 'W'))
+    for i = 1 : length(dates)
+        dates{i} = char(it.bancaditalia.oss.sdmx.util.WeekConverter.convert(dates{i}));
+    end
+    dates=(cell2mat(dates));
+else
+    dates=(cell2mat(dates));
+end
+
 end
 
 function metadata = getMetaData(ts)

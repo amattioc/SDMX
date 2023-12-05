@@ -69,7 +69,7 @@ jobs:
           with:
             name: MatSDMX
             path: MATLAB/releases/SDMX.mltbx
-            if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+            if-no-files-found: error
 
 
 

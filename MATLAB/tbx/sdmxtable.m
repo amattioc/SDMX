@@ -89,7 +89,7 @@ function tstable = sdmxtable(tslist, meta)
                 key = keys{j};
                 try
                     value = tslist{i}.UserData(key);
-                catch exception
+                catch
                     % attribute not present, set empty
                     value = '';
                 end
@@ -120,7 +120,7 @@ function tstable = sdmxtable(tslist, meta)
     tstable = cell2table(cell(0, length(varNames)));
     tstable.Properties.VariableNames = varNames;
     for i = 1:length(tableList)
-        tstable = [tstable; tableList{i}];
+        tstable = [tstable; tableList{i}]; %#ok<AGROW>
     end
 end 
 
