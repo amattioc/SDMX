@@ -1,44 +1,56 @@
+classdef testSDMX < matlab.unittest.TestCase
+    % Simple script for UNIT TEST purposes
+    %
+    % #############################################################################################
+    % Copyright 2010,2014 Bank Of Italy
+    %
+    % Licensed under the EUPL, Version 1.1 or as soon as they
+    % will be approved by the European Commission - subsequent
+    % versions of the EUPL (the "Licence");
+    % You may not use this work except in compliance with the
+    % Licence.
+    % You may obtain a copy of the Licence at:
+    %
+    %
+    % http://ec.europa.eu/idabc/eupl
+    %
+    % Unless required by applicable law or agreed to in
+    % writing, software distributed under the Licence is
+    % distributed on an "AS IS" basis,
+    % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+    % express or implied.
+    % See the Licence for the specific language governing
+    % permissions and limitations under the Licence.
+    %
 
-% Simple script for UNIT TEST purposes
-%
-% #############################################################################################
-% Copyright 2010,2014 Bank Of Italy
-%
-% Licensed under the EUPL, Version 1.1 or as soon as they
-% will be approved by the European Commission - subsequent
-% versions of the EUPL (the "Licence");
-% You may not use this work except in compliance with the
-% Licence.
-% You may obtain a copy of the Licence at:
-%
-%
-% http://ec.europa.eu/idabc/eupl
-%
-% Unless required by applicable law or agreed to in
-% writing, software distributed under the Licence is
-% distributed on an "AS IS" basis,
-% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-% express or implied.
-% See the Licence for the specific language governing
-% permissions and limitations under the Licence.
-%
+    methods (Test)
 
-%% Test 1: getProviders
-providers = getProviders;
-assert(length(providers) > 1, 'Error getProviders');
+        function tGetProviders(tc)
+            % Test 1: getProviders
+            providers = getProviders;
+            tc.verifyNotEmpty(providers)
+        end
 
-%% Test 2: getFlows
-flows = getFlows('ECB');
-assert(length(flows) > 1, 'Error flow number');
-assert(strcmp(flows('ECB,EXR,1.0'), 'Exchange Rates'), 'Error flow names');
+        function tGetFlows(tc)
+            % Test 2: getFlows
+            flows = getFlows('ECB');
+            tc.verifyNotEmpty(flows)
+            tc.verifyEqual(flows('ECB,EXR,1.0'), 'Exchange Rates')
+        end
 
-%% Test 3: getDimensions
-dims = getDimensions('ECB', 'EXR');
-assert(length(dims) == 5), 'Error dimension number';
-assert(strcmp(dims{1}, 'FREQ'), 'Error dimension names');
+        function tGetDimensions(tc)
+            % Test 3: getDimensions
+            dims = getDimensions('ECB', 'EXR');
+            tc.verifyLength(dims, 5);
+            tc.verifyEqual(dims{1}, 'FREQ');
+        end
 
-%% Test 4: getTimeSeries
-tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
-assert(length(tts) == 2, 'Error getTimeseries');
+        function tGetTimeSeries(tc)
+            % Test 4: getTimeSeries
+            tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
+            tc.verifyLength(tts, 2)
+        end
 
+    end
 
+end
