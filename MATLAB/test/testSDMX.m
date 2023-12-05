@@ -27,27 +27,27 @@ classdef testSDMX < matlab.unittest.TestCase
 
         function tGetProviders(tc)
             % Test 1: getProviders
-            providers = getProviders;
+            providers = sdmx.getProviders;
             tc.verifyNotEmpty(providers)
         end
 
         function tGetFlows(tc)
             % Test 2: getFlows
-            flows = getFlows('ECB');
+            flows = sdmx.getFlows('ECB');
             tc.verifyNotEmpty(flows)
             tc.verifyEqual(flows('ECB,EXR,1.0'), 'Exchange Rates')
         end
 
         function tGetDimensions(tc)
             % Test 3: getDimensions
-            dims = getDimensions('ECB', 'EXR');
+            dims = sdmx.getDimensions('ECB', 'EXR');
             tc.verifyLength(dims, 5);
             tc.verifyEqual(dims{1}, 'FREQ');
         end
 
         function tGetTimeSeries(tc)
             % Test 4: getTimeSeries
-            tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
+            tts = sdmx.getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
             tc.verifyLength(tts, 2)
         end
 
