@@ -56,6 +56,16 @@ classdef testSDMX < matlab.unittest.TestCase
             tc.verifyEqual(map('A'), "Annual")
         end
 
+        function tGetDSDIdentifier(tc)
+            id = sdmx.getDSDIdentifier('ECB','ECB,EXR,1.0');
+            tc.verifyEqual(id, "ECB/ECB_EXR1/1.0")
+        end
+
+        function tGetSDMXTable(tc)
+            tts = sdmx.getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
+            tb = sdmxtable(tts);
+            tc.verifyClass(tb, 'table')
+        end
     end
 
 end
