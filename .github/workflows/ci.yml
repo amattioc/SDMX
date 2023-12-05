@@ -71,9 +71,19 @@ jobs:
             name: MatSDMX
             path: |
               MATLAB/releases/SDMX.mltbx
-              MATLAB/tests/results
-              MATLAB/tests/coverageReport
             if-no-files-found: error
+        
+        - name: Setup Pages
+          uses: actions/configure-pages@v3
+
+        - name: Upload Artifact
+          uses: actions/upload-pages-artifact@v2
+          with:
+            # upload entire directory
+            path: MATLAB/tests/reports
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v2
 
 
 

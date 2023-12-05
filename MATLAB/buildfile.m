@@ -30,12 +30,12 @@ import matlab.unittest.plugins.codecoverage.CoverageResult
 suite = TestSuite.fromProject(currentProject);
 
 runner = TestRunner.withTextOutput;
-htmlFolder = 'tests/results';
+htmlFolder = 'tests/reports/results';
 plugin = TestReportPlugin.producingHTML(htmlFolder);
 runner.addPlugin(plugin);
 
 sourceCodeFolder = "tbx";
-reportFolder = "tests/coverageReport";
+reportFolder = "tests/reports/coverageReport";
 reportFormat = CoverageReport(reportFolder);
 format = CoverageResult;
 plugin = CodeCoveragePlugin.forFolder(sourceCodeFolder,"Producing",[reportFormat,format], ...
