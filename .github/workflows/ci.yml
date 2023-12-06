@@ -93,8 +93,8 @@ jobs:
 
         - name: Create Annotation with links
           run: |
-            echo '::notice title=Coverage::[Test results report]\(https://ebenetce.github.io/SDMX/results/\)' >> $GITHUB_STEP_SUMMARY
-            echo '::notice title=Tests::<a href="https://ebenetce.github.io/SDMX/coverageReport/" target="_blank">Test results report</a>' >> $GITHUB_STEP_SUMMARY
+            echo ':notice:<a href="https://ebenetce.github.io/SDMX/results/" target="_blank">Test results report</a>' >> $GITHUB_STEP_SUMMARY
+            echo ':notice:<a href="https://ebenetce.github.io/SDMX/coverageReport/" target="_blank">Code coverage report</a>' >> $GITHUB_STEP_SUMMARY
 
 
 
