@@ -4,7 +4,7 @@ function tt = getTimeSeriesRevisions(provider, id, startTime, endTime, updatedAf
 	% points updated after a specific date and the history of revisions can
 	% be returned
     %
-    % Usage: getTimeSeriesTable(provider, id, startTime, endTime)
+    % Usage: getTimeSeriesRevisions(provider, id, startTime, endTime, updatedAfter, includeHistory)
 	%
 	% Arguments
 	%

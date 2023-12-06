@@ -141,35 +141,35 @@ end
 end
 
 function metadata = getMetaData(ts)
-    metadata = containers.Map;
+    metadata = dictionary;
  
     %handle errors
     if ts.isErrorFlag
-        metadata('ERROR_FLAG') = true;
-        metadata('ERROR_MESSAGE') = ts.getErrorMessage;
+        metadata('ERROR_FLAG') = {true};
+        metadata('ERROR_MESSAGE') = {ts.getErrorMessage};
         warning('The time series %s is not valid due to errors in the request: %s.', ts.getName, ts.getErrorMessage);
     end
     
     % get all dimensions
-    tsdims = cell(ts.getDimensionsMap().keySet().toArray());    
+    tsdims = string(ts.getDimensionsMap().keySet().toArray());    
     for i=1:length(tsdims)
-        metadata(tsdims{i}) = char(ts.getDimension(tsdims{i}));
+        metadata(tsdims(i)) = {string(ts.getDimension(tsdims{i}))};
     end
     
     % get all ts level attributes
-    tsattrs = cell(ts.getAttributesMap().keySet().toArray());    
+    tsattrs = string(ts.getAttributesMap().keySet().toArray());    
     for i=1:length(tsattrs)
-        metadata(tsattrs{i}) = char(ts.getAttribute(tsattrs{i}));
+        metadata(tsattrs(i)) = {string(ts.getAttribute(tsattrs{i}))};
     end
     
     % get all ts level attributes 
-    obsattrs = cell(ts.getObsLevelAttributesNamesArray);
+    obsattrs = string(ts.getObsLevelAttributesNamesArray);
     for i=1:length(obsattrs)
-        attrval = ts.getObsLevelAttributesArray(obsattrs{i});
+        attrval = ts.getObsLevelAttributesArray(obsattrs(i));
         if size(attrval) ~= ts.getObservationsArray().size()
             warning(['Attribute: ', obsattrs{i}, 'is malformed. Skipping.']);
         else
-            metadata(obsattrs{i}) = cell(attrval);
+            metadata(obsattrs(i)) = {string(attrval)};
         end
     end 
 end
