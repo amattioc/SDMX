@@ -44,7 +44,7 @@ runner.addPlugin(plugin)
 
 results = runner.run(suite);
 
-assertSuccess(results)
+assertSuccess(results);
 
 end
 
