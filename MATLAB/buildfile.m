@@ -34,7 +34,7 @@ htmlFolder = 'tests/reports/results';
 plugin = TestReportPlugin.producingHTML(htmlFolder);
 runner.addPlugin(plugin);
 
-sourceCodeFolder = "tbx";
+sourceCodeFolder = "tbx/sdmx";
 reportFolder = "tests/reports/coverageReport";
 reportFormat = CoverageReport(reportFolder);
 format = CoverageResult;
