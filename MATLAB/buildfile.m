@@ -74,5 +74,3 @@ opts = matlab.addons.toolbox.ToolboxOptions('tbx', "50de8506-6d87-47ee-aa8a-2c7f
     MinimumMatlabRelease = 'R2023a');
 matlab.addons.toolbox.packageToolbox(opts)
 end
-
-end
