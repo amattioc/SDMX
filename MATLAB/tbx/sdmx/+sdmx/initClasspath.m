@@ -22,10 +22,10 @@
 function initClasspath() 
     jarLoaded = exist('it.bancaditalia.oss.sdmx.helper.SDMXHelper', 'class');
     if jarLoaded ~= 8
-        mFilesLoaded = exist('sdmxHelp.m', 'file');
+        mFilesLoaded = isfile('sdmxHelp.m');
         if mFilesLoaded == 2
             pathToJar = fileparts(which('sdmxHelp'));
-            javaaddpath([pathToJar, '/lib/SDMX.jar']);
+            javaaddpath([pathToJar, '../lib/SDMX.jar']);
         else
             error('Error: the m-files of the MatSDMX toolbox cannot be found in the MATLAB path');
         end
