@@ -59,6 +59,17 @@ classdef testSDMX < matlab.unittest.TestCase
             tc.verifyLength(tts, 1)
             tb = sdmxtable(tts);
             tc.verifyClass(tb, 'table')
+            
+            tts = sdmx.getTimeSeries('ECB','IEAF.Q.SK.N.V.D92.Z.S2.A1.S.2.X.N.Z');
+            tc.verifyLength(tts, 1)
+            tb = sdmxtable(tts, true);
+            tc.verifyClass(tb, 'table')
+
+            tts = sdmx.getTimeSeries('ECB', 'BKN/H.AT.A020.....');
+            tc.verifyLength(tts, 1)
+            tb = sdmxtable(tts, true);
+            tc.verifyClass(tb, 'table')
+
         end
 
         function tGetTimeSeriesTable(tc)
@@ -99,6 +110,12 @@ classdef testSDMX < matlab.unittest.TestCase
             tb = sdmx.getTimeSeriesRevisions('ECB', 'EXR.M.USD.EUR.SP00.A', string(startTime), string(endTime), '2003', true);            
             tb.TIME_PERIOD = datetime(tb.TIME_PERIOD, 'InputFormat','uuuu-MM', 'Format','uuuu-MM');
             tc.verifyClass(tb, 'table');           
+        end
+
+        function tAddProvider(tc)
+             sdmx.addProvider('ECB_TEST', 'http://sdw-wsrest.ecb.europa.eu/service', false, false, false, 'Sample ECB provider');
+             providers = sdmx.getProviders;
+             tc.verifyTrue(any(contains(providers, 'ECB_TEST')))
         end
 
         function tGetCodes(tc)

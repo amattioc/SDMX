@@ -88,7 +88,7 @@ function tstable = sdmxtable(tslist, meta)
             for j = 1:length(keys)
                 key = keys(j);
                 try
-                    value = tslist{i}.UserData(key);
+                    value = tslist{i}.UserData{key};
                 catch
                     % attribute not present, set empty
                     value = '';
@@ -96,7 +96,7 @@ function tstable = sdmxtable(tslist, meta)
                 
                 % check if this is a ts level attribute. If so, repeat it
                 % for every observation
-                if ~iscell(value)
+                if ~iscell(value) && numel(value) ~= nobs
                     if isempty(value)
                         % workaround...
                         value = cellstr(repmat({''}, [nobs 1]));
@@ -104,7 +104,8 @@ function tstable = sdmxtable(tslist, meta)
                         value = cellstr(repmat(value, [nobs 1]));
                     end
                 end
-                varNames{3 + j} = key;
+
+                varNames{3 + j} = char(key);
                 varValues{3 + j} = value;
 
                 % now add the variable to the global list
