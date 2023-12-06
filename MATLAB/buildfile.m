@@ -3,16 +3,13 @@ function plan = buildfile
 % Create a plan from task functions
 plan = buildplan(localfunctions);
 
-% Default test output to false
-% plan("test").Outpbuts = "test";
-
 % Make the "archive" task the default task in the plan
 plan.DefaultTasks = "archive";
 
 % Make the "archive" task dependent on the "check" and "test" tasks
 plan("archive").Dependencies = ["check" "test"];
-
 plan("archive").Inputs = 'tests/reports/testresults.csv';
+
 end
 
 function checkTask(~)
