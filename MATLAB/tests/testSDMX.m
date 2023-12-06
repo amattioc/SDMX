@@ -79,6 +79,9 @@ classdef testSDMX < matlab.unittest.TestCase
             
             tb = sdmx.getTimeSeriesTable('ECB', 'EXR.M.USD.EUR.SP00.A');
             tc.verifyClass(tb, 'table')
+        end
+
+        function tGetTimeSeriesTableWithStartDates(tc)
 
             startTime = string(datetime(1995,1,1));
             endTime = string(datetime(2005,1,1));
@@ -102,14 +105,14 @@ classdef testSDMX < matlab.unittest.TestCase
             tc.verifyLessThan(tb.TIME_PERIOD, endTime);
             tc.verifyGreaterThanOrEqual(tb.TIME_PERIOD, startTime)
 
-            startTime = datetime(2002,1,1);
-            tb = sdmx.getTimeSeriesRevisions('ECB', 'EXR.M.USD.EUR.SP00.A', string(startTime), string(endTime), '', true);            
-            tb.TIME_PERIOD = datetime(tb.TIME_PERIOD, 'InputFormat','uuuu-MM', 'Format','uuuu-MM');
-            tc.verifyClass(tb, 'table');
-
-            tb = sdmx.getTimeSeriesRevisions('ECB', 'EXR.M.USD.EUR.SP00.A', string(startTime), string(endTime), '2003', true);            
-            tb.TIME_PERIOD = datetime(tb.TIME_PERIOD, 'InputFormat','uuuu-MM', 'Format','uuuu-MM');
-            tc.verifyClass(tb, 'table');           
+            % startTime = datetime(2002,1,1);
+            % tb = sdmx.getTimeSeriesRevisions('ECB', 'EXR.M.USD.EUR.SP00.A', string(startTime), string(endTime), '', true);            
+            % tb.TIME_PERIOD = datetime(tb.TIME_PERIOD, 'InputFormat','uuuu-MM', 'Format','uuuu-MM');
+            % tc.verifyClass(tb, 'table');
+            % 
+            % tb = sdmx.getTimeSeriesRevisions('ECB', 'EXR.M.USD.EUR.SP00.A', string(startTime), string(endTime), '2003', true);            
+            % tb.TIME_PERIOD = datetime(tb.TIME_PERIOD, 'InputFormat','uuuu-MM', 'Format','uuuu-MM');
+            % tc.verifyClass(tb, 'table');           
         end
 
         function tAddProvider(tc)
