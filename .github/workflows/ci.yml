@@ -81,13 +81,16 @@ jobs:
             name: MatSDMX
             path: |
               MATLAB/releases/SDMX.mltbx
+            if-no-files-found: ignore
         
         # Set up pages to show reports
         - name: Setup Pages
+          if: success() || failure()
           uses: actions/configure-pages@v3
 
         # Upload test reports
         - name: Upload Artifact
+          if: success() || failure()
           uses: actions/upload-pages-artifact@v2
           with:
             # upload entire directory
@@ -95,11 +98,13 @@ jobs:
 
         # Deploy reports to GitHub Pages
         - name: Deploy to GitHub Pages
+          if: success() || failure()
           id: deployment
           uses: actions/deploy-pages@v2
 
         # Publish the report address to GitHub Pages
         - name: Create Annotation with links
+          if: success() || failure()
           run: |
             echo '<a href="https://ebenetce.github.io/SDMX/results/" target="_blank">Test results report</a>' >> $GITHUB_STEP_SUMMARY
             echo '<a href="https://ebenetce.github.io/SDMX/coverageReport/" target="_blank">Code coverage report</a>' >> $GITHUB_STEP_SUMMARY

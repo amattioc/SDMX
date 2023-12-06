@@ -8,8 +8,6 @@ plan.DefaultTasks = "archive";
 
 % Make the "archive" task dependent on the "check" and "test" tasks
 plan("archive").Dependencies = ["check" "test"];
-plan("archive").Inputs = 'tests/reports/testresults.csv';
-
 end
 
 function checkTask(~)
@@ -46,20 +44,11 @@ runner.addPlugin(plugin)
 
 results = runner.run(suite);
 
-results = table(results);
-writetable(results(:,1:3), 'tests/reports/testresults.csv')
+assertSuccess(results)
 
 end
 
-function archiveTask(tc)
-
-testResults = readtable( tc.Task.Inputs.Path);
-delete(tc.Task.Inputs.Path)
-
-if ~all(testResults.Passed)
-    return
-end
-
+function archiveTask(~)
 description = sprintf('The SDMX Connectors project has been developed with the aim of covering the ''last mile'' in SDMX implementations.\n\nIn particular, the focus of the project is to provide the end user a set of plugins that can be easily installed in the most popular data analysis tools (e.g. R, MATLAB, SAS, STATA, Excel, etc.) allowing a direct access to SDMX data from the tool.\nProject site: \n\nhttps://github.com/amattioc/SDMX');
 % Create ZIP file
 opts = matlab.addons.toolbox.ToolboxOptions('tbx', "50de8506-6d87-47ee-aa8a-2c7f2e56d761", ...
