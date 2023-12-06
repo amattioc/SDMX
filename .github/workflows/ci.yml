@@ -93,8 +93,8 @@ jobs:
 
         - name: Create Annotation with links
           run: |
-            echo ::notice::[Coverage report](https://ebenetce.github.io/SDMX/results/)
-            echo ::notice::[Test results](https://ebenetce.github.io/SDMX/coverageReport/)
+            echo ::notice::[Coverage report]\(https://ebenetce.github.io/SDMX/results/\)
+            echo ::notice::[Test results]\(https://ebenetce.github.io/SDMX/coverageReport/\)
 
 
 
