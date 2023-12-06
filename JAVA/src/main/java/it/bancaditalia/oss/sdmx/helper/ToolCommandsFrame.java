@@ -121,7 +121,7 @@ class ToolCommandsFrame extends JFrame {
 		gbc_matlabCommandLabel.gridy = 1;
 		panel.add(matlabCommandLabel, gbc_matlabCommandLabel);
 		
-		matlabCommandText = new JTextField("result = getTimeSeries('" + provider + "', '" + query + "');");
+		matlabCommandText = new JTextField("result = sdmx.getTimeSeries('" + provider + "', '" + query + "');");
 		matlabCommandLabel.setLabelFor(matlabCommandText);
 		GridBagConstraints gbc_matlabCommandText = new GridBagConstraints();
 		gbc_matlabCommandText.fill = GridBagConstraints.BOTH;
