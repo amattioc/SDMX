@@ -35,7 +35,7 @@ classdef testSDMX < matlab.unittest.TestCase
             % Test 2: getFlows
             flows = sdmx.getFlows('ECB');
             tc.verifyNotEmpty(flows)
-            tc.verifyEqual(flows('ECB,EXR,1.0'), "Exchange Rates")
+            tc.verifyEqual(flows('ECB,EXR,1.0'), "Exchange Rate")
         end
 
         function tGetDimensions(tc)
@@ -140,8 +140,8 @@ classdef testSDMX < matlab.unittest.TestCase
         end
 
         function tGetSDMXTable(tc)
-            % getSDMXTable
-            
+            % Test 10: getSDMXTable
+
             tts = sdmx.getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
             tb = sdmxtable(tts, true);
             tc.verifyClass(tb, 'table')
