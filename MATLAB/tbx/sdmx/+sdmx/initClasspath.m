@@ -22,7 +22,7 @@
 function initClasspath() 
     jarLoaded = exist('it.bancaditalia.oss.sdmx.helper.SDMXHelper', 'class');
     if jarLoaded ~= 8
-        mFilesLoaded = isfile('sdmxHelp.m');
+        mFilesLoaded = exist('sdmxHelp.m', 'file');
         if mFilesLoaded == 2
             pathToJar = fileparts(which('sdmxHelp'));
             javaaddpath([pathToJar, '../lib/SDMX.jar']);
