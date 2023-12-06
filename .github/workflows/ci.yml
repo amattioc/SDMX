@@ -86,9 +86,16 @@ jobs:
           with:
             # upload entire directory
             path: MATLAB/tests/reports
+
         - name: Deploy to GitHub Pages
           id: deployment
           uses: actions/deploy-pages@v2
+
+        - name: Create Annotation with links
+          run: |
+            echo ::notice::[Coverage report](https://ebenetce.github.io/SDMX/results/)
+            echo ::notice::[Test results](https://ebenetce.github.io/SDMX/coverageReport/)
+
 
 
 
