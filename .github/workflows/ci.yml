@@ -91,6 +91,7 @@ jobs:
 
         # Upload test reports
         - name: Upload Artifact
+          if: success() || failure()
           uses: actions/upload-pages-artifact@v2
           with:
             # upload entire directory
