@@ -119,8 +119,8 @@ jobs:
         # Publish the report address to GitHub Pages
         - name: Create Annotation with links
           run: |
-            echo '<a href="https://ebenetce.github.io/SDMX/results/" target="_blank">Test results report</a>' >> $GITHUB_STEP_SUMMARY
-            echo '<a href="https://ebenetce.github.io/SDMX/coverageReport/" target="_blank">Code coverage report</a>' >> $GITHUB_STEP_SUMMARY
+            echo '<a href="${{ steps.deployment.outputs.page_url }}/results/" target="_blank">Test results report</a>' >> $GITHUB_STEP_SUMMARY
+            echo '<a href="${{ steps.deployment.outputs.page_url }}/coverageReport/" target="_blank">Code coverage report</a>' >> $GITHUB_STEP_SUMMARY
 
 
 
