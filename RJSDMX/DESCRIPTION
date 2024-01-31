@@ -1,7 +1,7 @@
 Package: RJSDMX
-Version: 3.0-6
+Version: 3.1-0
 Title: R Interface to SDMX Web Services
-Author: Attilio Mattiocco, Diana Nicoletti, Gianpaolo Lopez, Banca d'Italia
+Author: Attilio Mattiocco, Gianpaolo Lopez, Banca d'Italia
 Maintainer: Attilio Mattiocco <attilio.mattiocco@bancaditalia.it>
 Description: Provides functions to retrieve data and metadata from providers 
 			 that disseminate data by means of SDMX web services. 
@@ -10,7 +10,7 @@ Description: Provides functions to retrieve data and metadata from providers
 			 statistical information. 
 			 More about the SDMX standard and the SDMX Web Services 
 			 can be found at: <https://sdmx.org>.
-Depends: R (>= 3.0.0), rJava (>= 0.8-8), zoo (>= 1.6-4)
+Depends: R (>= 4.2.0), rJava (>= 0.8-8), zoo (>= 1.6-4)
 SystemRequirements: Java (>= 8)
 License: EUPL
 URL: https://github.com/amattioc/SDMX/

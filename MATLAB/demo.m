@@ -27,11 +27,11 @@ getProviders
 flows = getFlows('ECB')
 flows.keys
 flows.values
-flows('EXR')
+flows('ECB,EXR,1.0')
 
 getDimensions('ECB', 'EXR')
 
-tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A')
+tts = getTimeSeries('ECB', 'EXR.M.USD+GBP.EUR.SP00.A')
 tts{1}.UserData
 tts{1}.UserData('TITLE_COMPL')
 plot(tts{1})

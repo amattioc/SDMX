@@ -1,7 +1,5 @@
 package it.bancaditalia.oss.sdmx.helper;
 
-import static it.bancaditalia.oss.sdmx.client.SDMXClientFactory.SDMX_V2;
-import static it.bancaditalia.oss.sdmx.client.SDMXClientFactory.SDMX_V3;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static javax.swing.JOptionPane.CANCEL_OPTION;
@@ -30,6 +28,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+
 public class NewProviderDialog extends JDialog {
 
 	/**
@@ -37,36 +37,11 @@ public class NewProviderDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private enum SdmxVersion
-	{
-		V2(SDMX_V2, "SDMX Version 2.x"), V3(SDMX_V3, "SDMX Version 3.x");
-
-		private final String val;
-		private final String desc;
-
-		SdmxVersion(String val, String desc)
-		{
-			this.val = val;
-			this.desc = desc;
-		}
-
-		public String getVal()
-		{
-			return val;
-		}
-
-		@Override
-		public String toString()
-		{
-			return desc;
-		}
-	}
-	
 	private int result = CANCEL_OPTION;
 	private String name = null;
 	private String description = null;
 	private String URL = null;
-	private SdmxVersion sdmxVersion;
+	private SDMXVersion sdmxVersion;
 
 	public NewProviderDialog()
 	{
@@ -154,8 +129,8 @@ public class NewProviderDialog extends JDialog {
 		gbc_lblVersion.gridy = 3;
 		contentPanel.add(lblVersion, gbc_lblVersion);
 		
-		final JComboBox<SdmxVersion> cmbVersion = new JComboBox<>();
-		cmbVersion.setModel(new DefaultComboBoxModel<>(SdmxVersion.values()));
+		final JComboBox<SDMXVersion> cmbVersion = new JComboBox<>();
+		cmbVersion.setModel(new DefaultComboBoxModel<>(SDMXVersion.values()));
 		lblURL.setLabelFor(cmbVersion);
 		GridBagConstraints gbc_cmbVersion = new GridBagConstraints();
 		gbc_cmbVersion.fill = GridBagConstraints.HORIZONTAL;
@@ -190,7 +165,7 @@ public class NewProviderDialog extends JDialog {
 				name = txtName.getText();
 				description = txtDescription.getText();
 				URL = txtURL.getText();
-				sdmxVersion = (SdmxVersion) cmbVersion.getSelectedItem();
+				sdmxVersion = (SDMXVersion) cmbVersion.getSelectedItem();
 				result = JOptionPane.OK_OPTION;
 				dispose();
 			});
@@ -222,7 +197,8 @@ public class NewProviderDialog extends JDialog {
 	public String getURL() {
 		return URL;
 	}
-	public String getSdmxVersion() {
-		return sdmxVersion.getVal();
+	public SDMXVersion getSdmxVersion()
+	{
+		return sdmxVersion;
 	}
 }

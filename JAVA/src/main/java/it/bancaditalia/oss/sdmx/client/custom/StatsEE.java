@@ -20,16 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.URI;
 import java.net.URISyntaxException;
+
+import it.bancaditalia.oss.sdmx.client.Provider;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class StatsEE extends DotStat{
-		
-	public StatsEE() throws URISyntaxException {
-		super("StatsEE", new URI("http://andmebaas.stat.ee/restsdmx/sdmx.ashx"), false);
+public class StatsEE extends DotStat
+{
+	public StatsEE(Provider p) throws URISyntaxException
+	{
+		super(p);
 	}
 }

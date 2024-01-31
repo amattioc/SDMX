@@ -20,17 +20,25 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.util.Collections.list;
+import static java.util.stream.Collectors.toMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.ProxySelector;
-import java.nio.charset.Charset;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -38,22 +46,22 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale.LanguageRange;
+import java.util.Map;
 import java.util.Properties;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.security.auth.Subject;
 import javax.swing.JFrame;
+
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -61,52 +69,50 @@ import javax.swing.JFrame;
  */
 public class Configuration
 {
-
-	// TODO: will be replaced by StandardCharsets#UTF_8 in Java 7
-	public static final Charset UTF_8 = Charset.forName("UTF-8");
 	public static final String SDMX_CODES_POLICY_ID = "code";
 	public static final String SDMX_CODES_POLICY_DESC = "description";
 	public static final String SDMX_CODES_POLICY_BOTH = "both";
 	public static final String SDMX_CODES_POLICY_ATTRIBUTES = "attributes";
 
-	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
-	protected static final String PROXY_AUTH_DIGEST = "digest";
 	protected static final String PROXY_AUTH_BASIC = "basic";
+	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
 	protected static final String JAVA_SECURITY_KERBEROS_PROP = "java.security.krb5.conf";
 	protected static final String JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP = "java.security.auth.login.config";
 	protected static final String HTTP_AUTH_PREF_PROP = "http.auth.preference";
 	protected static final String SSL_DISABLE_CERT_CHECK_PROP = "ssl.disable.cert.check";
 	protected static final String SSL_TRUSTSTORE_PROP = "javax.net.ssl.trustStore";
+	protected static final String PROVIDERS_FILE_PROP = "sdmx.providers.properties";
+	protected static final String PROVIDERS_FILE = "providers.properties";
 
-	protected static final String GLOBAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
-	protected static final String EXTERNAL_PROVIDERS_PROP = "external.providers";
-	protected static final String PROXY_NAME_PROP = "http.proxy.name";
-	protected static final String PROXY_DEFAULT_PROP = "http.proxy.default";
-	protected static final String HTTP_AUTH_USER_PROP = "http.auth.user";
-	protected static final String PROXY_AUTH_PW_PROP = "http.auth.pw";
-	protected static final String REVERSE_DUMP_PROP = "reverse.dump";
-	protected static final String SDMX_LANG_PROP = "sdmx.lang";
-	protected static final String LATE_RESP_RETRIES_PROP = "late.response.retries";
-	protected static final String TABLE_DUMP_PROP = "table.dump";
-	protected static final String READ_TIMEOUT_PROP = "read.timeout";
-	protected static final String CONNECT_TIMEOUT_PROP = "connect.timeout";
-	protected static final Logger SDMX_LOGGER = Logger.getLogger("SDMX");
-	protected static List<LanguageRange> SDMX_LANG = LanguageRange.parse("en");
+	private static final Logger SDMX_LOGGER = Logger.getLogger("SDMX");
 
+	private static final String SDMX_MAX_REDIRECTS = "max.redirects";
+	private static final String GLOBAL_CONFIGURATION_FILE_PROP = "SDMX_CONF";
+	private static final String EXTERNAL_PROVIDERS_PROP = "external.providers";
+	private static final String PROXY_NAME_PROP = "http.proxy.name";
+	private static final String PROXY_DEFAULT_PROP = "http.proxy.default";
+	private static final String HTTP_AUTH_USER_PROP = "http.auth.user";
+	private static final String PROXY_AUTH_PW_PROP = "http.auth.pw";
+	private static final String REVERSE_DUMP_PROP = "reverse.dump";
+	private static final String SDMX_LANG_PROP = "sdmx.lang";
+	private static final String LATE_RESP_RETRIES_PROP = "late.response.retries";
+	private static final String TABLE_DUMP_PROP = "table.dump";
+	private static final String READ_TIMEOUT_PROP = "read.timeout";
+	private static final String CONNECT_TIMEOUT_PROP = "connect.timeout";
 	private static final String UIS_API_KEY_PROP = "uis.api.key";
 	private static final String SDMX_CODES_POLICY = "handle.sdmx.codes";
-
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
 	private static final String SDMX_DEFAULT_LANG = "en";
-	private static final String SDMX_DEFAULT_TIMEOUT = "0";
 	private static final String DUMP_XML_PREFIX = "xml.dump.prefix";
 	private static final String sourceClass = Configuration.class.getSimpleName();
+	private static final int SDMX_DEFAULT_TIMEOUT = 120000;
 
 	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
-	private static Properties props = new Properties();
+	private static final Properties props = new Properties();
+	
 	private static boolean inited = false;
-	private static Subject subject;
+	protected static List<LanguageRange> SDMX_LANG = LanguageRange.parse("en");
 
 	static
 	{
@@ -133,24 +139,7 @@ public class Configuration
 			handler.setLevel(Level.INFO);
 			SDMX_LOGGER.addHandler(handler);
 		}
-		else if (handlers.size() == 1 && handlers.get(0) instanceof ConsoleHandler && handlers.get(0).getFormatter() instanceof SimpleFormatter)
-		{
-			// Replace the default consolehandler with a custom handler
-			current = SDMX_LOGGER;
-			while (current != null)
-				if (current.getHandlers().length == 1)
-				{
-					Handler handler = current.getHandlers()[0];
-					Level level = handler.getLevel();
-					current.removeHandler(handler);
-					handler = new SdmxLogHandler();
-					handler.setLevel(level);
-					current.addHandler(handler);
-					break;
-				}
-				else
-					current = current.getUseParentHandlers() ? current.getParent() : null;
-		}
+		
 	}
 
 	public static Logger getSdmxLogger()
@@ -158,6 +147,7 @@ public class Configuration
 		return SDMX_LOGGER;
 	}
 
+	@Deprecated
 	public static Properties getConfiguration()
 	{
 		return props;
@@ -175,27 +165,17 @@ public class Configuration
 
 	public static String getExternalProviders()
 	{
-		return props.getProperty(Configuration.EXTERNAL_PROVIDERS_PROP);
+		return props.getProperty(EXTERNAL_PROVIDERS_PROP);
 	}
 
-	public static int getReadTimeout(String provider)
+	public static int getReadTimeout()
 	{
-		String timeout = props.getProperty(provider + "." + Configuration.READ_TIMEOUT_PROP, null);
-		if (timeout == null)
-		{
-			timeout = props.getProperty(Configuration.READ_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
-		}
-		return Integer.parseInt(timeout);
+		return getProperty(READ_TIMEOUT_PROP, SDMX_DEFAULT_TIMEOUT);
 	}
 
-	public static int getConnectTimeout(String provider)
+	public static int getConnectTimeout()
 	{
-		String timeout = props.getProperty(provider + "." + Configuration.CONNECT_TIMEOUT_PROP, null);
-		if (timeout == null)
-		{
-			timeout = props.getProperty(Configuration.CONNECT_TIMEOUT_PROP, Configuration.SDMX_DEFAULT_TIMEOUT);
-		}
-		return Integer.parseInt(timeout);
+		return getProperty(CONNECT_TIMEOUT_PROP, SDMX_DEFAULT_TIMEOUT);
 	}
 
 	public static String getCodesPolicy()
@@ -237,6 +217,7 @@ public class Configuration
 
 		// normal configuration steps:
 		// 1 init LOGGER
+		// Init internal providers
 		// 2 search configuration in this order: system property, local, global,
 		// Configuration class
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
@@ -262,7 +243,6 @@ public class Configuration
 
 		// try local configuration.
 		if ((confFile = new File(confFileName)).exists())
-		{
 			try
 			{
 				// If found apply and exit
@@ -275,7 +255,6 @@ public class Configuration
 				e.printStackTrace();
 				SDMX_LOGGER.finer(logException(e));
 			}
-		}
 		// try global configuration
 		else if (globalConfEnvVar != null && !globalConfEnvVar.isEmpty() && (confFile = new File(globalConfEnvVar)).exists())
 			try
@@ -291,7 +270,6 @@ public class Configuration
 			}
 		// try configuration class.
 		else if (confType == null)
-		{
 			try
 			{
 				Class<?> clazz = Class.forName("it.bancaditalia.oss.sdmx.util.SdmxConfiguration");
@@ -315,9 +293,51 @@ public class Configuration
 				// impossible
 				e.printStackTrace();
 			}
+		
+		try 
+		{
+			List<URL> resources = list(Configuration.class.getClassLoader().getResources(PROVIDERS_FILE));
+			resources.add(0, Configuration.class.getResource(PROVIDERS_FILE));
+			resources.add(new File(getProperty(PROVIDERS_FILE_PROP, System.getProperty("user.dir") + File.separator + PROVIDERS_FILE)).toURI().toURL());
+			
+			for (URL resource: resources)
+				// Init internal providers
+				try (InputStream is = resource.openStream())
+				{
+					Properties props = new Properties();
+					props.load(is);
+					Map<String, String> providers = props.entrySet().stream().collect(toMap(e -> (String) e.getKey(), e -> (String) e.getValue()));  
+					providers.forEach((name, provider) -> {
+						try
+						{
+							String[] params = provider.split(",");
+							String providerName = getProperty("providers." + name + ".name", name);
+							boolean needsCredentials = getProperty("providers." + name + ".needsCredentials", parseBoolean(params[0].trim()));
+							boolean supportsCompression = getProperty("providers." + name + ".supportsCompression", parseBoolean(params[1].trim()));
+							SDMXVersion version = getProperty("providers." + name + ".sdmxversion", SDMXVersion.valueOf(params[2].trim()));
+							String description = getProperty("providers." + name + ".description", params[3].trim());
+							URI endpoint = params.length != 5 ? null : new URI(getProperty("providers." + name + ".endpoint", params[4].trim()));
+							SDMXClientFactory.addProvider(providerName, endpoint, needsCredentials, false, supportsCompression, description, version);
+						}
+						catch (URISyntaxException | SdmxException e)
+						{
+							getSdmxLogger().log(Level.SEVERE, "Exception. Class: {0} .Message: {1}", new Object[] { e.getClass().getName(), e.getMessage() });
+							getSdmxLogger().log(Level.FINER, "", e);
+						}			
+					});
+				}
+				catch (IOException | NullPointerException e)
+				{
+					// ignore and continue
+				}
 		}
-
-		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2"); // fix for WB
+		catch (IOException e)
+		{
+			throw new UncheckedIOException(e);
+		}
+		
+		if (SDMXClientFactory.getProviders().isEmpty())
+			throw new IllegalStateException("Cannot find any provider list.");
 	}
 
 	private static void init(File file) throws SecurityException, IOException
@@ -336,7 +356,7 @@ public class Configuration
 		String tStore = props.getProperty(SSL_TRUSTSTORE_PROP);
 		if (tStore != null && !tStore.isEmpty())
 			System.setProperty(SSL_TRUSTSTORE_PROP, tStore);
-
+		
 		setupTrustAllCerts();
 
 		// configure default language if not already set explicitly
@@ -347,7 +367,7 @@ public class Configuration
 
 	private static void setupTrustAllCerts()
 	{
-		if ("TRUE".equalsIgnoreCase(props.getProperty(SSL_DISABLE_CERT_CHECK_PROP)))
+		if (getProperty(SSL_DISABLE_CERT_CHECK_PROP, false))
 		{
 			SDMX_LOGGER.fine("The SSL Certificate checks are disabled...");
 			TrustManager[] alwaysTrust = new TrustManager[] { new X509TrustManager() {
@@ -560,6 +580,11 @@ public class Configuration
 		return props.getProperty(Configuration.UIS_API_KEY_PROP, null);
 	}
 
+	public static int getMaxRedirects()
+	{
+		return getProperty(SDMX_MAX_REDIRECTS, 20);
+	}
+
 	private static String logException(Throwable t)
 	{
 		StringWriter wr = new StringWriter();
@@ -598,13 +623,29 @@ public class Configuration
 		return (props.getProperty(DUMP_XML_PREFIX) != null) && (!props.getProperty(DUMP_XML_PREFIX).isEmpty());
 	}
 
-	public static void setSubject(Subject subject)
+	public static String getProperty(String name, String def)
 	{
-		Configuration.subject = subject;
+		return props.getProperty(name, def);
 	}
 
-	public static Subject getSubject()
+	protected static void setProperty(String name, String value)
 	{
-		return subject;
+		props.setProperty(name, value);
+	}
+
+	public static int getProperty(String name, int def)
+	{
+		String v = props.getProperty(name);
+		return v == null ? def : Integer.parseInt(v);
+	}
+
+	public static boolean getProperty(String name, boolean def)
+	{
+		return "true".equalsIgnoreCase(props.getProperty(name, Boolean.toString(def)));
+	}
+
+	public static SDMXVersion getProperty(String name, SDMXVersion sdmxVersion)
+	{
+		return SDMXVersion.valueOf(props.getProperty(name, sdmxVersion.toString()));
 	}
 }

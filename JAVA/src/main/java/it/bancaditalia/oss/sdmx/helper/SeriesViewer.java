@@ -1,5 +1,6 @@
 package it.bancaditalia.oss.sdmx.helper;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
 import static it.bancaditalia.oss.sdmx.helper.SDMXHelper.ICON_MAX;
 import static it.bancaditalia.oss.sdmx.helper.SDMXHelper.ICON_MIN;
 import static java.awt.Image.SCALE_SMOOTH;
@@ -42,6 +43,7 @@ import javax.swing.table.TableCellRenderer;
 
 import it.bancaditalia.oss.sdmx.api.BaseObservation;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
@@ -123,7 +125,7 @@ public class SeriesViewer extends JFrame
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public SeriesViewer(String provider, String[] nameArray) throws SdmxException, IOException
+	public SeriesViewer(String provider, String dataflow, String[] nameArray) throws SdmxException, IOException
 	{
 		super("Tabulate series");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -157,7 +159,12 @@ public class SeriesViewer extends JFrame
 		Set<String> names = new HashSet<>(Arrays.asList(nameArray)); 
 		List<PortableTimeSeries<Double>> series = new ArrayList<>();
 		for (String name: names)
-			series.addAll(SdmxClientHandler.getTimeSeries(provider, null, name, null, null, null, false, null, false));
+			if (V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion()) {
+				series.addAll(SdmxClientHandler.getTimeSeries2(provider, dataflow, name, null, null, null, "all", "none", null, false));
+			}
+			else{
+				series.addAll(SdmxClientHandler.getTimeSeries(provider, dataflow + "/" + name, null, null, false, null, false));
+			}
 		
 		if (series.size() < names.size())
 			throw new IllegalStateException("Couldn't download all series");
@@ -212,8 +219,8 @@ public class SeriesViewer extends JFrame
 	public SeriesViewer(String provider, String singleSeriesName) throws SdmxException
 	{
 		super(singleSeriesName);
-		
-		List<PortableTimeSeries<Double>> list = SdmxClientHandler.getTimeSeries(provider, null, singleSeriesName, null, null, null, false, null, false);
+		List<PortableTimeSeries<Double>> list = null; 
+		list = SdmxClientHandler.getTimeSeries(provider, singleSeriesName, null, null, false, null, false);
 		if (list.size() != 1)
 			throw new IllegalStateException("Query must return exactly one time series");
 		

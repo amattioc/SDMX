@@ -33,7 +33,7 @@ class ResultsFrame extends JFrame
 
 	private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-	public ResultsFrame(final String provider, final List<PortableTimeSeries<Double>> result) throws HeadlessException 
+	public ResultsFrame(final String provider, String dataflow, final List<PortableTimeSeries<Double>> result) throws HeadlessException 
 	{
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setSize(800, 600);
@@ -77,11 +77,11 @@ class ResultsFrame extends JFrame
 					{
 						if (SwingUtilities.isRightMouseButton(event)) 
 						{
-							JPopupMenu popupMenu = createPopupMenu(provider, tsTable, row);
+							JPopupMenu popupMenu = createPopupMenu(provider, dataflow, tsTable, row);
 							popupMenu.show(tsTable, event.getX(), event.getY());
 						} 
 						else if (column == 0 && SwingUtilities.isLeftMouseButton(event) && event.getClickCount() >= 2)
-								new SeriesViewer(provider, tsTable.getValueAt(row, 0).toString()).setVisible(true);
+							new SeriesViewer(provider, tsTable.getValueAt(row, 0).toString()).setVisible(true);
 					}
 					catch (SdmxException e)
 					{
@@ -121,7 +121,7 @@ class ResultsFrame extends JFrame
 	}
 
 
-	private JPopupMenu createPopupMenu(final String provider, final JTable tsTable, int defRow)
+	private JPopupMenu createPopupMenu(final String provider, String dataflow, final JTable tsTable, int defRow)
 	{
 		final String names[] = getSelectedSeries(tsTable, defRow);
 		boolean sameFreq = isSameFreqSelectedSeries(tsTable, defRow);
@@ -175,7 +175,7 @@ class ResultsFrame extends JFrame
 					{
 						try
 						{
-							new SeriesViewer(provider, names).setVisible(true);
+							new SeriesViewer(provider, dataflow, names).setVisible(true);
 						}
 						catch (Exception e1)
 						{

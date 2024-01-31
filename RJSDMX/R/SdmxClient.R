@@ -1,4 +1,4 @@
-# Copyright 2010,2014 Bank Of Italy
+# Copyright 2010,2024 Bank Of Italy
 #
 # Licensed under the EUPL, Version 1.1 or - as soon they
 # will be approved by the European Commission - subsequent
@@ -81,14 +81,21 @@ getDSDIdentifier <- function(provider, dataflow) {
 #' @param needsURLEncoding set this to TRUE if the provider does not handle character '+' in URLs
 #' @param supportsCompression set this to TRUE if the provider is able to handle compression
 #' @param description a brief text description of the provider
+#' @param sdmxVersion the version of the sdmx rest api ('V2' or 'V3'), defaults to V2
 #' @rdname addProvider
 #' @export
 #' @examples
 #' \dontrun{
 #' addProvider('pname', 'pendpoint', F)
 #' }
-addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='') {
-  J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)
+addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='', sdmxVersion='V2') {
+	if(sdmxVersion == 'V2'){
+		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V2
+	}
+	else{
+		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V3
+	}
+  J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion)
 }
 
 #' get dsd dimensions for dataflow
@@ -112,7 +119,7 @@ getDimensions <- function(provider, dataflow) {
   return(res)
 }
 
-#' get time series
+#' get time series (sdmx v2)
 #'
 #' Extract a list of time series. This function is used to extract a list of time series identified by the parameters provided in input.
 #' getTimeSeries(provider, dataflow, id, filter, start, end)
@@ -121,8 +128,6 @@ getDimensions <- function(provider, dataflow) {
 #' @param id timeseries key
 #' @param end the end time - optional
 #' @param start the start time - optional
-#' @param dataflow optional dataflow of the time series
-#' @param filter optional filter to be applied
 #' @rdname getTimeSeries
 #' @export
 #' @examples
@@ -134,33 +139,56 @@ getDimensions <- function(provider, dataflow) {
 #' my_ts=getTimeSeries('ECB',id='EXR.A+M.USD.EUR.SP00.A')
 #' ## get all available frequencies: 
 #' my_ts=getTimeSeries('ECB',id='EXR..USD.EUR.SP00.A')
-#' 
-#' # SDMX V3
-#' 
-#' ## get single time series: 
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', id='A.USD.EUR.SP00.A')
-#' ## get monthly and annual frequency: 
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', id='A+M.USD.EUR.SP00.A')
-#' ## get all available frequencies: 
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', id='.USD.EUR.SP00.A')
-#' 
-#' #or
-#' 
-#' #' ## get single time series: EXR.A.USD.EUR.SP00.A
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
-#' ## get monthly and annual frequency: 
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
-#' ## get all available frequencies: 
-#' my_ts=getTimeSeries('ECB', dataflow='EXR', filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
 #' }
-getTimeSeries <- function(provider, id, start='', end='', dataflow='', filter='') {
-  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeries(provider, dataflow, id, filter, start, end, FALSE, .jnull(), FALSE)
+getTimeSeries <- function(provider, id, start='', end='') {
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeries(provider, id, start, end, FALSE, .jnull(), FALSE)
   #convert to an R list
   res = convertTSList(res)
   return(res)
 }
 
-#' get time series and return a data.frame
+#' get time series (SDMX v3)
+#'
+#' Extract a list of time series . 
+#' This function is used to extract a list of time series identified by the parameters provided in input.
+#' getTimeSeries(provider, dataflow, key, filter, start, end, attributes, measures)
+#'
+#' @param provider the name of the provider
+#' @param dataflow dataflow of the time series
+#' @param key timeseries key - optional
+#' @param filter optional filter to be applied - optional
+#' @param end the end time - optional
+#' @param start the start time - optional
+#' @param attributes the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes
+#' @param measures the comma separated list of measures to be returned - optional, default='all', 'none' for no measures
+#' @rdname getTimeSeries2
+#' @export
+#' @examples
+#' \dontrun{
+#' # SDMX V3
+#' 
+#' ## get single time series: 
+#' my_ts=getTimeSeries2('ECB', dataflow='EXR', key='A.USD.EUR.SP00.A')
+#' ## get all available frequencies: 
+#' my_ts=getTimeSeries2('ECB', dataflow='EXR', key='.USD.EUR.SP00.A')
+#' 
+#' #or
+#' 
+#' #' ## get single time series: EXR.A.USD.EUR.SP00.A
+#' my_ts=getTimeSeries2('ECB', dataflow='EXR', filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+#' ## get monthly and annual frequency: 
+#' my_ts=getTimeSeries2('ECB', dataflow='EXR', filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+#' ## get all available frequencies: 
+#' my_ts=getTimeSeries2('ECB', dataflow='EXR', filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+#' }
+getTimeSeries2 <- function(provider, dataflow, key='', filter='', start='', end='', attributes = 'all', measures = 'all') {
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeries2(provider, dataflow, key, filter, start, end, attributes, measures, .jnull(), FALSE)
+  #convert to an R list
+  res = convertTSList(res)
+  return(res)
+}
+
+#' get time series and return a data.frame (SDMX v2)
 #'
 #' Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
 #' getTimeSeriesTable(provider, dataflow, id, filter, start, end)
@@ -173,34 +201,6 @@ getTimeSeries <- function(provider, id, start='', end='', dataflow='', filter=''
 #' @param filter optional filter to be applied
 #' @rdname getTimeSeriesTable
 #' @export
-#' @examples
-#' \dontrun{
-#' # SDMX V2
-#' ## get single time series:
-#' my_ts=getTimeSeriesTable('ECB',id='EXR.A.USD.EUR.SP00.A')
-#' ## get monthly and annual frequency: 
-#' my_ts=getTimeSeriesTable('ECB',id='EXR.A+M.USD.EUR.SP00.A')
-#' ## get all available frequencies: 
-#' my_ts=getTimeSeriesTable('ECB',id='EXR..USD.EUR.SP00.A')
-#' 
-#' # SDMX V3
-#' 
-#' ## get single time series: 
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', id='A.USD.EUR.SP00.A')
-#' ## get monthly and annual frequency: 
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', id='A+M.USD.EUR.SP00.A')
-#' ## get all available frequencies: 
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', id='.USD.EUR.SP00.A')
-#' 
-#' #or
-#' 
-#' #' ## get single time series: EXR.A.USD.EUR.SP00.A
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
-#' ## get monthly and annual frequency: 
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
-#' ## get all available frequencies: 
-#' my_ts=getTimeSeriesTable('ECB', dataflow='EXR', filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
-#' }
 getTimeSeriesTable <- function(provider, id, start='', end='', dataflow='', filter='') {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, dataflow, id, filter, start, end, FALSE, .jnull(), FALSE)
   #convert to an R data.frame
@@ -208,7 +208,31 @@ getTimeSeriesTable <- function(provider, id, start='', end='', dataflow='', filt
   return(res)
 }
 
-#' get data revisions
+#' get time series and return a data.frame (SDMX v3)
+#'
+#' Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
+#' getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
+#'
+#' @param provider the name of the provider
+#' @param dataflow dataflow of the time series
+#' @param key timeseries key
+#' @param filter optional filter to be applied
+#' @param end the end time - optional
+#' @param start the start time - optional
+#' @param attributes the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes
+#' @param measures the comma separated list of measures to be returned - optional, default='all', 'none' for no measures
+#' @param updatedAfter return only changes after this date - optional
+#' @param includeHistory include history of revisions - optional, default=false
+#' @rdname getTimeSeriesTable2
+#' @export
+getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='', end='', attributes='all', measures='all', updatedAfter=.jnull(), includeHistory=FALSE) {
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
+  #convert to an R data.frame
+  res = convertTSDF(res)
+  return(res)
+}
+
+#' get data revisions (sdmx v2)
 #'
 #' Extract time series starting from a specific update time and 
 #' with history of revisions. This function works as \bold{getTimeSeriesTable} but the 

@@ -20,7 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -118,13 +117,15 @@ public interface GenericSDMXClient {
      * @param filter the filter
      * @param startTime start time of the observations to be gathered
      * @param endTime end time of the observations to be gathered
+     * @param attributes comma separated string with the attributes to be returned ('none' or 'all' special values)
+     * @param measures comma separated string with the measures to be returned ('none' or 'all' special values)
      * @param updatedAfter if set, only data updated after the given date will be retrieved (e.g. '2014-01-01')
      * @param includeHistory boolean flag for enabling getting the history of revisions
      * @throws SdmxException 
      */
 	public List<PortableTimeSeries<Double>> getTimeSeries(Dataflow dataflow, DataFlowStructure dsd, String resource, String filter, 
 			String startTime, String endTime, 
-			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException;
+			String attributes, String measures, String updatedAfter, boolean includeHistory) throws SdmxException;
 	
 	/**
      * <p>Gets a list of available codes for the various dimensions, with the specified filters on components. Only in SDMX v3 providers 
@@ -165,21 +166,6 @@ public interface GenericSDMXClient {
 	public void setCredentials(String user, String pw);
 
 	/**
-     * <p>Gets the URL of the web service for this provider client
-     * @return the endpoint URL
-	 * @throws SdmxException 
-     */
-	public URI getEndpoint() throws SdmxException;
-
-	/**
-     * <p>Sets the URL of the web service for this provider client
-     */
-	/**
-	 * @param endpoint
-	 */
-	public void setEndpoint(URI endpoint);
-
-	/**
      * <p>Gets the exact URL corresponding to the data query in input for this client 
      * @param resource the id of the time series
      * @param startTime start time of the observations to be gathered
@@ -202,11 +188,4 @@ public interface GenericSDMXClient {
 	 * @return the client name
 	 */
 	public String getName();
-	
-	/**
-     * <p>Sets the name of this client 
-     * @param name the name of this client 
-     */
-	
-	public void setName(String name);
 }

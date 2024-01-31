@@ -1,7 +1,9 @@
 package it.bancaditalia.oss.sdmx.helper;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlow;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries2;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.String.format;
@@ -97,6 +99,7 @@ import javax.swing.text.DefaultEditorKit;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
 import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
@@ -261,11 +264,6 @@ public class SDMXHelper extends JFrame
 		new SDMXHelper(exitOnClose, lockedProvider);
 	}
 
-	public String getCurrentProvider()
-	{
-		return selectedProviderGroup.getSelection().getActionCommand();
-	}
-	
 	/**
 	 * Create the frame.
 	 */
@@ -316,9 +314,9 @@ public class SDMXHelper extends JFrame
 						{
 							String name = newProviderDialog.getName();
 							String description = newProviderDialog.getDescription();
-							String sdmxVersion = newProviderDialog.getSdmxVersion();
+							SDMXVersion sdmxVersion = newProviderDialog.getSdmxVersion();
 							URI endpoint = new URI(newProviderDialog.getURL());
-							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, false, sdmxVersion);
+							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, sdmxVersion);
 							mnProviders.removeAll();
 							providersSetup(mnProviders);
 						} 
@@ -958,26 +956,28 @@ public class SDMXHelper extends JFrame
 		AtomicBoolean interrupted = new AtomicBoolean(false);
 		
 		new ProgressViewer<>(this, interrupted, () -> 
-			SDMXClientFactory.getProviders().get(provider).getSdmxVersion().equals(SDMXClientFactory.SDMX_V3) ?
+			V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
 				SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
 				:
 				getCodes(provider, selectedDataflow, selectedDimension)	
 				,
 			codes -> {
+				// Create new checkbox for codes given the selectedDimension
+				// the new checkbox is stored in codelistSorterMap using the String selectedDimension as key.
+				// If the checkbox is not found in codelistSorterMap, it gets instantiated and put into it.
 				CheckboxListTableModel<String> model = null;
-				if(!codelistSortersMap.containsKey(selectedDimension)){
+				if (!codelistSortersMap.containsKey(selectedDimension)){
 					model = new CheckboxListTableModel<String>();
-					model.addTableModelListener(event -> tfSdmxQuery.setText(createQuery(selectedDataflow, dimsTableModel.getSource())));
-					if (SDMXClientFactory.SDMX_V3.equals(SDMXClientFactory.getProviders().get(provider).getSdmxVersion()))
+					model.addTableModelListener(event -> {
+						tfSdmxQuery.setText(createQuery(dimsTableModel.getSource()));
+					});
+					if (V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion()) {
 						model.addTableModelListener(event -> formatQueryButton(selectedDataflow, dimsTableModel.getSource()));
+					}
+					model.setItems(codes);
+					TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
+					codelistSortersMap.put(selectedDimension, sorter);
 				}
-				else
-					model = codelistSortersMap.get(selectedDimension).getModel();
-				
-				model.setItems(codes);
-				
-				TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
-				codelistSortersMap.put(selectedDimension, sorter);
 			},
 			ex -> {
 				interrupted.set(true);
@@ -987,6 +987,8 @@ public class SDMXHelper extends JFrame
 		).start();
 
 		SwingUtilities.invokeLater(() -> {
+			// Here the codelist checkbox get switched, it detects when the selectedDimension get changed
+			// and from codelistSorterMap get the previously instantiated checkbox and display it.
 				if (!interrupted.get())
 				{
 					TableRowSorter<CheckboxListTableModel<String>> sorter = codelistSortersMap.get(selectedDimension);
@@ -1021,13 +1023,14 @@ public class SDMXHelper extends JFrame
 		codelistSortersMap.clear();
 		((CheckboxListTableModel<?>) tblCodes.getModel()).clear();
 		dimsTableModel.clear();
-
+		String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+		btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		// if this is not a provider switch
 		new ProgressViewer<>(this, new AtomicBoolean(false),
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
 				dims -> {
 					dimsTableModel.setItems(dims, item -> new String[] { item.getId(), item.getName() });
-					tfSdmxQuery.setText(createQuery(dataflowID, dims));
+					tfSdmxQuery.setText(createQuery(dims));
 				},
 				ex -> {
 						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1038,9 +1041,8 @@ public class SDMXHelper extends JFrame
 	private void displayQueryResults()
 	{
 		String query = tfSdmxQuery.getText();
-		ButtonModel providerMenu = selectedProviderGroup.getSelection();
 		String selectedDataflow = getSelectedDataflow();
-		String selectedProvider = providerMenu.getActionCommand();
+		String selectedProvider = getSelectedProvider();
 		AtomicBoolean isCancelled = new AtomicBoolean(false);
 		
 		if (selectedDataflow != null && query != null && !query.isEmpty())
@@ -1049,7 +1051,13 @@ public class SDMXHelper extends JFrame
 					try
 					{
 						Dataflow dataflow = getFlow(selectedProvider, selectedDataflow);
-						List<PortableTimeSeries<Double>> names = getTimeSeries(selectedProvider, null, query, null, null, null, true, null, false);
+						List<PortableTimeSeries<Double>> names = null; 
+						if (V3 == SDMXClientFactory.getProviders().get(selectedProvider).getSdmxVersion()) {
+							names = getTimeSeries2(selectedProvider, dataflow.getId(), null, query, null, null, "none", "none", null, false);
+						}
+						else{
+							names = getTimeSeries(selectedProvider, dataflow.getId() + "/" + query, null, null, true, null, false);
+						}
 						return new SimpleEntry<>(dataflow, names);
 					}
 					catch (SdmxResponseException e)
@@ -1069,7 +1077,7 @@ public class SDMXHelper extends JFrame
 						List<PortableTimeSeries<Double>> result = entry.getValue();
 						
 						// Open a new window to browse query results
-						final JFrame wnd = new ResultsFrame(getCurrentProvider(), result);
+						final JFrame wnd = new ResultsFrame(getSelectedProvider(), df.getId(), result);
 
 						wnd.setTitle(String.format(resultsCountMessage, result.size(), df.getDescription())); //$NON-NLS-1$ //$NON-NLS-2$
 						wnd.setVisible(true);
@@ -1087,7 +1095,7 @@ public class SDMXHelper extends JFrame
 		for (final Entry<String, Provider> providerEntry : SDMXClientFactory.getProviders().entrySet())
 		{
 			final String provider = providerEntry.getKey();
-			final String sdmxVersion = providerEntry.getValue().getSdmxVersion();
+			final SDMXVersion sdmxVersion = providerEntry.getValue().getSdmxVersion();
 			final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
 					"[" + sdmxVersion + "] " + provider + ": " + providerEntry.getValue().getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			menuItem.setActionCommand(provider);
@@ -1099,6 +1107,8 @@ public class SDMXHelper extends JFrame
 						updateSource(provider);
 						btnCheckQuery.setEnabled(false);
 						btnPrintQuery.setEnabled(false);
+						String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+						btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 						tfSdmxQuery.setText(""); //$NON-NLS-1$
 						tfDataflowFilter.setText(""); //$NON-NLS-1$
 						lblQuery.setText(lblQuery.getText().split(":")[0] + ": " + provider); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1140,24 +1150,31 @@ public class SDMXHelper extends JFrame
 			}).start();
 	}
 
-	private String createQuery(String dataflow, List<Dimension> dims)
+	private String createQuery(List<Dimension> dims)
 	{
-		return dataflow + "/" + createFilter(dims);
-	}
-
-	private String createFilter(List<Dimension> dims)
-	{
-		return dims.stream()
-			.map(Dimension::getId)
-			.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
-			.collect(joining("."));
+		String result = "";
+		try {
+			if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion()) {
+				result =  createAvailabilityFilter();
+			}
+			else{
+				result =  dims.stream()
+						.map(Dimension::getId)
+						.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
+						.collect(joining("."));
+			}
+		} catch (SdmxException ex) {
+			LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
+		}		
+		return result;
 	}
 	
 	private void formatQueryButton(String dataflow, List<Dimension> dims)
 	{
 		try
 		{
-			int count = SdmxClientHandler.getSeriesCount(selectedProviderGroup.getSelection().getActionCommand(), dataflow, createFilter(dims));
+			int count = SdmxClientHandler.getSeriesCount(getSelectedProvider(), dataflow, createQuery(dims));
 			String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
 			btnCheckQuery.setText(String.format(formatted, count <= 0 ? "" : ": " + count)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -1169,7 +1186,7 @@ public class SDMXHelper extends JFrame
 
 	private String createAvailabilityFilter() throws SdmxException
 	{
-		List<Dimension> dims = SdmxClientHandler.getDimensions(getCurrentProvider(), getSelectedDataflow());
+		List<Dimension> dims = SdmxClientHandler.getDimensions(getSelectedProvider(), getSelectedDataflow());
 		return dims.stream()
 			.map(Dimension::getId)
 			.filter(codelistSortersMap::containsKey)
@@ -1184,6 +1201,12 @@ public class SDMXHelper extends JFrame
 		return rowSelected != -1
 				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(0)).toString()
 				: null;
+	}
+
+	private String getSelectedProvider()
+	{
+		ButtonModel providerMenu = selectedProviderGroup.getSelection();
+		return(providerMenu.getActionCommand());
 	}
 
 	private String getSelectedDimension()

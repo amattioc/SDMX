@@ -38,7 +38,22 @@ assert(length(dims) == 5), 'Error dimension number';
 assert(strcmp(dims{1}, 'FREQ'), 'Error dimension names');
 
 %% Test 4: getTimeSeries
-tts = getTimeSeries('ECB', 'EXR.M.USD|GBP.EUR.SP00.A');
+tts = getTimeSeries('ECB', 'EXR.M.USD+GBP.EUR.SP00.A');
 assert(length(tts) == 2, 'Error getTimeseries');
 
+%% Test 5: getTimeSeriesTable
+ttst = getTimeSeriesTable('ECB', 'EXR.M.USD+GBP.EUR.SP00.A');
+dims = size(ttst);
+assert(dims(1)>1, 'Error getTimeseriesTable');
+assert(dims(2)>1, 'Error getTimeseriesTable');
+
+%% Test 6: getTimeSeries2
+tts = getTimeSeries2('DEMO_SDMXV3', 'EXR', '', 'c[CURRENCY]=USD');
+assert(length(tts) == 8, 'Error getTimeseries2');
+
+%% Test 7: getTimeSeriesTable
+ttst = getTimeSeriesTable2('DEMO_SDMXV3', 'EXR', '', 'c[CURRENCY]=USD');
+dims = size(ttst);
+assert(dims(1)>1, 'Error getTimeseriesTable2');
+assert(dims(2)>1, 'Error getTimeseriesTable2');
 

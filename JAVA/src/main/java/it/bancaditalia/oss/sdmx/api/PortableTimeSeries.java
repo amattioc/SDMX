@@ -20,8 +20,6 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.AbstractMap;
@@ -282,30 +280,6 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	public String getAttribute(String code)
 	{
 		return getAttributesMap().get(code);
-	}
-
-	/**
-	 * Set the series' attributes names and values. Any previous attribute, if defined, will be cleared.
-	 * 
-	 * @param attributes A non-null map containing attribute bindings.
-	 */
-	@Deprecated
-	public void setAttributes(Map<String, String> attributes)
-	{
-		getAttributesMap().clear();
-		getAttributesMap().putAll(attributes);
-	}
-
-	/**
-	 * Adds or update an attribute value.
-	 * 
-	 * @param key The name of series' attribute. Must be non-null.
-	 * @param value The value of the attribute.
-	 */
-	@Deprecated
-	public void addAttribute(String key, String value)
-	{
-		this.getAttributesMap().put(key, value);
 	}
 
 	/**
@@ -656,6 +630,17 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	}
 
 	/**
+	 * Add an attribute to this time series.
+	 * 
+	 * @deprecated Use {@link #getAttributesMap()} instead.
+	 */
+	@Deprecated
+	public void addAttribute(String code, String value)
+	{
+		attributes.put(code, value);
+	}
+
+	/**
 	 * Get a String[] in the format "key=value" for each defined attribute in this {@link PortableTimeSeries}.
 	 * 
 	 * @return The array.
@@ -683,18 +668,6 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 		this.getAttributesMap().clear();
 		for (String pair : attributes)
 			this.getAttributesMap().put(pair.split("=")[0], pair.split("=")[1]);
-	}
-
-	/**
-	 * Sets an attribute for this series.
-	 * 
-	 * @param attribute a string in the format "key=value" representing the attribute to set.
-	 * @deprecated Use {@link #getAttributesMap()}.{@link Map#put(Object, Object) put(String, String)} instead.
-	 */
-	@Deprecated
-	public void addAttribute(String attribute)
-	{
-		addAttribute(attribute.split("=")[0], attribute.split("=")[1]);
 	}
 
 	/**
@@ -741,18 +714,6 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Sets an dimension for this series.
-	 * 
-	 * @param dimension a string in the format "key=value" representing the dimension to set.
-	 * @deprecated Use {@link #getDimensionsMap()}.{@link Map#put(Object, Object) put(String, String)} instead.
-	 */
-	@Deprecated
-	public void addDimension(String dimension)
-	{
-		addDimension(dimension.split("=")[0], dimension.split("=")[1]);
 	}
 
 	/**

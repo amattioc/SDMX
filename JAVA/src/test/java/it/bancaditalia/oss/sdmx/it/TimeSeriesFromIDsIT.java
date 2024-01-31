@@ -28,6 +28,7 @@ public class TimeSeriesFromIDsIT
     			{ "WB",       "WDI.A.SP_POP_TOTL.USA", "2000", "2010",    0, null,         "WDI.A.SP_POP_TOTL.USA" },
     			{ "UNDATA",   "DF_UNDATA_COUNTRYDATA/A...U....", "2010", "2015",  172, null,         null },
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A", "2000", "2010",   16, null,         null },
+    			{ "DEMO_SDMXV3", "EXR/.GBP...", null,   null,     8, null,         null },
     			{ "ECB",      "EXR/.GBP+USD...", null,   null,     16, null,         null },
     			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A", "2000", "2010",   10, null,         null },
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010",    2, null,         null },
@@ -52,7 +53,7 @@ public class TimeSeriesFromIDsIT
 
 	@Test
 	public void timeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries<Double>>  res = SdmxClientHandler.getTimeSeries(provider, query, start, end);
+		List<PortableTimeSeries<Double>>  res = SdmxClientHandler.getTimeSeries(provider, query, start, end, false, null, false);
 		assertNotNull("Null time series result", res);
 		if (expectedCount == 0)
 			assertTrue("No time series returned", res.size() > 0);

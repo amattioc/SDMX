@@ -21,6 +21,9 @@
 
 package it.bancaditalia.oss.sdmx.client;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -31,6 +34,7 @@ import com.stata.sfi.SFIToolkit;
 
 import it.bancaditalia.oss.sdmx.api.BaseObservation;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
 import it.bancaditalia.oss.sdmx.helper.SDMXHelper;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 
@@ -111,7 +115,7 @@ public class StataClientHandler
 		try
 		{
 			int dataLength = 0;
-			tslist = SdmxClientHandler.getTimeSeries(provider, null, tsKey, null, start, end, false, null, false);
+			tslist = SdmxClientHandler.getTimeSeries(provider, tsKey, start, end, false, null, false);
 			if (tslist == null)
 			{
 				SFIToolkit.displayln("The query did not complete correctly. Check java traces for details.");
@@ -292,6 +296,7 @@ public class StataClientHandler
 		boolean needsURLEncoding = false;
 		boolean supportsCompression = false;
 		String description = "";
+		SDMXVersion sdmxVersion = V2;
 
 		if (args.length >= 3 && !args[2].isEmpty())
 		{
@@ -309,11 +314,14 @@ public class StataClientHandler
 		{
 			description = args[5];
 		}
+		if (args.length >= 7 && !args[6].isEmpty())
+		{
+			sdmxVersion = args[5] == "V2" ? V2 : V3;
+		}
 
 		try
 		{
-			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression,
-					description);
+			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion);
 		}
 		catch (Exception e)
 		{

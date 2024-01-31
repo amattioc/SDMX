@@ -28,11 +28,12 @@
  * needsURLEncoding:    set this to true if the provider needs URL encoding
  * supportsCompression: set this to true if the provider supports stream compression
  * description:         a text description for the provider
+ * sdmxVersion:         the version of the sdmx rest API (V2 or V3)
  *
  */
 
 program addProvider
 	version 13
 	args name endpoint needsCredentials needsURLEncoding supportsCompression description
-	javacall it.bancaditalia.oss.sdmx.client.StataClientHandler addProvider, args("`name'" "`endpoint'" "`needsCredentials'" "`needsURLEncoding'" "`supportsCompression'" "`description'")
+	javacall it.bancaditalia.oss.sdmx.client.StataClientHandler addProvider, args("`name'" "`endpoint'" "`needsCredentials'" "`needsURLEncoding'" "`supportsCompression'" "`description'"  "`sdmxVersion'")
 end
