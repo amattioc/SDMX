@@ -71,7 +71,7 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     end
     
     %convert
-	tt = convertTable(result);
+	tt = convertTable(result, false);
     
 end
 

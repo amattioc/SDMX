@@ -19,13 +19,15 @@
 % permissions and limitations under the Licence.
 %
 
-function tsTable = convertTable(ds) 
+function tsTable = convertTable(ds, isTimeTable) 
 
     %check arguments
-    if nargin ~= 1
+    if nargin < 1
         error(sprintf(['Usage: convert(list)\n' ...
                     'Arguments\n' ...
                     'list: a it.bancaditalia.oss.sdmx.api.PortableDataSet of SDMX TimeSeries']));
+    elseif nargin < 2
+        isTimeTable = false;
     end
      
     %check class
@@ -39,7 +41,11 @@ function tsTable = convertTable(ds)
     end
 
     values = cell(ds.getObservations);
-    times = cell(ds.getTimeStamps);
+    if(isTimeTable)
+        TIME_PERIOD = datetime(cell(ds.getGregorianTimeStamps));
+    else
+        TIME_PERIOD = cell(ds.getTimeStamps);
+    end
     dimNames = cell(ds.getMetadataNames);
     
     nMeta = length(dimNames);
@@ -47,7 +53,14 @@ function tsTable = convertTable(ds)
     for i = 1:nMeta
         metadata{i} = cell(ds.getMetadata(dimNames(i)));
     end
-    
-    tsTable = table(times, values, metadata{:});
-    tsTable.Properties.VariableNames = ['TIME_PERIOD'; 'OBS_VALUE'; dimNames];
+
+    if(isTimeTable)
+        tsTable = timetable(TIME_PERIOD, values, metadata{:});
+        tsTable.Properties.VariableNames = ['OBS_VALUE'; dimNames];
+    else
+        tsTable = table(TIME_PERIOD, values, metadata{:});
+        tsTable.Properties.VariableNames = ['TIME_PERIOD'; 'OBS_VALUE'; dimNames];
+    end
+
+   
 end

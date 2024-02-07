@@ -81,7 +81,7 @@ function tt = getTimeSeriesTable2(provider, dataflow, key, filter, startTime, en
     end
     
     %convert
-	tt = convertTable(result);
+	tt = convertTable(result, true);
     
 end
 

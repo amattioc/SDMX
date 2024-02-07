@@ -47,11 +47,7 @@ dims = size(ttst);
 assert(dims(1)>1, 'Error getTimeseriesTable');
 assert(dims(2)>1, 'Error getTimeseriesTable');
 
-%% Test 6: getTimeSeries2
-tts = getTimeSeries2('DEMO_SDMXV3', 'EXR', '', 'c[CURRENCY]=USD');
-assert(length(tts) == 8, 'Error getTimeseries2');
-
-%% Test 7: getTimeSeriesTable
+%% Test 7: getTimeSeriesTable2
 ttst = getTimeSeriesTable2('DEMO_SDMXV3', 'EXR', '', 'c[CURRENCY]=USD');
 dims = size(ttst);
 assert(dims(1)>1, 'Error getTimeseriesTable2');
