@@ -31,7 +31,9 @@ import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.WeekConverter;
 
 /**
  * Java container for a dataset/table. In the various statistical tools it will be transformed by a converter into a
@@ -45,6 +47,7 @@ public class PortableDataSet<T> implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	public static final String	TIME_LABEL		= "TIME_PERIOD";
+	public static final String	FREQ_LABEL		= "FREQ";
 	public static final String	OBS_LABEL		= "OBS_VALUE";
 	public static final String	ID_LABEL		= "ID";
 
@@ -164,6 +167,62 @@ public class PortableDataSet<T> implements Serializable
 		for (int i = 0; i < rows; i++)
 		{
 			result[i] = (String) getValueAt(i, timeCol);
+		}
+		return (result);
+	}
+
+	/**
+	 * @return A flattened array containing all observations timestamps in gregorian format (end of period).
+	 * @throws DataStructureException If any error occurs
+	 * @throws SdmxInvalidParameterException 
+	 */
+	public String[] getGregorianTimeStamps() throws DataStructureException, SdmxInvalidParameterException
+	{
+		int rows = getRowCount();
+		String[] result = new String[rows];
+		String freq = "D";
+		int freqCol = -1;
+		int timeCol = getColumnIndex(TIME_LABEL);
+		try{
+			freqCol = getColumnIndex(FREQ_LABEL);
+		}
+		catch(DataStructureException dse){
+			// set daily freq - do nothing and cross fingers
+		}
+		for (int i = 0; i < rows; i++)
+		{
+			String time = (String) getValueAt(i, timeCol);
+			if(freqCol != -1){
+				freq = (String) getValueAt(i, freqCol);
+			}
+			
+			if(freq.equalsIgnoreCase("M")){
+				if(time.endsWith("01") || time.endsWith("03") || time.endsWith("05") || time.endsWith("07") || 
+						time.endsWith("08") || time.endsWith("10") || time.endsWith("12") ){
+					result[i] = time + "-31";
+				}
+				else if(time.endsWith("02")){
+					result[i] = time + "-28"; // handle  leap year
+				}
+				else{
+					result[i] = time + "-30";
+				}
+			}			
+			else if(freq.equalsIgnoreCase("Q")){
+				result[i] = time.replace("Q1", "03-31").replace("Q2", "06-30").replace("Q3", "09-30").replace("Q4", "12-31");
+			}			
+			else if(freq.equalsIgnoreCase("A")){
+				result[i] = ((String) getValueAt(i, timeCol)) + "-12-31";
+			}
+			else if(freq.equalsIgnoreCase("H")){
+				result[i] = ((String) getValueAt(i, timeCol)).replace("S1", "06-30").replace("S2", "12-31");   
+			}
+			else if(freq.equalsIgnoreCase("W")){
+				result[i] = WeekConverter.convert((String) getValueAt(i, timeCol));   
+			}
+			else{
+				result[i] = ((String) getValueAt(i, timeCol));
+			}
 		}
 		return (result);
 	}

@@ -106,7 +106,8 @@ public class Configuration
 	private static final String SDMX_DEFAULT_LANG = "en";
 	private static final String DUMP_XML_PREFIX = "xml.dump.prefix";
 	private static final String sourceClass = Configuration.class.getSimpleName();
-	private static final int SDMX_DEFAULT_TIMEOUT = 120000;
+	private static final int SDMX_DEFAULT_TIMEOUT_CONNECT = 30000;
+	private static final int SDMX_DEFAULT_TIMEOUT = 0; //some queries can take a very long time to initialize
 
 	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static final Properties props = new Properties();
@@ -175,7 +176,7 @@ public class Configuration
 
 	public static int getConnectTimeout()
 	{
-		return getProperty(CONNECT_TIMEOUT_PROP, SDMX_DEFAULT_TIMEOUT);
+		return getProperty(CONNECT_TIMEOUT_PROP, SDMX_DEFAULT_TIMEOUT_CONNECT);
 	}
 
 	public static String getCodesPolicy()
