@@ -20,6 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -27,6 +28,9 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -44,5 +48,23 @@ public class INEGI extends RestSdmxClient
 	{
 		// TODO Auto-generated method stub
 		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+	}
+	
+	@Override
+	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
+	{
+		if (provider.getEndpoint() != null && dsd != null && !dsd.isEmpty())
+		{
+			try
+			{
+				return new RestQueryBuilder(provider.getEndpoint()).addPath("DataStructure").addPath(agency).addPath(dsd).addPath(version).build();
+			}
+			catch (MalformedURLException e)
+			{
+				throw SdmxExceptionFactory.wrap(e);
+			}
+		}
+		else
+			throw new SdmxInvalidParameterException("Invalid query parameters: dsd=" + dsd + " endpoint=" + provider.getEndpoint());
 	}
 }
