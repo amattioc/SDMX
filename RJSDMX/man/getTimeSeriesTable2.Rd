@@ -42,3 +42,27 @@ getTimeSeriesTable2(
 Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
 getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
 }
+\examples{
+\dontrun{
+# SDMX V3
+
+## get single time series: 
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', key='A.USD.EUR.SP00.A')
+## get monthly and annual frequency: 
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', key='A+M.USD.EUR.SP00.A')
+## get all available frequencies: 
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', key='.USD.EUR.SP00.A')
+
+#or
+
+## get single time series: EXR.A.USD.EUR.SP00.A
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+## get monthly and annual frequency: 
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[FREQ]=A,M&c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+## get all available frequencies: 
+my_ts=getTimeSeriesTable('ECB', dataflow='EXR', 
+filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
+}
+}

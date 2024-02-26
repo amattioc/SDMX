@@ -10,10 +10,10 @@
 %	getDimensions - get the list of dimensions for the input dataflow
 %	getDSDIdentifier - get the name of the DSD for the input dataflow
 %	getTimeSeries - get the list of time series that match the input query (V2)
-%	getTimeSeries2 - get the list of time series that match the input arguments (V3) 
 %	and return a cell of timeseries
 %	getTimeSeriesTable - get the list of time series that match the input query (V2)
-%	getTimeSeriesTable - get the list of time series that match the input arguments (V3) 
+%	and return a table
+%	getTimeSeriesTable2 - get the list of time series that match the input arguments (V3) 
 %	and return a table
 %	getTimeSeriesRevisions - get the list of time series that match the input query
 %	and return a table. Revisions in observation values are returned too.

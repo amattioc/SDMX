@@ -197,12 +197,10 @@ getTimeSeries2 <- function(provider, dataflow, key='', filter='', start='', end=
 #' @param id timeseries key
 #' @param end the end time - optional
 #' @param start the start time - optional
-#' @param dataflow optional dataflow of the time series
-#' @param filter optional filter to be applied
 #' @rdname getTimeSeriesTable
 #' @export
-getTimeSeriesTable <- function(provider, id, start='', end='', dataflow='', filter='') {
-  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, dataflow, id, filter, start, end, FALSE, .jnull(), FALSE)
+getTimeSeriesTable <- function(provider, id, start='', end='') {
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, id, start, end, FALSE, .jnull(), FALSE)
   #convert to an R data.frame
   res = convertTSDF(res)
   return(res)
@@ -260,7 +258,7 @@ getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='',
 #' my_ts=getTimeSeriesRevisions('ECB','EXR.A.USD.EUR.SP00.A', updatedAfter='2015', includeHistory=TRUE)
 #' }
 getTimeSeriesRevisions <- function(provider, id, start='', end='', updatedAfter='', includeHistory=TRUE) {
-  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, .jnull(), id, .jnull(), start, end, FALSE, updatedAfter, includeHistory)
+  res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, id, start, end, FALSE, updatedAfter, includeHistory)
   #convert to an R list
   res = convertTSDF(res)
   return(res)
