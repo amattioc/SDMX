@@ -1,6 +1,8 @@
 Sdmx Connectors
 ====
 
+[![SDMX MATLAB CI](https://github.com/amattioc/SDMX/actions/workflows/matlab-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/matlab-ci.yml)
+
 Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 
 ![Latest Release](https://img.shields.io/github/v/release/amattioc/SDMX)   ![Latest Release downloads](https://img.shields.io/github/downloads/amattioc/SDMX/latest/total)
