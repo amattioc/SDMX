@@ -3,7 +3,7 @@
 \title{add new provider}
 \usage{
 addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
-  supportsCompression = TRUE, description = "")
+  supportsCompression = TRUE, description = "", sdmxVersion = "V2")
 }
 \arguments{
   \item{name}{the name of the provider}
@@ -21,6 +21,8 @@ addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
 
   \item{description}{a brief text description of the
   provider}
+
+  \item{sdmxVersion}{what sdmx version this provider supports}
 }
 \description{
 Configure a new data provider (only SDMX 2.1 REST providers
