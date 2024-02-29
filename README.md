@@ -1,7 +1,7 @@
 Sdmx Connectors 
 ====
 
-Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
+Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br> 
 
 [![JAVA CI](https://github.com/amattioc/SDMX/actions/workflows/java-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/java-ci.yml)
 [![R CI](https://github.com/amattioc/SDMX/actions/workflows/r-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/r-ci.yml)
