@@ -31,4 +31,4 @@ jobs:
         - name: Build
           run: |
             cd JAVA && \
-            ant dist
+            mvn package
