@@ -297,7 +297,7 @@ public class SDMXHelper extends JFrame
 				try
 				{
 					if (selectedProviderGroup.getSelection() != null)
-						new ToolCommandsFrame(tfSdmxQuery.getText(),
+						new ToolCommandsFrame(getSelectedDataflow()+"/"+tfSdmxQuery.getText(),
 								selectedProviderGroup.getSelection().getActionCommand());
 				} 
 				catch (SdmxException ex)
