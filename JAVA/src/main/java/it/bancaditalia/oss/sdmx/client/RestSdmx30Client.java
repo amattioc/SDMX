@@ -122,7 +122,7 @@ public class RestSdmx30Client extends RestSdmxClient
 	
 	private String mapSDMX2KeytoSDMX3FIlter(String tsKey, DataFlowStructure dsd) throws SdmxInvalidParameterException {
 		String filter = "";
-		Dimension[] dims = (Dimension[]) dsd.getDimensions().toArray();
+		Dimension[] dims = dsd.getDimensions().toArray(new Dimension[0]);
 		String delims = "[.]";
 		String[] tokens = tsKey.split(delims);
 		if(tokens.length > dims.length)
