@@ -1,5 +1,5 @@
 
-name: MATLAB CI
+name: JAVA CI
 
 # Controls when the action will run.
 on:
@@ -26,16 +26,9 @@ jobs:
             java-version: '11'
             distribution: 'temurin'
             architecture: x64
+        - run: echo $JAVA_HOME
 
-        # Sets up MATLAB on the GitHub Actions runner
-        - name: Setup MATLAB
-          uses: matlab-actions/setup-matlab@v1
-          with:
-            release: R2023a
-
-        - name: Testing
+        - name: Build
           run: |
-            mkdir -p MATLAB/lib && \
-            cp RJSDMX/inst/java/SDMX.jar MATLAB/lib && \
-            cd MATLAB/ && \
-            matlab -batch "addpath .;result=runtests('test/testSDMX.m');exit(any([result.Failed]));"
+            cd JAVA && \
+            ant dist
