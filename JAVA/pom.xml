@@ -47,20 +47,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-	<plugins>
-	<plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-surefire-plugin</artifactId>
-		<version>3.2.5</version>
-		<configuration>
-			<forkMode>always</forkMode>
-			<environmentVariables>
-				<SDMX_CONF>/home/user/e922480/configuration_b.properties</SDMX_CONF>
-			</environmentVariables>
-		</configuration>
-	</plugin>
-	</plugins>
-	</build>
 </project>
