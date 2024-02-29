@@ -1,5 +1,5 @@
 
-name: SDMX MATLAB CI
+name: MATLAB CI
 
 # Controls when the action will run.
 on:
