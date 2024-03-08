@@ -598,6 +598,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 		{
 			buffer.append((first ? "" : ", ") + attrName + "=");
 			buffer.append(getObsLevelAttributes(attrName));
+			buffer.append("\n");
 			first = false;
 		}
 

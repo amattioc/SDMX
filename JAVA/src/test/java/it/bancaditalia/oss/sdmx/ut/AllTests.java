@@ -24,11 +24,13 @@ import org.junit.runners.Suite;
 
 import it.bancaditalia.oss.sdmx.it.SDMXReferenceIT;
 import it.bancaditalia.oss.sdmx.it.DataflowsIT;
+import it.bancaditalia.oss.sdmx.it.DimensionsIT;
 import it.bancaditalia.oss.sdmx.it.CodesIT;
 import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( {	SdmxInterfaceTest.class,
+						DimensionsIT.class,
 						CodesIT.class,
 						SDMXReferenceIT.class,
 						ProxyTest.class,

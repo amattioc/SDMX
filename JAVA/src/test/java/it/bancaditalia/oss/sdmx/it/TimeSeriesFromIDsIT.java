@@ -38,6 +38,7 @@ public class TimeSeriesFromIDsIT
     			{ "ISTAT_RI", "163_24/Q.........2022M11", null,   null,      0, null,         "163_24.Q.IT.B1G_B_W2_S1._T.Z.Z.L_2015.N.B.2022M11" },
     			{ "ISTAT",    "115_362/M....", null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
     			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
+    			{ "OECD_NEW", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102", "2000", "2010",    0, "2000-Q1",    "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102" },
        			{ "EUROSTAT", "PRC_HICP_MIDX/..CP00.EU+DE+FR",  "2000", "2013-08", 0, "2000-01",    "PRC_HICP_MIDX.M.I05.CP00.DE" },
        			{ "BBK", 	  "BBASV/Q.DE.M.KV.A10.T.1.AT.S1._T.EUR",   "2017-Q1", "2017-Q4", 0, "2017-Q1",    "BBASV.Q.DE.M.KV.A10.T.1.AT.S1._T.EUR" }
        		    		}, 0);

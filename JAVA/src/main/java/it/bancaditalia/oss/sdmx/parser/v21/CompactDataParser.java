@@ -141,6 +141,7 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
+				ts.getAttributesMap().put("dsd", dsd.getFullIdentifier());
 				tsList.putIfAbsent(ts.getName(), ts);
 				obs = new ArrayList<>();
 			}
