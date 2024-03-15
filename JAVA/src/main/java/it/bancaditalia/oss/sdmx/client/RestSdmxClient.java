@@ -70,9 +70,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected String				pw								= null;
 	
 	protected final Provider provider;
-	protected final String LATEST_VERSION	= "latest";
-	protected final String ALL_AGENCIES	= "all";
-	protected String latestKeyword = LATEST_VERSION;
+	protected String LATEST_VERSION	= "latest";
+	protected String ALL_KEYWORD	= "all";
 
 	public RestSdmxClient(Provider provider)
 	{
@@ -84,7 +83,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
-		URL query = buildFlowQuery(ALL_AGENCIES, "all", latestKeyword);
+		URL query = buildFlowQuery(ALL_KEYWORD, ALL_KEYWORD, LATEST_VERSION);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, "dataflow_all", getName(), handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 		if (flows.size() > 0)
 		{
@@ -102,8 +101,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		Dataflow result = null;
-		if(agency == null) agency = ALL_AGENCIES;
-		if(version == null) version = this.latestKeyword;
+		if(agency == null) agency = ALL_KEYWORD;
+		if(version == null) version = this.LATEST_VERSION;
 		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, getName(), "dataflow_" + dataflow, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 		if (flows.size() >= 1)

@@ -49,6 +49,7 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 	private static final String ID = "id";
 	private static final String AGENCY = "agencyID";
 	private static final String VERSION = "version";
+	private static final String EXTERNAL = "isExternalReference";
 	private static final String NAME = "Name";
 	private static final String REF = "Ref";
 
@@ -62,7 +63,7 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 		while (eventReader.hasNext()) {
 			XMLEvent event = eventReader.nextEvent();
 			logger.finest(event.toString());
-			
+						
 			if (event.isStartElement()) {
 				StartElement startElement = event.asStartElement();
 
@@ -70,15 +71,21 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 				{
 					currentName = new LocalizedText(languages);
 					String id = null, agency = null, version = null;
+					boolean isExternalReference = false;
 					for (Attribute attr: (Iterable<Attribute>) startElement::getAttributes)
 						switch (attr.getName().toString())
 						{
 							case ID: id = attr.getValue(); break;
 							case AGENCY: agency = attr.getValue(); break;
 							case VERSION: version = attr.getValue(); break;
+							case EXTERNAL: isExternalReference = attr.getValue().equalsIgnoreCase("true"); break;
 						}
-					
-					df = new Dataflow(id, agency, version, currentName);
+						//TODO: check what to do with these cases
+						if(isExternalReference){
+							logger.fine("Dataflow: " + agency + "," + id + "," + version + " has an externa reference");
+							continue;
+						}
+						df = new Dataflow(id, agency, version, currentName);
 				}
 				if (startElement.getName().getLocalPart() == (NAME))
 					currentName.setText(startElement, eventReader);
@@ -96,8 +103,9 @@ public class DataflowParser implements Parser<List<Dataflow>> {
 					df.setDsdIdentifier(new SDMXReference(id, agency, version));
 				}
 			}
-			else if (event.isEndElement() && DATAFLOW.equals(event.asEndElement().getName().getLocalPart())) 
+			else if (event.isEndElement() && DATAFLOW.equals(event.asEndElement().getName().getLocalPart())){ 
 				dfList.add(df);
+			}
 		}
 		
 		return dfList;

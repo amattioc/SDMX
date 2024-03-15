@@ -30,6 +30,7 @@ public class SDMXReferenceIT
         		{ "UNDATA",           "DF_UNDATA_COUNTRYDATA",         "UNSD",     "CountryData" },
         		{ "OECD",             "QNA",                           null,       "QNA" },
         		{ "OECD_NEW",         "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","OECD.SDD.NAD",       "DSD_NAMAIN1" },
+        		{ "OECD_SDMXV3",      "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","OECD.SDD.NAD",       "DSD_NAMAIN1" },
         		{ "NBB",              "AFCSURV",                       null,       "AFCSURV" },
         		{ "ISTAT",            "144_125",                       null,       "DCSP_NICDUE" },
         		{ "ISTAT_RI",         "163_24",                       null,     "DCCN_QNA" },

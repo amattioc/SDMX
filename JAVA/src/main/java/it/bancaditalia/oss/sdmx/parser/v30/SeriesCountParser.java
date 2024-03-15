@@ -48,7 +48,8 @@ public class SeriesCountParser implements Parser<Integer>
 	static final String			ANNOTATION		= "Annotation";
 	static final String			ID			= "id";
 	static final String			ANNOTATION_TITLE	= "AnnotationTitle";
-	static final String			SERIES_COUNT	= "series_count";
+	static final String			SERIES_COUNT	= "series_count"; // TODO, change output to differentiate
+	static final String			OBS_COUNT	= "obs_count";
 
 	@Override
 	public Integer parse(XMLEventReader eventReader, List<LanguageRange> languages)
@@ -72,7 +73,8 @@ public class SeriesCountParser implements Parser<Integer>
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
-						if (ID.equals(attr.getName().getLocalPart()) && attr.getValue().equals(SERIES_COUNT))
+						if (ID.equals(attr.getName().getLocalPart()) && 
+								(attr.getValue().equals(SERIES_COUNT) || attr.getValue().equals(OBS_COUNT)))
 							isTSNumber=true;
 					}
 				}

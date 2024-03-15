@@ -22,6 +22,7 @@ public class FilterProvidersToTest
 			"ISTAT_RI",
 			"OECD",
 			"OECD_NEW",
+			"OECD_SDMXV3",
 			"UNDATA",
 			"WITS",
 			"BBK"

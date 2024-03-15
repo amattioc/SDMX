@@ -51,13 +51,12 @@ import it.bancaditalia.oss.sdmx.util.QueryRunner;
 public class RestSdmx30Client extends RestSdmxClient
 {
 
-	protected final String LATEST_VERSION = "+";
-
 	public RestSdmx30Client(Provider provider)
 	{
 		super(provider);
 		this.sdmxVersion = V3;
-		this.latestKeyword = this.LATEST_VERSION;
+		this.LATEST_VERSION = "+";
+		this.ALL_KEYWORD = "*";
 	}
 	
 	@Override

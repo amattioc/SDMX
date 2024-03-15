@@ -126,10 +126,17 @@ public class Sdmx30Queries extends RestQueryBuilder {
 			String updatedAfter, boolean includeHistory, String mode) {
 		if (filter != null && !filter.isEmpty())
 			addFilter(filter);
-		if (start != null && !start.isEmpty())
-			addParam("startPeriod", start);
-		if (end != null && !end.isEmpty())
-			addParam("endPeriod", end);
+//		if (start != null && !start.isEmpty())
+//			addParam("startPeriod", start);
+//		if (end != null && !end.isEmpty())
+//			addParam("endPeriod", end);
+		if((start != null && !start.isEmpty()) || (end != null && !end.isEmpty())){
+			String startFilter = (start != null && !start.isEmpty()) ? "ge:" + start : "";
+			String endFilter = (end != null && !end.isEmpty()) ? "le:" + end : "";
+			String sep = (!startFilter.isEmpty() && !endFilter.isEmpty()) ? "+" : "";
+			String timeFilter = startFilter + sep + endFilter;
+			addParam("c[TIME_PERIOD]=", timeFilter);
+		}
 		if (attributes != null)
 			addParam("attributes", attributes);
 		if (measures != null)

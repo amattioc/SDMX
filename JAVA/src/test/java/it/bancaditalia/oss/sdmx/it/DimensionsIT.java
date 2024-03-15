@@ -39,6 +39,7 @@ public class DimensionsIT
     			{ "IMF2",             "DS-WHDREO",                     0, "FREQ",          "IMF/CL_FREQ",                    },
     			{ "OECD",             "QNA",                           0, "LOCATION",      "OECD/CL_QNA_LOCATION",           },
     			{ "OECD_NEW",         "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },
+    			{ "OECD_SDMXV3",      "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },
     			{ "WB",               "WDI",                           1, "SERIES",        "WB/CL_SERIES_WDI/1.0",           },
     			{ "BBK",              "BBASV",                         0, "BBK_STD_FREQ",  "BBK/CL_BBK_STD_FREQ/1.0",        }
     		}, 0);

@@ -494,26 +494,40 @@ public class Configuration
 					String login = props.getProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP);
 					String krbccname = System.getenv().get("KRB5CCNAME");
 
-					if (krbccname != null && login != null && conf != null)
+					if (krbccname != null)
 					{
 						krbccname = krbccname.trim();
-						login = login.trim();
-						conf = conf.trim();
 						System.setProperty("user.krb5cc", krbccname);
-						// System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
-						System.setProperty(JAVA_SECURITY_KERBEROS_PROP, conf);
-						System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP, login);
-						logger.finer(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
-						logger.finer(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
 						logger.finer("Environment variable KRB5CCNAME = " + krbccname);
 					}
 					else
 					{
-						logger.warning("Kerberos ticket cache not configured because one of the parameters is not set.");
-						logger.warning(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
-						logger.warning(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
-						logger.warning("Environment variable KRB5CCNAME = " + krbccname);
+						logger.warning("Kerberos KRB5CCNAME not set. Rely on defaults");
 					}
+					
+					if (login != null)
+					{
+						login = login.trim();
+						System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP, login);
+						logger.finer(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
+					}
+					else
+					{
+						logger.warning("Kerberos jaas file not set. Rely on defaults");
+					}
+					
+					if (conf != null)
+					{
+						conf = conf.trim();
+						System.setProperty(JAVA_SECURITY_KERBEROS_PROP, conf);
+						logger.finer(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
+					}
+					else
+					{
+						logger.warning("Kerberos configuration file not set. Rely on defaults");
+						logger.warning(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
+					}
+
 				}
 				else if (proxyAuth.equalsIgnoreCase(PROXY_AUTH_BASIC))
 				{
