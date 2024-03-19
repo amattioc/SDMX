@@ -53,6 +53,15 @@ public final class CheckboxListTableModel<T> extends AbstractTableModel
 		return codes;
 	}
 
+	public void updateCheckedCodes(Collection<String> codes)
+	{
+		for (int i = 0; i < items.length; i++)
+			// 1 => key column
+			if (codes.contains(((String) items[i][1])))
+				// 0 => checkbox column
+				items[i][0] = new Boolean(true);
+	}
+
 	public int getCheckedCodesCount()
 	{
 		int c = 0;

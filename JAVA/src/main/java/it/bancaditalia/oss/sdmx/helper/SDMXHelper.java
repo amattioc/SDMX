@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -964,9 +965,9 @@ public class SDMXHelper extends JFrame
 			codes -> {
 				// Create new checkbox for codes given the selectedDimension
 				// the new checkbox is stored in codelistSorterMap using the String selectedDimension as key.
-				// If the checkbox is not found in codelistSorterMap, it gets instantiated and put into it.
+				// If the checkbox is already present, the selected codes are updated and set to true
 				CheckboxListTableModel<String> model = null;
-				if (!codelistSortersMap.containsKey(selectedDimension)){
+				//if (!codelistSortersMap.containsKey(selectedDimension)){
 					model = new CheckboxListTableModel<String>();
 					model.addTableModelListener(event -> {
 						tfSdmxQuery.setText(createQuery(dimsTableModel.getSource()));
@@ -975,9 +976,14 @@ public class SDMXHelper extends JFrame
 						model.addTableModelListener(event -> formatQueryButton(selectedDataflow, dimsTableModel.getSource()));
 					}
 					model.setItems(codes);
+					if(codelistSortersMap.get(selectedDimension) != null){
+						Collection<String> checkedCodes = codelistSortersMap.get(selectedDimension).getModel().getCheckedCodes();
+						model.updateCheckedCodes(checkedCodes);
+					}
 					TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
 					codelistSortersMap.put(selectedDimension, sorter);
-				}
+					
+				//}
 			},
 			ex -> {
 				interrupted.set(true);
