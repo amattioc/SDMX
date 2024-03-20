@@ -14,9 +14,31 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 
 ![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
-![Overview](https://github.com/amattioc/SDMX/blob/master/docs/resources/sdmx2.png)
+![immagine](https://github.com/amattioc/SDMX/assets/8512242/a29069b2-538b-408d-87b5-353ac92ad1bf)
+
+**List of available providers:**
+
+`> getProviders()`
+
+` [1] "ABS" "BBK" "BIS_PUBLIC" "DEMO_SDMXV3" `
+
+` [5] "ECB" "EUROSTAT" "EUROSTAT_COMEXT" "EUROSTAT_COMP" `
+
+` [9] "EUROSTAT_EMPL" "EUROSTAT_GROW" "ILO" "IMF2" `
+
+`[13] "INEGI" "INSEE" "ISTAT" "ISTAT_CENSUS_AGR"`
+
+` [17] "ISTAT_CENSUS_IND" "ISTAT_CENSUS_POP" "ISTAT_RI" "NBB" `
+
+` [21] "OECD" "OECD_NEW" "OECD_RESTR" "OECD_SDMXV3" `
+
+` [25] "PACIFICDATA" "STATCAN_CENSUS" "STATCAN_NRG" "StatsEE" `
+
+` [29] "UNDATA" "UNICEF" "WB" "WITS" `
 
 **Browse SDMX data providers, build your queries and get data directly in your favourite tool.**
+
+(try the java [helper](https://github.com/amattioc/SDMX/raw/master/RJSDMX/inst/java/SDMX.jar))
 
 ====
 
