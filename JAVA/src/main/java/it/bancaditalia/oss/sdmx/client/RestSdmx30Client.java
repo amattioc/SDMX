@@ -85,6 +85,13 @@ public class RestSdmx30Client extends RestSdmxClient
 		URL query = buildAvailabilityQuery(dataflow, filter, "exact");
 		return runQuery(new SeriesCountParser(), query, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 	}
+	
+	@Override
+	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly, String updatedAfter,
+			boolean includeHistory) throws SdmxException
+	{
+		return buildDataQuery(dataflow, null, resource, startTime, endTime, null, null, updatedAfter, includeHistory).toString();
+	}
 
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String tsKey, String filter, String startTime, String endTime, 
 			String attributes, String measures, String updatedAfter, boolean includeHistory) throws SdmxException

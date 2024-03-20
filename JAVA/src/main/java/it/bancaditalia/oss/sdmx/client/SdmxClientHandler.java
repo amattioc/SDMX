@@ -534,7 +534,7 @@ public class SdmxClientHandler
 		return result;
 	}
 
-	public static String getDataURL(String provider, String tsKey, String start, String end, boolean seriesKeysOnly,
+	public static String getDataURL(String provider, String dataflow, String resource, String start, String end, boolean seriesKeysOnly,
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		if (provider == null || provider.trim().isEmpty())
@@ -542,17 +542,18 @@ public class SdmxClientHandler
 			LOGGER.severe("The name of the provider cannot be null");
 			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
 		}
-		if (tsKey == null || tsKey.trim().isEmpty())
+		if (dataflow == null || dataflow.trim().isEmpty())
 		{
-			LOGGER.severe("The tsKey cannot be null");
-			throw new SdmxInvalidParameterException("The tsKey cannot be null");
+			LOGGER.severe("The dataflow cannot be null");
+			throw new SdmxInvalidParameterException("The dataflow cannot be null");
+		}
+		if (resource == null || resource.trim().isEmpty())
+		{
+			LOGGER.severe("The query cannot be null");
+			throw new SdmxInvalidParameterException("The query cannot be null");
 		}
 
-		String[] tokens = extractFlowAndResource(tsKey);
-		String dataflow = tokens[0];
-		String resource = tokens[1];
 		Dataflow df = getFlow(provider, dataflow);
-
 		String result = getClient(provider).buildDataURL(df, resource, start, end, seriesKeysOnly, updatedAfter,
 				includeHistory);
 		return (result);
