@@ -19,7 +19,7 @@ getTimeSeriesTable(provider, id, start='', end='')
 \description{
 Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
 
-getTimeSeriesTable(provider, id, start, end)
+getTimeSeriesTable(provider, id, start, end, gregorianTime)
 }
 \examples{
 \dontrun{

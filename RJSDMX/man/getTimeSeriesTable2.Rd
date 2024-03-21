@@ -14,7 +14,8 @@ getTimeSeriesTable2(
   attributes = "all",
   measures = "all",
   updatedAfter = .jnull(),
-  includeHistory = FALSE
+  includeHistory = FALSE,
+  gregorianTime = F
 )
 }
 \arguments{
@@ -38,7 +39,7 @@ getTimeSeriesTable2(
 
 \item{includeHistory}{include history of revisions - optional, default=false}
 
-  \item{gregorianTime}{set to true to have all daily dates - optional}
+\item{gregorianTime}{set to true to have all daily dates - optional}
 
 }
 \description{
