@@ -203,7 +203,7 @@ getTimeSeries2 <- function(provider, dataflow, key='', filter='', start='', end=
 getTimeSeriesTable <- function(provider, id, start='', end='', gregorianTime=F) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, id, start, end, FALSE, .jnull(), FALSE)
   #convert to an R data.frame
-  res = convertTSDF(res, , gregorianTime)
+  res = convertTSDF(res, gregorianTime)
   return(res)
 }
 
@@ -228,7 +228,7 @@ getTimeSeriesTable <- function(provider, id, start='', end='', gregorianTime=F) 
 getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='', end='', attributes='all', measures='all', updatedAfter=.jnull(), includeHistory=FALSE, gregorianTime = F) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
   #convert to an R data.frame
-  res = convertTSDF(res, , gregorianTime)
+  res = convertTSDF(res, gregorianTime)
   return(res)
 }
 
