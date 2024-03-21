@@ -88,6 +88,7 @@ convertTSList <- function (javaList, plain = F) {
 # convert a java PortableDataSet
 convertTSDF <- function (jtable) {
 	isNumeric <- .jcall(jtable,"Z","isNumeric");
+	dataflow <- .jcall(jtable,"Ljava/lang/String;","getDataflow");
 	time = .jcall(jtable,"[Ljava/lang/String;","getTimeStamps", evalString = TRUE, evalArray = TRUE)
 	values = .jcall(jtable,"[Ljava/lang/Object;","getObservations", evalArray = TRUE)
 	if(isNumeric){
@@ -110,6 +111,7 @@ convertTSDF <- function (jtable) {
 		warning('The results contain errors. Please check the ERROR_OBJECTS attribute')
 	}
 	attr(result, 'IS_NUMERIC') <- isNumeric
+	attr(result, 'dataflow') <- dataflow
 	return(result);
 }
 

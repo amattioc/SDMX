@@ -57,6 +57,7 @@ public class PortableDataSet<T> implements Serializable
 	private boolean				errorFlag		= false;
 	private boolean				numeric			= false;
 	private String				errorObjects	= null;
+	private String				dataflow		= null;
 
 	private DefaultTableModel	model			= null;
 
@@ -78,6 +79,14 @@ public class PortableDataSet<T> implements Serializable
 	{
 		this();
 		setTimeSeries(tslist);
+	}
+
+	public String getDataflow() {
+		return dataflow;
+	}
+
+	public void setDataflow(String dataflow) {
+		this.dataflow = dataflow;
 	}
 
 	/**

@@ -461,7 +461,10 @@ public class SdmxClientHandler
 			String attributes, String measures, String updatedAfter, boolean includeHistory)
 			throws SdmxException, DataStructureException
 	{
-		return new PortableDataSet<>(getTimeSeries2(provider, dataflow, tsKey, filter, startTime, endTime, attributes, measures, updatedAfter, includeHistory));
+		
+		PortableDataSet<Double> ds = new PortableDataSet<>(getTimeSeries2(provider, dataflow, tsKey, filter, startTime, endTime, attributes, measures, updatedAfter, includeHistory));
+		ds.setDataflow(getFlow(provider, dataflow).getFullIdentifier());
+		return(ds);
 	}
 
 	//valid for sdmx v2 
