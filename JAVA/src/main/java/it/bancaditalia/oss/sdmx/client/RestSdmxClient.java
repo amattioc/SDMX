@@ -271,7 +271,7 @@ public class RestSdmxClient implements GenericSDMXClient
 			headers.put("Accept", acceptHeader);
 		else
 			headers.put("Accept", "*/*");
-		
+		headers.put("user-agent", "RJSDMX");
 		return headers;
 	}
 }
