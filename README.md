@@ -32,9 +32,9 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 
 ` [21] "OECD" "OECD_NEW" "OECD_RESTR" "OECD_SDMXV3" `
 
-` [25] "PACIFICDATA" "STATCAN_CENSUS" "STATCAN_NRG" "StatsEE" `
+` [25] "PACIFICDATA" "STATCAN_CENSUS" "STATCAN_NRG" `
 
-` [29] "UNDATA" "UNICEF" "WB" "WITS" `
+` [28] "UNDATA" "UNICEF" "WB" "WITS" `
 
 **Browse SDMX data providers, build your queries and get data directly in your favourite tool.**
 
