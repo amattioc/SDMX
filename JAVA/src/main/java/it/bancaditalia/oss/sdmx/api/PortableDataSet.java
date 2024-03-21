@@ -21,6 +21,9 @@
 package it.bancaditalia.oss.sdmx.api;
 
 import java.io.Serializable;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -206,22 +209,13 @@ public class PortableDataSet<T> implements Serializable
 			}
 			
 			if(freq.equalsIgnoreCase("M")){
-				if(time.endsWith("01") || time.endsWith("03") || time.endsWith("05") || time.endsWith("07") || 
-						time.endsWith("08") || time.endsWith("10") || time.endsWith("12") ){
-					result[i] = time + "-31";
-				}
-				else if(time.endsWith("02")){
-					result[i] = time + "-28"; // handle  leap year
-				}
-				else{
-					result[i] = time + "-30";
-				}
+				result[i] = YearMonth.parse(time).atEndOfMonth().toString();
 			}			
 			else if(freq.equalsIgnoreCase("Q")){
 				result[i] = time.replace("Q1", "03-31").replace("Q2", "06-30").replace("Q3", "09-30").replace("Q4", "12-31");
 			}			
 			else if(freq.equalsIgnoreCase("A")){
-				result[i] = ((String) getValueAt(i, timeCol)) + "-12-31";
+				result[i] = Year.parse(time).atMonth(12).atEndOfMonth().toString();
 			}
 			else if(freq.equalsIgnoreCase("H")){
 				result[i] = ((String) getValueAt(i, timeCol)).replace("S1", "06-30").replace("S2", "12-31");   

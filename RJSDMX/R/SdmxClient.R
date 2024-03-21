@@ -197,12 +197,13 @@ getTimeSeries2 <- function(provider, dataflow, key='', filter='', start='', end=
 #' @param id timeseries key
 #' @param end the end time - optional
 #' @param start the start time - optional
+#' @param gregorianTime set to true to have all daily dates - optional
 #' @rdname getTimeSeriesTable
 #' @export
-getTimeSeriesTable <- function(provider, id, start='', end='') {
+getTimeSeriesTable <- function(provider, id, start='', end='', gregorianTime=F) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, id, start, end, FALSE, .jnull(), FALSE)
   #convert to an R data.frame
-  res = convertTSDF(res)
+  res = convertTSDF(res, , gregorianTime)
   return(res)
 }
 
@@ -221,12 +222,13 @@ getTimeSeriesTable <- function(provider, id, start='', end='') {
 #' @param measures the comma separated list of measures to be returned - optional, default='all', 'none' for no measures
 #' @param updatedAfter return only changes after this date - optional
 #' @param includeHistory include history of revisions - optional, default=false
+#' @param gregorianTime set to true to have all daily dates - optional
 #' @rdname getTimeSeriesTable2
 #' @export
-getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='', end='', attributes='all', measures='all', updatedAfter=.jnull(), includeHistory=FALSE) {
+getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='', end='', attributes='all', measures='all', updatedAfter=.jnull(), includeHistory=FALSE, gregorianTime = F) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
   #convert to an R data.frame
-  res = convertTSDF(res)
+  res = convertTSDF(res, , gregorianTime)
   return(res)
 }
 

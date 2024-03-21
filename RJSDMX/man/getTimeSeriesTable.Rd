@@ -13,6 +13,8 @@ getTimeSeriesTable(provider, id, start='', end='')
 
   \item{start}{the start time - optional}
   
+  \item{gregorianTime}{set to true to have all daily dates - optional}
+  
 }
 \description{
 Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
