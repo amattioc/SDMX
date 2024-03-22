@@ -19,32 +19,20 @@ getTimeSeriesTable2(
 )
 }
 \arguments{
-\item{provider}{the name of the provider}
-
-\item{dataflow}{dataflow of the time series}
-
-\item{key}{timeseries key}
-
-\item{filter}{optional filter to be applied}
-
-\item{start}{the start time - optional}
-
-\item{end}{the end time - optional}
-
-\item{attributes}{the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes}
-
-\item{measures}{the comma separated list of measures to be returned - optional, default='all', 'none' for no measures}
-
-\item{updatedAfter}{return only changes after this date - optional}
-
-\item{includeHistory}{include history of revisions - optional, default=false}
-
-\item{gregorianTime}{set to true to have all daily dates - optional}
-
+ \item{provider}{the name of the provider}
+ \item{dataflow}{dataflow of the time series}
+ \item{key}{timeseries key}
+ \item{filter}{optional filter to be applied}
+ \item{start}{the start time - optional}
+ \item{end}{the end time - optional}
+ \item{attributes}{the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes}
+ \item{measures}{the comma separated list of measures to be returned - optional, default='all', 'none' for no measures}
+ \item{updatedAfter}{return only changes after this date - optional}
+ \item{includeHistory}{include history of revisions - optional, default=false}
+ \item{gregorianTime}{set to true to have all daily dates - optional}
 }
 \description{
 Extract a list of time series identified by the parameters provided in input, and return a data.frame as result.
-getTimeSeriesTable2(provider, dataflow, key, filter, start, end, attributes, measures, updatedAfter, includeHistory)
 }
 \examples{
 \dontrun{

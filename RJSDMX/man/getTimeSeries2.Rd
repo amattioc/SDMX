@@ -16,26 +16,19 @@ getTimeSeries2(
 )
 }
 \arguments{
-\item{provider}{the name of the provider}
-
-\item{dataflow}{dataflow of the time series}
-
-\item{key}{timeseries key - optional}
-
-\item{filter}{optional filter to be applied - optional}
-
-\item{start}{the start time - optional}
-
-\item{end}{the end time - optional}
-
-\item{attributes}{the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes}
-
-\item{measures}{the comma separated list of measures to be returned - optional, default='all', 'none' for no measures}
+ \item{provider}{the name of the provider}
+ \item{dataflow}{dataflow of the time series}
+ \item{key}{timeseries key - optional}
+ \item{filter}{optional filter to be applied - optional}
+ \item{start}{the start time - optional}
+ \item{end}{the end time - optional}
+ \item{attributes}{the comma separated list of attributes to be returned - optional, default='all', 'none' for no attributes}
+ \item{measures}{the comma separated list of measures to be returned - optional, default='all', 'none' for no measures}
 }
 \description{
 Extract a list of time series . 
 This function is used to extract a list of time series identified by the parameters provided in input.
-getTimeSeries(provider, dataflow, key, filter, start, end, attributes, measures)
+
 }
 \examples{
 \dontrun{
@@ -59,3 +52,5 @@ my_ts=getTimeSeries2('ECB', dataflow='EXR',
 filter='c[CURRENCY]=USD&c[CURRENCY_DENOM]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A')
 }
 }
+
+

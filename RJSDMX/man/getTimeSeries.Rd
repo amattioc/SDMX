@@ -6,20 +6,15 @@ getTimeSeries(provider, id, start='', end='')
 }
 \arguments{
   \item{provider}{the name of the provider}
-
   \item{id}{identifier of the time series}
-
-
   \item{end}{the end time - optional}
-
   \item{start}{the start time - optional}
-
 }
 \description{
 Extract a list of time series. 
 This function is used to extract a list of time series identified by the parameters provided in input.
 
-getTimeSeries(provider, id, start, end, dataflow, filter)
+getTimeSeries(provider, id, start, end)
 
 }
 \examples{
