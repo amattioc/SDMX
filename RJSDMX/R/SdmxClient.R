@@ -262,7 +262,7 @@ getTimeSeriesTable2 <- function(provider, dataflow, key='', filter='', start='',
 getTimeSeriesRevisions <- function(provider, id, start='', end='', updatedAfter='', includeHistory=TRUE) {
   res <- J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$getTimeSeriesTable(provider, id, start, end, FALSE, updatedAfter, includeHistory)
   #convert to an R list
-  res = convertTSDF(res)
+  res = convertTSDF(res,F)
   return(res)
 }
 

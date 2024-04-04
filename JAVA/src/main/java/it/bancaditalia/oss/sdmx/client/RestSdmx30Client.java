@@ -20,19 +20,7 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
-import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
-
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.Message;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.*;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
@@ -43,6 +31,14 @@ import it.bancaditalia.oss.sdmx.parser.v30.AvailabilityParser;
 import it.bancaditalia.oss.sdmx.parser.v30.Sdmx30Queries;
 import it.bancaditalia.oss.sdmx.parser.v30.SeriesCountParser;
 import it.bancaditalia.oss.sdmx.util.QueryRunner;
+
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
 
 /**
  * @author Attilio Mattiocco
@@ -81,7 +77,7 @@ public class RestSdmx30Client extends RestSdmxClient
 	}
 
 	@Override
-	public Integer getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
+	public Map<String, Integer> getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
 		URL query = buildAvailabilityQuery(dataflow, filter, "exact");
 		return runQuery(new SeriesCountParser(), query, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 	}

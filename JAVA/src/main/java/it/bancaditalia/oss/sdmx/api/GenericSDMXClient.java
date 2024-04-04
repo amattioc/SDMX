@@ -20,10 +20,10 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+
 import java.util.List;
 import java.util.Map;
-
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
@@ -148,7 +148,7 @@ public interface GenericSDMXClient {
      * @param filter the filter
      * @throws SdmxException 
      */
-	public Integer getAvailableTimeSeriesNumber(Dataflow df, String filter) throws SdmxException;
+	public Map<String, Integer> getAvailableTimeSeriesNumber(Dataflow df, String filter) throws SdmxException;
 
 	/**
      * <p>Checks id this is a secure provider, needing credentials. To be used 

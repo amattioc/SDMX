@@ -20,43 +20,22 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+import it.bancaditalia.oss.sdmx.api.*;
+import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
+import it.bancaditalia.oss.sdmx.exceptions.*;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LoginDialog;
 
+import javax.swing.*;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.swing.JFrame;
-
-import it.bancaditalia.oss.sdmx.api.Codelist;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
-import it.bancaditalia.oss.sdmx.api.PortableDataSet;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.api.SDMXReference;
-import it.bancaditalia.oss.sdmx.api.SDMXVersion;
-import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
-import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
-import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LoginDialog;
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
 
 /**
  * <p>
@@ -324,7 +303,7 @@ public class SdmxClientHandler
 		
 	}
 	
-	public static Integer getSeriesCount(String provider, String dataflow, String filter) throws SdmxException
+	public static Map<String, Integer> getSeriesCount(String provider, String dataflow, String filter) throws SdmxException
 	{
 		if (provider == null || provider.trim().isEmpty())
 		{

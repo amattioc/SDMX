@@ -20,9 +20,15 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
-import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
-import static java.util.stream.Collectors.joining;
+import it.bancaditalia.oss.sdmx.api.*;
+import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
+import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.parser.v21.*;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.QueryRunner;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -32,27 +38,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import it.bancaditalia.oss.sdmx.api.Codelist;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
-import it.bancaditalia.oss.sdmx.api.Message;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.api.SDMXReference;
-import it.bancaditalia.oss.sdmx.api.SDMXVersion;
-import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
-import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
-import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
-import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
-import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.QueryRunner;
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
+import static java.util.stream.Collectors.joining;
 
 /**
  * @author Attilio Mattiocco
@@ -153,7 +141,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public Integer getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
+	public Map<String, Integer> getAvailableTimeSeriesNumber(Dataflow dataflow, String filter) throws SdmxException {
 		throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
 	}
 
