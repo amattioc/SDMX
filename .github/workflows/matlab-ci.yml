@@ -29,7 +29,7 @@ jobs:
 
         # Sets up MATLAB on the GitHub Actions runner
         - name: Setup MATLAB
-          uses: matlab-actions/setup-matlab@v2
+          uses: matlab-actions/setup-matlab@v1
           with:
             release: R2023b
 
