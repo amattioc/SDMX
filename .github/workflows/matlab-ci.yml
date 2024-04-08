@@ -31,7 +31,7 @@ jobs:
         - name: Setup MATLAB
           uses: matlab-actions/setup-matlab@v1
           with:
-            release: R2023a
+            release: R2024a
 
         - name: Testing
           run: |
