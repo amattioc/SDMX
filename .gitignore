@@ -15,3 +15,8 @@ JAVA/bin/
 JAVA/target/
 maven-system
 target
+
+MATLAB/.buildtool/
+MATLAB/releases/
+MATLAB/tbx/lib/
+MATLAB/tests/reports/
