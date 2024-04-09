@@ -224,6 +224,9 @@ public class Configuration
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
 
+		// workaround for MATLAB 23+
+		System.setProperty("com.sun.xml.internal.stream.XMLInputFactoryImpl", "com.sun.xml.internal.stream.XMLInputFactoryImpl");
+		
 		String confType = null;
 
 		String confFileName = System.getProperty("SDMX_CONF");
