@@ -31,7 +31,9 @@ jobs:
 
         # Build project according to SDMX instructions
         - name: Build JAR
-          run: cd JAVA && mvn package
+          run: |
+            cd JAVA && \
+            mvn package
 
         # Keep JAR file to use in MATLAB
         - name: Archive MATLAB JAR for next job
