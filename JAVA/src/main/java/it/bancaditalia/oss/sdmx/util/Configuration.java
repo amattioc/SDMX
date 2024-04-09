@@ -225,7 +225,7 @@ public class Configuration
 		setSdmxLogger();
 
 		// workaround for MATLAB 23+
-		System.setProperty("com.sun.xml.internal.stream.XMLInputFactoryImpl", "com.sun.xml.internal.stream.XMLInputFactoryImpl");
+		System.setProperty("javax.xml.stream.XMLInputFactory", "com.sun.xml.internal.stream.XMLInputFactoryImpl");
 		
 		String confType = null;
 
