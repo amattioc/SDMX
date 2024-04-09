@@ -32,7 +32,6 @@ function flows = getFlows(provider, pattern)
 	%
     
     sdmx.initClasspath;
-    javaclasspath -dynamic
     
     if nargin == 0
         error(sprintf(['\nUsage: getFlows(provider, pattern)\n\n' ...
