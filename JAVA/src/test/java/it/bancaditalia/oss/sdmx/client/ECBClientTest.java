@@ -20,20 +20,18 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import java.util.Map;
-
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 
 
 public class ECBClientTest {
-	public static void main(String[] args) throws SdmxException{
+	public static void main(String[] args) throws SdmxException, DataStructureException{
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "Exchange*"));
 //		
 //		System.err.println(SdmxClientHandler.getDSDIdentifier("ECB", "MOBILE_EXR"));
 //		
-//		System.err.println(SdmxClientHandler.getDataFlowStructure("ECB", "EXR"));
+//		System.out.println(SdmxClientHandler.getDataFlowStructure("ECB", "EXR"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "EXR"));
 //		System.err.println(SdmxClientHandler.getTimeSeries("ECB", "EXR.Q|M|W.USD.EUR.SP00.A", null, null));
 //		System.err.println(SdmxClientHandler.getTimeSeriesRevisions("ECB", "EXR.M.USD.EUR.SP00.A", null, null, "2015-01-01", true));
@@ -41,6 +39,7 @@ public class ECBClientTest {
 //		System.err.println(SdmxClientHandler.getFlows("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getDimensions("ECB", "ICPF"));
 //		System.err.println(SdmxClientHandler.getCodes("ECB", "ICPF", "FREQ"));
-//		SdmxClientHandler.getTimeSeries("ECB", "EXR.M.USD.EUR.SP00.A",  null, null);
+		System.err.println(SdmxClientHandler.getTimeSeriesTable("ECB", "EXR.M.USD.EUR.SP00.A",  null, null, false, null, false));
+//		SdmxClientHandler.getTimeSeries2("DEMO_SDMXV3", "EXR", "A..EUR.SP00.A", "c[FREQ]=A&c[CURRENCY]=USD&c[CURRENCY_DENOMINATOR]=EUR&c[EXR_TYPE]=SP00&c[EXR_SUFFIX]=A", null, null, "none", "none", null, false);
 	}
 }

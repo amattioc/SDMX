@@ -48,7 +48,6 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  */
 public class CodelistParser implements Parser<Codelist>
 {
-	private static final String	sourceClass	= CodelistParser.class.getSimpleName();
 	protected static Logger		logger		= Configuration.getSdmxLogger();
 
 	// valid in V.2.1

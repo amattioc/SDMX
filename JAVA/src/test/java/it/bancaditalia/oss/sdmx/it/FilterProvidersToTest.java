@@ -11,15 +11,18 @@ import java.util.Set;
 public class FilterProvidersToTest
 {
 	private static final Set<String> keepProviders = new HashSet<>(Arrays.asList(new String[] {
-//			"ABS",
+//			"ABS",			//glitching
 			"ECB",
+			"DEMO_SDMXV3",
 			"EUROSTAT",
 			"ILO",
 			"INSEE",
-			"IMF2",
+//			"IMF2", 		// has rate limit 
 			"ISTAT",
 			"ISTAT_RI",
 			"OECD",
+			"OECD_NEW",
+			"OECD_SDMXV3",
 			"UNDATA",
 			"WITS",
 			"BBK"

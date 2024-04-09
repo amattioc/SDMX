@@ -25,18 +25,21 @@ public class DimensionsIT
     public static Collection<Object[]> data() {
         return FilterProvidersToTest.filter(new Object[][] 
     		{
-    			{ "ABS",              "ATSI_BIRTHS_SUMM",              0, "MEASURE",       "ABS/CL_BIRTHS_MEASURE/1.0.0" },
+    			{ "ABS",              "ATSI_BIRTHS_SUMM",              0, "MEASURE",       "ABS/CL_BIRTHS_MEASURE/1.0.0" 	},
     			{ "ECB",              "EXR",                           0, "FREQ",          "ECB/CL_FREQ/1.0",                },
+    			{ "DEMO_SDMXV3",      "EXR",                           0, "FREQ",          "ECB/CL_FREQ/1.0",                },
     			{ "WITS",             "DF_WITS_Tariff_TRAINS",         0, "FREQ",          "WBG_WITS/CL_FREQ_WITS/1.0",      },
     			{ "UNDATA",           "DF_UNDATA_COUNTRYDATA",         0, "FREQ",          "IAEG/CL_FREQ_MDG/1.0",           },
     			{ "ISTAT",            "144_125",                       0, "FREQ",          "IT1/CL_FREQ/1.0",                },
-    			{ "ISTAT_RI",         "144_125",                       0, "FREQ",          "IT1/CL_FREQ/1.0",                },
+    			{ "ISTAT_RI",         "101_1015",                      0, "FREQ",          "IT1/CL_FREQ/1.0",                },
     			{ "INSEE",            "CNA-2010-CONSO-SI",             0, "FREQ",          "FR1/CL_PERIODICITE/1.0",         },
     			{ "INEGI",            "DF_STEI",                       0, "REF_AREA",      "SDMX/CL_AREA/1.0",               },
     			{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 	   0, "REF_AREA",      "ILO/CL_AREA/1.0",          },
-    			{ "EUROSTAT",         "prc_hicp_midx",                 0, "FREQ",          "ESTAT/CL_FREQ/1.0",              },
+    			{ "EUROSTAT",         "prc_hicp_midx",                 0, "freq",          "ESTAT/FREQ/3.2",              },
     			{ "IMF2",             "DS-WHDREO",                     0, "FREQ",          "IMF/CL_FREQ",                    },
     			{ "OECD",             "QNA",                           0, "LOCATION",      "OECD/CL_QNA_LOCATION",           },
+    			{ "OECD_NEW",         "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },
+    			{ "OECD_SDMXV3",      "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },
     			{ "WB",               "WDI",                           1, "SERIES",        "WB/CL_SERIES_WDI/1.0",           },
     			{ "BBK",              "BBASV",                         0, "BBK_STD_FREQ",  "BBK/CL_BBK_STD_FREQ/1.0",        }
     		}, 0);

@@ -51,6 +51,7 @@ public class SdmxLogHandler extends Handler
 			return String.format(LOG_FORMAT, new Date(record.getMillis()), record.getLevel().getName(), source, message, throwable);
 		}
 	}
+	
 	public SdmxLogHandler()
 	{
 		super();

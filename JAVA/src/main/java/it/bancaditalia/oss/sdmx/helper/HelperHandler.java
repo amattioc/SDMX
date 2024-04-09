@@ -43,7 +43,7 @@ import javax.swing.text.StyledDocument;
 
 public class HelperHandler extends Handler
 {
-	public static final String LOG_FORMAT = "%1$s [%2$s:%3$s] %4$s%5$s%n"; 
+	public static final String LOG_FORMAT = "⏰ %1$s [%2$s:%3$s] %4$s%5$s%n"; 
 	
 	private static final Formatter FORMATTER = new Formatter()
 	{

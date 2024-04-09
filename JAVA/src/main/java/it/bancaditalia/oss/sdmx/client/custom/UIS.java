@@ -20,19 +20,28 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
-import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.client.Provider;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class EUROSTAT_EMPL extends RestSdmxClient{
-	private static final String EUROSTAT_EMPL_PROVIDER = "https://webgate.ec.europa.eu/empl/redisstat/api/dissemination/sdmx/2.1";
+public class UIS extends DotStat
+{
 
-	public EUROSTAT_EMPL() throws URISyntaxException {
-		super("Eurostat", new URI(EUROSTAT_EMPL_PROVIDER), false, false, false);
+	public UIS(Provider p) throws URISyntaxException
+	{
+		super(p);
+	}
+
+	@Override
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	{
+		return super.buildDataQuery(dataflow, resource + "/all", startTime, endTime, serieskeysonly, null, false);
 	}
 }

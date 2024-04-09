@@ -26,6 +26,7 @@ public class DataflowsIT
     		{
 				{ "ABS",              null,                              "ATSI_BIRTHS_SUMM",              "Aboriginal and Torres Strait Islander births and confinements, summary, by state" },
 				{ "ECB",              "*Exchange*",                      "EXR",                           "Exchange Rates" },
+				{ "DEMO_SDMXV3",      "*Exchange*",                      "EXR",                           "Exchange Rates" },
 				{ "EUROSTAT",         "PRC_HICP_MIDX",                   "PRC_HICP_MIDX",                 "HICP - monthly data (index)" },
 				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", 		 "DF_EMP_TEMP_SEX_AGE_NB", 		  "Employment by sex and age" },
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
@@ -34,8 +35,10 @@ public class DataflowsIT
 				{ "WB",               "WDI",                             "WDI",                           "World Development Indicators" },
 				{ "UNDATA",           null,                              "DF_UNDATA_COUNTRYDATA",         "SDMX-CountryData" },
 				{ "OECD",             "AEO",                             "AEO",                           "African Economic Outlook" },
-				{ "ISTAT_RI",         null,                              "163_24",                        "Principali aggregati trimestrali di Contabilità Nazionale" },
-				{ "ISTAT",            null,                              "144_125",                       "Nic - annuali sino al  2010" },
+				{ "OECD_NEW",         "*DF_QNA_EXPENDITURE_CAPITA","DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","Quarterly GDP per capita" },
+				{ "OECD_SDMXV3",      "*DF_QNA_EXPENDITURE_CAPITA","DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","Quarterly GDP per capita" },
+				{ "ISTAT_RI",         null,                              "163_24",                        "National Accounts quarterly main aggregates" },
+				{ "ISTAT",            null,                              "144_125",                       "Nic - annual data until 2010" },
 				{ "BBK",          	  null,                              "BBASV",                         "Deutsche Bundesbank, Statistics on Insurance Corporations (Solvency I + II)" }
     		}, 0);
     }

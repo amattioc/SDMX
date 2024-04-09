@@ -21,6 +21,7 @@
 
 package it.bancaditalia.oss.sdmx.ut;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
 import static org.junit.Assert.assertNotNull;
 
 import java.net.MalformedURLException;
@@ -38,8 +39,7 @@ public class SdmxInterfaceTest
 	@Test
 	public void testGetAddProvider() throws SdmxException, MalformedURLException
 	{
-		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false,
-				"test provider");
+		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, "test provider", V2);
 		GenericSDMXClient a = SDMXClientFactory.createClient("TEST");
 		assertNotNull("Add Provider failed", a);
 	}
@@ -206,40 +206,40 @@ public class SdmxInterfaceTest
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail1() throws SdmxException
 	{
-		SdmxClientHandler.getTimeSeries(null, "EXR.A.GBP+USD.EUR.SP00.A", null, null);
+		SdmxClientHandler.getTimeSeries(null, "EXR.A.GBP+USD.EUR.SP00.A", null, null, false, null, false);
 	}
 
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail2() throws SdmxException
 	{
-		SdmxClientHandler.getTimeSeries("", "EXR.A.GBP+USD.EUR.SP00.A", null, null);
+		SdmxClientHandler.getTimeSeries("", "EXR.A.GBP+USD.EUR.SP00.A", null, null, false, null, false);
 	}
 
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail3() throws SdmxException
 	{
-		SdmxClientHandler.getTimeSeries("DUMMY", "EXR.A.USD.EUR.SP00.A", null, null);
+		SdmxClientHandler.getTimeSeries("DUMMY", "EXR.A.USD.EUR.SP00.A", null, null, false, null, false);
 	}
 	
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail4() throws SdmxException
 	{
-		//dataflow cannot be in series key and in dataflo argument
-		SdmxClientHandler.getTimeSeries("ECB", "EXR", "EXR.A.USD.EUR.SP00.A", null, null, null, false, null, false);
+		//dataflow cannot be in series key and in dataflow argument
+		SdmxClientHandler.getTimeSeries2("ECB", "EXR", "EXR.A.USD.EUR.SP00.A", null, null, null, "all", "all", null, false);
 	}
 
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail5() throws SdmxException
 	{
 		//dataflow must be present if series key is not specified at all
-		SdmxClientHandler.getTimeSeries("ECB", null, null, "c[FREQ]=A", null, null, false, null, false);
+		SdmxClientHandler.getTimeSeries2("ECB", null, null, "c[FREQ]=A", null, null, "all", "all", null, false);
 	}
 	
 	@Test(expected = SdmxException.class)
 	public void testGetTimeSeriesFail6() throws SdmxException
 	{
 		//dataflow must be present as argument or in series key - no results here
-		SdmxClientHandler.getTimeSeries("ECB", null, "A.USD.EUR.SP00.A", "c[FREQ]=A", null, null, false, null, false);
+		SdmxClientHandler.getTimeSeries2("ECB", null, "A.USD.EUR.SP00.A", "c[FREQ]=A", null, null, "all", "all", null, false);
 	}
 
 	/* TODO: Move to IT tests

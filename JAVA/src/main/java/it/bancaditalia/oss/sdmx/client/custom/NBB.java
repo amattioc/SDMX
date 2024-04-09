@@ -20,27 +20,28 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class NBB extends DotStat{
-		
-	public NBB() throws URISyntaxException {
-		super("NBB", new URI("https://stat.nbb.be/RestSDMX/sdmx.ashx"), false);
+public class NBB extends DotStat
+{
+
+	public NBB(Provider p) throws URISyntaxException
+	{
+		super(p);
 	}
-	
+
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, 
-			String startTime, String endTime, boolean serieskeysonly, 
-			String updatedAfter, boolean includeHistory) throws SdmxException{
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	{
 		return super.buildDataQuery(dataflow, resource + "/all", startTime, endTime, serieskeysonly, null, false);
 	}
 }

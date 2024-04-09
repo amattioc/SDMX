@@ -39,11 +39,11 @@ public class Sdmx30Queries extends RestQueryBuilder {
 		super(entryPoint);
 	}
 
-	public static Sdmx30Queries createDataQuery(URI endpoint, String dataflow, String tskey, String filter, String start, String end, boolean serieskeysonly,
+	public static Sdmx30Queries createDataQuery(URI endpoint, String dataflow, String tskey, String filter, String start, String end, String attributes, String measures,
 			String updatedAfter, boolean includeHistory) throws SdmxInvalidParameterException {
 
 		if (endpoint != null && dataflow != null && !dataflow.isEmpty()){
-			Sdmx30Queries query = (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(filter, start, end, serieskeysonly, updatedAfter, includeHistory, null).addPath("data")
+			Sdmx30Queries query = (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(filter, start, end, attributes, measures, updatedAfter, includeHistory, null).addPath("data")
 					.addPath("dataflow").addPath(dataflow.replace(",", "/"));
 			if(tskey != null && !tskey.isEmpty()) query.addPath(tskey);
 			return query;
@@ -55,7 +55,7 @@ public class Sdmx30Queries extends RestQueryBuilder {
 	public static Sdmx30Queries createAvailabilityQuery(URI endpoint, String dataflow, String filter,
 			String mode)  throws SdmxInvalidParameterException {
 		if (endpoint != null && dataflow != null && !dataflow.isEmpty())
-			return (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(filter, null, null, false, null, false, mode).addPath("availability")
+			return (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(filter, null, null, null, null, null, false, mode).addPath("availability")
 					.addPath("dataflow").addPath(dataflow.replace(",", "/"));
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " filter=" + filter + " endpoint=" + endpoint);
@@ -64,7 +64,7 @@ public class Sdmx30Queries extends RestQueryBuilder {
 	public static Sdmx30Queries createAvailabilityQueryByKey(URI endpoint, String dataflow, String key,
 			String mode)  throws SdmxInvalidParameterException {
 		if (endpoint != null && dataflow != null && !dataflow.isEmpty())
-			return (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(null, null, null, false, null, false, mode).addPath("availability")
+			return (Sdmx30Queries) new Sdmx30Queries(endpoint).addParams(null, null, null, null, null, null, false, mode).addPath("availability")
 					.addPath("dataflow").addPath(dataflow.replace(",", "/")).addPath(key);
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " filter=" + key + " endpoint=" + endpoint);
@@ -77,7 +77,9 @@ public class Sdmx30Queries extends RestQueryBuilder {
 	public static Sdmx30Queries createStructureQuery(URI endpoint, String dsd, String agency, String version, boolean full)
 			throws SdmxInvalidParameterException {
 		if (endpoint != null && agency != null && !agency.isEmpty() && dsd != null && !dsd.isEmpty()) {
-			Sdmx30Queries query = (Sdmx30Queries) new Sdmx30Queries(endpoint).addPath("structure").addPath("datastructure").addPath(agency).addPath(dsd).addParam("format", "sdmx-2.1");
+			Sdmx30Queries query = (Sdmx30Queries) new Sdmx30Queries(endpoint).addPath("structure").addPath("datastructure").addPath(agency).addPath(dsd)
+					//.addParam("format", "sdmx-2.1")
+					;
 			if (version != null && !version.isEmpty()) {
 				query.addPath(version);
 			}
@@ -92,7 +94,9 @@ public class Sdmx30Queries extends RestQueryBuilder {
 
 	public static Sdmx30Queries createDataflowQuery(URI endpoint, String dataflow, String agency, String version) throws SdmxInvalidParameterException {
 		if (endpoint != null || dataflow != null)
-			return ((Sdmx30Queries) new Sdmx30Queries(endpoint).addPath("structure").addPath("dataflow").addParam("format", "sdmx-2.1")).addResourceId(agency, dataflow, version);		
+			return ((Sdmx30Queries) new Sdmx30Queries(endpoint).addPath("structure").addPath("dataflow")
+					//.addParam("format", "sdmx-2.1")
+					).addResourceId(agency, dataflow, version);		
 		else
 			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + endpoint);
 	}
@@ -118,16 +122,25 @@ public class Sdmx30Queries extends RestQueryBuilder {
 		return this;
 	}
 
-	public Sdmx30Queries addParams(String filter, String start, String end, boolean serieskeysonly, 
+	public Sdmx30Queries addParams(String filter, String start, String end, String attributes, String measures, 
 			String updatedAfter, boolean includeHistory, String mode) {
 		if (filter != null && !filter.isEmpty())
 			addFilter(filter);
-		if (start != null && !start.isEmpty())
-			addParam("startPeriod", start);
-		if (end != null && !end.isEmpty())
-			addParam("endPeriod", end);
-		if (serieskeysonly)
-			addParam("detail", "serieskeysonly");
+//		if (start != null && !start.isEmpty())
+//			addParam("startPeriod", start);
+//		if (end != null && !end.isEmpty())
+//			addParam("endPeriod", end);
+		if((start != null && !start.isEmpty()) || (end != null && !end.isEmpty())){
+			String startFilter = (start != null && !start.isEmpty()) ? "ge:" + start : "";
+			String endFilter = (end != null && !end.isEmpty()) ? "le:" + end : "";
+			String sep = (!startFilter.isEmpty() && !endFilter.isEmpty()) ? "+" : "";
+			String timeFilter = startFilter + sep + endFilter;
+			addParam("c[TIME_PERIOD]=", timeFilter);
+		}
+		if (attributes != null)
+			addParam("attributes", attributes);
+		if (measures != null)
+			addParam("measures", measures);
 		if (includeHistory)
 			addParam("includeHistory", "true");
 		if (updatedAfter != null && !updatedAfter.isEmpty())

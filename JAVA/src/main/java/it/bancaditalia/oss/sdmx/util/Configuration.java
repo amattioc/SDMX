@@ -76,7 +76,7 @@ public class Configuration
 
 	protected static final String PROXY_AUTH_BASIC = "basic";
 	protected static final String PROXY_AUTH_KERBEROS = "Kerberos";
-    protected static final String JAVA_SECURITY_KERBEROS_PROP = "java.security.krb5.conf";
+	protected static final String JAVA_SECURITY_KERBEROS_PROP = "java.security.krb5.conf";
 	protected static final String JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP = "java.security.auth.login.config";
 	protected static final String HTTP_AUTH_PREF_PROP = "http.auth.preference";
 	protected static final String SSL_DISABLE_CERT_CHECK_PROP = "ssl.disable.cert.check";
@@ -99,7 +99,7 @@ public class Configuration
 	private static final String TABLE_DUMP_PROP = "table.dump";
 	private static final String READ_TIMEOUT_PROP = "read.timeout";
 	private static final String CONNECT_TIMEOUT_PROP = "connect.timeout";
-    private static final String UIS_API_KEY_PROP = "uis.api.key";
+	private static final String UIS_API_KEY_PROP = "uis.api.key";
 	private static final String SDMX_CODES_POLICY = "handle.sdmx.codes";
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
@@ -112,7 +112,7 @@ public class Configuration
 	private static final String CONFIGURATION_FILE_NAME = "configuration.properties";
 	private static final Properties props = new Properties();
 	
-    private static boolean inited = false;
+	private static boolean inited = false;
 	protected static List<LanguageRange> SDMX_LANG = LanguageRange.parse("en");
 
 	static
@@ -141,7 +141,7 @@ public class Configuration
 			SDMX_LOGGER.addHandler(handler);
 		}
 		
-        }
+	}
 
 	public static Logger getSdmxLogger()
 	{
@@ -149,7 +149,7 @@ public class Configuration
 	}
 
 	@Deprecated
-    public static Properties getConfiguration()
+	public static Properties getConfiguration()
 	{
 		return props;
 	}
@@ -170,7 +170,7 @@ public class Configuration
 	}
 
 	public static int getReadTimeout()
-        {
+	{
 		return getProperty(READ_TIMEOUT_PROP, SDMX_DEFAULT_TIMEOUT);
 	}
 
@@ -219,7 +219,7 @@ public class Configuration
 		// normal configuration steps:
 		// 1 init LOGGER
 		// Init internal providers
-        // 2 search configuration in this order: system property, local, global,
+		// 2 search configuration in this order: system property, local, global,
 		// Configuration class
 		// 3 if none is found, apply defaults: no proxy and INFO Logger
 		setSdmxLogger();
@@ -510,7 +510,7 @@ public class Configuration
 					
 					if (login != null)
 					{
-                        login = login.trim();
+						login = login.trim();
 						System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP, login);
 						logger.finer(JAVA_SECURITY_AUTH_LOGIN_CONFIG_PROP + " = " + login);
 					}
@@ -521,7 +521,7 @@ public class Configuration
 					
 					if (conf != null)
 					{
-                        conf = conf.trim();
+						conf = conf.trim();
 						System.setProperty(JAVA_SECURITY_KERBEROS_PROP, conf);
 						logger.finer(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
 					}
@@ -531,7 +531,7 @@ public class Configuration
 						logger.warning(JAVA_SECURITY_KERBEROS_PROP + " = " + conf);
 					}
 
-                    }
+				}
 				else if (proxyAuth.equalsIgnoreCase(PROXY_AUTH_BASIC))
 				{
 					String username = props.getProperty(HTTP_AUTH_USER_PROP);
@@ -601,7 +601,7 @@ public class Configuration
 	public static int getMaxRedirects()
 	{
 		return getProperty(SDMX_MAX_REDIRECTS, 20);
-        }
+	}
 
 	private static String logException(Throwable t)
 	{
@@ -644,12 +644,12 @@ public class Configuration
 	public static String getProperty(String name, String def)
 	{
 		return props.getProperty(name, def);
-        }
+	}
 
 	protected static void setProperty(String name, String value)
 	{
 		props.setProperty(name, value);
-        }
+	}
 
 	public static int getProperty(String name, int def)
 	{

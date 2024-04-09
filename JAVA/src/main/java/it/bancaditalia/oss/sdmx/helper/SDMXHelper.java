@@ -1,30 +1,30 @@
 package it.bancaditalia.oss.sdmx.helper;
 
-import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes;
-import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlow;
-import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries;
-import static java.lang.Integer.MAX_VALUE;
-import static java.lang.String.format;
-import static java.lang.String.join;
-import static java.util.Collections.singletonList;
-import static java.util.Locale.forLanguageTag;
-import static java.util.ResourceBundle.getBundle;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.FINEST;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
-import static java.util.stream.Collectors.joining;
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-import static javax.swing.SortOrder.ASCENDING;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.Provider;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
+import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxResponseException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.Image;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,77 +32,29 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Locale.LanguageRange;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.DefaultEditorKit;
-
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxResponseException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.*;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static java.util.Collections.singletonList;
+import static java.util.Locale.forLanguageTag;
+import static java.util.ResourceBundle.getBundle;
+import static java.util.logging.Level.*;
+import static java.util.stream.Collectors.joining;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.SortOrder.ASCENDING;
 
 public class SDMXHelper extends JFrame
 {
@@ -217,7 +169,104 @@ public class SDMXHelper extends JFrame
 		};
 	private String noResultsMessage;
 	private String resultsCountMessage;
-	
+
+	/**
+	  	if this variable is false, the updateSeriesCounts() does nothing, it must be set to false when clearing the tlbCodes
+	 	to avoid uneccessary newtork call by the listener function.
+	 	Apparently Swing doesn't allow to disable listener call temporarily unless you save the Listener Object somewhere
+	 	and disable it by passing the Listener object by reference, which is incompatible to the current way we organize our table.
+	 	setting a global kill switch is the only way to achieve this behaviour, the listener function must be aware of this
+	 	variable and if set to false not execute the code.
+	 	so everytime we modify and/or clear tlbCodes in a V3 provider we need to disable the listener so that updateSeriesCounts()
+	 	does not call the webservice to update the seriesCount and the ObsCount for each code that we are clearing.
+	 */
+	private boolean isCodelistSortersMapTablesListenerActive;
+
+	class SeriesCountPanel extends JPanel {
+
+		private JLabel seriesCountLabel;
+		private JTextField seriesCount;
+		private JLabel obsCountLabel;
+		private JTextField obsCount;
+
+		public SeriesCountPanel(int seriesCount, int obsCount) {
+			this.seriesCountLabel = new JLabel();
+			this.seriesCount = new JTextField(Integer.toString(seriesCount));
+			this.seriesCount.setEditable(false);
+			this.seriesCount.setMinimumSize(new java.awt.Dimension(100, 33));
+			this.obsCountLabel = new JLabel();
+			this.obsCount = new JTextField(Integer.toString(obsCount));
+			this.obsCount.setEditable(false);
+			this.obsCount.setMinimumSize(new java.awt.Dimension(100, 33));
+			add(seriesCountLabel);
+			add(this.seriesCount);
+			add(obsCountLabel);
+			add(this.obsCount);
+
+		}
+
+		public void updateCounts(int seriesCount, int obsCount) {
+			this.seriesCount.setText(Integer.toString(seriesCount));
+			this.seriesCount.setCaretPosition(0);
+			this.obsCount.setText(Integer.toString(obsCount));
+			this.obsCount.setCaretPosition(0);
+			if (seriesCount <= 0) {
+				hideSeriesCount();
+			} else {
+				showSeriesCount();
+			}
+			if (obsCount <= 0) {
+				hideObsCount();
+			} else {
+				showObsCount();
+			}
+
+		}
+
+		public void updateBundle(ResourceBundle b) {
+			this.seriesCountLabel.setText(b.getString("SDMXHelper.105"));
+			this.obsCountLabel.setText(b.getString("SDMXHelper.106"));
+		}
+
+		public void hidePanel() {
+			this.seriesCount.setVisible(false);
+			this.seriesCountLabel.setVisible(false);
+			this.obsCount.setVisible(false);
+			this.obsCountLabel.setVisible(false);
+			this.setVisible(false);
+		}
+
+		public void showPanel() {
+			this.seriesCount.setVisible(true);
+			this.seriesCountLabel.setVisible(true);
+			this.obsCount.setVisible(true);
+			this.obsCountLabel.setVisible(true);
+			this.setVisible(true);
+		}
+
+		public void hideSeriesCount() {
+			this.seriesCountLabel.setVisible(false);
+			this.seriesCount.setVisible(false);
+		}
+
+		public void showSeriesCount() {
+			this.seriesCountLabel.setVisible(true);
+			this.seriesCount.setVisible(true);
+		}
+
+		public void hideObsCount() {
+			this.obsCountLabel.setVisible(false);
+			this.obsCount.setVisible(false);
+		}
+
+		public void showObsCount() {
+			this.obsCountLabel.setVisible(true);
+			this.obsCount.setVisible(true);
+		}
+
+	}
+
+	private SeriesCountPanel seriesCountPanel;
 	/**
 	 * Launch the application.
 	 */
@@ -261,11 +310,6 @@ public class SDMXHelper extends JFrame
 		new SDMXHelper(exitOnClose, lockedProvider);
 	}
 
-	public String getCurrentProvider()
-	{
-		return selectedProviderGroup.getSelection().getActionCommand();
-	}
-	
 	/**
 	 * Create the frame.
 	 */
@@ -299,7 +343,7 @@ public class SDMXHelper extends JFrame
 				try
 				{
 					if (selectedProviderGroup.getSelection() != null)
-						new ToolCommandsFrame(tfSdmxQuery.getText(),
+						new ToolCommandsFrame(getSelectedDataflow(), tfSdmxQuery.getText(),
 								selectedProviderGroup.getSelection().getActionCommand());
 				} 
 				catch (SdmxException ex)
@@ -316,9 +360,9 @@ public class SDMXHelper extends JFrame
 						{
 							String name = newProviderDialog.getName();
 							String description = newProviderDialog.getDescription();
-							String sdmxVersion = newProviderDialog.getSdmxVersion();
+							SDMXVersion sdmxVersion = newProviderDialog.getSdmxVersion();
 							URI endpoint = new URI(newProviderDialog.getURL());
-							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, false, sdmxVersion);
+							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, sdmxVersion);
 							mnProviders.removeAll();
 							providersSetup(mnProviders);
 						} 
@@ -493,6 +537,18 @@ public class SDMXHelper extends JFrame
 		tfDataflowFilter.getDocument().addDocumentListener(flowListener);
 		dataflowFilterPanel.add(tfDataflowFilter);
 
+		Box myDimensionBox = Box.createHorizontalBox();
+		myDimensionBox.setPreferredSize(new java.awt.Dimension(100, 200));
+		myDimensionBox.setMinimumSize(new java.awt.Dimension(100, 200));
+		myDimensionBox.setMaximumSize(new java.awt.Dimension(100, 200));
+
+		this.seriesCountPanel = new SeriesCountPanel(0,0);
+		seriesCountPanel.setMinimumSize(new java.awt.Dimension(100, 25));
+		seriesCountPanel.setMaximumSize(new java.awt.Dimension(MAX_VALUE, 25));
+		seriesCountPanel.setPreferredSize(new java.awt.Dimension(400, 25));
+		seriesCountPanel.hidePanel();
+
+
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		horizontalSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 		controlsPane.setRightComponent(horizontalSplitPane);
@@ -504,6 +560,7 @@ public class SDMXHelper extends JFrame
 		dimensionsPanel.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), 
 				new CompoundBorder(brdDimensionsPanel, new EmptyBorder(10, 10, 10, 10))));
 		dimensionsPanel.setLayout(new BoxLayout(dimensionsPanel, BoxLayout.Y_AXIS));
+
 
 		Box dimensionFilterBox = Box.createHorizontalBox();
 		dimensionFilterBox.setPreferredSize(new java.awt.Dimension(10, 25));
@@ -523,6 +580,14 @@ public class SDMXHelper extends JFrame
 		dimensionsScrollPane.setPreferredSize(new java.awt.Dimension(200, 23));
 		dimensionsScrollPane.setMinimumSize(new java.awt.Dimension(200, 23));
 		dimensionsPanel.add(dimensionsScrollPane);
+
+		Box obsCountBox = Box.createHorizontalBox();
+		dimensionFilterBox.setPreferredSize(new java.awt.Dimension(10, 25));
+		dimensionFilterBox.setMinimumSize(new java.awt.Dimension(10, 25));
+		dimensionFilterBox.setMaximumSize(new java.awt.Dimension(32768, 25));
+		obsCountBox.add(seriesCountPanel);
+		dimensionsPanel.add(obsCountBox);
+
 
 		JPanel codesPanel = new JPanel();
 		codesPanel.setSize(new java.awt.Dimension(10, 150));
@@ -719,7 +784,7 @@ public class SDMXHelper extends JFrame
 		flowOptionsPane.setMinimumSize(new java.awt.Dimension(10, 25));
 		flowOptionsPane.setMaximumSize(new java.awt.Dimension(32768, 25));
 		dataflowsPanel.add(flowOptionsPane);
-		
+
 		cbRegexSearchFlow.addActionListener(e -> {
 				cbCaseSearchFlow.setEnabled(false);
 				flowListener.filter();
@@ -779,8 +844,13 @@ public class SDMXHelper extends JFrame
 		btnClearSelectedDimension.addActionListener(e -> {
 					if (getSelectedDataflow() != null)
 					{
+						isCodelistSortersMapTablesListenerActive = false;
 						((CheckboxListTableModel<?>) tblCodes.getModel()).uncheckAll();
 						updateCodelistCount();
+						isCodelistSortersMapTablesListenerActive = true;
+						if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion()) {
+							updateSeriesCounts(getSelectedDataflow(), new ArrayList<>());
+						}
 					}
 				});
 		btnClearSelectedDimension.setMaximumSize(new java.awt.Dimension(151, 32768));
@@ -836,6 +906,7 @@ public class SDMXHelper extends JFrame
 		
 		JScrollPane loggingPane = new JScrollPane(noWrapPanel);
 		loggingPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+
 
 		final JSplitPane mainSplitPane = new JSplitPane();
 		mainSplitPane.setBorder(null);
@@ -929,6 +1000,7 @@ public class SDMXHelper extends JFrame
 		tblDimensions.getColumnModel().getColumn(2).setHeaderValue(b.getString("SDMXHelper.12")); //$NON-NLS-1$
 		noResultsMessage = b.getString("SDMXHelper.89"); //$NON-NLS-1$
 		resultsCountMessage = b.getString("SDMXHelper.91"); //$NON-NLS-1$
+		seriesCountPanel.updateBundle(b);
 	}
 
 	private void flowSelListener(ListSelectionEvent e)
@@ -958,26 +1030,35 @@ public class SDMXHelper extends JFrame
 		AtomicBoolean interrupted = new AtomicBoolean(false);
 		
 		new ProgressViewer<>(this, interrupted, () -> 
-			SDMXClientFactory.getProviders().get(provider).getSdmxVersion().equals(SDMXClientFactory.SDMX_V3) ?
+			V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
 				SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
 				:
 				getCodes(provider, selectedDataflow, selectedDimension)	
 				,
 			codes -> {
-				CheckboxListTableModel<String> model = null;
-				if(!codelistSortersMap.containsKey(selectedDimension)){
-					model = new CheckboxListTableModel<String>();
-					model.addTableModelListener(event -> tfSdmxQuery.setText(createQuery(selectedDataflow, dimsTableModel.getSource())));
-					if (SDMXClientFactory.SDMX_V3.equals(SDMXClientFactory.getProviders().get(provider).getSdmxVersion()))
-						model.addTableModelListener(event -> formatQueryButton(selectedDataflow, dimsTableModel.getSource()));
-				}
-				else
-					model = codelistSortersMap.get(selectedDimension).getModel();
-				
+				// Create new checkbox for codes given the selectedDimension
+				// the new checkbox is stored in codelistSorterMap using the String selectedDimension as key.
+				// If the checkbox is already present, the selected codes are updated and set to true
+				CheckboxListTableModel<String> model = new CheckboxListTableModel<String>();
+				model.addTableModelListener(event -> {
+					tfSdmxQuery.setText(createQuery(dimsTableModel.getSource()));
+				});
 				model.setItems(codes);
-				
+				if (codelistSortersMap.get(selectedDimension) != null) {
+					Collection<String> checkedCodes = codelistSortersMap.get(selectedDimension).getModel().getCheckedCodes();
+					model.updateCheckedCodes(checkedCodes);
+				}
 				TableRowSorter<CheckboxListTableModel<String>> sorter = new TableRowSorter<>(model);
 				codelistSortersMap.put(selectedDimension, sorter);
+				if (V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion()) {
+					TableModelListener listener = new TableModelListener() {
+						@Override
+						public void tableChanged(TableModelEvent e) {
+							updateSeriesCounts(selectedDataflow, dimsTableModel.getSource());
+						}
+					};
+					model.addTableModelListener(listener);
+				}
 			},
 			ex -> {
 				interrupted.set(true);
@@ -987,6 +1068,8 @@ public class SDMXHelper extends JFrame
 		).start();
 
 		SwingUtilities.invokeLater(() -> {
+			// Here the codelist checkbox get switched, it detects when the selectedDimension get changed
+			// and from codelistSorterMap get the previously instantiated checkbox and display it.
 				if (!interrupted.get())
 				{
 					TableRowSorter<CheckboxListTableModel<String>> sorter = codelistSortersMap.get(selectedDimension);
@@ -1018,16 +1101,20 @@ public class SDMXHelper extends JFrame
 	private void updateDataflow(final String dataflowID)
 	{
 		// reset clean state for tblCodes before
+		isCodelistSortersMapTablesListenerActive = false;
 		codelistSortersMap.clear();
 		((CheckboxListTableModel<?>) tblCodes.getModel()).clear();
+		seriesCountPanel.updateCounts(0, 0);
 		dimsTableModel.clear();
-
+		String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+		btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		// if this is not a provider switch
+		isCodelistSortersMapTablesListenerActive = true;
 		new ProgressViewer<>(this, new AtomicBoolean(false),
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
 				dims -> {
 					dimsTableModel.setItems(dims, item -> new String[] { item.getId(), item.getName() });
-					tfSdmxQuery.setText(createQuery(dataflowID, dims));
+					tfSdmxQuery.setText(createQuery(dims));
 				},
 				ex -> {
 						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1038,9 +1125,8 @@ public class SDMXHelper extends JFrame
 	private void displayQueryResults()
 	{
 		String query = tfSdmxQuery.getText();
-		ButtonModel providerMenu = selectedProviderGroup.getSelection();
 		String selectedDataflow = getSelectedDataflow();
-		String selectedProvider = providerMenu.getActionCommand();
+		String selectedProvider = getSelectedProvider();
 		AtomicBoolean isCancelled = new AtomicBoolean(false);
 		
 		if (selectedDataflow != null && query != null && !query.isEmpty())
@@ -1049,7 +1135,13 @@ public class SDMXHelper extends JFrame
 					try
 					{
 						Dataflow dataflow = getFlow(selectedProvider, selectedDataflow);
-						List<PortableTimeSeries<Double>> names = getTimeSeries(selectedProvider, null, query, null, null, null, true, null, false);
+						List<PortableTimeSeries<Double>> names = null; 
+						if (V3 == SDMXClientFactory.getProviders().get(selectedProvider).getSdmxVersion()) {
+							names = getTimeSeries2(selectedProvider, dataflow.getId(), null, query, null, null, "none", "none", null, false);
+						}
+						else{
+							names = getTimeSeries(selectedProvider, dataflow.getId() + "/" + query, null, null, true, null, false);
+						}
 						return new SimpleEntry<>(dataflow, names);
 					}
 					catch (SdmxResponseException e)
@@ -1069,7 +1161,7 @@ public class SDMXHelper extends JFrame
 						List<PortableTimeSeries<Double>> result = entry.getValue();
 						
 						// Open a new window to browse query results
-						final JFrame wnd = new ResultsFrame(getCurrentProvider(), result);
+						final JFrame wnd = new ResultsFrame(getSelectedProvider(), df.getId(), result);
 
 						wnd.setTitle(String.format(resultsCountMessage, result.size(), df.getDescription())); //$NON-NLS-1$ //$NON-NLS-2$
 						wnd.setVisible(true);
@@ -1087,7 +1179,7 @@ public class SDMXHelper extends JFrame
 		for (final Entry<String, Provider> providerEntry : SDMXClientFactory.getProviders().entrySet())
 		{
 			final String provider = providerEntry.getKey();
-			final String sdmxVersion = providerEntry.getValue().getSdmxVersion();
+			final SDMXVersion sdmxVersion = providerEntry.getValue().getSdmxVersion();
 			final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
 					"[" + sdmxVersion + "] " + provider + ": " + providerEntry.getValue().getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			menuItem.setActionCommand(provider);
@@ -1099,10 +1191,18 @@ public class SDMXHelper extends JFrame
 						updateSource(provider);
 						btnCheckQuery.setEnabled(false);
 						btnPrintQuery.setEnabled(false);
+						String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
+						btnCheckQuery.setText(String.format(formatted, "")); //$NON-NLS-1$ //$NON-NLS-2$
 						tfSdmxQuery.setText(""); //$NON-NLS-1$
 						tfDataflowFilter.setText(""); //$NON-NLS-1$
 						lblQuery.setText(lblQuery.getText().split(":")[0] + ": " + provider); //$NON-NLS-1$ //$NON-NLS-2$
-					} 
+						if (V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion()) {
+							seriesCountPanel.showPanel();
+						} else {
+							seriesCountPanel.hidePanel();
+						}
+
+					}
 					catch (Exception ex)
 					{
 						ex.printStackTrace();
@@ -1125,13 +1225,17 @@ public class SDMXHelper extends JFrame
 			flows -> {
 				if (!isCancelled.get())
 				{
+					isCodelistSortersMapTablesListenerActive = false;
 					codelistSortersMap.clear();
-					tblCodes.setModel(new CheckboxListTableModel<String>()); //$NON-NLS-1$ //$NON-NLS-2$
+					tblCodes.setRowSorter(null);
+					tblCodes.setModel(new CheckboxListTableModel<String>());//$NON-NLS-1$ //$NON-NLS-2$
 					dimsTableModel.clear();
 					dataflowsTableModel.setItems(flows);
 					TableRowSorter<DataflowsModel> rowSorter = new TableRowSorter<>(dataflowsTableModel);
 					rowSorter.setSortKeys(singletonList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
-					tblDataflows.setRowSorter(rowSorter);										
+					tblDataflows.setRowSorter(rowSorter);
+					seriesCountPanel.updateCounts(0, 0);
+					isCodelistSortersMapTablesListenerActive = true;
 				}
 			},
 			ex -> {
@@ -1140,26 +1244,38 @@ public class SDMXHelper extends JFrame
 			}).start();
 	}
 
-	private String createQuery(String dataflow, List<Dimension> dims)
+	private String createQuery(List<Dimension> dims)
 	{
-		return dataflow + "/" + createFilter(dims);
-	}
-
-	private String createFilter(List<Dimension> dims)
-	{
-		return dims.stream()
-			.map(Dimension::getId)
-			.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
-			.collect(joining("."));
+		String result = "";
+		try {
+			if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion()) {
+				result =  createAvailabilityFilter();
+			}
+			else{
+				result =  dims.stream()
+						.map(Dimension::getId)
+						.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
+						.collect(joining("."));
+			}
+		} catch (SdmxException ex) {
+			LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
+		}		
+		return result;
 	}
 	
-	private void formatQueryButton(String dataflow, List<Dimension> dims)
+	private void updateSeriesCounts(String dataflow, List<Dimension> dims)
 	{
+		if (!isCodelistSortersMapTablesListenerActive) {
+			return;
+		}
 		try
 		{
-			int count = SdmxClientHandler.getSeriesCount(selectedProviderGroup.getSelection().getActionCommand(), dataflow, createFilter(dims));
-			String formatted = (String) btnCheckQuery.getClientProperty("FORMAT"); //$NON-NLS-1$
-			btnCheckQuery.setText(String.format(formatted, count <= 0 ? "" : ": " + count)); //$NON-NLS-1$ //$NON-NLS-2$
+			Map<String, Integer> countMap = SdmxClientHandler.getSeriesCount(getSelectedProvider(), dataflow, createQuery(dims));
+			int series_count = countMap.getOrDefault("series_count", 0);
+			int obs_count = countMap.getOrDefault("obs_count", 0);
+			seriesCountPanel.updateCounts(series_count, obs_count);
+
 		}
 		catch (SdmxException e)
 		{
@@ -1169,7 +1285,7 @@ public class SDMXHelper extends JFrame
 
 	private String createAvailabilityFilter() throws SdmxException
 	{
-		List<Dimension> dims = SdmxClientHandler.getDimensions(getCurrentProvider(), getSelectedDataflow());
+		List<Dimension> dims = SdmxClientHandler.getDimensions(getSelectedProvider(), getSelectedDataflow());
 		return dims.stream()
 			.map(Dimension::getId)
 			.filter(codelistSortersMap::containsKey)
@@ -1184,6 +1300,12 @@ public class SDMXHelper extends JFrame
 		return rowSelected != -1
 				? tblDataflows.getValueAt(rowSelected, tblDataflows.convertColumnIndexToView(0)).toString()
 				: null;
+	}
+
+	private String getSelectedProvider()
+	{
+		ButtonModel providerMenu = selectedProviderGroup.getSelection();
+		return(providerMenu.getActionCommand());
 	}
 
 	private String getSelectedDimension()

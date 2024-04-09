@@ -99,14 +99,15 @@ public class AvailabilityParser implements Parser<Map<String, List<String>>>
 			{
 				String eventName = event.asEndElement().getName().getLocalPart();
 				if (keyval.equals(eventName))
-					if (dimension != null)
-					{
-						if(codes.size() > 0){
-							logger.finer("Got dimension " + dimension);
-							dimensions.put(dimension, codes);
-						}
-						else{
-							throw new SdmxInvalidParameterException("The selection identifies an empty cube region");
+					if (dimension != null) {
+						if(!dimension.equals("TIME_PERIOD")){ //TODO handle time period when available
+							if(codes.size() > 0){
+								logger.finer("Got dimension " + dimension);
+								dimensions.put(dimension, codes);
+							}
+							else{
+								throw new SdmxInvalidParameterException("The selection identifies an empty cube region");
+							}
 						}
 					}
 					else

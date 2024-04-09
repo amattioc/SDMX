@@ -28,6 +28,7 @@ public class TimeSeriesFromIDsIT
     			{ "WB",       "WDI.A.SP_POP_TOTL.USA", "2000", "2010",    0, null,         "WDI.A.SP_POP_TOTL.USA" },
     			{ "UNDATA",   "DF_UNDATA_COUNTRYDATA/A...U....", "2010", "2015",  172, null,         null },
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A", "2000", "2010",   16, null,         null },
+    			{ "DEMO_SDMXV3", "EXR/.GBP...", null,   null,     8, null,         null },
     			{ "ECB",      "EXR/.GBP+USD...", null,   null,     16, null,         null },
     			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A", "2000", "2010",   10, null,         null },
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010",    2, null,         null },
@@ -37,6 +38,8 @@ public class TimeSeriesFromIDsIT
     			{ "ISTAT_RI", "163_24/Q.........2022M11", null,   null,      0, null,         "163_24.Q.IT.B1G_B_W2_S1._T.Z.Z.L_2015.N.B.2022M11" },
     			{ "ISTAT",    "115_362/M....", null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
     			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
+    			{ "OECD_NEW", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102", "2000", "2010",    0, "2000-Q1",    "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102" },
+    			{ "OECD_SDMXV3","DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102", "2000", "2010",    0, "2000-Q1",    "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102" },
        			{ "EUROSTAT", "PRC_HICP_MIDX/..CP00.EU+DE+FR",  "2000", "2013-08", 0, "2000-01",    "PRC_HICP_MIDX.M.I05.CP00.DE" },
        			{ "BBK", 	  "BBASV/Q.DE.M.KV.A10.T.1.AT.S1._T.EUR",   "2017-Q1", "2017-Q4", 0, "2017-Q1",    "BBASV.Q.DE.M.KV.A10.T.1.AT.S1._T.EUR" }
        		    		}, 0);
@@ -52,7 +55,7 @@ public class TimeSeriesFromIDsIT
 
 	@Test
 	public void timeSeriesFromID() throws SdmxException {
-		List<PortableTimeSeries<Double>>  res = SdmxClientHandler.getTimeSeries(provider, query, start, end);
+		List<PortableTimeSeries<Double>>  res = SdmxClientHandler.getTimeSeries(provider, query, start, end, false, null, false);
 		assertNotNull("Null time series result", res);
 		if (expectedCount == 0)
 			assertTrue("No time series returned", res.size() > 0);

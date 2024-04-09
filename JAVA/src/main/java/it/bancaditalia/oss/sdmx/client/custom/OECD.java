@@ -20,16 +20,19 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.URI;
 import java.net.URISyntaxException;
+
+import it.bancaditalia.oss.sdmx.client.Provider;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class OECD extends DotStat{
-		
-	public OECD() throws URISyntaxException {
-		super("OECD", new URI("https://stats.oecd.org/restsdmx/sdmx.ashx"), false);
+public class OECD extends DotStat
+{
+
+	public OECD(Provider p) throws URISyntaxException
+	{
+		super(p);
 	}
 }

@@ -21,7 +21,6 @@
 
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.client.SASClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 public class SASHandlerTest {

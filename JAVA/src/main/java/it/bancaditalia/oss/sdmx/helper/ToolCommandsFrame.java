@@ -5,6 +5,7 @@ import static java.awt.Font.PLAIN;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -21,6 +22,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -35,11 +37,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import java.awt.Component;
-import javax.swing.Box;
 
 class ToolCommandsFrame extends JFrame {
 	/**
@@ -54,12 +56,14 @@ class ToolCommandsFrame extends JFrame {
 	private final JTextField urlText;
 	private final JLabel lblNewLabel;
 	
-	public ToolCommandsFrame(String query, String provider) throws SdmxException
+	public ToolCommandsFrame(String dataflow, String queryString, String provider) throws SdmxException
 	{
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setExtendedState(Frame.MAXIMIZED_HORIZ);
-		if (query == null || query.isEmpty())
-			throw new SdmxInvalidParameterException("The sdmx query is not valid yet: '" + query + "'");
+		if (queryString == null || queryString.isEmpty())
+			throw new SdmxInvalidParameterException("The sdmx query is not valid yet: '" + queryString + "'");
+		if (dataflow == null || dataflow.isEmpty())
+			throw new SdmxInvalidParameterException("The dataflow is not selected yet");
 
 		setResizable(false);
 		setSize(800, 340);
@@ -101,7 +105,10 @@ class ToolCommandsFrame extends JFrame {
 		gbc_rCommandLabel.gridx = 0;
 		panel.add(rCommandLabel, gbc_rCommandLabel);
 		
-		rCommandText = new JTextField("result <- getTimeSeries('" + provider + "', '" + query + "');");
+		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
+			rCommandText = new JTextField("result <- getTimeSeries(provider='" + provider + "', id='" + queryString + "');");
+		else
+			rCommandText = new JTextField("result <- getTimeSeries2(provider='" + provider + "', dataflow='" + dataflow + "', filter='" + queryString + "');");
 		rCommandLabel.setLabelFor(rCommandText);
 		GridBagConstraints gbc_rCommandText = new GridBagConstraints();
 		gbc_rCommandText.fill = GridBagConstraints.BOTH;
@@ -121,7 +128,10 @@ class ToolCommandsFrame extends JFrame {
 		gbc_matlabCommandLabel.gridy = 1;
 		panel.add(matlabCommandLabel, gbc_matlabCommandLabel);
 		
-		matlabCommandText = new JTextField("result = sdmx.getTimeSeries('" + provider + "', '" + query + "');");
+		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
+			matlabCommandText = new JTextField("result = getTimeSeries('" + provider + "', '" + queryString + "');");
+		else
+			matlabCommandText = new JTextField("result = getTimeSeriesTable2('" + provider + "', '" + dataflow + "', '', '" + queryString + "');");
 		matlabCommandLabel.setLabelFor(matlabCommandText);
 		GridBagConstraints gbc_matlabCommandText = new GridBagConstraints();
 		gbc_matlabCommandText.fill = GridBagConstraints.BOTH;
@@ -141,7 +151,10 @@ class ToolCommandsFrame extends JFrame {
 		gbc_sasCommandLabel.gridy = 2;
 		panel.add(sasCommandLabel, gbc_sasCommandLabel);
 		
-		sasCommandText = new JTextField("%gettimeseries(provider=\"" + provider + "\", tsKey=\"" + query + "\", metadata=1);");
+		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
+			sasCommandText = new JTextField("%gettimeseries(provider=\"" + provider + "\", tsKey=\"" + queryString + "\", metadata=1);");
+		else
+			sasCommandText = new JTextField("NOT AVAILABLE");
 		sasCommandLabel.setLabelFor(sasCommandText);
 		GridBagConstraints gbc_sasCommandText = new GridBagConstraints();
 		gbc_sasCommandText.fill = GridBagConstraints.BOTH;
@@ -161,7 +174,10 @@ class ToolCommandsFrame extends JFrame {
 		gbc_stataCommandLabel.gridy = 3;
 		panel.add(stataCommandLabel, gbc_stataCommandLabel);
 		
-		stataCommandText = new JTextField("getTimeSeries " + provider + " " + query + " \"\" \"\" 0 0");
+		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
+			stataCommandText = new JTextField("getTimeSeries " + provider + " " + queryString + " \"\" \"\" 0 0");
+		else
+			stataCommandText = new JTextField("NOT AVAILABLE");
 		stataCommandLabel.setLabelFor(stataCommandText);
 		GridBagConstraints gbc_stataCommandText = new GridBagConstraints();
 		gbc_stataCommandText.insets = new Insets(0, 0, 5, 0);
@@ -181,7 +197,10 @@ class ToolCommandsFrame extends JFrame {
 		gbc_urlLabel.gridy = 4;
 		panel.add(urlLabel, gbc_urlLabel);
 		
-		urlText = new JTextField(SdmxClientHandler.getDataURL(provider, query, null, null, false, null, false));
+		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
+			urlText = new JTextField(SdmxClientHandler.getDataURL(provider, dataflow, queryString, null, null, false, null, false));
+		else
+			urlText = new JTextField(SdmxClientHandler.getDataURL(provider, dataflow, queryString, null, null, false, null, false));
 		urlLabel.setLabelFor(urlText);
 		GridBagConstraints gbc_urlText = new GridBagConstraints();
 		gbc_urlText.fill = GridBagConstraints.BOTH;

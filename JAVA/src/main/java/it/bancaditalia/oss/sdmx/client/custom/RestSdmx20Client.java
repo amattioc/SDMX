@@ -20,9 +20,9 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.URI;
+import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
+
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +32,7 @@ import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
+import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
@@ -48,9 +49,9 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	private String		acceptHdr	= null;
 	protected String	format		= "compact_v2";
 
-	public RestSdmx20Client(String name, URI endpoint, boolean needsCredentials, String acceptHdr, String format)
+	public RestSdmx20Client(Provider p, String acceptHdr, String format)
 	{
-		super(name, endpoint, needsCredentials, false, false);
+		super(p);
 		this.acceptHdr = acceptHdr;
 		this.format = format;
 	}
@@ -60,7 +61,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	{
 
 		URL query = buildFlowQuery("ALL", null, null);
-		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null, null);
+		List<Dataflow> dfs = runQuery(new DataflowParser(), query, null);
 		if (dfs.size() > 0)
 		{
 			Map<String, Dataflow> result = new HashMap<>();
@@ -79,7 +80,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		URL query = buildFlowQuery(dataflow, agency, version);
-		List<Dataflow> flows = runQuery(new DataflowParser(), query, null, null);
+		List<Dataflow> flows = runQuery(new DataflowParser(), query, null);
 		if (flows.size() >= 1)
 			for (Dataflow item : flows)
 				if (item.getId().equalsIgnoreCase(dataflow))
@@ -94,10 +95,10 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 		if (dsd != null)
 		{
 			URL query = buildDSDQuery(dsd.getId(), dsd.getAgency(), dsd.getVersion(), full);
-			return runQuery(new DataStructureParser(), query, null, null).get(0);
+			return runQuery(new DataStructureParser(), query, null).get(0);
 		}
 		else
-			throw new InvalidParameterException("Null dsd in input");
+			throw new SdmxInvalidParameterException("Null dsd in input");
 	}
 
 	@Override
@@ -113,23 +114,23 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
 		// 20/09/2017: GenericDataParser deleted
 		return runQuery(/* format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) 
-				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, acceptHdr, null);
+				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, handleHttpHeaders(acceptHdr));
 	}
 
 	@Override
 	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
 			boolean includeHistory) throws SdmxException
 	{
-		if (endpoint != null && dataflow != null && resource != null && !resource.isEmpty())
+		if (provider.getEndpoint() != null && dataflow != null && resource != null && !resource.isEmpty())
 		{
 
 			return Sdmx21Queries
-					.createDataQuery(endpoint, dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format)
+					.createDataQuery(provider.getEndpoint(), dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format)
 					.buildSdmx21Query();
 		}
 		else
 		{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + endpoint);
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + provider.getEndpoint());
 		}
 	}
 
