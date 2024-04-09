@@ -27,10 +27,11 @@ jobs:
             java-version: '8'
             distribution: 'temurin'
             architecture: x64
+        - run: echo $JAVA_HOME
 
         # Build project according to SDMX instructions
-        - name: Run the Ant jar target
-          run: cd JAVA && ant clean && ant compile && ant dist
+        - name: Build JAR
+          run: cd JAVA && mvn package
 
         # Keep JAR file to use in MATLAB
         - name: Archive MATLAB JAR for next job
