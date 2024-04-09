@@ -40,7 +40,7 @@ jobs:
           uses: actions/upload-artifact@v3
           with:
             name: SDMX
-            path: MATLAB/lib/SDMX.jar
+            path: JAVA/dist/lib/SDMX.jar
             if-no-files-found: error
             retention-days: 1
 
