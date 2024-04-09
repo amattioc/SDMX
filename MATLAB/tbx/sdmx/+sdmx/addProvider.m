@@ -1,4 +1,4 @@
-function addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)
+function addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion)
 	% Add a new provider to the internal registry. The provider has to be 
     % fully compliant with the SDMX 2.1 specifications
     %
@@ -12,7 +12,8 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
 	% needsURLEncoding:    set this to true if the provider needs URL encoding
     % supportsCompression: set this to true if the provider supports stream compression
     % description:         a text description for the provider
-	%
+	% sdmxVersion:         the sdmx rest api version of the provider (V2 or V3)
+    %
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
 	%
@@ -50,6 +51,15 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
             'description:   a brief text description of the provider\n' ...      
         ]));
     end    
+     if nargin < 7
+        sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+    else
+        if(strcmp(sdmxVersion, 'V2'))
+            sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+        else
+            sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+        end
+    end  
     if nargin < 6
         description = '';
     end    
@@ -65,7 +75,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
        
     %try java code
     try
-        it.bancaditalia.oss.sdmx.client.SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description); 
+        it.bancaditalia.oss.sdmx.client.SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion); 
 	catch mexp
         error('SDMX addProvider() error:\n %s', mexp.message);            
     end

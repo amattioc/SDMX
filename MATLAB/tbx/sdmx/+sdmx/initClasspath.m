@@ -24,7 +24,7 @@ function initClasspath()
     if jarLoaded ~= 8
         mFilesLoaded = exist('sdmxroot.m', 'file');
         if mFilesLoaded == 2
-            javaaddpath(fullfile(sdmxroot, '/lib/SDMX.jar'));
+            javaaddpath(dir(fullfile(sdmxroot, '/lib/SDMX*.jar')));
         else
             error('Error: the m-files of the MatSDMX toolbox cannot be found in the MATLAB path');
         end
