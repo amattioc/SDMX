@@ -33,7 +33,7 @@ jobs:
         - name: Build JAR
           run: |
             cd JAVA && \
-            mvn package
+            mvn clean package -Dmaven.test.skip.exec
 
         # Keep JAR file to use in MATLAB
         - name: Archive MATLAB JAR for next job
