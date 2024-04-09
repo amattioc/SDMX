@@ -20,11 +20,11 @@
 %
 
 function initClasspath() 
-    jarLoaded = exist('it.bancaditalia.oss.sdmx.helper.SDMXHelper', 'class')
+    jarLoaded = exist('it.bancaditalia.oss.sdmx.helper.SDMXHelper', 'class') %#ok<NOPRT>
     if jarLoaded ~= 8
         mFilesLoaded = exist('sdmxroot.m', 'file');
         if mFilesLoaded == 2
-            jar = dir(fullfile(sdmxroot, '/lib/SDMX*.jar'))
+            jar = dir(fullfile(sdmxroot, '/lib/SDMX*.jar')) %#ok<NOPRT>
             version -java
             javaaddpath(fullfile(jar.folder, jar.name));
         else
