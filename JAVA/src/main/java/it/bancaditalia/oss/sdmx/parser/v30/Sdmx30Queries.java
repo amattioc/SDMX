@@ -135,7 +135,7 @@ public class Sdmx30Queries extends RestQueryBuilder {
 			String endFilter = (end != null && !end.isEmpty()) ? "le:" + end : "";
 			String sep = (!startFilter.isEmpty() && !endFilter.isEmpty()) ? "+" : "";
 			String timeFilter = startFilter + sep + endFilter;
-			addParam("c[TIME_PERIOD]=", timeFilter);
+			addParam("c[TIME_PERIOD]", timeFilter);
 		}
 		if (attributes != null)
 			addParam("attributes", attributes);

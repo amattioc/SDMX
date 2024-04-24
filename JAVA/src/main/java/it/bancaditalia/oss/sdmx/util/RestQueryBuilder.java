@@ -14,18 +14,14 @@
  */
 package it.bancaditalia.oss.sdmx.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 
 /**
  * URL builder for rest queries.
@@ -99,37 +95,23 @@ public class RestQueryBuilder {
 	 */
 	public URL build() throws MalformedURLException 
 	{
-		try {
-			StringBuilder result = new StringBuilder();
-			result.append(entryPoint);
-			
-			if(this instanceof Sdmx21Queries){
-				for (String path : paths)
-					result.append('/').append(URLEncoder.encode(path, "UTF-8"));
-			}
-			else{
-				for (String path : paths)
-					result.append('/').append(path);
-			}
-			
-			boolean first = true;
-			if(filter != null){
-				result.append(first ? '?' : '&');
-				//result.append(URLEncoder.encode(filter, "UTF-8"));
-				result.append(filter);
-				first = false;
-			}
-			for (Entry<String, String> entry: params.entrySet())
-			{
-				result.append(first ? '?' : '&');
-				result.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append('=').append(entry.getValue());
-				first = false;
-			}
-			
-			return new URL(result.toString());
-		} catch (UnsupportedEncodingException e) {
-			// safe to ignore.
-			throw new RuntimeException("UnsupportedEncodingException", e);
+		StringBuilder result = new StringBuilder();
+		result.append(entryPoint);
+		for (String path : paths)
+			result.append('/').append(path);
+		boolean first = true;
+		if(filter != null){
+			result.append(first ? '?' : '&');
+			result.append(filter);
+			first = false;
 		}
+		for (Entry<String, String> entry: params.entrySet())
+		{
+			result.append(first ? '?' : '&');
+			result.append(entry.getKey()).append('=').append(entry.getValue());
+			first = false;
+		}
+		
+		return new URL(result.toString());
 	}
 }
