@@ -106,7 +106,7 @@ class ToolCommandsFrame extends JFrame {
 		panel.add(rCommandLabel, gbc_rCommandLabel);
 		
 		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
-			rCommandText = new JTextField("result <- getTimeSeries(provider='" + provider + "', id='" + queryString + "');");
+			rCommandText = new JTextField("result <- getTimeSeries(provider='" + provider + "', id='" + dataflow + "/" + queryString + "');");
 		else
 			rCommandText = new JTextField("result <- getTimeSeries2(provider='" + provider + "', dataflow='" + dataflow + "', filter='" + queryString + "');");
 		rCommandLabel.setLabelFor(rCommandText);
@@ -129,7 +129,7 @@ class ToolCommandsFrame extends JFrame {
 		panel.add(matlabCommandLabel, gbc_matlabCommandLabel);
 		
 		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
-			matlabCommandText = new JTextField("result = getTimeSeries('" + provider + "', '" + queryString + "');");
+			matlabCommandText = new JTextField("result = getTimeSeries('" + provider + "', '" + dataflow + "/" + queryString + "');");
 		else
 			matlabCommandText = new JTextField("result = getTimeSeriesTable2('" + provider + "', '" + dataflow + "', '', '" + queryString + "');");
 		matlabCommandLabel.setLabelFor(matlabCommandText);
@@ -152,7 +152,7 @@ class ToolCommandsFrame extends JFrame {
 		panel.add(sasCommandLabel, gbc_sasCommandLabel);
 		
 		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
-			sasCommandText = new JTextField("%gettimeseries(provider=\"" + provider + "\", tsKey=\"" + queryString + "\", metadata=1);");
+			sasCommandText = new JTextField("%gettimeseries(provider=\"" + provider + "\", tsKey=\"" + dataflow + "/" + queryString + "\", metadata=1);");
 		else
 			sasCommandText = new JTextField("NOT AVAILABLE");
 		sasCommandLabel.setLabelFor(sasCommandText);
@@ -175,7 +175,7 @@ class ToolCommandsFrame extends JFrame {
 		panel.add(stataCommandLabel, gbc_stataCommandLabel);
 		
 		if(SDMXVersion.V2 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion())
-			stataCommandText = new JTextField("getTimeSeries " + provider + " " + queryString + " \"\" \"\" 0 0");
+			stataCommandText = new JTextField("getTimeSeries " + provider + " " + dataflow + "/" + queryString + " \"\" \"\" 0 0");
 		else
 			stataCommandText = new JTextField("NOT AVAILABLE");
 		stataCommandLabel.setLabelFor(stataCommandText);
