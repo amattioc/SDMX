@@ -184,14 +184,17 @@ public class QueryRunner
 			}
 			else
 			{
+				LOGGER.severe("Connection error. Code:" + code);
 				InputStream stream = ((HttpURLConnection) conn).getErrorStream();
-				String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
-				if (encoding.equalsIgnoreCase("gzip"))
-					stream = new GZIPInputStream(stream);
-				else if (encoding.equalsIgnoreCase("deflate"))
-					stream = new InflaterInputStream(stream);
-				String msg = new BufferedReader(new InputStreamReader(stream)).lines().collect(joining(lineSeparator()));
-				LOGGER.severe(msg);
+				if(stream != null){
+					String encoding = conn.getContentEncoding() == null ? "" : conn.getContentEncoding();
+					if (encoding.equalsIgnoreCase("gzip"))
+						stream = new GZIPInputStream(stream);
+					else if (encoding.equalsIgnoreCase("deflate"))
+						stream = new InflaterInputStream(stream);
+					String msg = new BufferedReader(new InputStreamReader(stream)).lines().collect(joining(lineSeparator()));
+					LOGGER.severe("Message:" + msg);
+				}
 				SdmxException ex = SdmxExceptionFactory.createRestException(code, null, null);
 				if (conn instanceof HttpURLConnection)
 					((HttpURLConnection) conn).disconnect();
