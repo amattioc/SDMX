@@ -370,3 +370,8 @@ sdmxdf <- function(tslist, meta=FALSE, id=TRUE){
   }
   return(ddf)
 }
+
+setProviderCredentials <- function(provider, user=.jnull(), pw=.jnull()) {
+  J('it.bancaditalia.oss.sdmx.client.SdmxClientHandler')$setCredentials(provider, user, pw)
+}
+

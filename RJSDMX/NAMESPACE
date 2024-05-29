@@ -34,5 +34,6 @@ export("getCodes")
 export("addProvider")
 export("sdmxHelp")
 export("sdmxdf")
+export(setProviderCredentials)
 importFrom("stats", "setNames")
 
