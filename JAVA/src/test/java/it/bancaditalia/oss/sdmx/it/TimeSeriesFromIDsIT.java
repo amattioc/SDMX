@@ -35,7 +35,7 @@ public class TimeSeriesFromIDsIT
     			{ "ILO",      "DF_EMP_TEMP_SEX_AGE_NB/ITA.Q..SEX_F.", null,   null,      28, null,         null },
     			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP", "2000", "2015",    0, "2000",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
     			{ "INSEE",    "CHOMAGE-TRIM-NATIONAL.T.CTCHC.VALEUR_ABSOLUE.FM.1.00-24.INDIVIDUS.CVS.TRUE", null,   null,      1, null,         null },
-    			{ "ISTAT_RI", "163_24/Q.........2022M11", null,   null,      0, null,         "163_24.Q.IT.B1G_B_W2_S1._T.Z.Z.L_2015.N.B.2022M11" },
+    			{ "ISTAT_RI", "163_24/Q.........2022M11", "2000", "2010",      0, "2000-Q1",         "163_24.Q.IT.B1G_B_W2_S1._T.Z.Z.L_2015.N.B.2022M11" },
     			{ "ISTAT",    "115_362/M....", null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },
     			{ "OECD",     "QNA.ITA.B1_GE.CARSA.Q", "2000", "2010",    0, "2000-Q1",    "QNA.ITA.B1_GE.CARSA.Q" },
     			{ "OECD_NEW", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102", "2000", "2010",    0, "2000-Q1",    "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA.Q.Y.ISR.S1.S1.B1GQ_POP._Z._Z._Z.USD_PPP_PS.V.LA.T0102" },

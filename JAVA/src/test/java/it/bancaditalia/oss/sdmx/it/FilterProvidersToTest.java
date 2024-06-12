@@ -20,7 +20,6 @@ public class FilterProvidersToTest
 //			"IMF2", 		// has rate limit 
 			"ISTAT",
 			"ISTAT_RI",
-			"OECD",
 			"OECD_NEW",
 			"OECD_SDMXV3",
 			"UNDATA",

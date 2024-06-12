@@ -141,15 +141,12 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
-				tsList.putIfAbsent(ts.getName(), ts);
+				Collections.sort(ts);
+				tsList.put(ts.getName(), ts);
 				obs = new ArrayList<>();
 			}
 		}
-
-		//make sure the time series is ordered by time
-		for (PortableTimeSeries<Double> tts: result)
-			Collections.sort(tts);
-		
+	
 		if (message != null)
 			result.setMessage(message);
 		result.setData(new ArrayList<PortableTimeSeries<Double>>(tsList.values()));
