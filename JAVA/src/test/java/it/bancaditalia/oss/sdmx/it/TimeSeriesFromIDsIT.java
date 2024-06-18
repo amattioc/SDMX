@@ -13,8 +13,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import it.bancaditalia.oss.sdmx.api.PortableDataSet;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
 @RunWith(Parameterized.class)
@@ -54,7 +56,7 @@ public class TimeSeriesFromIDsIT
     @Parameter(6) public String expectedName;
 
 	@Test
-	public void timeSeriesFromID() throws SdmxException {
+	public void timeSeriesFromID() throws SdmxException, DataStructureException {
 		List<PortableTimeSeries<Double>>  res = SdmxClientHandler.getTimeSeries(provider, query, start, end, false, null, false);
 		assertNotNull("Null time series result", res);
 		if (expectedCount == 0)
@@ -65,5 +67,9 @@ public class TimeSeriesFromIDsIT
 			assertEquals("Wrong name for first time series", expectedName, res.get(0).getName());
 		if (expectedStart != null)
 			assertEquals("Wrong start date for time series", expectedStart, res.get(0).get(0).getTimeslot());
+		
+		PortableDataSet<Double> res2 = SdmxClientHandler.getTimeSeriesTable(provider, query, start, end, false, null, false);
+		assertNotNull("Null dataset result", res2);
+		assertTrue("Empty dataset returned", res2.getRowCount() > 0);
 	}
 }

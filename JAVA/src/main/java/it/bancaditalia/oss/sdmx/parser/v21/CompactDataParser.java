@@ -142,7 +142,8 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
 				Collections.sort(ts);
-				tsList.put(ts.getName(), ts);
+				String key = ts.getName()+ (currentValidFromDate!= null ? "-"+currentValidFromDate : "");
+				tsList.put(key, ts);
 				obs = new ArrayList<>();
 			}
 		}
