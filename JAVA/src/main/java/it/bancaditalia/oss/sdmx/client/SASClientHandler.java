@@ -21,6 +21,7 @@
 
 package it.bancaditalia.oss.sdmx.client;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -41,9 +42,24 @@ import it.bancaditalia.oss.sdmx.util.Configuration;
  * @author Attilio Mattiocco
  *
  */
-public class SASClientHandler extends SdmxClientHandler
+public class SASClientHandler
 {
-
+	private static final Method GET_TIME_SERIES;
+	
+	static
+	{
+		String clsName = System.getenv().getOrDefault("SAS_SDMX_CLIENT_HANDLER", "it.bancaditalia.oss.sdmx.client.SdmxClientHandler");
+		try
+		{
+			Class<?> chClass = Class.forName(clsName);
+			GET_TIME_SERIES = chClass.getMethod("getTimeSeries", String.class, String.class, String.class, String.class, boolean.class, String.class, boolean.class);
+		}
+		catch (ClassNotFoundException | NoSuchMethodException | SecurityException e)
+		{
+			throw new ExceptionInInitializerError(e);
+		}
+	}
+	
 	private static class SdmxSASException extends SdmxException
 	{
 		/**
@@ -349,7 +365,8 @@ public class SASClientHandler extends SdmxClientHandler
 		obsmetadata = null;
 		try
 		{
-			List<PortableTimeSeries<Double>> result = SdmxClientHandler.getTimeSeries(provider, tsKey, startTime, endTime, false, null, false);
+			@SuppressWarnings("unchecked")
+			List<PortableTimeSeries<Double>> result = (List<PortableTimeSeries<Double>>) GET_TIME_SERIES.invoke(null, provider, tsKey, startTime, endTime, false, null, false);
 			if (!result.isEmpty())
 			{
 				// check size of full result as a table
@@ -539,8 +556,7 @@ public class SASClientHandler extends SdmxClientHandler
 		}
 		else
 		{
-			throw new SASClientHandler.SdmxSASException(
-					"Observation level Metadata cache error: cache is null or index exceeds size.");
+			throw new SASClientHandler.SdmxSASException("Observation level Metadata cache error: cache is null or index exceeds size.");
 		}
 	}
 
