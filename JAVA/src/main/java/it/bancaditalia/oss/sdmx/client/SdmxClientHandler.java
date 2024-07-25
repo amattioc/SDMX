@@ -20,22 +20,42 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.api.*;
-import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
-import it.bancaditalia.oss.sdmx.exceptions.*;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LoginDialog;
+import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
 
-import javax.swing.*;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+import javax.swing.JFrame;
+
+import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.Dimension;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.PortableDataSet;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
+import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
+import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LoginDialog;
 
 /**
  * <p>
@@ -47,7 +67,6 @@ import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
  */
 public class SdmxClientHandler
 {
-
 	protected static final Logger					LOGGER			= Configuration.getSdmxLogger();
 	private static final String						sourceClass		= SdmxClientHandler.class.getSimpleName();
 
@@ -70,41 +89,7 @@ public class SdmxClientHandler
 	}
 
 	/**
-	 * Adds a local provider 
-	 * 
-	 * @param provider a non-null, non-empty provider identification short name.
-	 * @param endpoint a non-null existing directory where the SDMX files are stored
-	 * @param description an optional natural language description of the provider
-	 * 
-	 * @throws SdmxException
-	 */
-	public static void addLocalProvider(String provider, String endpoint, String description) throws SdmxException
-	{
-
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (endpoint == null)
-		{
-			LOGGER.severe("The enpoint of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
-		}
-		// get the URL from this file
-		File epFile = new File(endpoint);
-		if (!epFile.isDirectory())
-		{
-			LOGGER.severe("The enpoint of the provider must be an existing local directory");
-			throw new SdmxInvalidParameterException(
-					"The enpoint of the provider has to be an existing local directory");
-		}
-
-		SDMXClientFactory.addProvider(provider, epFile.toURI(), false, false, false, description, V2);
-	}
-
-	/**
-	 * Adds a local provider 
+	 * Adds a provider 
 	 * 
 	 * @param provider a non-null, non-empty provider identification short name.
 	 * @param endpoint a non-null provider-defined endpoint url for queries
@@ -117,22 +102,14 @@ public class SdmxClientHandler
 	 * @throws SdmxException
 	 */
 	public static void addProvider(String provider, String endpoint, boolean needsCredentials, boolean needsURLEncoding,
-			boolean supportsCompression, String description, SDMXVersion sdmxVersion) throws SdmxException
+			boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(endpoint, "The URL of the provider cannot be null");
 
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (endpoint == null)
-		{
-			LOGGER.severe("The enpoint of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The endpoint of the provider cannot be null");
-		}
 		try
 		{
-			SDMXClientFactory.addProvider(provider, new URI(endpoint), needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion);
+			SDMXClientFactory.addProvider(provider, new URI(endpoint), needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
 		}
 		catch (URISyntaxException e)
 		{
@@ -155,16 +132,9 @@ public class SdmxClientHandler
 
 	public static DataFlowStructure getDataFlowStructure(String provider, String dataflow) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+
 		DataFlowStructure result = null;
 		SDMXReference keyF = getDSDIdentifier(provider, dataflow);
 		String fullkeyFamilyKey = keyF.getFullIdentifier();
@@ -194,8 +164,7 @@ public class SdmxClientHandler
 										"Could not find codelist  for '" + cl + "' in provider: '" + provider + "'");
 
 							}
-							dim.setCodeList(codes);
-							result.setDimension(dim);
+							cl.importFrom(codes);
 						}
 					}
 					
@@ -205,8 +174,8 @@ public class SdmxClientHandler
 						if (cl != null && cl.isEmpty())
 						{
 							//for attributes we let it go even if we don't fine the codes
-							attr.setCodeList(getClient(provider).getCodes(cl));
-							result.setAttribute(attr);
+							Codelist codes = getClient(provider).getCodes(cl);
+							cl.importFrom(codes);
 						}
 					}
 				}
@@ -220,67 +189,43 @@ public class SdmxClientHandler
 		return result;
 	}
 
-	public static SDMXReference getDSDIdentifier(String providerName, String dataflow) throws SdmxException
+	public static SDMXReference getDSDIdentifier(String provider, String dataflow) throws SdmxException
 	{
-		if (providerName == null || providerName.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		Provider provider = getProvider(providerName);
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+		
+		Provider prov = getProvider(provider);
 		SDMXReference result = null;
-		result = provider.getDSDIdentifier(dataflow);
+		result = prov.getDSDIdentifier(dataflow);
 		if (result == null)
 		{
 			LOGGER.finer("DSD identifier for dataflow " + dataflow + " not cached. Calling Provider.");
-			Dataflow df = getClient(providerName).getDataflow(dataflow, null, null);
+			Dataflow df = getClient(provider).getDataflow(dataflow, null, null);
 			if (df != null)
 			{
-				provider.setFlow(df);
+				prov.setFlow(df);
 				result = df.getDsdIdentifier();
 				if (result == null)
 					throw new SdmxXmlContentException("Could not get DSD identifier for dataflow '" + dataflow
-							+ "' in provider: '" + provider.getName() + "'");
+							+ "' in provider: '" + prov.getName() + "'");
 			}
 			else
 				throw new SdmxXmlContentException(
-						"Could not get dataflow '" + dataflow + "' in provider: '" + providerName + "'");
+						"Could not get dataflow '" + dataflow + "' in provider: '" + provider + "'");
 		}
 		return result;
 	}
 
 	public static List<Dimension> getDimensions(String provider, String dataflow) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
 		return getDataFlowStructure(provider, dataflow).getDimensions();
 	}
 
 	public static Map<String, Map<String, String>> filterCodes(String provider, String dataflow, String filter) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+		
 		Map<String, Map<String, String>> codes = new LinkedHashMap<>();
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
@@ -305,77 +250,47 @@ public class SdmxClientHandler
 	
 	public static Map<String, Integer> getSeriesCount(String provider, String dataflow, String filter) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
 		Dataflow df = getFlow(provider, dataflow);
 		return getClient(provider).getAvailableTimeSeriesNumber(df, filter);
-		 
 	}
 	
 	public static Map<String, String> getCodes(String provider, String dataflow, String dimension) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dimension == null || dimension.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dimension cannot be null");
-			throw new SdmxInvalidParameterException("The name of the dimension cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+		checkString(dimension, "The name of the dimension cannot be null");
+		
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
 		Dimension dim = dsd.getDimension(dimension);
-		Codelist codes = null;
 		if (dim != null)
 		{
-			codes = dim.getCodeList();
-			if (codes != null && !codes.isEmpty())
-				return codes;
+			Codelist cl = dim.getCodeList();
+			if (!cl.isEmpty())
+				return cl;
 			else
 			{
 				// this is a 2.1 provider
 				LOGGER.finer("Codelist for " + provider + ", " + dataflow + ", " + dimension + " not cached.");
-				codes = getClient(provider).getCodes(dsd.getDimension(dimension).getCodeList());
+				Codelist codes = getClient(provider).getCodes(dsd.getDimension(dimension).getCodeList());
 				if (codes != null)
-					dim.setCodeList(codes);
+					cl.importFrom(codes);
 				else
 					throw new SdmxXmlContentException(
 							"Could not get codes for '" + dataflow + "' in provider: '" + provider + "'");
+				
+				return cl;
 			}
 		}
 		else
 			throw new SdmxXmlContentException(
 					"The dimension: '" + dimension + "' does not exist in dataflow: '" + dataflow + "'");
-
-		return codes;
 	}
 
 	public static Dataflow getFlow(String provider, String dataflow) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The name of the dataflow cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+		
 		Provider p = getProvider(provider);
 		Dataflow flow = p.getFlow(dataflow);
 		if (flow == null)
@@ -403,11 +318,7 @@ public class SdmxClientHandler
 
 	public static Map<String, Dataflow> getFlowObjects(String provider, String pattern) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
 
 		Map<String, Dataflow> flows = null;
 		Provider p = getProvider(provider);
@@ -464,17 +375,6 @@ public class SdmxClientHandler
 			String startTime, String endTime, 
 			String attributes, String measures, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The dataflow must have valid values");
-			throw new SdmxInvalidParameterException("The dataflow must have valid values");
-		}
-
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
 		
@@ -490,16 +390,8 @@ public class SdmxClientHandler
 			String startTime, String endTime, 
 			boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (tsKey == null || tsKey.trim().isEmpty())
-		{
-			LOGGER.severe("The ts key must have valid values");
-			throw new SdmxInvalidParameterException("The ts key must have valid values");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(tsKey, "The ts key must have valid values");
 	
 		List<PortableTimeSeries<Double>> result = null;
 	
@@ -516,27 +408,15 @@ public class SdmxClientHandler
 		return result;
 	}
 
-	public static String getDataURL(String provider, String dataflow, String resource, String start, String end, boolean seriesKeysOnly,
+	public static String getDataURL(String provider, String dataflow, String tsKey, String start, String end, boolean seriesKeysOnly,
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (dataflow == null || dataflow.trim().isEmpty())
-		{
-			LOGGER.severe("The dataflow cannot be null");
-			throw new SdmxInvalidParameterException("The dataflow cannot be null");
-		}
-		if (resource == null || resource.trim().isEmpty())
-		{
-			LOGGER.severe("The query cannot be null");
-			throw new SdmxInvalidParameterException("The query cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(dataflow, "The name of the dataflow cannot be null");
+		checkString(tsKey, "The ts key must have valid values");
 
 		Dataflow df = getFlow(provider, dataflow);
-		String result = getClient(provider).buildDataURL(df, resource, start, end, seriesKeysOnly, updatedAfter,
+		String result = getClient(provider).buildDataURL(df, tsKey, start, end, seriesKeysOnly, updatedAfter,
 				includeHistory);
 		return (result);
 	}
@@ -585,63 +465,48 @@ public class SdmxClientHandler
 		return result.toString();
 	}
 
-	public static String dumpTimeSeries(String provider, String id, String startTime, String endTime)
+	public static String dumpTimeSeries(String provider, String tsKey, String startTime, String endTime)
 			throws SdmxException, DataStructureException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		if (id == null || id.trim().isEmpty())
-		{
-			LOGGER.severe("The id cannot be null");
-			throw new SdmxInvalidParameterException("The id cannot be null");
-		}
+		checkString(provider, "The name of the provider cannot be null");
+		checkString(tsKey, "The ts key must have valid values");
+
 		if (!SDMXClientFactory.getProviders().containsKey(provider))
-		{
-			throw new SdmxInvalidParameterException("The provider : " + id + " does not exist.");
-		}
+			throw new SdmxInvalidParameterException("The provider : " + provider + " does not exist.");
+		
 		String result = "";
 		if (!Configuration.isTable())
 		{
 			// Do it as a list of time series
-			List<PortableTimeSeries<Double>> ts = getTimeSeries(provider, id, startTime, endTime, false, null, false);
+			List<PortableTimeSeries<Double>> ts = getTimeSeries(provider, tsKey, startTime, endTime, false, null, false);
 			result = dumpTimeSeriesList(ts);
 		}
 		else
 		{
 			// do it as a table
-			result = getTimeSeriesTable(provider, id, startTime, endTime, false, null, false).toString();
+			result = getTimeSeriesTable(provider, tsKey, startTime, endTime, false, null, false).toString();
 		}
 		return result;
 	}
 
-	private static Provider getProvider(String providerName) throws SdmxException
+	private static Provider getProvider(String provider) throws SdmxException
 	{
-		if (providerName == null || providerName.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-		Provider provider = SDMXClientFactory.getProviders().get(providerName);
+		checkString(provider, "The name of the provider cannot be null");
 
-		// TODO: move this check to SDMXClientFactory
-		if (provider == null)
-			throw new SdmxUnknownProviderException(providerName);
+		Provider prov = SDMXClientFactory.getProviders().get(provider);
+		if (prov == null)
+			throw new SdmxUnknownProviderException(provider);
 
-		return provider;
+		return prov;
 	}
 
 	private static GenericSDMXClient getClient(String provider, String user, String password) throws SdmxException
 	{
+		checkString(provider, "The name of the provider cannot be null");
+
 		final String sourceMethod = "getClient";
 		LOGGER.entering(sourceClass, sourceMethod);
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
+
 		GenericSDMXClient client = clients.get(provider);
 		if (client == null)
 		{
@@ -659,14 +524,7 @@ public class SdmxClientHandler
 
 	private static GenericSDMXClient getClient(String provider) throws SdmxException
 	{
-		if (provider == null || provider.trim().isEmpty())
-		{
-			LOGGER.severe("The name of the provider cannot be null");
-			throw new SdmxInvalidParameterException("The name of the provider cannot be null");
-		}
-
 		return getClient(provider, null, null);
-
 	}
 
 	private static void handlePassword(GenericSDMXClient client, String user, String pw) throws SdmxException

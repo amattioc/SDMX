@@ -91,7 +91,7 @@ public class DataFlowStructure extends SDMXReference
 	 * 
 	 * @param dim The dimension which is to put.
 	 */
-	public void setDimension(Dimension dim)
+	public void addDimension(Dimension dim)
 	{
 		this.dimensions.put(dim.getId(), dim);
 	}
@@ -112,7 +112,7 @@ public class DataFlowStructure extends SDMXReference
 	 * 
 	 * @param attr The attribute to set.
 	 */
-	public void setAttribute(SdmxAttribute attr)
+	public void addAttribute(SdmxAttribute attr)
 	{
 		this.attributes.put(attr.getId(), attr);
 	}

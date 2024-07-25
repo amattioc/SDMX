@@ -22,6 +22,7 @@ package it.bancaditalia.oss.sdmx.api;
 
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -176,9 +177,9 @@ public interface GenericSDMXClient {
 	 * @param includeHistory whether to include the history in the request
      * @return the query URL for the endpoint
 	 * @throws SdmxException 
+	 * @throws MalformedURLException 
      */
-	public String buildDataURL(Dataflow dataflow, String resource, 
-			String startTime, String endTime, 
+	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, 
 			boolean seriesKeyOnly, String updatedAfter, boolean includeHistory) throws SdmxException;
 	
 	/**

@@ -20,7 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.MalformedURLException;
+import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -28,11 +29,8 @@ import java.util.logging.Logger;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -40,7 +38,6 @@ import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
  */
 public class IMF2 extends RestSdmx20Client
 {
-
 	protected static Logger logger = Configuration.getSdmxLogger();
 
 	public IMF2(Provider p) throws URISyntaxException
@@ -51,60 +48,39 @@ public class IMF2 extends RestSdmx20Client
 	@Override
 	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException
 	{
-		if (provider.getEndpoint() != null)
-		{
-			try
-			{
-				return new RestQueryBuilder(provider.getEndpoint()).addPath("Dataflow").build();
-			}
-			catch (MalformedURLException e)
-			{
-				throw SdmxExceptionFactory.wrap(e);
-			}
-//			if(flow != null && !flow.isEmpty() && !flow.equalsIgnoreCase("ALL")){
-//				query += "/" + flow;				
-//			}
-		}
+		if (getProvider().getEndpoint() != null)
+			return getBuilder().addPath("Dataflow").build();
 		else
-		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: endpoint=" + provider.getEndpoint());
-		}
+			throw new SdmxInvalidParameterException("Invalid query parameters: endpoint=" + getProvider().getEndpoint());
 	}
 
 	@Override
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dsd != null && !dsd.isEmpty())
-		{
+		checkString(dsd, "The name of the data structure cannot be null");
 
-			try
-			{
-				return new RestQueryBuilder(provider.getEndpoint()).addPath("DataStructure").addPath(dsd).build();
-			}
-			catch (MalformedURLException e)
-			{
-				throw SdmxExceptionFactory.wrap(e);
-			}
-		}
-		else
-		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: dsd=" + dsd + " endpoint=" + provider.getEndpoint());
-		}
+		return getBuilder().addPath("DataStructure").addPath(dsd).build();
 	}
 
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String tsKey, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dataflow != null && resource != null && !resource.isEmpty())
-		{
+		checkString(tsKey, "The ts key must have valid values");
 
-			return ((Sdmx21Queries) new Sdmx21Queries(provider.getEndpoint()).addPath("CompactData").addPath(dataflow.getDsdIdentifier().getId()).addPath(resource))
-					.addParams(startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
-		}
+		if (dataflow != null)
+			return getBuilder()
+					.addPath("CompactData")
+					.addPath(dataflow.getDsdIdentifier().getId())
+					.addPath(tsKey)
+					.withParam("startPeriod", startTime)
+					.withParam("endPeriod", endTime)
+					.withDetail(serieskeysonly)
+					.withParam("updatedAfter", updatedAfter)
+					.withHistory(includeHistory)
+					.withParam("format", format)
+					.build();
 		else
-		{
-			throw new RuntimeException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + provider.getEndpoint());
-		}
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + tsKey + " endpoint=" + getProvider().getEndpoint());
 	}
 
 }

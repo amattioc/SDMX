@@ -20,36 +20,28 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-import java.util.Objects;
-
 /**
  * 
  * @author Valentino Pinna
  */
-public class SdmxMetaElement
+public abstract class SdmxMetaElement
 {
-
-	private String id = null;
-	private Codelist codeList = null;
-	private String name;
-
-	/**
-	 * Creates an empty sdmx metadata element.
-	 */
-	public SdmxMetaElement()
-	{
-		super();
-	}
+	private final String id;
+	private final String name;
+	private final Codelist codeList;
 
 	/**
-	 * Creates a sdmx metadata element with id and codelist
+	 * Creates a sdmx metadata element with id, description and codelist
 	 * 
-	 * @param id       The id of this metadata element
+	 * @param id The id of this metadata element
+	 * @param name The description
+	 * @param codeList the codelist
 	 */
-	public SdmxMetaElement(String id)
+	public SdmxMetaElement(String id, String name, Codelist codeList)
 	{
-		super();
 		this.id = id;
+		this.name = name;
+		this.codeList = codeList;
 	}
 
 	/**
@@ -69,41 +61,19 @@ public class SdmxMetaElement
 	}
 
 	/**
-	 * @param codeList The codelist of this metadata element
-	 */
-	public void setCodeList(Codelist codeList)
-	{
-		this.codeList = Objects.requireNonNull(codeList);
-	}
-
-	/**
 	 * @return The name of this metadata element
 	 */
 	public String getName()
 	{
 		return name;
 	}
-
-	/**
-	 * @param name The name of this metadata element
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append("Attribute [id=").append(id).append(", name=").append(name).append(", codelist=")
-				.append(codeList).append("]\n");
-		return builder.toString();
-	}
-
+//
+//	@Override
+//	public String toString()
+//	{
+//		StringBuilder builder = new StringBuilder();
+//		builder.append("Attribute [id=").append(id).append(", name=").append(name).append(", codelist=")
+//				.append(codeList).append("]\n");
+//		return builder.toString();
+//	}
 }

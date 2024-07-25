@@ -99,9 +99,9 @@ public class SDMXClientFactory
 	 * 
 	 * @throws SdmxException if there is an error creating the provider.
 	 */
-	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description) throws SdmxException
+	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description) throws SdmxException
 	{
-		addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, V2);
+		addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, V2);
 	}
 
 	/**
@@ -119,9 +119,9 @@ public class SDMXClientFactory
 	 * 
 	 * @throws SdmxException if there is an error creating the provider.
 	 */
-	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, SDMXVersion sdmxVersion) throws SdmxException
+	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
-		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion);
+		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
 		providers.put(name, p);
 	}
 
@@ -143,9 +143,10 @@ public class SDMXClientFactory
 				boolean providerNeedsCredentials = Configuration.getProperty("providers." + id + ".needsCredentials", false);
 				boolean providerNeedsURLEncoding = Configuration.getProperty("providers." + id + ".needsURLEncoding", false);
 				boolean providerSupportsCompression = Configuration.getProperty("providers." + id + ".supportsCompression", false);
+				boolean providerSupportsAvailability = Configuration.getProperty("providers." + id + ".supportsAvailability", false);
 				String providerDescription = Configuration.getProperty("providers." + id + ".description", id);
 				SDMXVersion providerSdmxVersion = Configuration.getProperty("providers." + id + ".sdmxversion", V2);
-				addProvider(providerName, providerURL, providerNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerDescription, providerSdmxVersion);
+				addProvider(providerName, providerURL, providerNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerSupportsAvailability, providerDescription, providerSdmxVersion);
 			}
 			else
 			{
@@ -190,7 +191,7 @@ public class SDMXClientFactory
 			if (provider.getEndpoint().getScheme().toLowerCase().startsWith("http"))
 				switch (provider.getSdmxVersion())
 				{
-					case V2: client = new RestSdmxClient(provider); break;
+					case V2: client = new RestSdmx21Client(provider); break;
 					case V3: client = new RestSdmx30Client(provider); break;
 					default: throw new SdmxInvalidParameterException("Unsupported SDMX REST API version: " + provider.getSdmxVersion());
 				}

@@ -20,23 +20,22 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.MalformedURLException;
+import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.client.RestSdmx21Client;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class INEGI extends RestSdmxClient
+public class INEGI extends RestSdmx21Client
 {
 	public INEGI(Provider p) throws URISyntaxException
 	{
@@ -44,27 +43,16 @@ public class INEGI extends RestSdmxClient
 	}
 
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException
 	{
-		// TODO Auto-generated method stub
-		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format);
 	}
 	
 	@Override
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dsd != null && !dsd.isEmpty())
-		{
-			try
-			{
-				return new RestQueryBuilder(provider.getEndpoint()).addPath("DataStructure").addPath(agency).addPath(dsd).addPath(version).build();
-			}
-			catch (MalformedURLException e)
-			{
-				throw SdmxExceptionFactory.wrap(e);
-			}
-		}
-		else
-			throw new SdmxInvalidParameterException("Invalid query parameters: dsd=" + dsd + " endpoint=" + provider.getEndpoint());
+		checkString(dsd, "The name of the data structure cannot be null");
+
+		return getBuilder().addPath("DataStructure").addPath(agency).addPath(dsd).addPath(version).build();
 	}
 }

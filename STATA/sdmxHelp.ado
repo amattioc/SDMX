@@ -20,7 +20,9 @@
 */
 
 program sdmxHelp
-version 13
-javacall it.bancaditalia.oss.sdmx.client.StataClientHandler sdmxHelper
-
+	version 17
+	
+	java, shared(BItools): it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();
 end
+
+quietly initSDMX

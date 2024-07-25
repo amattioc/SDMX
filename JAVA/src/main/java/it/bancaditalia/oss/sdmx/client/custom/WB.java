@@ -20,22 +20,19 @@
 */
 package it.bancaditalia.oss.sdmx.client.custom;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.client.RestSdmx21Client;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class WB extends RestSdmxClient
+public class WB extends RestSdmx21Client
 {
 	public WB(Provider p) throws URISyntaxException
 	{
@@ -43,36 +40,20 @@ public class WB extends RestSdmxClient
 	}
 
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException
 	{
-		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		return super.buildDataQuery(dataflow, resource + "/", startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format);
 	}
 
 	@Override
 	protected URL buildFlowQuery(String flow, String agency, String version) throws SdmxException
 	{
-		try
-		{
-			return Sdmx21Queries.createDataflowQuery(provider.getEndpoint(), flow, agency, version + "/").build();
-		}
-		catch (MalformedURLException e)
-		{
-			throw SdmxExceptionFactory.wrap(e);
-		}
-
+		return super.buildFlowQuery(flow, agency, version + "/");
 	}
 
 	@Override
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		try
-		{
-			return Sdmx21Queries.createStructureQuery(provider.getEndpoint(), dsd, agency, version + "/", true).build();
-		}
-		catch (MalformedURLException e)
-		{
-			throw SdmxExceptionFactory.wrap(e);
-		}
+		return super.buildDSDQuery(dsd, agency, version + "/", true);
 	}
-
 }

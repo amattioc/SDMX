@@ -52,6 +52,7 @@ import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Parser;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
@@ -155,8 +156,8 @@ public class CompactDataParser implements Parser<DataParsingResult>
 		return result;
 	}
 
-	private DoubleObservation getObservation(XMLEventReader eventReader,
-			String currentAction, String currentValidFromDate, String currentValidToDate, Iterable<Attribute> attributes) throws XMLStreamException
+	private DoubleObservation getObservation(XMLEventReader eventReader, String currentAction, String currentValidFromDate, 
+			String currentValidToDate, Iterable<Attribute> attributes) throws XMLStreamException, SdmxInvalidParameterException
 	{
 		XMLEvent event = eventReader.nextEvent();
 		logger.finest(event.toString());

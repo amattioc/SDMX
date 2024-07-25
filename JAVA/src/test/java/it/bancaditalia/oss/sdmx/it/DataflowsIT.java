@@ -16,12 +16,15 @@ import org.junit.runners.Parameterized.Parameters;
 
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 @RunWith(Parameterized.class)
 public class DataflowsIT
 {
 	@Parameters(name="{0} - {1}")
     public static Collection<Object[]> data() {
+    	Configuration.setLanguages("en");
+    	
         return FilterProvidersToTest.filter(new Object[][] 
     		{
 				{ "ABS",              null,                              "ATSI_BIRTHS_SUMM",              "Aboriginal and Torres Strait Islander births and confinements, summary, by state" },

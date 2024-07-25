@@ -33,7 +33,7 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
+import it.bancaditalia.oss.sdmx.client.RestSdmx21Client;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
@@ -41,9 +41,8 @@ import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
 import it.bancaditalia.oss.sdmx.parser.v20.DataflowParser;
 import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
 import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 
-public abstract class RestSdmx20Client extends RestSdmxClient
+public abstract class RestSdmx20Client extends RestSdmx21Client
 {
 
 	private String		acceptHdr	= null;
@@ -111,27 +110,7 @@ public abstract class RestSdmx20Client extends RestSdmxClient
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
-		// 20/09/2017: GenericDataParser deleted
-		return runQuery(/* format != null ? */new CompactDataParser(dsd, dataflow, !serieskeysonly) 
-				/* : new GenericDataParser(dsd, dataflow, !serieskeysonly) */, query, handleHttpHeaders(acceptHdr));
+		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
+		return runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query, handleHttpHeaders(acceptHdr));
 	}
-
-	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
-			boolean includeHistory) throws SdmxException
-	{
-		if (provider.getEndpoint() != null && dataflow != null && resource != null && !resource.isEmpty())
-		{
-
-			return Sdmx21Queries
-					.createDataQuery(provider.getEndpoint(), dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format)
-					.buildSdmx21Query();
-		}
-		else
-		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + provider.getEndpoint());
-		}
-	}
-
 }

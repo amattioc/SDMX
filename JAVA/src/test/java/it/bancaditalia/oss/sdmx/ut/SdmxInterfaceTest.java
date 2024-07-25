@@ -39,7 +39,7 @@ public class SdmxInterfaceTest
 	@Test
 	public void testGetAddProvider() throws SdmxException, MalformedURLException
 	{
-		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, "test provider", V2);
+		SdmxClientHandler.addProvider("TEST", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, false, "test provider", V2);
 		GenericSDMXClient a = SDMXClientFactory.createClient("TEST");
 		assertNotNull("Add Provider failed", a);
 	}

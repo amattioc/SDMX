@@ -22,28 +22,19 @@ package it.bancaditalia.oss.sdmx.api;
 
 public class Dimension extends SdmxMetaElement
 {
-	private int position;
+	private final int position;
 
 	/**
 	 * Creates a Dimension with given attributes.
 	 * 
 	 * @param id       The dimension id
-	 * @param position The dimension ordinality in the dataflow structure
+	 * @param name     The description
 	 * @param codeList the Codelist object associated with this dimension.
+	 * @param position The dimension ordinality in the dataflow structure
 	 */
-	public Dimension(String id, int position, Codelist codeList)
+	public Dimension(String id, String name, Codelist codeList, int position)
 	{
-		super(id);
-		this.position = position;
-		setCodeList(codeList);
-	}
-
-	/**
-	 * Creates an empty dimension.
-	 */
-	public Dimension(String id, int position)
-	{
-		super(id);
+		super(id, name, codeList);
 		this.position = position;
 	}
 

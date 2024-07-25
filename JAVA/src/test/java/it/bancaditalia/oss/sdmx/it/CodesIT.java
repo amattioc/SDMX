@@ -17,6 +17,7 @@ import it.bancaditalia.oss.sdmx.api.Codelist;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
 
 @RunWith(Parameterized.class)
 public class CodesIT
@@ -24,6 +25,8 @@ public class CodesIT
 	@Parameters(name = "{0} - {1} - {5}")
 	public static Collection<Object[]> data()
 	{
+		Configuration.setLanguages("en");
+		
 		Object[][] paramsInit = {
 				{ "ABS", "ATSI_BIRTHS_SUMM", 0,
 						new String[][] { { "19", "Births where only mother Aboriginal or Torres Strait Islander" } } },

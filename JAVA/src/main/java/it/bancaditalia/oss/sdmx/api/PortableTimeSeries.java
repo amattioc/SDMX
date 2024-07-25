@@ -37,12 +37,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.Utils;
-import it.bancaditalia.oss.sdmx.util.Utils.BiFunction;
-import it.bancaditalia.oss.sdmx.util.Utils.Function;
 
 /**
  * This is a Java container for a Time Series. It will be transformed by a converter in the various statistical packages
@@ -350,7 +350,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	@Deprecated
 	public List<T> getObservations()
 	{
-		return new ListWrapper<>(Utils.<T>obsExtractor());
+		return new ListWrapper<T>(BaseObservation::getValue);
 	}
 
 	/**
@@ -381,7 +381,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	@Deprecated
 	public List<String> getTimeSlots()
 	{
-		return new ListWrapper<>(Utils.<T>timeslotExtractor());
+		return new ListWrapper<>(BaseObservation::getTimeslot);
 	}
 
 	/**
@@ -422,7 +422,7 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	 */
 	public List<String> getObsLevelAttributes(String attributeName)
 	{
-		return new ListWrapper<>(Utils.<T>obsLevelAttrsExtractor(attributeName));
+		return new ListWrapper<>(obs -> obs.getAttributeValue(attributeName));
 	}
 
 	/**

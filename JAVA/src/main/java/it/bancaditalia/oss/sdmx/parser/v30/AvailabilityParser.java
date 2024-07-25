@@ -92,7 +92,6 @@ public class AvailabilityParser implements Parser<Map<String, List<String>>>
 				}
 				else if (value.equals(startElement.getName().getLocalPart()))
 					codes.add(eventReader.getElementText());
-				
 			}
 
 			if (event.isEndElement())

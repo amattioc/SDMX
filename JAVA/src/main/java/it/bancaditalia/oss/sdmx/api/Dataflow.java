@@ -31,7 +31,7 @@ import it.bancaditalia.oss.sdmx.util.LocalizedText;
  */
 public class Dataflow extends SDMXReference
 {
-	private LocalizedText name; // the description
+	private final LocalizedText name; // the description
 	private SDMXReference dsdIdentifier;
 
 	public Dataflow(SDMXReference other, String name)

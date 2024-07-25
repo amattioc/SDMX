@@ -1,9 +1,8 @@
 package it.bancaditalia.oss.sdmx.api;
 
 import java.util.Map;
-
-import it.bancaditalia.oss.sdmx.util.Utils.BiFunction;
-import it.bancaditalia.oss.sdmx.util.Utils.Function;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * A specialized implementation of {link {@link BaseObservation} for {@code double} type.

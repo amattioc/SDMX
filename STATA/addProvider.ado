@@ -33,7 +33,40 @@
  */
 
 program addProvider
-	version 13
+	version 17
 	args name endpoint needsCredentials needsURLEncoding supportsCompression description
-	javacall it.bancaditalia.oss.sdmx.client.StataClientHandler addProvider, args("`name'" "`endpoint'" "`needsCredentials'" "`needsURLEncoding'" "`supportsCompression'" "`description'"  "`sdmxVersion'")
+	
+	java, shared(BItools) SaddProvider("`name'", "`endpoint'", "1".equals("`needsCredentials'"), "1".equals("`needsURLEncoding'"), "1".equals("`supportsCompression'"), "`description'", "V3".equals("`sdmxVersion'"));
+end
+
+quietly initSDMX
+
+java, shared(BItools):
+	import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+	import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+	
+	import it.bancaditalia.oss.sdmx.util.Configuration;
+	import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+	
+	import java.util.logging.Logger;
+	
+	void SaddProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isV3)
+	{
+		Logger logger = Configuration.getSdmxLogger();
+	
+		if (name.isEmpty() || endpoint.isEmpty())
+		{
+			logger.info("The provider name and endpoint are required.");
+			return;
+		}
+
+		try
+		{
+			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, isV3 ? V3 : V2);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 end

@@ -21,8 +21,8 @@
 package it.bancaditalia.oss.sdmx.client.custom;
 
 import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
+import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,13 +34,10 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.client.Provider;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxExceptionFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
 import it.bancaditalia.oss.sdmx.parser.v20.DataStructureParser;
-import it.bancaditalia.oss.sdmx.parser.v21.Sdmx21Queries;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
@@ -65,7 +62,7 @@ public abstract class DotStat extends RestSdmx20Client
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery(dataflow, ALL_KEYWORD, LATEST_VERSION);
+		URL query = buildFlowQuery(dataflow, getAllKeyword(), getLatestKeyword());
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null);
 		if (dsds.size() > 0)
 		{
@@ -82,7 +79,7 @@ public abstract class DotStat extends RestSdmx20Client
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		// OECD (and .Stat infrastructure) does not handle flows. We simulate it
-		URL query = buildFlowQuery("ALL", ALL_KEYWORD, LATEST_VERSION);
+		URL query = buildFlowQuery("ALL", getAllKeyword(), getLatestKeyword());
 		List<DataFlowStructure> dsds = runQuery(new DataStructureParser(), query, null);
 		if (dsds.size() > 0)
 		{
@@ -110,35 +107,30 @@ public abstract class DotStat extends RestSdmx20Client
 	@Override
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dsd != null && !dsd.isEmpty())
-		{
-			try
-			{
-				return new RestQueryBuilder(provider.getEndpoint()).addPath("GetDataStructure").addPath(dsd).build();
-			}
-			catch (MalformedURLException e)
-			{
-				throw SdmxExceptionFactory.wrap(e);
-			}
-		}
-		else
-			throw new SdmxInvalidParameterException("Invalid query parameters: dsd=" + dsd + " endpoint=" + provider.getEndpoint());
+		checkString(dsd, "The name of the data structure cannot be null");
+
+		return getBuilder().addPath("GetDataStructure").addPath(dsd).build();
 	}
 
 	@Override
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildDataQuery(Dataflow dataflow, String tsKey, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dataflow != null && resource != null && !resource.isEmpty())
-		{
+		checkString(tsKey, "The ts key must have valid values");
 
-			// for OECD use the simple DF id
-			Sdmx21Queries query = (Sdmx21Queries) new Sdmx21Queries(provider.getEndpoint()).addPath("GetData").addPath(dataflow.getId()).addPath(resource);
-
-			// query=query+"?";
-			// query += "&format=compact_v2";
-			return query.addParams(startTime, endTime, serieskeysonly, updatedAfter, includeHistory, format).buildSdmx21Query();
-		}
+		// for OECD use the simple DF id
+		if (dataflow != null)
+			return getBuilder()
+					.addPath("GetData")
+					.addPath(dataflow.getId())
+					.addPath(tsKey)
+					.withParam("startPeriod", startTime)
+					.withParam("endPeriod", endTime)
+					.withDetail(serieskeysonly)
+					.withParam("updatedAfter", updatedAfter)
+					.withHistory(includeHistory)
+					.withParam("format", format)
+					.build();
 		else
-			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + provider.getEndpoint());
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + tsKey + " endpoint=" + getProvider().getEndpoint());
 	}
 }

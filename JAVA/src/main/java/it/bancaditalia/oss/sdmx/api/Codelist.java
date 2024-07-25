@@ -68,6 +68,12 @@ public class Codelist extends SDMXReference implements Iterable<String>, Map<Str
 			this.parents.putAll(parents);
 	}
 
+	public void importFrom(Codelist other)
+	{
+		this.codes.putAll(other.codes);
+		this.parents.putAll(other.parents);
+	}
+
 	@Override
 	public Iterator<String> iterator()
 	{

@@ -99,7 +99,6 @@ public class Configuration
 	private static final String TABLE_DUMP_PROP = "table.dump";
 	private static final String READ_TIMEOUT_PROP = "read.timeout";
 	private static final String CONNECT_TIMEOUT_PROP = "connect.timeout";
-	private static final String UIS_API_KEY_PROP = "uis.api.key";
 	private static final String SDMX_CODES_POLICY = "handle.sdmx.codes";
 	private static final String REVERSE_DUMP_DEFAULT = "FALSE";
 	private static final String TABLE_DUMP_DEFAULT = "FALSE";
@@ -320,8 +319,9 @@ public class Configuration
 							boolean supportsCompression = getProperty("providers." + name + ".supportsCompression", parseBoolean(params[1].trim()));
 							SDMXVersion version = getProperty("providers." + name + ".sdmxversion", SDMXVersion.valueOf(params[2].trim()));
 							String description = getProperty("providers." + name + ".description", params[3].trim());
-							URI endpoint = params.length != 5 ? null : new URI(getProperty("providers." + name + ".endpoint", params[4].trim()));
-							SDMXClientFactory.addProvider(providerName, endpoint, needsCredentials, false, supportsCompression, description, version);
+							URI endpoint = params.length != 6 ? null : new URI(getProperty("providers." + name + ".endpoint", params[4].trim()));
+							boolean supportsAvailability = getProperty("providers." + name + ".supportsAvailability", parseBoolean(params[5].trim()));
+							SDMXClientFactory.addProvider(providerName, endpoint, needsCredentials, false, supportsCompression, supportsAvailability, description, version);
 						}
 						catch (URISyntaxException | SdmxException e)
 						{
@@ -591,11 +591,6 @@ public class Configuration
 		String os = System.getProperty("os.name").toLowerCase();
 		// windows
 		return os.indexOf("win") >= 0;
-	}
-
-	public static String getUISApiKey()
-	{
-		return props.getProperty(Configuration.UIS_API_KEY_PROP, null);
 	}
 
 	public static int getMaxRedirects()

@@ -22,20 +22,14 @@ package it.bancaditalia.oss.sdmx.api;
 
 public class Measure extends SdmxMetaElement
 {
-	private int position;
+	private final int position;
 
-	/**
-	 * Creates an empty dimension.
-	 */
-	public Measure(String id, int position)
+	public Measure(String id, String name, int position)
 	{
-		super(id);
+		super(id, name, null);
 		this.position = position;
 	}
 
-	/**
-	 * @return The dimension ordinality in the dataflow structure.
-	 */
 	public int getPosition()
 	{
 		return position;

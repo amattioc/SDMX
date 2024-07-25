@@ -31,8 +31,7 @@ import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.client.Provider;
-import it.bancaditalia.oss.sdmx.client.RestSdmxClient;
-import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
+import it.bancaditalia.oss.sdmx.client.RestSdmx21Client;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
@@ -45,7 +44,7 @@ import it.bancaditalia.oss.sdmx.util.QueryRunner;
  * @author Attilio Mattiocco
  *
  */
-public class BBK extends RestSdmxClient
+public class BBK extends RestSdmx21Client
 {
 	public BBK(Provider p) throws URISyntaxException
 	{
@@ -57,11 +56,11 @@ public class BBK extends RestSdmxClient
 	{
 		try
 		{
-			return new URL(provider.getEndpoint() + "/metadata/dataflow/BBK" + (dataflow.equalsIgnoreCase("all") ? "" : ("/" + dataflow)));
+			return new URL(getProvider().getEndpoint() + "/metadata/dataflow/BBK" + (dataflow.equalsIgnoreCase("all") ? "" : ("/" + dataflow)));
 		}
 		catch (MalformedURLException e)
 		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + provider.getEndpoint());
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow: " + dataflow + ", endpoint=" + getProvider().getEndpoint());
 		}
 	}
 
@@ -70,11 +69,11 @@ public class BBK extends RestSdmxClient
 	{
 		try
 		{
-			return new URL(provider.getEndpoint() + "/metadata/datastructure/BBK" + (dsd.equalsIgnoreCase("all") ? "" : ("/" + dsd)) + "?references=children");
+			return new URL(getProvider().getEndpoint() + "/metadata/datastructure/BBK" + (dsd.equalsIgnoreCase("all") ? "" : ("/" + dsd)) + "?references=children");
 		}
 		catch (MalformedURLException e)
 		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: dsd: " + dsd + ", endpoint=" + provider.getEndpoint());
+			throw new SdmxInvalidParameterException("Invalid query parameters: dsd: " + dsd + ", endpoint=" + getProvider().getEndpoint());
 		}
 	}
 
@@ -83,11 +82,11 @@ public class BBK extends RestSdmxClient
 	{
 		try
 		{
-			return new URL(provider.getEndpoint() + "/metadata/codelist/BBK" + (codeList.equalsIgnoreCase("all") ? "" : ("/" + codeList)));
+			return new URL(getProvider().getEndpoint() + "/metadata/codelist/BBK" + (codeList.equalsIgnoreCase("all") ? "" : ("/" + codeList)));
 		}
 		catch (MalformedURLException e)
 		{
-			throw new SdmxInvalidParameterException("Invalid query parameters: codelist: " + codeList + ", endpoint=" + provider.getEndpoint());
+			throw new SdmxInvalidParameterException("Invalid query parameters: codelist: " + codeList + ", endpoint=" + getProvider().getEndpoint());
 		}
 	}
 
@@ -95,7 +94,7 @@ public class BBK extends RestSdmxClient
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter,
 			boolean includeHistory) throws SdmxException
 	{
-		URL query = buildDataQuery(new Dataflow(dataflow.getId(), null, null, null), resource, startTime, endTime, false, null, false);
+		URL query = buildDataQuery(new Dataflow(dataflow.getId(), null, null, null), resource, startTime, endTime, false, null, false, null);
 		DataParsingResult ts = runQuery(new GenericDataParser(dsd, dataflow, !serieskeysonly), query, handleHttpHeaders("application/xml"));
 		Message msg = ts.getMessage();
 		if (msg != null)
@@ -105,14 +104,5 @@ public class BBK extends RestSdmxClient
 			QueryRunner.getDataFooterMessageEventListener().onSdmxEvent(event);
 		}
 		return ts;
-	}
-
-	public static void main(String[] args) throws SdmxException
-	{
-		System.err.println(SdmxClientHandler.getDataFlowStructure("BBK", "BBAI3"));
-		// System.err.println(SdmxClientHandler.getCodes("BBK", "BBAI3",
-		// "BBK_STD_FREQ"));
-		// System.err.println(SdmxClientHandler.getTimeSeries("BBK",
-		// "BBAI3/Q............", null,null));
 	}
 }

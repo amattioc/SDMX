@@ -1,10 +1,13 @@
 package it.bancaditalia.oss.sdmx.util;
 
 import java.util.Iterator;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import it.bancaditalia.oss.sdmx.api.BaseObservation;
 import it.bancaditalia.oss.sdmx.api.DoubleObservation;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 
 /**
  * Various convenience methods and interfaces.
@@ -14,78 +17,19 @@ import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
  */
 public class Utils
 {
-	public static <T> Function<BaseObservation<? extends T>, String> timeslotExtractor()
-	{
-		return new Function<BaseObservation<? extends T>, String>() {
-				@Override
-				public String apply(BaseObservation<? extends T> obs)
-				{
-					return obs.getTimeslot();
-				}
-			};
-	}
-
-	public static <T> Function<BaseObservation<? extends T>, T> obsExtractor()
-	{
-		return new Function<BaseObservation<? extends T>, T>() {
-			@Override
-			public T apply(BaseObservation<? extends T> obs)
-			{
-				return obs.getValue();
-			}
-		};
-	}
-
-	public static <T> Function<BaseObservation<? extends T>, String> obsLevelAttrsExtractor(final String attributeName)
-	{
-		return new Function<BaseObservation<? extends T>, String>() {
-			@Override
-			public String apply(BaseObservation<? extends T> obs)
-			{
-				return obs.getAttributeValue(attributeName);
-			}
-		};
-	}
-
 	private Utils()
 	{
 	}
 
-	public static interface Function<T, R>
+	public static void checkString(String value, String message) throws SdmxInvalidParameterException
 	{
-		public R apply(T value);
-	};
-
-	public static interface BiFunction<T, U, R>
-	{
-		public R apply(T left, U right);
-	};
-
-	public static interface BinaryOperator<T> extends BiFunction<T, T, T>
-	{
-	};
-
-	public static interface DoubleUnaryOperator
-	{
-		public double applyAsDouble(double argument);
-	};
-
-	public static interface DoubleBinaryOperator
-	{
-		public double applyAsDouble(double left, double right);
-	};
-
-	public static <T> Function<T, T> identity()
-	{
-		return new Function<T, T>() {
-			@Override
-			public T apply(T obs)
-			{
-				return obs;
-			}
-		};
+		if (value == null || value.isEmpty())
+		{
+			Configuration.getSdmxLogger().severe("The name of the provider cannot be null");
+			throw new SdmxInvalidParameterException(message);
+		}
 	}
-
+	
 	/**
 	 * Extract values from a series and returns an array of primitive type {@code double}. It uses
 	 * {@link BaseObservation#getValueAsDouble()} to perform conversion.

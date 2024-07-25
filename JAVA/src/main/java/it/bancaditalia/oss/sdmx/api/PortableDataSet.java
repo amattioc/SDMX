@@ -23,12 +23,12 @@ package it.bancaditalia.oss.sdmx.api;
 import java.io.Serializable;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
@@ -59,7 +59,7 @@ public class PortableDataSet<T> implements Serializable
 
 	private boolean				errorFlag		= false;
 	private boolean				numeric			= false;
-	private String				errorObjects	= null;
+	private StringJoiner		errorObjects	= new StringJoiner(", ");
 	private String				dataflow		= null;
 
 	private DefaultTableModel	model			= null;
@@ -365,7 +365,7 @@ public class PortableDataSet<T> implements Serializable
 	 */
 	public String getErrorObjects()
 	{
-		return errorObjects;
+		return errorObjects.toString();
 	}
 
 	/**
@@ -373,10 +373,7 @@ public class PortableDataSet<T> implements Serializable
 	 */
 	public void addErrorObjects(String text)
 	{
-		if (this.errorObjects == null || this.errorObjects.isEmpty())
-			this.errorObjects = text;
-		else
-			this.errorObjects += ", " + text;
+		errorObjects.add(text);
 	}
 
 	/**

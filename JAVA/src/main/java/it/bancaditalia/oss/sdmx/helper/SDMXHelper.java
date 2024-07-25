@@ -1,5 +1,106 @@
 package it.bancaditalia.oss.sdmx.helper;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlow;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries;
+import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries2;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static java.util.Collections.singletonList;
+import static java.util.Locale.forLanguageTag;
+import static java.util.ResourceBundle.getBundle;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINEST;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static java.util.stream.Collectors.joining;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.SortOrder.ASCENDING;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Locale.LanguageRange;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.DefaultEditorKit;
+
 import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.Dimension;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
@@ -10,51 +111,6 @@ import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxResponseException;
 import it.bancaditalia.oss.sdmx.util.Configuration;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.DefaultEditorKit;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.List;
-import java.util.*;
-import java.util.Locale.LanguageRange;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
-import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.*;
-import static java.lang.Integer.MAX_VALUE;
-import static java.lang.String.format;
-import static java.lang.String.join;
-import static java.util.Collections.singletonList;
-import static java.util.Locale.forLanguageTag;
-import static java.util.ResourceBundle.getBundle;
-import static java.util.logging.Level.*;
-import static java.util.stream.Collectors.joining;
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-import static javax.swing.SortOrder.ASCENDING;
 
 public class SDMXHelper extends JFrame
 {
@@ -182,14 +238,16 @@ public class SDMXHelper extends JFrame
 	 */
 	private boolean isCodelistSortersMapTablesListenerActive;
 
-	class SeriesCountPanel extends JPanel {
+	private static class SeriesCountPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+		
+		private final JLabel seriesCountLabel;
+		private final JTextField seriesCount;
+		private final JLabel obsCountLabel;
+		private final JTextField obsCount;
 
-		private JLabel seriesCountLabel;
-		private JTextField seriesCount;
-		private JLabel obsCountLabel;
-		private JTextField obsCount;
-
-		public SeriesCountPanel(int seriesCount, int obsCount) {
+		public SeriesCountPanel(int seriesCount, int obsCount)
+		{
 			this.seriesCountLabel = new JLabel();
 			this.seriesCount = new JTextField(Integer.toString(seriesCount));
 			this.seriesCount.setEditable(false);
@@ -202,33 +260,33 @@ public class SDMXHelper extends JFrame
 			add(this.seriesCount);
 			add(obsCountLabel);
 			add(this.obsCount);
-
 		}
 
-		public void updateCounts(int seriesCount, int obsCount) {
+		public void updateCounts(int seriesCount, int obsCount)
+		{
 			this.seriesCount.setText(Integer.toString(seriesCount));
 			this.seriesCount.setCaretPosition(0);
 			this.obsCount.setText(Integer.toString(obsCount));
 			this.obsCount.setCaretPosition(0);
-			if (seriesCount <= 0) {
+			if (seriesCount <= 0)
 				hideSeriesCount();
-			} else {
+			else
 				showSeriesCount();
-			}
-			if (obsCount <= 0) {
-				hideObsCount();
-			} else {
-				showObsCount();
-			}
 
+			if (obsCount <= 0)
+				hideObsCount();
+			else
+				showObsCount();
 		}
 
-		public void updateBundle(ResourceBundle b) {
+		public void updateBundle(ResourceBundle b)
+		{
 			this.seriesCountLabel.setText(b.getString("SDMXHelper.105"));
 			this.obsCountLabel.setText(b.getString("SDMXHelper.106"));
 		}
 
-		public void hidePanel() {
+		public void hidePanel()
+		{
 			this.seriesCount.setVisible(false);
 			this.seriesCountLabel.setVisible(false);
 			this.obsCount.setVisible(false);
@@ -266,7 +324,8 @@ public class SDMXHelper extends JFrame
 
 	}
 
-	private SeriesCountPanel seriesCountPanel;
+	private final SeriesCountPanel seriesCountPanel;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -362,7 +421,8 @@ public class SDMXHelper extends JFrame
 							String description = newProviderDialog.getDescription();
 							SDMXVersion sdmxVersion = newProviderDialog.getSdmxVersion();
 							URI endpoint = new URI(newProviderDialog.getURL());
-							SDMXClientFactory.addProvider(name, endpoint, false, false, true, description, sdmxVersion);
+							boolean availabilityQueries = newProviderDialog.getAvailabilityFlag().equalsIgnoreCase("true");
+							SDMXClientFactory.addProvider(name, endpoint, false, false, true, availabilityQueries, description, sdmxVersion);
 							mnProviders.removeAll();
 							providersSetup(mnProviders);
 						} 
@@ -1030,8 +1090,11 @@ public class SDMXHelper extends JFrame
 		AtomicBoolean interrupted = new AtomicBoolean(false);
 		
 		new ProgressViewer<>(this, interrupted, () -> 
-			V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
-				SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
+			SDMXClientFactory.getProviders().get(provider).isSupportsAvailability() ?
+				V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
+					SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
+					:
+					SdmxClientHandler.filterCodes(provider, selectedDataflow, createQuery(dimsTableModel.getSource())).get(selectedDimension)
 				:
 				getCodes(provider, selectedDataflow, selectedDimension)	
 				,

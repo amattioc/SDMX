@@ -35,7 +35,7 @@ public class DimensionsIT
     			{ "INSEE",            "CNA-2010-CONSO-SI",             0, "FREQ",          "FR1/CL_PERIODICITE/1.0",         },
     			{ "INEGI",            "DF_STEI",                       0, "REF_AREA",      "SDMX/CL_AREA/1.0",               },
     			{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 	   0, "REF_AREA",      "ILO/CL_AREA/1.0",          },
-    			{ "EUROSTAT",         "prc_hicp_midx",                 0, "freq",          "ESTAT/FREQ/3.2",              },
+    			{ "EUROSTAT",         "prc_hicp_midx",                 0, "freq",          "ESTAT/FREQ/3.3",              },
     			{ "IMF2",             "DS-WHDREO",                     0, "FREQ",          "IMF/CL_FREQ",                    },
     			{ "OECD",             "QNA",                           0, "LOCATION",      "OECD/CL_QNA_LOCATION",           },
     			{ "OECD_NEW",         "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },

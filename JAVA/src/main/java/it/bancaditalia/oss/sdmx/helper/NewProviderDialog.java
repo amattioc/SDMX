@@ -42,6 +42,7 @@ public class NewProviderDialog extends JDialog {
 	private String description = null;
 	private String URL = null;
 	private SDMXVersion sdmxVersion;
+	private String availabilityFlag;
 
 	public NewProviderDialog()
 	{
@@ -139,6 +140,25 @@ public class NewProviderDialog extends JDialog {
 		gbc_cmbVersion.gridy = 3;
 		contentPanel.add(cmbVersion, gbc_cmbVersion);
 
+		final JLabel lblAvail = new JLabel("Supports Availability Queries");
+		lblVersion.setHorizontalAlignment(SwingConstants.TRAILING);
+		GridBagConstraints gbc_lblAvail = new GridBagConstraints();
+		gbc_lblAvail.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblAvail.insets = new Insets(5, 5, 5, 5);
+		gbc_lblAvail.gridx = 0;
+		gbc_lblAvail.gridy = 4;
+		contentPanel.add(lblAvail, gbc_lblAvail);
+
+		final JComboBox<String> cmbAvail = new JComboBox<>();
+		cmbAvail.setModel(new DefaultComboBoxModel<String>(new String[]{"true", "false"}));
+		lblURL.setLabelFor(cmbAvail);
+		GridBagConstraints gbc_cmbcmbAvail = new GridBagConstraints();
+		gbc_cmbcmbAvail.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cmbcmbAvail.insets = new Insets(5, 5, 5, 5);
+		gbc_cmbcmbAvail.gridx = 1;
+		gbc_cmbcmbAvail.gridy = 4;
+		contentPanel.add(cmbAvail, gbc_cmbcmbAvail);
+
 		JPanel buttonPane = new JPanel();
 		buttonPane.setPreferredSize(new Dimension(10, 35));
 		buttonPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -200,5 +220,9 @@ public class NewProviderDialog extends JDialog {
 	public SDMXVersion getSdmxVersion()
 	{
 		return sdmxVersion;
+	}
+
+	public String getAvailabilityFlag() {
+		return availabilityFlag;
 	}
 }

@@ -20,16 +20,12 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
-import it.bancaditalia.oss.sdmx.api.*;
-import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
-import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
-import it.bancaditalia.oss.sdmx.parser.v21.*;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.QueryRunner;
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
+import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
+import static java.util.stream.Collectors.joining;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -38,40 +34,73 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
-import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
-import static java.util.stream.Collectors.joining;
+import it.bancaditalia.oss.sdmx.api.Codelist;
+import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
+import it.bancaditalia.oss.sdmx.api.Dataflow;
+import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
+import it.bancaditalia.oss.sdmx.api.Message;
+import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
+import it.bancaditalia.oss.sdmx.api.SDMXReference;
+import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
+import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.parser.v21.CodelistParser;
+import it.bancaditalia.oss.sdmx.parser.v21.CompactDataParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataParsingResult;
+import it.bancaditalia.oss.sdmx.parser.v21.DataStructureParser;
+import it.bancaditalia.oss.sdmx.parser.v21.DataflowParser;
+import it.bancaditalia.oss.sdmx.parser.v30.AvailabilityParser;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.QueryRunner;
+import it.bancaditalia.oss.sdmx.util.RestQueryBuilder;
 
 /**
  * @author Attilio Mattiocco
  *
  */
-public class RestSdmxClient implements GenericSDMXClient
+public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> implements GenericSDMXClient
 {
-	protected static final Logger	LOGGER = Configuration.getSdmxLogger();
-
-	protected SDMXVersion			sdmxVersion = V2;
-
-	protected boolean				needsCredentials				= false;
-	protected boolean				containsCredentials				= false;
-	protected String				user							= null;
-	protected String				pw								= null;
+	protected static final Logger LOGGER = Configuration.getSdmxLogger();
 	
-	protected final Provider provider;
-	protected String LATEST_VERSION	= "latest";
-	protected String ALL_KEYWORD	= "all";
+	private final SDMXVersion sdmxVersion;
+	private final Credentials credentials = new Credentials();
+	private final Provider provider;
+	private final String latestKeyword;
+	private final String allKeyword;
 
-	public RestSdmxClient(Provider provider)
+	protected boolean needsCredentials = false;
+
+	public AbstractRestSdmxClient(Provider provider, SDMXVersion sdmxVersion)
 	{
 		this.provider = provider;
 		this.needsCredentials = provider.isNeedsCredentials();
+		this.sdmxVersion = sdmxVersion;
+		
+		if (sdmxVersion == V3)
+		{
+			latestKeyword = "+";
+			allKeyword = "*";
+		}
+		else
+		{
+			latestKeyword = "latest";
+			allKeyword = "all";
+		}
+	}
+
+	public Provider getProvider()
+	{
+		return provider;
 	}
 
 	@Override
 	public Map<String, Dataflow> getDataflows() throws SdmxException
 	{
 		Map<String, Dataflow> result = null;
-		URL query = buildFlowQuery(ALL_KEYWORD, ALL_KEYWORD, LATEST_VERSION);
+		URL query = buildFlowQuery(allKeyword, allKeyword, latestKeyword);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, "dataflow_all", getName(), handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 		if (flows.size() > 0)
 		{
@@ -89,8 +118,8 @@ public class RestSdmxClient implements GenericSDMXClient
 	public Dataflow getDataflow(String dataflow, String agency, String version) throws SdmxException
 	{
 		Dataflow result = null;
-		if(agency == null) agency = ALL_KEYWORD;
-		if(version == null) version = this.LATEST_VERSION;
+		if(agency == null) agency = allKeyword;
+		if(version == null) version = latestKeyword;
 		URL query = buildFlowQuery(dataflow, agency, version);
 		List<Dataflow> flows = runQuery(new DataflowParser(), query, getName(), "dataflow_" + dataflow, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 		if (flows.size() >= 1)
@@ -136,8 +165,10 @@ public class RestSdmxClient implements GenericSDMXClient
 	}
 
 	@Override
-	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException {
-		throw new SdmxInvalidParameterException("This method can only be called on SDMX V3 providers.");
+	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException
+	{
+		URL query = buildAvailabilityQueryByKey(dataflow, filter);
+		return runQuery(new AvailabilityParser(), query, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 	}
 
 	@Override
@@ -148,7 +179,7 @@ public class RestSdmxClient implements GenericSDMXClient
 	protected DataParsingResult getData(Dataflow dataflow, DataFlowStructure dsd, String resource, String startTime, String endTime, boolean serieskeysonly,
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
-		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory);
+		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
 		String dumpName = "data_" + dataflow.getId() + "_" + resource; //.replaceAll("\\p{Punct}", "_");
 		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query,
 				getName(), dumpName, handleHttpHeaders("application/vnd.sdmx.structurespecificdata+xml;version=2.1"));
@@ -172,16 +203,14 @@ public class RestSdmxClient implements GenericSDMXClient
 	@Override
 	public void setCredentials(String user, String pw)
 	{
-		this.user = user;
-		this.pw = pw;
 		this.needsCredentials = false;
-		this.containsCredentials = true;
+		credentials.fillCredentials(user, pw);
 	}
 
 	@Override
 	public String getName()
 	{
-		return provider.getName();
+		return getProvider().getName();
 	}
 
 	public String getSdmxVersion()
@@ -189,39 +218,74 @@ public class RestSdmxClient implements GenericSDMXClient
 		return sdmxVersion.toString();
 	}
 
-	@Override
-	public String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly, String updatedAfter,
+	public final String buildDataURL(Dataflow dataflow, String resource, String startTime, String endTime, boolean seriesKeyOnly, String updatedAfter,
 			boolean includeHistory) throws SdmxException
 	{
-		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory).toString();
+		return buildDataQuery(dataflow, resource, startTime, endTime, seriesKeyOnly, updatedAfter, includeHistory, null).toString();
 	}
 
-	protected URL buildDataQuery(Dataflow dataflow, String resource, String startTime, String endTime, boolean serieskeysonly, String updatedAfter, boolean includeHistory) throws SdmxException
+	protected URL buildAvailabilityQueryByKey(Dataflow dataflow, String key) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && dataflow != null && resource != null && !resource.isEmpty())
-			return Sdmx21Queries
-					.createDataQuery(provider.getEndpoint(), dataflow.getFullIdentifier(), resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null)
-					.buildSdmx21Query();
+		if (dataflow != null)
+			return getBuilder().addPath("availableconstraint").addPath(dataflow.getId()).addPath(key).build();
 		else
-			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " resource=" + resource + " endpoint=" + provider.getEndpoint());
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " filter=" + key);
+	}
+
+	protected URL buildDataQuery(Dataflow dataflow, String tsKey, String start, String end, boolean serieskeysonly, String updatedAfter, boolean includeHistory, String format) throws SdmxException
+	{
+		checkString(tsKey, "The timeslot for an observation cannot be null or empty.");
+		
+		if (dataflow != null)
+			return getBuilder()
+					.withParam("startPeriod", start)
+					.withParam("endPeriod", end)
+					.withDetail(serieskeysonly)
+					.withParam("updatedAfter", updatedAfter)
+					.withHistory(includeHistory)
+					.withParam("format", format)
+					.addPath("data")
+					.addPath(dataflow.getFullIdentifier())
+					.addPath(tsKey)
+					.build();
+		else
+			throw new SdmxInvalidParameterException("Invalid query parameters: dataflow=" + dataflow + " tsKey=" + tsKey + " endpoint=" + getProvider().getEndpoint());
 	}
 
 	protected URL buildDSDQuery(String dsd, String agency, String version, boolean full) throws SdmxException
 	{
-		if (provider.getEndpoint() != null && agency != null && !agency.isEmpty() && dsd != null && !dsd.isEmpty())
-			return Sdmx21Queries.createStructureQuery(provider.getEndpoint(), dsd, agency, version, full).buildSdmx21Query();
-		else
-			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + provider.getEndpoint());
-	}
+		checkString(agency, "The name of the agency cannot be null");
+		checkString(dsd, "The name of the data structure cannot be null");
 
+		if (agency != null && !agency.isEmpty() && dsd != null && !dsd.isEmpty())
+		{
+			RestQueryBuilder<?> query = getBuilder()
+					.addPath("datastructure")
+					.addPath(agency)
+					.addPath(dsd);
+		
+			if (version != null && !version.isEmpty())
+				query = query.addPath(version);
+			if (full)
+				query = query.withParam("references", "children");
+			
+			return query.build();
+		}
+		else
+			throw new RuntimeException("Invalid query parameters: agency=" + agency + " dsd=" + dsd + " endpoint=" + getProvider().getEndpoint());
+	}
+	
 	protected URL buildFlowQuery(String dataflow, String agency, String version) throws SdmxException
 	{
-		return Sdmx21Queries.createDataflowQuery(provider.getEndpoint(), dataflow, agency, version).buildSdmx21Query();
+		return getBuilder()
+				.addPath("dataflow")
+				.withRef(agency, dataflow, version)
+				.build();
 	}
 
 	protected URL buildCodelistQuery(String codeList, String agency, String version) throws SdmxException
 	{
-		return Sdmx21Queries.createCodelistQuery(provider.getEndpoint(), codeList, agency, version).buildSdmx21Query();
+		return getBuilder().addPath("codelist").withRef(agency, codeList, version).build();
 	}
 
 	/**
@@ -241,18 +305,15 @@ public class RestSdmxClient implements GenericSDMXClient
 		String lList = Configuration.getLanguages().stream()
 			.map(lr -> String.format(Locale.US, "%s;q=%.1f", lr.getRange(), lr.getWeight()))
 			.collect(joining(","));
-		
 		headers.put("Accept-Language", lList);
-		if (containsCredentials)
+		String authHeader = credentials.getHeader();
+		if (authHeader != null)
 		{
 			LOGGER.fine("Setting http authorization");
-			// https://stackoverflow.com/questions/1968416/how-to-do-http-authentication-in-android/1968873#1968873
-			//String auth = Base64.encodeToString((user + ":" + pw).getBytes(), Base64.NO_WRAP);
-			String auth = java.util.Base64.getEncoder().encodeToString((user + ":" + pw).getBytes());
-			headers.put("Authorization", "Basic " + auth);
+			headers.put("Authorization", "Basic " + authHeader);
 		}
 		
-		if (provider.isSupportsCompression())
+		if (getProvider().isSupportsCompression())
 			headers.put("Accept-Encoding", "gzip,deflate");
 
 		if (acceptHeader != null && !"".equals(acceptHeader))
@@ -262,4 +323,21 @@ public class RestSdmxClient implements GenericSDMXClient
 		headers.put("user-agent", "RJSDMX");
 		return headers;
 	}
+
+	public String getLatestKeyword()
+	{
+		return latestKeyword;
+	}
+
+	public String getAllKeyword()
+	{
+		return allKeyword;
+	}
+
+	public T getBuilder()
+	{
+		return getBuilder(provider.getEndpoint());
+	}
+
+	protected abstract T getBuilder(URI endpoint);
 }

@@ -1,13 +1,15 @@
 package it.bancaditalia.oss.sdmx.api;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Serializable;
-import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-import it.bancaditalia.oss.sdmx.util.Utils.BiFunction;
-import it.bancaditalia.oss.sdmx.util.Utils.Function;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 
 /**
  * An immutable observation in a series.
@@ -30,13 +32,11 @@ public abstract class BaseObservation<T> implements Serializable, Comparable<Bas
 	 * 
 	 * @param timeslot The timestamp of the observation.
 	 * @param obsAttributes A map of observation-level attributes.
+	 * @throws SdmxInvalidParameterException 
 	 */
 	protected BaseObservation(String timeslot, Map<String, String> obsAttributes)
 	{
-		if (timeslot == null || timeslot.isEmpty())
-			throw new InvalidParameterException("The timeslot for an observation cannot be null or empty.");
-
-		this.timeslot = timeslot;
+		this.timeslot = requireNonNull(timeslot, "The timeslot for an observation cannot be null or empty.");
 		this.obsAttributes = obsAttributes == null ? new HashMap<String, String>() : obsAttributes;
 	}
 

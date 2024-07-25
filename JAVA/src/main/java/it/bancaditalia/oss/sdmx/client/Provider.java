@@ -43,6 +43,7 @@ public class Provider
 	private final SDMXVersion sdmxVersion;
 	private final boolean needsURLEncoding;
 	private final boolean supportsCompression;
+	private final boolean supportsAvailability;
 	private String description;
 	private boolean needsCredentials;
 	private boolean full = false;
@@ -52,7 +53,7 @@ public class Provider
 	// key: dsd id (full) --> structure
 	private Map<String, DataFlowStructure> dsdNameToStructureCache = null;
 
-	public Provider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, SDMXVersion sdmxVersion) throws SdmxException
+	public Provider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
 		this.name = name;
 		this.endpoint = endpoint;
@@ -62,6 +63,7 @@ public class Provider
 		this.needsCredentials = needsCredentials;
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
+		this.supportsAvailability = supportsAvailability;
 		this.sdmxVersion = sdmxVersion;
 	}
 
@@ -160,6 +162,11 @@ public class Provider
 	public boolean isSupportsCompression()
 	{
 		return supportsCompression;
+	}
+
+	public boolean isSupportsAvailability()
+	{
+		return supportsAvailability;
 	}
 
 	public SDMXVersion getSdmxVersion()

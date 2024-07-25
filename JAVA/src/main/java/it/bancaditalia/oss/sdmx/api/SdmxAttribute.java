@@ -20,12 +20,10 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
-
-
-public class SdmxAttribute extends SdmxMetaElement{
-	
-	public SdmxAttribute(String id)
+public class SdmxAttribute extends SdmxMetaElement
+{
+	public SdmxAttribute(String id, String name, Codelist codelist)
 	{
-		super(id);
+		super(id, name, codelist);
 	}
 }
