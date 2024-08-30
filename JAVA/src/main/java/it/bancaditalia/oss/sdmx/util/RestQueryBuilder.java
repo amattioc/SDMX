@@ -97,7 +97,7 @@ public abstract class RestQueryBuilder<T extends RestQueryBuilder<T>> {
 	public T withDetail(boolean seriesKeyOnly)
 	{
 		if (seriesKeyOnly)
-			withParam("detail", "seriesKeyOnly");
+			withParam("detail", "serieskeysonly");
 		
 		return self();
 	}
