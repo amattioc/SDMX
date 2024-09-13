@@ -50,5 +50,5 @@ In particular, all information related to configuration (network, tracing, secur
  my_ts = getTimeSeries('ECB','EXR.M.USD.EUR.SP00.A')
 }
 }
-\author{Attilio Mattiocco, Diana Nicoletti, Bank of Italy, IT Support for the Economic Research 
+\author{Attilio Mattiocco, Bank of Italy 
 \email{attilio.mattiocco@bancaditalia.it}}

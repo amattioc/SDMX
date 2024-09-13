@@ -1,7 +1,8 @@
 Package: RJSDMX
 Version: 3.4-0
 Title: R Interface to SDMX Web Services
-Author: Attilio Mattiocco, Gianpaolo Lopez, Banca d'Italia
+Authors@R: c(
+  person("Attilio", "Mattiocco", role = c("aut", "cre"), email = "attilio.mattiocco@bancaditalia.it"))
 Maintainer: Attilio Mattiocco <attilio.mattiocco@bancaditalia.it>
 Description: Provides functions to retrieve data and metadata from providers 
 			 that disseminate data by means of SDMX web services. 
