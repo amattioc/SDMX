@@ -20,29 +20,16 @@
 */
 package it.bancaditalia.oss.sdmx.api;
 
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+
 import java.io.Serializable;
-import java.util.AbstractList;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.RandomAccess;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Logger;
-
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
 
 /**
  * This is a Java container for a Time Series. It will be transformed by a converter in the various statistical packages
@@ -896,4 +883,58 @@ public class PortableTimeSeries<T> implements List<BaseObservation<? extends T>>
 	{
 		return observations.toArray(a);
 	}
+
+
+	/**
+	 * getTimeSlotSet - return a set of all timeslots present in observations list.
+	 * @return a Set containing all timeslots presents in ts.
+	 */
+	protected Set<String> getTimeSlotSet() {
+		Set<String> dates = new HashSet<>();
+		for (BaseObservation<? extends T> obs : observations) {
+			dates.add(obs.getTimeslot());
+		}
+		return dates;
+	}
+
+	/**
+	 * getTimeSeriesMap - return a map association the date of the observation with the observation itself.
+	 * @return a map with date as key and observation as value.
+	 */
+	protected Map<String, BaseObservation<? extends T>> getTimeSeriesMap() {
+		Map<String, BaseObservation<? extends T>> map = new ConcurrentHashMap<>();
+		for (BaseObservation<? extends T> obs : this.observations) {
+			map.put(obs.getTimeslot(), obs);
+		}
+		return map;
+	}
+
+	/**
+	 *
+	 * @param s1 first set
+	 * @param s2 second set
+	 * @return the intersection set
+	 * @param <SetType>
+	 */
+	private <SetType> Set<SetType> getIntersection(Set<SetType> s1, Set<SetType> s2) {
+		// retainAll modify the set in place, so we need to create a new set.
+		Set<SetType> intersectionSet = new HashSet<>(s1);
+		intersectionSet.retainAll(s2);
+		return intersectionSet;
+	}
+
+	public void merge(PortableTimeSeries<T> other) throws SdmxInvalidParameterException {
+		if (!name.equals(other.getName())) {
+			throw new SdmxInvalidParameterException(String.format("The two time series have different names: '%s' and '%s'", name, other.getName()));
+		}
+		Set<String> datesIntersection = getIntersection(getTimeSlotSet(), other.getTimeSlotSet());
+		if (datesIntersection.isEmpty()) {
+			this.attributes.putAll(other.attributes);
+			this.observations.addAll(other.observations);
+			this.sort(BaseObservation::compareTo);
+		} else {
+			throw new SdmxInvalidParameterException(String.format("Repeated observations found the two time series. Common dates: {%s}", String.join(", ", datesIntersection)));
+		}
+	}
+
 }

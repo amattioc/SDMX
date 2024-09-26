@@ -23,38 +23,26 @@
  */
 package it.bancaditalia.oss.sdmx.parser.v21;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale.LanguageRange;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
+import it.bancaditalia.oss.sdmx.api.*;
+import it.bancaditalia.oss.sdmx.client.Parser;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
+import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.util.Configuration;
+import it.bancaditalia.oss.sdmx.util.LocalizedText;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import it.bancaditalia.oss.sdmx.api.Codelist;
-import it.bancaditalia.oss.sdmx.api.DataFlowStructure;
-import it.bancaditalia.oss.sdmx.api.Dataflow;
-import it.bancaditalia.oss.sdmx.api.Dimension;
-import it.bancaditalia.oss.sdmx.api.DoubleObservation;
-import it.bancaditalia.oss.sdmx.api.Message;
-import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
-import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
-import it.bancaditalia.oss.sdmx.client.Parser;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
-import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
-import it.bancaditalia.oss.sdmx.util.Configuration;
-import it.bancaditalia.oss.sdmx.util.LocalizedText;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Locale.LanguageRange;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 /**
  * @author Attilio Mattiocco
@@ -142,9 +130,20 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
-				Collections.sort(ts);
 				String key = ts.getName()+ (currentValidFromDate!= null ? "-"+currentValidFromDate : "");
-				tsList.put(key, ts);
+				if(!tsList.containsKey(key)){
+					Collections.sort(ts);
+					tsList.put(key, ts);
+				}
+				else{
+					try {
+						//in some cases time series are split in different chunks, we have to merge attributes and obs
+						PortableTimeSeries<Double> previous = tsList.get(key);
+						previous.merge(ts);
+					} catch (SdmxInvalidParameterException e) {
+						throw new SdmxXmlContentException(e.getMessage());
+					}
+				}
 				obs = new ArrayList<>();
 			}
 		}
