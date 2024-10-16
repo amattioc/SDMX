@@ -23,9 +23,15 @@
 % permissions and limitations under the Licence.
 %
 
-%% Test 1: getProviders
+%% Test 1: getProviders/add provider
 providers = getProviders;
-assert(length(providers) > 1, 'Error getProviders');
+n = length(providers);
+assert(n > 1, 'Error getProviders');
+
+addProvider('test', endpoint = 'a.b.c.d', needsCredentials = F, needsURLEncoding = F, supportsCompression = T, 
+              description = '', sdmxVersion = 'V3', supportsAvailability = T);
+providers = getProviders;
+assert(n+1 == length(providers), 'Error addProvider');
 
 %% Test 2: getFlows
 flows = getFlows('ECB');

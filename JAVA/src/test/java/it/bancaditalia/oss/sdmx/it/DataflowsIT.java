@@ -40,7 +40,7 @@ public class DataflowsIT
 				{ "OECD",             "AEO",                             "AEO",                           "African Economic Outlook" },
 				{ "OECD_NEW",         "*DF_QNA_EXPENDITURE_CAPITA","DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","Quarterly GDP per capita" },
 				{ "OECD_SDMXV3",      "*DF_QNA_EXPENDITURE_CAPITA","DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","Quarterly GDP per capita" },
-				{ "ISTAT_RI",         null,                              "163_24",                        "National Accounts quarterly main aggregates" },
+				{ "ISTAT_RI",         null,                              "163_24",                        "National Accounts quarterly main aggregates - editions from October 2019 to September 2024" },
 				{ "ISTAT",            null,                              "144_125",                       "Nic - annual data until 2010" },
 				{ "BBK",          	  null,                              "BBASV",                         "Deutsche Bundesbank, Statistics on Insurance Corporations (Solvency I + II)" }
     		}, 0);

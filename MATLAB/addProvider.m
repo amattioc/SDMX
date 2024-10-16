@@ -13,6 +13,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
     % supportsCompression: set this to true if the provider supports stream compression
     % description:         a text description for the provider
     % sdmxVersion:         the sdmx rest api version of the provider (V2 or V3)
+    % supportsAvailability: set this to true if the provider supports availability queries
 	%
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
@@ -49,8 +50,12 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
             'needsURLEncoding:   set this to TRUE if the provider does not handle character "+" in URLs\n' ...      
             'supportsCompression:   set this to TRUE if the provider is able to handle compression\n' ...      
             'description:   a brief text description of the provider\n' ...      
-            'sdmxVersion:  the sdmx rest api version of the provider (V2 or V3)\n' ...      
+            'sdmxVersion:  the sdmx rest api version of the provider (V2 or V3)\n' ...     
+            'supportsAvailability:  set this to TRUE if the provider is able to handle availability queries\n' ...   
         ]));
+    end    
+    if nargin < 8
+        supportsAvailability = true;
     end    
     if nargin < 7
         sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
@@ -76,7 +81,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
        
     %try java code
     try
-        it.bancaditalia.oss.sdmx.client.SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion); 
+        it.bancaditalia.oss.sdmx.client.SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion); 
 	catch mexp
         error('SDMX addProvider() error:\n %s', mexp.message);            
     end

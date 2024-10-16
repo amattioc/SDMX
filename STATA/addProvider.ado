@@ -29,6 +29,7 @@
  * supportsCompression: set this to true if the provider supports stream compression
  * description:         a text description for the provider
  * sdmxVersion:         the version of the sdmx rest API (V2 or V3)
+ * supportsAvailability: set this to true if the provider supports availability queries
  *
  */
 
@@ -36,7 +37,7 @@ program addProvider
 	version 17
 	args name endpoint needsCredentials needsURLEncoding supportsCompression description
 	
-	java, shared(BItools) SaddProvider("`name'", "`endpoint'", "1".equals("`needsCredentials'"), "1".equals("`needsURLEncoding'"), "1".equals("`supportsCompression'"), "`description'", "V3".equals("`sdmxVersion'"));
+	java, shared(BItools) SaddProvider("`name'", "`endpoint'", "1".equals("`needsCredentials'"), "1".equals("`needsURLEncoding'"), "1".equals("`supportsCompression'"), "`description'", "V3".equals("`sdmxVersion'"), "1".equals("`supportsAvailability'"));
 end
 
 quietly initSDMX
@@ -50,7 +51,7 @@ java, shared(BItools):
 	
 	import java.util.logging.Logger;
 	
-	void SaddProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, String description, boolean isV3)
+	void SaddProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, boolean isV3)
 	{
 		Logger logger = Configuration.getSdmxLogger();
 	
@@ -62,7 +63,7 @@ java, shared(BItools):
 
 		try
 		{
-			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, isV3 ? V3 : V2);
+			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, isV3 ? V3 : V2);
 		}
 		catch (Exception e)
 		{
