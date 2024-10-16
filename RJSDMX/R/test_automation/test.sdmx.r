@@ -6,7 +6,13 @@
 test.sdmx <- function() {
   cat('\ngetProviders\n')
   p = getProviders()
-  checkTrue(length(p)>0, msg='Lista dei providers vuota')
+  n = length(p)
+  checkTrue(n>0, msg='Lista dei providers vuota')
+  
+  addProvider('test', endpoint = 'a.b.c.d', needsCredentials = F, needsURLEncoding = F, supportsCompression = T, 
+              description = '', sdmxVersion = 'V3', supportsAvailability = T)
+  p = getProviders()
+  checkTrue(length(p) == n+1, msg='Add provider fallito')
   
   cat('getFlows\n')
   flows = tryCatch({

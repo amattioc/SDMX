@@ -82,20 +82,21 @@ getDSDIdentifier <- function(provider, dataflow) {
 #' @param supportsCompression set this to TRUE if the provider is able to handle compression
 #' @param description a brief text description of the provider
 #' @param sdmxVersion the version of the sdmx rest api ('V2' or 'V3'), defaults to V2
+#' @param supportsAvailability set this to TRUE if the provider is able to handle availability queries
 #' @rdname addProvider
 #' @export
 #' @examples
 #' \dontrun{
 #' addProvider('pname', 'pendpoint', F)
 #' }
-addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='', sdmxVersion='V2') {
+addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='', sdmxVersion='V2', supportsAvailability = F) {
 	if(sdmxVersion == 'V2'){
 		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V2
 	}
 	else{
 		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V3
 	}
-  J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion)
+  J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion)
 }
 
 #' get dsd dimensions for dataflow
