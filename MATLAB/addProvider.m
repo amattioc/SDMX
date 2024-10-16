@@ -1,4 +1,4 @@
-function addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion)
+function addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description, sdmxVersion, supportsAvailability)
 	% Add a new provider to the internal registry. The provider has to be 
     % fully compliant with the SDMX 2.1 specifications
     %
@@ -55,7 +55,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
         ]));
     end    
     if nargin < 8
-        supportsAvailability = true;
+        supportsAvailability = false;
     end    
     if nargin < 7
         sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;

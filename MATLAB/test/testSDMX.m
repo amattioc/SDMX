@@ -28,8 +28,7 @@ providers = getProviders;
 n = length(providers);
 assert(n > 1, 'Error getProviders');
 
-addProvider('test', endpoint = 'a.b.c.d', needsCredentials = F, needsURLEncoding = F, supportsCompression = T, 
-              description = '', sdmxVersion = 'V3', supportsAvailability = T);
+addProvider('test', 'a.b.c.d', false, false, false, '', 'V3', true);
 providers = getProviders;
 assert(n+1 == length(providers), 'Error addProvider');
 
