@@ -22,6 +22,9 @@ addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
   \item{description}{a brief text description of the
   provider}
 
+  \item{supportsAvailability}{set this to TRUE if the
+  provider is able to handle availability queries}
+
   \item{sdmxVersion}{what sdmx version this provider supports}
 }
 \description{
