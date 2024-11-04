@@ -3,7 +3,8 @@
 \title{add new provider}
 \usage{
 addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
-  supportsCompression = TRUE, description = "", sdmxVersion = "V2")
+  supportsCompression = TRUE, description = "", sdmxVersion = "V2", 
+  supportsAvailability = F)
 }
 \arguments{
   \item{name}{the name of the provider}
