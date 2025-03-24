@@ -33,6 +33,7 @@ public class DataflowsIT
 				{ "EUROSTAT",         "PRC_HICP_MIDX",                   "PRC_HICP_MIDX",                 "HICP - monthly data (index)" },
 				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", 		 "DF_EMP_TEMP_SEX_AGE_NB", 		  "Employment by sex and age" },
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
+				{ "IMF",              "CPI",                             "CPI",                           "Consumer Price Index (CPI)" },
 				{ "INSEE",            "BALANCE-PAIEMENTS",               "BALANCE-PAIEMENTS",             "Balance of payments" },
 				{ "WITS",             "*Tariff*",                        "DF_WITS_Tariff_TRAINS",         "WITS - UNCTAD TRAINS Tariff Data" },
 				{ "WB",               "WDI",                             "WDI",                           "World Development Indicators" },

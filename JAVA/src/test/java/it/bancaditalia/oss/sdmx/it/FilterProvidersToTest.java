@@ -17,7 +17,7 @@ public class FilterProvidersToTest
 			"EUROSTAT",
 			"ILO",
 			"INSEE",
-//			"IMF2", 		// has rate limit 
+			"IMF", 		
 			"ISTAT_RI",
 			"OECD_NEW",
 			"OECD_SDMXV3",

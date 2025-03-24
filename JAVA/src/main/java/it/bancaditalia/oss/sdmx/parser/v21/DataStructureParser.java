@@ -196,8 +196,17 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 				else if (startElement.getName().getLocalPart().equals(CONCEPT_IDENTITY))
 				{
 					logger.finer("Got concept identity");
-					if (concepts != null)
+					if (concepts != null){
 						name = getConceptName(concepts, eventReader);
+						if(name != null){
+							// now set codes
+							if (codelists != null && codelists.containsKey(name))
+								codelist = codelists.get(name);
+							else
+								// Store only the codelist ref to retrieve the codes later
+								codelist = new Codelist(name, null, null);
+						} 
+					}
 				}
 			}
 			if (event.isEndElement())
@@ -307,11 +316,23 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 						// Store only the codelist ref to retrieve the codes later
 						codelist = new Codelist(coordinates, null, null);
 				}
-				else if (startElement.getName().getLocalPart().equals(("ConceptIdentity")))
+				else if (startElement.getName().getLocalPart().equals((CONCEPT_IDENTITY)))
 				{
 					logger.finer("Got concept identity");
-					if (concepts != null)
+					if (concepts != null){
 						name = getConceptName(concepts, eventReader);
+						if(name != null){
+							// now set codes
+							if (codelists != null && codelists.containsKey(name))
+								codelist = codelists.get(name);
+							else
+								// Store only the codelist ref to retrieve the codes later
+								codelist = new Codelist(name, null, null);
+						}
+						else {
+							logger.finer("dimension " + id + " has no concept or local representation");
+						}
+					}
 				}
 			}
 
@@ -551,7 +572,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 					@SuppressWarnings("unchecked")
 					Iterator<Attribute> attributes = startElement.getAttributes();
 					String id = null;
-					String conceptName = "";
+					String conceptID = "";
 					while (attributes.hasNext())
 					{
 						Attribute attr = attributes.next();
@@ -560,9 +581,14 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 							id = attr.getValue();
 						}
 					}
-					conceptName = agency + "/" + id + "/" + version;
-					logger.finer("Got concept: " + conceptName);
-					concepts.put(conceptName, getConceptName(eventReader, languages));
+					if(id != null){
+						conceptID = agency + "/" + id + "/" + version;
+						logger.finer("Got concept: " + conceptID);
+						concepts.put(conceptID, getConceptCodeList(eventReader));
+					}
+					else {
+						logger.warning("Found concept without an id. Skipping");
+					}
 				}
 			}
 			if (event.isEndElement())
@@ -576,10 +602,10 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 		return (concepts);
 	}
 
-	private static String getConceptName(XMLEventReader eventReader, List<LanguageRange> languages)
+	private static String getConceptCodeList(XMLEventReader eventReader)
 			throws XMLStreamException, SdmxException
 	{
-		LocalizedText value = new LocalizedText(languages);
+		String id = null;
 		while (eventReader.hasNext())
 		{
 			XMLEvent event = eventReader.nextEvent();
@@ -587,9 +613,35 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 			if (event.isStartElement())
 			{
 				StartElement startElement = event.asStartElement();
-				if (startElement.getName().getLocalPart() == ("Name"))
+				if (startElement.getName().getLocalPart() == (REF))
 				{
-					value.setText(startElement, eventReader);
+					@SuppressWarnings("unchecked")
+					Iterator<Attribute> attributes = startElement.getAttributes();
+					String agency = null;
+					String version = null;
+					while (attributes.hasNext())
+					{
+						Attribute attr = attributes.next();
+						if (attr.getName().toString().equals(ID))
+						{
+							id = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(AGENCYID))
+						{
+							agency = attr.getValue();
+						}
+						else if (attr.getName().toString().equals(VERSION))
+						{
+							version = attr.getValue();
+						}
+					}
+					if(id != null){
+						if(agency != null)
+							id = agency + "/" + id;
+						if(version != null)
+							id = id + "/" + version;
+					}
+					logger.finer("Got codelist: " + id);
 				}
 
 			}
@@ -603,7 +655,7 @@ public class DataStructureParser implements Parser<List<DataFlowStructure>>
 				}
 			}
 		}
-		return value.getText();
+		return id;
 	}
 
 	private static String getConceptName(Map<String, String> concepts, XMLEventReader eventReader)

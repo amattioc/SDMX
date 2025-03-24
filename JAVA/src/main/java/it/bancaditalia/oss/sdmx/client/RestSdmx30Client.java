@@ -198,7 +198,7 @@ public class RestSdmx30Client extends AbstractRestSdmxClient<Sdmx30Queries>
 		if (version != null && !version.isEmpty())
 			query.addPath(version);
 		if (full)
-			query.withParam("references", "children");
+			query.withParam("references", "descendants");
 
 		return query.build();
 	}

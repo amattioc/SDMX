@@ -33,10 +33,11 @@ public class SDMXReferenceIT
         		{ "OECD_SDMXV3",      "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA","OECD.SDD.NAD",       "DSD_NAMAIN1" },
         		{ "NBB",              "AFCSURV",                       null,       "AFCSURV" },
         		{ "ISTAT",            "144_125",                       null,       "DCSP_NICDUE" },
-        		{ "ISTAT_RI",         "163_24",                       null,     "DCCN_QNA" },
+        		{ "ISTAT_RI",         "163_24",                        null,       "DCCN_QNA" },
         		{ "INSEE",            "CNA-2010-CONSO-SI",             "FR1",      "CNA-2010-CONSO-SI" },
         		{ "IMF2",             "DS-WHDREO",                     null,       "WHDREO" },
-        		{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 		"ILO",     "EMP_TEMP_SEX_AGE_NB" },
+        		{ "IMF",              "CPI",                           "IMF.STA",  "DSD_CPI" },
+        		{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 	   "ILO",      "EMP_TEMP_SEX_AGE_NB" },
         		{ "EUROSTAT",         "PRC_HICP_MIDX",                 null,       "PRC_HICP_MIDX" },
         		{ "BBK",              "BBASV",                 		   "BBK",      "BBK_ACS2" }
     		}, 0);

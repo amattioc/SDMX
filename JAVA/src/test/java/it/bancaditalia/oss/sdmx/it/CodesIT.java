@@ -40,6 +40,7 @@ public class CodesIT
 				{ "ILO", "DF_EMP_TEMP_SEX_AGE_NB", 0, new String[][] { { "ABW", "Aruba" } } },
 				{ "EUROSTAT", "prc_hicp_midx", 0, new String[][] { { "D", "Daily" } } },
 				{ "IMF2", "DS-WHDREO", 0, new String[][] { { "D", "Daily" } } },
+				{ "IMF",  "CPI", 4, new String[][] { { "D", "Daily" } } },
 				{ "OECD", "QNA", 0, new String[][] { { "G-7", "G7" } } },
 				{ "OECD_NEW", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA", 0, new String[][] { { "Q", "Quarterly" } } },
 				{ "OECD_SDMXV3", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA", 0, new String[][] { { "Q", "Quarterly" } } },

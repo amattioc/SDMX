@@ -267,7 +267,7 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 			if (version != null && !version.isEmpty())
 				query = query.addPath(version);
 			if (full)
-				query = query.withParam("references", "children");
+				query = query.withParam("references", "descendants");
 			
 			return query.build();
 		}
