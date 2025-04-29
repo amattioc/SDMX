@@ -36,7 +36,7 @@ public class TimeSeriesFromIDsIT
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010",    2, null,         null },
     			{ "ILO",      "DF_EMP_TEMP_SEX_AGE_NB/ITA.Q..SEX_F.", null,   null,      28, null,         null },
     			{ "IMF2",     "DS-WHDREO.A.PA.GGXCNL_GDP", "2000", "2015",    0, "2000",       "DS-WHDREO.A.PA.GGXCNL_GDP" },
-    			{ "IMF",      "CPI.ABW.CPI..IX.A", "2000", "2015",    13, "2000",       "CPI.ABW.CPI.CP01.IX.A" },
+    			{ "IMF",      "CPI.ABW.CPI..IX.A", "2001", "2015",    13, "2001",       "CPI.ABW.CPI.CP01.IX.A" },
     			{ "INSEE",    "CHOMAGE-TRIM-NATIONAL.T.CTCHC.VALEUR_ABSOLUE.FM.1.00-24.INDIVIDUS.CVS.TRUE", null,   null,      1, null,         null },
     			{ "ISTAT_RI", "163_24/Q....N11.....2022M11", "2000", "2010",      0, "2000-Q1",         "163_24.Q.IT.P51G_D_W0_S1._T.N11.Z.L_2015.N.Z.2022M11" },
     			{ "ISTAT",    "115_362/M....", null,   null,      0, null,         "115_362.M.F.N.IT.CONS_PROD" },

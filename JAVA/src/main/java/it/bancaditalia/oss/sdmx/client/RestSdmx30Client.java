@@ -131,7 +131,8 @@ public class RestSdmx30Client extends AbstractRestSdmxClient<Sdmx30Queries>
 
 		URL query = buildDataQuery(dataflow, tsKey, filter, startTime, endTime, attributes, measures, updatedAfter, includeHistory);
 		String dumpName = "data_" + dataflow.getId() + "_" + filter; //.replaceAll("\\p{Punct}", "_");
-		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !("none".equals(attributes) && "none".equals(measures))), query,
+		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, 
+				!("none".equals(attributes) && "none".equals(measures)), includeHistory), query,
 				getName(), dumpName, handleHttpHeaders("application/vnd.sdmx.structurespecificdata+xml;version=2.1"));
 		
 		Message msg = ts.getMessage();

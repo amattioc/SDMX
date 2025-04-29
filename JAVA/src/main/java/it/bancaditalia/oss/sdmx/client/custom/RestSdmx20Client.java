@@ -111,6 +111,6 @@ public abstract class RestSdmx20Client extends RestSdmx21Client
 			String updatedAfter, boolean includeHistory) throws SdmxException
 	{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
-		return runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query, handleHttpHeaders(acceptHdr));
+		return runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly, includeHistory), query, handleHttpHeaders(acceptHdr));
 	}
 }

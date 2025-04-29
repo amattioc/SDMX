@@ -181,7 +181,7 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 	{
 		URL query = buildDataQuery(dataflow, resource, startTime, endTime, serieskeysonly, updatedAfter, includeHistory, null);
 		String dumpName = "data_" + dataflow.getId() + "_" + resource; //.replaceAll("\\p{Punct}", "_");
-		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly), query,
+		DataParsingResult ts = runQuery(new CompactDataParser(dsd, dataflow, !serieskeysonly, includeHistory), query,
 				getName(), dumpName, handleHttpHeaders("application/vnd.sdmx.structurespecificdata+xml;version=2.1"));
 		
 		Message msg = ts.getMessage();

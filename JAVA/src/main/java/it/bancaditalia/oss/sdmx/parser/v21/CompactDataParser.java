@@ -69,12 +69,14 @@ public class CompactDataParser implements Parser<DataParsingResult>
 	private DataFlowStructure		dsd;
 	private Dataflow				dataflow;
 	private boolean					data;
+	private boolean 				revisions;
 
-	public CompactDataParser(DataFlowStructure dsd, Dataflow dataflow, boolean data)
+	public CompactDataParser(DataFlowStructure dsd, Dataflow dataflow, boolean data, boolean revisions)
 	{
 		this.dsd = dsd;
 		this.dataflow = dataflow;
 		this.data = data;
+		this.revisions = revisions;
 	}
 
 	@Override
@@ -131,13 +133,15 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
 				String key = ts.getName()+ (currentValidFromDate!= null ? "-"+currentValidFromDate : "");
-				if(!tsList.containsKey(key)){
+				if(revisions || !tsList.containsKey(key)){
 					Collections.sort(ts);
 					tsList.put(key, ts);
 				}
 				else{
 					try {
-						//in some cases time series are split in different chunks, we have to merge attributes and obs
+						//in some cases time series are split in different chunks, 
+						// we have to merge attributes and obs, but only if we are not in 
+						// history mode
 						PortableTimeSeries<Double> previous = tsList.get(key);
 						previous.merge(ts);
 					} catch (SdmxInvalidParameterException e) {
