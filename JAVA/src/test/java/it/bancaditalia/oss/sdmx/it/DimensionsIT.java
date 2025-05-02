@@ -37,7 +37,7 @@ public class DimensionsIT
     			{ "ILO",              "DF_EMP_TEMP_SEX_AGE_NB", 	   0, "REF_AREA",      "ILO/CL_AREA/1.0",          },
     			{ "EUROSTAT",         "prc_hicp_midx",                 0, "freq",          "ESTAT/FREQ/3.7",              },
     			{ "IMF2",             "DS-WHDREO",                     0, "FREQ",          "IMF/CL_FREQ",                    },
-    			{ "IMF",              "CPI",                           0, "COUNTRY",       "IMF/CL_COUNTRY/1.4.2",                    },
+    			{ "IMF",              "CPI",                           0, "COUNTRY",       "IMF/CL_COUNTRY/1.5.0",                    },
     			{ "OECD",             "QNA",                           0, "LOCATION",      "OECD/CL_QNA_LOCATION",           },
     			{ "OECD_NEW",         "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },
     			{ "OECD_SDMXV3",      "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA",0, "FREQ",   "SDMX/CL_FREQ/2.1",           },

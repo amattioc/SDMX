@@ -106,6 +106,10 @@ public class CompactDataParser implements Parser<DataParsingResult>
 
 				if (startElement.getName().getLocalPart() == (DATASET))
 				{
+					currentAction = null;
+					currentValidFromDate = null;
+					currentValidToDate = null;
+
 					logger.finer("Got new dataset");
 					for (Attribute attribute: (Iterable<Attribute>) startElement::getAttributes)
 					{
@@ -132,7 +136,10 @@ public class CompactDataParser implements Parser<DataParsingResult>
 			else if (event.isEndElement() && event.asEndElement().getName().getLocalPart() == (SERIES))
 			{
 				PortableTimeSeries<Double> ts = new PortableTimeSeries<>(dataflow, metadata.getKey(), metadata.getValue(), obs);
-				String key = ts.getName()+ (currentValidFromDate!= null ? "-"+currentValidFromDate : "");
+				String validity =  (currentValidFromDate!= null ? currentValidFromDate : "NA") 
+									+ "-" 
+									+ (currentValidToDate!= null ? currentValidToDate : "NA");
+				String key = ts.getName() + validity;
 				if(revisions || !tsList.containsKey(key)){
 					Collections.sort(ts);
 					tsList.put(key, ts);
