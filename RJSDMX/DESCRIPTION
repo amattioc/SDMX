@@ -1,5 +1,5 @@
 Package: RJSDMX
-Version: 3.6-0 
+Version: 3.7-0 
 Title: R Interface to SDMX Web Services
 Authors@R: c(
   person("Attilio", "Mattiocco", role = c("aut", "cre"), email = "attilio.mattiocco@bancaditalia.it"))
