@@ -20,6 +20,9 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BASIC;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BEARER;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.NONE;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Collections.list;
 import static java.util.stream.Collectors.toMap;
@@ -60,6 +63,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.swing.JFrame;
 
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
 import it.bancaditalia.oss.sdmx.client.SDMXClientFactory;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 
@@ -315,13 +319,18 @@ public class Configuration
 						{
 							String[] params = provider.split(",");
 							String providerName = getProperty("providers." + name + ".name", name);
-							boolean needsCredentials = getProperty("providers." + name + ".needsCredentials", parseBoolean(params[0].trim()));
+							AuthenticationMethods authMethod;
+							switch (getProperty("providers." + name + ".needsCredentials", params[0].trim()).toLowerCase()) {
+								case "bearer": case "token": authMethod = BEARER; break;
+								case "true": case "basic": authMethod = BASIC; break;
+								default: authMethod = NONE; break;
+							}
 							boolean supportsCompression = getProperty("providers." + name + ".supportsCompression", parseBoolean(params[1].trim()));
 							SDMXVersion version = getProperty("providers." + name + ".sdmxversion", SDMXVersion.valueOf(params[2].trim()));
 							String description = getProperty("providers." + name + ".description", params[3].trim());
 							URI endpoint = params.length != 6 ? null : new URI(getProperty("providers." + name + ".endpoint", params[4].trim()));
 							boolean supportsAvailability = getProperty("providers." + name + ".supportsAvailability", parseBoolean(params[5].trim()));
-							SDMXClientFactory.addProvider(providerName, endpoint, needsCredentials, false, supportsCompression, supportsAvailability, description, version);
+							SDMXClientFactory.addProvider(providerName, endpoint, authMethod, false, supportsCompression, supportsAvailability, description, version);
 						}
 						catch (URISyntaxException | SdmxException e)
 						{

@@ -77,7 +77,7 @@ getDSDIdentifier <- function(provider, dataflow) {
 #'
 #' @param name the name of the provider
 #' @param endpoint the URL where the provider resides
-#' @param needsCredentials set this to TRUE if the user needs to authenticate to query the provider
+#' @param needsCredentials it can be one of "TRUE", "FALSE", "BASIC", "BEARER", "NONE". TRUE means "BASIC" and FALSE means "NONE" for backward compatility
 #' @param needsURLEncoding set this to TRUE if the provider does not handle character '+' in URLs
 #' @param supportsCompression set this to TRUE if the provider is able to handle compression
 #' @param description a brief text description of the provider
@@ -89,13 +89,24 @@ getDSDIdentifier <- function(provider, dataflow) {
 #' \dontrun{
 #' addProvider('pname', 'pendpoint', F)
 #' }
-addProvider <- function(name, endpoint, needsCredentials=FALSE, needsURLEncoding=FALSE, supportsCompression=TRUE, description='', sdmxVersion='V2', supportsAvailability = F) {
+addProvider <- function(name, endpoint, needsCredentials='false', needsURLEncoding=FALSE, supportsCompression=TRUE, description='', sdmxVersion='V2', supportsAvailability = F) {
 	if(sdmxVersion == 'V2'){
 		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V2
 	}
 	else{
 		sdmxVersion = J("it.bancaditalia.oss.sdmx.api.SDMXVersion")$V3
 	}
+  
+  if(tolower(needsCredentials) == 'bearer'){
+    needsCredentials = J("it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods")$BEARER
+	}
+	else if(tolower(needsCredentials) == 'true' || tolower(needsCredentials) == 'basic'){
+	  needsCredentials = J("it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods")$BASIC
+	}
+	else {
+	  needsCredentials = J("it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods")$NONE
+	}
+	  
   J("it.bancaditalia.oss.sdmx.client.SdmxClientHandler")$addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion)
 }
 

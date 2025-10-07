@@ -24,7 +24,7 @@
  *	
  * name:                the name you want to set for the provider
  * endpoint:            the URL of the provider web service
- * needsCredentials:    set this to true if the provider needs authentication
+ * needsCredentials:    it can be one of "1", "0", "BASIC", "BEARER", "NONE". Note that "1" means "BASIC" and "0" means "NONE" for backward compatibility
  * needsURLEncoding:    set this to true if the provider needs URL encoding
  * supportsCompression: set this to true if the provider supports stream compression
  * description:         a text description for the provider
@@ -35,9 +35,9 @@
 
 program addProvider
 	version 17
-	args name endpoint needsCredentials needsURLEncoding supportsCompression description
+	args name endpoint needsCredentials needsURLEncoding supportsCompression description sdmxVersion supportsAvailability
 	
-	java, shared(BItools) SaddProvider("`name'", "`endpoint'", "1".equals("`needsCredentials'"), "1".equals("`needsURLEncoding'"), "1".equals("`supportsCompression'"), "`description'", "V3".equals("`sdmxVersion'"), "1".equals("`supportsAvailability'"));
+	java, shared(BItools): SaddProvider("`name'", "`endpoint'", "`needsCredentials'", "1".equals("`needsURLEncoding'"), "1".equals("`supportsCompression'"), "1".equals("`supportsAvailability'"), "`description'", "V3".equals("`sdmxVersion'"));
 end
 
 quietly initSDMX
@@ -49,9 +49,11 @@ java, shared(BItools):
 	import it.bancaditalia.oss.sdmx.util.Configuration;
 	import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 	
+	import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
+	
 	import java.util.logging.Logger;
 	
-	void SaddProvider(String name, String endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, boolean isV3)
+	void SaddProvider(String name, String endpoint, String needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, boolean isV3)
 	{
 		Logger logger = Configuration.getSdmxLogger();
 	
@@ -60,10 +62,19 @@ java, shared(BItools):
 			logger.info("The provider name and endpoint are required.");
 			return;
 		}
-
+		AuthenticationMethods auth = null;
+		if (needsCredentials.equals("1") || needsCredentials.equals("BASIC")){
+			auth = AuthenticationMethods.BASIC;
+		}
+		else if (needsCredentials.equals("BEARER")) {
+			auth = AuthenticationMethods.BEARER;
+		}
+		else{
+			auth = AuthenticationMethods.NONE;
+		}
 		try
 		{
-			SdmxClientHandler.addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, isV3 ? V3 : V2);
+			SdmxClientHandler.addProvider(name, endpoint, auth, needsURLEncoding, supportsCompression, supportsAvailability, description, isV3 ? V3 : V2);
 		}
 		catch (Exception e)
 		{

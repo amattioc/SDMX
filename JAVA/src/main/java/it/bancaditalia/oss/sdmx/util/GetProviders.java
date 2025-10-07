@@ -20,10 +20,13 @@
 */
 package it.bancaditalia.oss.sdmx.util;
 
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BASIC;
+
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
+import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
 import it.bancaditalia.oss.sdmx.client.SdmxClientHandler;
 
 /**
@@ -42,13 +45,13 @@ public class GetProviders
 		try
 		{
 			StringBuffer buf = new StringBuffer();
-			SortedMap<String, Boolean> providers = SdmxClientHandler.getProviders();
+			SortedMap<String, AuthenticationMethods> providers = SdmxClientHandler.getProviders();
 			boolean first = true;
-			for (Entry<String, Boolean> provider : providers.entrySet())
+			for (Entry<String, AuthenticationMethods> provider : providers.entrySet())
 			{
 				if (!first)
 					buf.append(",");
-				buf.append(provider.getKey() + "{" + (provider.getValue() ? "1" : "0") + "}");
+				buf.append(provider.getKey() + "{" + (provider.getValue() == BASIC ? "1" : "0") + "}");
 				first = false;
 			}
 			System.out.println(buf);

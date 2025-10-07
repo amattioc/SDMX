@@ -21,6 +21,7 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.NONE;
 import static it.bancaditalia.oss.sdmx.util.QueryRunner.runQuery;
 import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
 import static java.util.stream.Collectors.joining;
@@ -42,6 +43,7 @@ import it.bancaditalia.oss.sdmx.api.Message;
 import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
 import it.bancaditalia.oss.sdmx.event.DataFooterMessageEvent;
 import it.bancaditalia.oss.sdmx.event.RestSdmxEvent;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
@@ -66,17 +68,17 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 	protected static final Logger LOGGER = Configuration.getSdmxLogger();
 	
 	private final SDMXVersion sdmxVersion;
-	private final Credentials credentials = new Credentials();
 	private final Provider provider;
 	private final String latestKeyword;
 	private final String allKeyword;
 
-	protected boolean needsCredentials = false;
+	protected AuthenticationMethods authMethod = NONE;
+	private Credentials credentials = null;
 
 	public AbstractRestSdmxClient(Provider provider, SDMXVersion sdmxVersion)
 	{
 		this.provider = provider;
-		this.needsCredentials = provider.isNeedsCredentials();
+		this.authMethod = provider.getAuthMethod();
 		this.sdmxVersion = sdmxVersion;
 		
 		if (sdmxVersion == V3)
@@ -94,6 +96,10 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 	public Provider getProvider()
 	{
 		return provider;
+	}
+	
+	public boolean isAuthDone(){
+		return credentials != null;
 	}
 
 	@Override
@@ -195,16 +201,16 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 	}
 
 	@Override
-	public boolean needsCredentials()
+	public AuthenticationMethods getAuthMethod()
 	{
-		return needsCredentials;
+		return authMethod;
 	}
 
 	@Override
-	public void setCredentials(String user, String pw)
+	public void setCredentials(Credentials credentials)
 	{
-		this.needsCredentials = false;
-		credentials.fillCredentials(user, pw);
+		this.authMethod = NONE;
+		this.credentials = credentials;
 	}
 
 	@Override
@@ -306,11 +312,11 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 			.map(lr -> String.format(Locale.US, "%s;q=%.1f", lr.getRange(), lr.getWeight()))
 			.collect(joining(","));
 		headers.put("Accept-Language", lList);
-		String authHeader = credentials.getHeader();
-		if (authHeader != null)
+
+		if (credentials != null)
 		{
 			LOGGER.fine("Setting http authorization");
-			headers.put("Authorization", "Basic " + authHeader);
+			headers.put("Authorization", credentials.getHeader());
 		}
 		
 		if (getProvider().isSupportsCompression())

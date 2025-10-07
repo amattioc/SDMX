@@ -31,7 +31,7 @@ public class TimeSeriesFromIDsIT
     			{ "UNDATA",   "DF_UNDATA_COUNTRYDATA/A...U....", "2010", "2015",  172, null,         null },
     			{ "ABS",      "ATSI_BIRTHS_SUMM/1...A", "2000", "2010",   16, null,         null },
     			{ "DEMO_SDMXV3", "EXR/.GBP...", null,   null,     8, null,         null },
-    			{ "ECB",      "EXR/.GBP+USD...", null,   null,     16, null,         null },
+    			{ "ECB",      "EXR/.GBP+USD...", null,   null,     22, null,         null },
     			{ "ECB",      "EXR.*.USD|GBP.EUR.SP00.A", "2000", "2010",   10, null,         null },
     			{ "ECB",      "EXR.A.USD.EUR.SP00.A;EXR.M.USD.EUR.SP00.A", "2000", "2010",    2, null,         null },
     			{ "ILO",      "DF_EMP_TEMP_SEX_AGE_NB/ITA.Q..SEX_F.", null,   null,      28, null,         null },

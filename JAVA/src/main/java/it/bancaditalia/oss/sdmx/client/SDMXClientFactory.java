@@ -21,6 +21,9 @@
 package it.bancaditalia.oss.sdmx.client;
 
 import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BASIC;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BEARER;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.NONE;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.ProxySelector;
@@ -33,6 +36,7 @@ import java.util.logging.Logger;
 
 import it.bancaditalia.oss.sdmx.api.GenericSDMXClient;
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
@@ -99,9 +103,9 @@ public class SDMXClientFactory
 	 * 
 	 * @throws SdmxException if there is an error creating the provider.
 	 */
-	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description) throws SdmxException
+	public static void addProvider(String name, URI endpoint, AuthenticationMethods authMethod, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description) throws SdmxException
 	{
-		addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, V2);
+		addProvider(name, endpoint, authMethod, needsURLEncoding, supportsCompression, supportsAvailability, description, V2);
 	}
 
 	/**
@@ -119,9 +123,9 @@ public class SDMXClientFactory
 	 * 
 	 * @throws SdmxException if there is an error creating the provider.
 	 */
-	public static void addProvider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
+	public static void addProvider(String name, URI endpoint, AuthenticationMethods authMethod, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
-		Provider p = new Provider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
+		Provider p = new Provider(name, endpoint, authMethod, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
 		providers.put(name, p);
 	}
 
@@ -140,13 +144,19 @@ public class SDMXClientFactory
 			if (providerEndpoint != null && !providerEndpoint.isEmpty())
 			{
 				URI providerURL = new URI(providerEndpoint);
-				boolean providerNeedsCredentials = Configuration.getProperty("providers." + id + ".needsCredentials", false);
+				AuthenticationMethods providerAuthMethod;
+				switch (Configuration.getProperty("providers." + id + ".needsCredentials", "false").toLowerCase()) {
+					case "true": case "basic": providerAuthMethod = BASIC; break;
+					case "bearer": case "token": providerAuthMethod = BEARER; break;
+					default: providerAuthMethod = NONE; break;
+				}
+					
 				boolean providerNeedsURLEncoding = Configuration.getProperty("providers." + id + ".needsURLEncoding", false);
 				boolean providerSupportsCompression = Configuration.getProperty("providers." + id + ".supportsCompression", false);
 				boolean providerSupportsAvailability = Configuration.getProperty("providers." + id + ".supportsAvailability", false);
 				String providerDescription = Configuration.getProperty("providers." + id + ".description", id);
 				SDMXVersion providerSdmxVersion = Configuration.getProperty("providers." + id + ".sdmxversion", V2);
-				addProvider(providerName, providerURL, providerNeedsCredentials, providerNeedsURLEncoding, providerSupportsCompression, providerSupportsAvailability, providerDescription, providerSdmxVersion);
+				addProvider(providerName, providerURL, providerAuthMethod, providerNeedsURLEncoding, providerSupportsCompression, providerSupportsAvailability, providerDescription, providerSdmxVersion);
 			}
 			else
 			{

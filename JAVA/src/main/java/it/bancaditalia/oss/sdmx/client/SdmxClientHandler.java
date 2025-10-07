@@ -20,6 +20,8 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BASIC;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BEARER;
 import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
 
 import java.net.URI;
@@ -48,6 +50,7 @@ import it.bancaditalia.oss.sdmx.api.PortableTimeSeries;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
 import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
+import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
 import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
@@ -73,14 +76,19 @@ public class SdmxClientHandler
 	// key: provider name --> client
 	private static Map<String, GenericSDMXClient>	clients			= new HashMap<>();
 
-	public static boolean needsCredentials(String provider) throws SdmxException
+	public static AuthenticationMethods getAuthMethod(String provider) throws SdmxException
 	{
-		return getClient(provider).needsCredentials();
+		return getClient(provider).getAuthMethod();
 	}
 
 	public static void setCredentials(String provider, String user, String pw) throws SdmxException
 	{
-		getClient(provider, user, pw);
+		getClient(provider, new BasicCredentials(user, pw));
+	}
+	
+	public static void setToken(String provider, String token) throws SdmxException
+	{
+		getClient(provider, new BearerCredentials(token));
 	}
 
 	public static void setPreferredLanguage(String lang) throws SdmxException
@@ -101,7 +109,7 @@ public class SdmxClientHandler
 	 * 
 	 * @throws SdmxException
 	 */
-	public static void addProvider(String provider, String endpoint, boolean needsCredentials, boolean needsURLEncoding,
+	public static void addProvider(String provider, String endpoint, AuthenticationMethods authMethod, boolean needsURLEncoding,
 			boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
 		checkString(provider, "The name of the provider cannot be null");
@@ -109,7 +117,7 @@ public class SdmxClientHandler
 
 		try
 		{
-			SDMXClientFactory.addProvider(provider, new URI(endpoint), needsCredentials, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
+			SDMXClientFactory.addProvider(provider, new URI(endpoint), authMethod, needsURLEncoding, supportsCompression, supportsAvailability, description, sdmxVersion);
 		}
 		catch (URISyntaxException e)
 		{
@@ -122,11 +130,11 @@ public class SdmxClientHandler
 	 * 
 	 * @return A map where the keys are the provider names and the values the needsCredentials values
 	 */
-	public static SortedMap<String, Boolean> getProviders()
+	public static SortedMap<String, AuthenticationMethods> getProviders()
 	{
-		TreeMap<String, Boolean> result = new TreeMap<>();
+		TreeMap<String, AuthenticationMethods> result = new TreeMap<>();
 		for (Entry<String, Provider> entry : SDMXClientFactory.getProviders().entrySet())
-			result.put(entry.getKey(), entry.getValue().isNeedsCredentials());
+			result.put(entry.getKey(), entry.getValue().getAuthMethod());
 		return result;
 	}
 
@@ -500,7 +508,7 @@ public class SdmxClientHandler
 		return prov;
 	}
 
-	private static GenericSDMXClient getClient(String provider, String user, String password) throws SdmxException
+	private static GenericSDMXClient getClient(String provider, Credentials creds) throws SdmxException
 	{
 		checkString(provider, "The name of the provider cannot be null");
 
@@ -512,43 +520,51 @@ public class SdmxClientHandler
 		{
 			LOGGER.finer("Client for " + provider + " does not exist. I will create it.");
 			client = (GenericSDMXClient) SDMXClientFactory.createClient(provider);
-			if (client.needsCredentials())
-				handlePassword(client, user, password);
-
+			handleAuthentication(client, creds);
 			clients.put(provider, client);
 		}
 		LOGGER.exiting(sourceClass, sourceMethod);
 		return client;
-
 	}
-
+	
 	private static GenericSDMXClient getClient(String provider) throws SdmxException
 	{
-		return getClient(provider, null, null);
+		return getClient(provider, null);
 	}
-
-	private static void handlePassword(GenericSDMXClient client, String user, String pw) throws SdmxException
+	
+	private static void handleAuthentication(GenericSDMXClient client, Credentials creds) throws SdmxException
 	{
 		if (client == null)
 		{
 			LOGGER.severe("The client cannot be null");
 			throw new SdmxInvalidParameterException("The client cannot be null");
 		}
-		if (client.needsCredentials())
-		{
-			if (user == null || pw == null)
-			{
+		
+		if (creds == null && client.getAuthMethod() != AuthenticationMethods.NONE){
+			if (client.getAuthMethod() == BASIC) {
 				final JFrame frame = new JFrame("Authentication");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				LoginDialog loginDlg = new LoginDialog(frame, client.getName() + " Authentication");
 				loginDlg.setVisible(true);
-				client.setCredentials(loginDlg.getUsername(), loginDlg.getPassword());
+				client.setCredentials(new BasicCredentials(loginDlg.getUsername(), loginDlg.getPassword()));
 				frame.dispose();
 			}
-			else
+			else if (client.getAuthMethod() == BEARER)
 			{
-				client.setCredentials(user, pw);
+				final JFrame frame = new JFrame("Authentication");
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				LoginDialog loginDlg = new LoginDialog(frame, client.getName() + " Authentication", false);
+				loginDlg.setVisible(true);
+				client.setCredentials(new BearerCredentials(loginDlg.getPassword()));
+				frame.dispose();
 			}
+			else{
+				throw new SdmxInvalidParameterException("The client does not need authentication");
+			}
+		}
+		else
+		{
+			client.setCredentials(creds);
 		}
 	}
 

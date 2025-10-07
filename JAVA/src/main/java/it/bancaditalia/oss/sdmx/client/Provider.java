@@ -38,6 +38,10 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
  */
 public class Provider
 {
+	public static enum AuthenticationMethods {
+		NONE, BASIC, BEARER
+	}
+	
 	private final String name;
 	private final URI endpoint;
 	private final SDMXVersion sdmxVersion;
@@ -45,7 +49,7 @@ public class Provider
 	private final boolean supportsCompression;
 	private final boolean supportsAvailability;
 	private String description;
-	private boolean needsCredentials;
+	private AuthenticationMethods authMethod;
 	private boolean full = false;
 
 	// key: flow id (full) --> flow
@@ -53,14 +57,14 @@ public class Provider
 	// key: dsd id (full) --> structure
 	private Map<String, DataFlowStructure> dsdNameToStructureCache = null;
 
-	public Provider(String name, URI endpoint, boolean needsCredentials, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
+	public Provider(String name, URI endpoint, AuthenticationMethods authMethod, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
 		this.name = name;
 		this.endpoint = endpoint;
 		this.description = description;
 		this.flows = new HashMap<>();
 		this.dsdNameToStructureCache = new HashMap<>();
-		this.needsCredentials = needsCredentials;
+		this.authMethod = authMethod;
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
 		this.supportsAvailability = supportsAvailability;
@@ -134,14 +138,14 @@ public class Provider
 		this.description = description;
 	}
 
-	public boolean isNeedsCredentials()
+	public AuthenticationMethods getAuthMethod()
 	{
-		return needsCredentials;
+		return authMethod;
 	}
 
-	public void setNeedsCredentials(boolean needsCredentials)
+	public void seAuthMethod(AuthenticationMethods authMethod)
 	{
-		this.needsCredentials = needsCredentials;
+		this.authMethod = authMethod;
 	}
 
 	public void setFull(boolean full)

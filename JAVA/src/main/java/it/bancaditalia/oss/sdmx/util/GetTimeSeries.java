@@ -54,7 +54,10 @@ public class GetTimeSeries {
 				String user = args[4];
 				String pw;
 				if (args.length == 5)
-					pw = new SafeLineReader(new InputStreamReader(System.in, Charset.forName("UTF-8"))).readLine();
+					try (SafeLineReader reader = new SafeLineReader(new InputStreamReader(System.in, Charset.forName("UTF-8"))))
+					{
+						pw = reader.readLine();
+					}
 				else
 					pw = args[5];	// arg 5
 				try {

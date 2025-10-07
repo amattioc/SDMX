@@ -23,6 +23,7 @@ package it.bancaditalia.oss.sdmx.ut;
 
 import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
 import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.NONE;
 import static org.junit.Assert.assertNotNull;
 
 import java.net.MalformedURLException;
@@ -40,10 +41,10 @@ public class SdmxInterfaceTest
 	@Test
 	public void testGetAddProvider() throws SdmxException, MalformedURLException
 	{
-		SdmxClientHandler.addProvider("TESTv2", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, false, "test provider", V2);
+		SdmxClientHandler.addProvider("TESTv2", "http://sdw-wsrest.ecb.europa.eu/service", NONE, false, false, false, "test provider", V2);
 		GenericSDMXClient a = SDMXClientFactory.createClient("TESTv2");
 		assertNotNull("Add Provider v2 failed", a);
-		SdmxClientHandler.addProvider("TESTv3", "http://sdw-wsrest.ecb.europa.eu/service", false, false, false, false, "test provider", V3);
+		SdmxClientHandler.addProvider("TESTv3", "http://sdw-wsrest.ecb.europa.eu/service", NONE, false, false, false, "test provider", V3);
 		a = SDMXClientFactory.createClient("TESTv3");
 		assertNotNull("Add Provider v3 failed", a);
 	}

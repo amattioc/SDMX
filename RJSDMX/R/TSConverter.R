@@ -205,7 +205,7 @@ makeSDMXTS<- function (freq,times,values, plain = F) {
 					tmp_ts<- zoo(values, order.by = as.integer(substr(times, 1,4)),frequency=1)
 				} else if(freq == 'M'){
 					# we expect '1984-02'
-					times = sub(pattern='M', replacement='-', times) # OECD only '1984-M2'
+					times = sub(pattern='[-]?M', replacement='-', times) # OECD only '1984-M2'
 					tmp_ts<- zoo(values, order.by = as.yearmon(times),frequency=12)
 				} else if(freq == 'Q'){
 					# we expect '1984-Q2'

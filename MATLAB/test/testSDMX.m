@@ -28,7 +28,7 @@ providers = getProviders;
 n = length(providers);
 assert(n > 1, 'Error getProviders');
 
-addProvider('test', 'a.b.c.d', false, false, false, '', 'V3', true);
+addProvider('test', 'https://a.b.c.d', false, false, false, '', 'V2', false);
 providers = getProviders;
 assert(n+1 == length(providers), 'Error addProvider');
 

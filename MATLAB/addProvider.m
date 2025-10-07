@@ -2,13 +2,13 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
 	% Add a new provider to the internal registry. The provider has to be 
     % fully compliant with the SDMX 2.1 specifications
     %
-    % Usage: addProvider('ECB_TEST', 'http://sdw-wsrest.ecb.europa.eu/service', false, false, false, 'Sample ECB provider')
+    % Usage: addProvider('ECB_TEST', 'http://sdw-wsrest.ecb.europa.eu/service', 'none', false, false, 'Sample ECB provider', 'v2', false)
 	%
 	% Arguments
 	%
 	% name:                the name you want to set for the provider
 	% endpoint:            the URL of the provider web service
-	% needsCredentials:    set this to true if the provider needs authentication
+	% needsCredentials:     it can be one of true, false, "basic", "bearer", "none". Note that true means "basic" and false means "none" for backward compatibility
 	% needsURLEncoding:    set this to true if the provider needs URL encoding
     % supportsCompression: set this to true if the provider supports stream compression
     % description:         a text description for the provider
@@ -46,7 +46,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
             'Arguments\n\n' ...
             'name: the name of the provider\n' ...
             'endpoint:  the URL where the provider resides\n' ...
-            'needsCredentials:   set this to TRUE if the user needs to authenticate to query the provider\n' ...
+            'needsCredentials:   it can be one of true, false, "basic", "bearer", "none". Note that true means "basic" and false means "none" for backward compatibility\n' ...
             'needsURLEncoding:   set this to TRUE if the provider does not handle character "+" in URLs\n' ...      
             'supportsCompression:   set this to TRUE if the provider is able to handle compression\n' ...      
             'description:   a brief text description of the provider\n' ...      
@@ -60,7 +60,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
     if nargin < 7
         sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
     else
-        if(strcmp(sdmxVersion, 'V2'))
+        if(strcmpi(sdmxVersion, 'V2'))
             sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
         else
             sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
@@ -76,7 +76,15 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
         needsURLEncoding = false;
     end
     if nargin < 3
-        needsCredentials = false;
+        needsCredentials = javaMethod('valueOf','it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods', 'NONE');
+    else
+        if(strcmpi(string(needsCredentials), 'true') || strcmpi(needsCredentials, 'basic'))
+            needsCredentials = javaMethod('valueOf','it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods', 'BASIC');
+        elseif(strcmpi(needsCredentials, 'bearer'))
+            needsCredentials = javaMethod('valueOf','it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods', 'BEARER');
+        else 
+           needsCredentials = javaMethod('valueOf','it.bancaditalia.oss.sdmx.client.Provider$AuthenticationMethods', 'NONE');
+        end
     end
        
     %try java code

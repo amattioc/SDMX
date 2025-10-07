@@ -11,8 +11,7 @@ addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
 
   \item{endpoint}{the URL where the provider resides}
 
-  \item{needsCredentials}{set this to TRUE if the user
-  needs to authenticate to query the provider}
+  \item{needsCredentials}{it can be one of "TRUE", "FALSE", "BASIC", "BEARER", "NONE". TRUE means "BASIC" and FALSE means "NONE" for backward compatility}
 
   \item{needsURLEncoding}{set this to TRUE if the provider
   does not handle character '+' in URLs}

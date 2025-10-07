@@ -1,6 +1,7 @@
 package it.bancaditalia.oss.sdmx.helper;
 
 import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
+import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.NONE;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlow;
 import static it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries;
@@ -402,7 +403,7 @@ public class SDMXHelper extends JFrame
 				try
 				{
 					if (selectedProviderGroup.getSelection() != null)
-						new ToolCommandsFrame(getSelectedDataflow(), tfSdmxQuery.getText(),
+						new ToolCommandsFrame(getSelectedDataflow(), createFilter(),
 								selectedProviderGroup.getSelection().getActionCommand());
 				} 
 				catch (SdmxException ex)
@@ -422,7 +423,7 @@ public class SDMXHelper extends JFrame
 							SDMXVersion sdmxVersion = newProviderDialog.getSdmxVersion();
 							URI endpoint = new URI(newProviderDialog.getURL());
 							boolean availabilityQueries = newProviderDialog.getAvailabilityFlag().equalsIgnoreCase("true");
-							SDMXClientFactory.addProvider(name, endpoint, false, false, true, availabilityQueries, description, sdmxVersion);
+							SDMXClientFactory.addProvider(name, endpoint, NONE, false, true, availabilityQueries, description, sdmxVersion);
 							mnProviders.removeAll();
 							providersSetup(mnProviders);
 						} 
@@ -1094,7 +1095,7 @@ public class SDMXHelper extends JFrame
 				V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
 					SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
 					:
-					SdmxClientHandler.filterCodes(provider, selectedDataflow, createQuery(dimsTableModel.getSource())).get(selectedDimension)
+					SdmxClientHandler.filterCodes(provider, selectedDataflow, createFilter()).get(selectedDimension)
 				:
 				getCodes(provider, selectedDataflow, selectedDimension)	
 				,
@@ -1104,7 +1105,7 @@ public class SDMXHelper extends JFrame
 				// If the checkbox is already present, the selected codes are updated and set to true
 				CheckboxListTableModel<String> model = new CheckboxListTableModel<String>();
 				model.addTableModelListener(event -> {
-					tfSdmxQuery.setText(createQuery(dimsTableModel.getSource()));
+					tfSdmxQuery.setText(createQuery());
 				});
 				model.setItems(codes);
 				if (codelistSortersMap.get(selectedDimension) != null) {
@@ -1177,7 +1178,7 @@ public class SDMXHelper extends JFrame
 				() -> SdmxClientHandler.getDimensions(selectedProviderGroup.getSelection().getActionCommand(), dataflowID),
 				dims -> {
 					dimsTableModel.setItems(dims, item -> new String[] { item.getId(), item.getName() });
-					tfSdmxQuery.setText(createQuery(dims));
+					tfSdmxQuery.setText(createQuery());
 				},
 				ex -> {
 						LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1187,7 +1188,7 @@ public class SDMXHelper extends JFrame
 
 	private void displayQueryResults()
 	{
-		String query = tfSdmxQuery.getText();
+		String query = createFilter();
 		String selectedDataflow = getSelectedDataflow();
 		String selectedProvider = getSelectedProvider();
 		AtomicBoolean isCancelled = new AtomicBoolean(false);
@@ -1307,26 +1308,59 @@ public class SDMXHelper extends JFrame
 			}).start();
 	}
 
-	private String createQuery(List<Dimension> dims)
+	/**
+	 * createQuery() create the full sdmx Query from the selected options in the helper:
+	 * in SDMX V2 is provider/filter
+	 *
+	 * @return String the resulting full query
+	 */
+	private String createQuery()
 	{
 		String result = "";
-		try {
-			if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion()) {
-				result =  createAvailabilityFilter();
+		try
+		{
+			if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion())
+			{
+				result = createAvailabilityFilter();
+			} else
+			{
+				result = getSelectedDataflow() + "/" + createFilterV2();
 			}
-			else{
-				result =  dims.stream()
-						.map(Dimension::getId)
-						.map(id -> codelistSortersMap.containsKey(id) ? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes()) : "") 
-						.collect(joining("."));
-			}
-		} catch (SdmxException ex) {
+		} catch (SdmxException ex)
+		{
 			LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
-		}		
+		}
 		return result;
 	}
-	
+
+	/**
+	 * createFilter() create the filter part for the SDMX Query from the selected option in the helper.
+	 *
+	 * @return
+	 */
+	private String createFilter()
+	{
+		String result = "";
+
+		try
+		{
+			if (V3 == SDMXClientFactory.getProviders().get(getSelectedProvider()).getSdmxVersion())
+			{
+				result = createAvailabilityFilter();
+			} else
+			{
+				result = createFilterV2();
+			}
+		} catch (SdmxException ex)
+		{
+			LOGGER.severe("Exception. Class: " + ex.getClass().getName() + " .Message: " + ex.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			LOGGER.log(Level.FINER, "", ex); //$NON-NLS-1$
+		}
+		return result;
+	}
+
+
 	private void updateSeriesCounts(String dataflow, List<Dimension> dims)
 	{
 		if (!isCodelistSortersMapTablesListenerActive) {
@@ -1334,7 +1368,7 @@ public class SDMXHelper extends JFrame
 		}
 		try
 		{
-			Map<String, Integer> countMap = SdmxClientHandler.getSeriesCount(getSelectedProvider(), dataflow, createQuery(dims));
+			Map<String, Integer> countMap = SdmxClientHandler.getSeriesCount(getSelectedProvider(), dataflow, createFilter());
 			int series_count = countMap.getOrDefault("series_count", 0);
 			int obs_count = countMap.getOrDefault("obs_count", 0);
 			seriesCountPanel.updateCounts(series_count, obs_count);
@@ -1382,4 +1416,16 @@ public class SDMXHelper extends JFrame
 		return new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), 
 				"", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)); //$NON-NLS-1$
 	}
+
+	private String createFilterV2() throws SdmxException
+	{
+		List<Dimension> dims = SdmxClientHandler.getDimensions(getSelectedProvider(), getSelectedDataflow());
+		return dims.stream()
+				.map(Dimension::getId)
+				.map(id -> codelistSortersMap.containsKey(id)
+						? join("+", codelistSortersMap.get(id).getModel().getCheckedCodes())
+						: "")
+				.collect(joining("."));
+	}
+
 }
