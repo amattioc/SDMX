@@ -406,6 +406,9 @@ public class SdmxClientHandler
 		String[] tokens = extractFlowAndResource(tsKey);
 		String dataflow = tokens[0];
 		tsKey = tokens[1];
+		// workaround for 2.1 specs defect 
+		if(tsKey.equals(".."))
+			tsKey = "ALL";
 		
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
