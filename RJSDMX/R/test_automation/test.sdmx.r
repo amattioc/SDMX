@@ -61,6 +61,7 @@ test.sdmx <- function() {
     quit(status=-1)
   })   
   checkEquals(2, current=length(tts), msg='Errore nella getTimeSeries con +')
+  cat('getTimeSeries\n')
   tts = tryCatch({
   	getTimeSeries(provider='ECB',id='EXR.A.USD.EUR.SP00.A')
   }, warning = function(w) {
@@ -71,6 +72,7 @@ test.sdmx <- function() {
   	quit(status=-1)
   })   
   checkEquals(1, current=length(tts), msg='Errore nella getTimeSeries semplice')
+  cat('getTimeSeries\n')
   tts = tryCatch({
   	getTimeSeries(provider='ECB',id='EXR..USD.EUR.SP00.A')
   }, warning = function(w) {
@@ -81,7 +83,17 @@ test.sdmx <- function() {
   	quit(status=-1)
   })   
   checkEquals(5, current=length(tts), msg='Errore nella getTimeSeries con *')
-  
+  cat('getTimeSeriesTable\n')
+  tts = tryCatch({
+  	getTimeSeriesTable(provider='ECB',id='EXR..USD.EUR.SP00.A')
+  }, warning = function(w) {
+  	print(w)
+  	quit(status=-1)
+  }, error = function(e) {
+  	print(e)
+  	quit(status=-1)
+  })   
+  checkTrue(nrow(tts)>0, msg='Errore nella getTimeSeriesTable, dataframe vuoto')
 }
 
 test.sdmx3 <- function() {
@@ -121,7 +133,7 @@ test.sdmx3 <- function() {
 	})
 	checkEquals(5, current=length(dims), msg='Errore nel numero di dimensioni')
 	
-	cat('getTimeSeries\n')
+	cat('getTimeSeries2\n')
 	tts = tryCatch({
 		getTimeSeries2(provider='DEMO_SDMXV3',dataflow = 'EXR', key = 'A.USD.EUR.SP00.A')
 	}, warning = function(w) {
@@ -132,6 +144,7 @@ test.sdmx3 <- function() {
 		quit(status=-1)
 	})   
 	checkEquals(1, current=length(tts), msg='Errore nella getTimeSeries semplice')
+	cat('getTimeSeries2\n')
 	tts = tryCatch({
 		getTimeSeries2(provider='DEMO_SDMXV3', dataflow = 'EXR', key = '*.USD.EUR.SP00.A')
 	}, warning = function(w) {
@@ -142,6 +155,7 @@ test.sdmx3 <- function() {
 		quit(status=-1)
 	})   
 	checkEquals(5, current=length(tts), msg='Errore nella getTimeSeries con *')
+	cat('getTimeSeries2\n')
 	tts = tryCatch({
 		getTimeSeries2(provider='DEMO_SDMXV3', dataflow = 'EXR', filter = 'c[CURRENCY]=USD&c[EXR_SUFFIX]=A')
 	}, warning = function(w) {
@@ -152,6 +166,17 @@ test.sdmx3 <- function() {
 		quit(status=-1)
 	})   
 	checkEquals(5, current=length(tts), msg='Errore nella getTimeSeries con filtro')
+	cat('getTimeSeriesTable2\n')
+	tts = tryCatch({
+		getTimeSeriesTable2(provider='DEMO_SDMXV3', dataflow = 'EXR', filter = 'c[CURRENCY]=USD&c[EXR_SUFFIX]=A')
+	}, warning = function(w) {
+		print(w)
+		quit(status=-1)
+	}, error = function(e) {
+		print(e)
+		quit(status=-1)
+	})   
+	checkTrue(nrow(tts)>0, msg='Errore nella getTimeSeriesTable2, dataframe vuoto')
 	
 	# not working... why?
 	# tts = tryCatch({
