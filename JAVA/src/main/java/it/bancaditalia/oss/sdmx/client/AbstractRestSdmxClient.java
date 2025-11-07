@@ -173,6 +173,9 @@ public abstract class AbstractRestSdmxClient<T extends RestQueryBuilder<T>> impl
 	@Override
 	public Map<String, List<String>> getAvailableCubeRegion(Dataflow dataflow, String filter, String mode) throws SdmxException
 	{
+		// workaround for 2.1 specs defect 
+		if(filter.equals(".."))
+			filter = "ALL";
 		URL query = buildAvailabilityQueryByKey(dataflow, filter);
 		return runQuery(new AvailabilityParser(), query, handleHttpHeaders("application/vnd.sdmx.structure+xml;version=2.1"));
 	}
