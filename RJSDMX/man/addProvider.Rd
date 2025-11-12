@@ -2,7 +2,7 @@
 \alias{addProvider}
 \title{add new provider}
 \usage{
-addProvider(name, endpoint, needsCredentials = FALSE, needsURLEncoding = FALSE,
+addProvider(name, endpoint, needsCredentials = "false", needsURLEncoding = FALSE,
   supportsCompression = TRUE, description = "", sdmxVersion = "V2", 
   supportsAvailability = F)
 }
