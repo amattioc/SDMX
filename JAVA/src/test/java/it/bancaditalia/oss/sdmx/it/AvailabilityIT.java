@@ -28,7 +28,7 @@ public class AvailabilityIT
 				{ "UNDATA",           ".......",      "DF_UNDATA_COUNTRYDATA", "8"},
 				{ "OECD_NEW",         "............", "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA", "13"},
 				{ "OECD_SDMXV3",      "c[FREQ]=A",    "DSD_NAMAIN1@DF_QNA_EXPENDITURE_CAPITA", "13"},
-				{ "ISTAT_RI",         ".........",    "163_24", "10"}
+				{ "ISTAT_RI",         "Q.IT.B1G_B_W2_S1....Y.Y..2020M12",    "163_24_DF_DCCN_QNA_1", "10"}
     		}, 0);
     }
 

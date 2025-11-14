@@ -85,6 +85,7 @@ public class Configuration
 	protected static final String HTTP_AUTH_PREF_PROP = "http.auth.preference";
 	protected static final String SSL_DISABLE_CERT_CHECK_PROP = "ssl.disable.cert.check";
 	protected static final String SSL_TRUSTSTORE_PROP = "javax.net.ssl.trustStore";
+	protected static final String SSL_TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
 	protected static final String PROVIDERS_FILE_PROP = "sdmx.providers.properties";
 	protected static final String PROVIDERS_FILE = "providers.properties";
 
@@ -370,6 +371,11 @@ public class Configuration
 		if (tStore != null && !tStore.isEmpty())
 			System.setProperty(SSL_TRUSTSTORE_PROP, tStore);
 		
+		String tStoreType = props.getProperty(SSL_TRUSTSTORE_TYPE);
+		if (tStoreType != null && !tStoreType.isEmpty())
+			System.setProperty(SSL_TRUSTSTORE_TYPE, tStoreType);
+		
+		//if needed disable cert check
 		setupTrustAllCerts();
 
 		// configure default language if not already set explicitly
