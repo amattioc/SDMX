@@ -19,7 +19,9 @@
 %	and return a table. Revisions in observation values are returned too.
 %	sdmxtable - converts the results of the getTimeSeries call from a cell
 %	array of timeseries to a table
-%	sdmxHelp - opena graphical metadata browser that helps building  data queries
+%	sdmxHelp - open a graphical metadata browser that helps building  data queries
+%	setProviderCredentials - programmatically set credentials for a
+%   provider
 %
 % #############################################################################################
 % Copyright 2010,2014 Bank Of Italy
