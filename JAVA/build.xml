@@ -20,6 +20,7 @@
 	<property name="sas_dir"  location="../SAS"/>
 	<property name="stata_dir"  location="../STATA"/>
 	<property name="excel_dir"  location="../EXCEL"/>
+	<property name="r_dir"  location="../RJSDMX"/>
 	
 	<target name="init">
 		<!-- Create the build directory structure used by compile -->
@@ -65,7 +66,7 @@
 		<copy file="${dist}/lib/SDMX.jar" todir="${excel_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${stata_libdir}"/>
 	</target>
-
+	
 	<target name="release"  depends="dist" description="create release packages" >
 		<tar destfile="${dist}/statasdmx.tar" basedir="${stata_dir}"/>
 		<gzip destfile="${dist}/statasdmx.tar.gz" src="${dist}/statasdmx.tar"/>
@@ -79,6 +80,10 @@
 		<tar destfile="${dist}/matlabsdmx.tar" basedir="${matlab_dir}"/>
 		<gzip destfile="${dist}/matlabsdmx.tar.gz" src="${dist}/matlabsdmx.tar"/>
 		<delete file="${dist}/matlabsdmx.tar"/>
+		<exec executable="R">
+			<arg line="CMD build ${r_dir}" />
+		</exec>
+		<move todir="${dist}" file="RJSDMX_*.tar.gz" />
 	</target>
 
 	<target name="clean"
