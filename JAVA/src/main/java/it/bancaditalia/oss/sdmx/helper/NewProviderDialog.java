@@ -49,7 +49,7 @@ public class NewProviderDialog extends JDialog {
 		setModalityType(APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
-		setTitle("Add new SDMX 2.1 compliant provider");
+		setTitle("Add new SDMX 2.1/3.x compliant provider");
 		setBounds(100, 100, 395, 214);
 		final Container mainPane = getContentPane();
 		mainPane.setLayout(new BorderLayout());
@@ -186,6 +186,7 @@ public class NewProviderDialog extends JDialog {
 				description = txtDescription.getText();
 				URL = txtURL.getText();
 				sdmxVersion = (SDMXVersion) cmbVersion.getSelectedItem();
+				availabilityFlag = (String)cmbAvail.getSelectedItem();
 				result = JOptionPane.OK_OPTION;
 				dispose();
 			});

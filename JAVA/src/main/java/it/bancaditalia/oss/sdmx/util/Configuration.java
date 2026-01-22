@@ -233,20 +233,9 @@ public class Configuration
 		
 		String confType = null;
 
-		String confFileName = System.getProperty("SDMX_CONF");
-		if (confFileName != null && !confFileName.isEmpty())
-		{
-			File file = new File(confFileName);
-			if (!file.exists())
-			{
-				confFileName = CONFIGURATION_FILE_NAME;
-				System.err.println("Configuration file set by System property: " + confFileName + " not found. Trying default config file.");
-			}
-		}
-		else
-			confFileName = CONFIGURATION_FILE_NAME;
+		String confFileName = System.getProperty("SDMX_CONF", CONFIGURATION_FILE_NAME);
 
-		File confFile;
+		File confFile = null;
 		String globalConfEnvVar = System.getenv(GLOBAL_CONFIGURATION_FILE_PROP);
 
 		// try local configuration.
@@ -255,7 +244,7 @@ public class Configuration
 			{
 				// If found apply and exit
 				init(confFile);
-				confType = System.getProperty("user.dir") + File.separator + confFileName;
+				confType = confFile.getAbsolutePath();
 				SDMX_LOGGER.info("Local configuration file found: " + confType);
 			}
 			catch (SecurityException | IOException e)

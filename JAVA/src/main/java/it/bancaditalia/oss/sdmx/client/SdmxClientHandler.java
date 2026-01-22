@@ -51,7 +51,6 @@ import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
 import it.bancaditalia.oss.sdmx.api.SdmxAttribute;
 import it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods;
-import it.bancaditalia.oss.sdmx.client.custom.RestSdmx20Client;
 import it.bancaditalia.oss.sdmx.exceptions.DataStructureException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
@@ -155,36 +154,33 @@ public class SdmxClientHandler
 			
 			if (result != null)
 			{
-				if (!(getClient(provider) instanceof RestSdmx20Client))
+				// workaround: some providers do not set in the dsd response all the referenced codelists
+				// and this is a problem, especially for dimensions.
+				// we try to fill it with a direct codelist call
+				for (Dimension dim: result.getDimensions())
 				{
-					// workaround only for V2.1+ : some providers do not set in the dsd response all the referenced codelists
-					// and this is a problem, especially for dimensions.
-					// we try to fill it with a direct codelist call
-					for (Dimension dim: result.getDimensions())
+					Codelist cl = dim.getCodeList();
+					if (cl != null && cl.isEmpty())
 					{
-						Codelist cl = dim.getCodeList();
-						if (cl != null && cl.isEmpty())
-						{
-							// we do not allow uncoded dimensions
-							Codelist codes = getClient(provider).getCodes(cl);
-							if(codes == null || codes.isEmpty()){
-								throw new SdmxXmlContentException(
-										"Could not find codelist  for '" + cl + "' in provider: '" + provider + "'");
+						// we do not allow uncoded dimensions
+						Codelist codes = getClient(provider).getCodes(cl);
+						if(codes == null || codes.isEmpty()){
+							throw new SdmxXmlContentException(
+									"Could not find codelist  for '" + cl + "' in provider: '" + provider + "'");
 
-							}
-							cl.importFrom(codes);
 						}
+						cl.importFrom(codes);
 					}
-					
-					for (SdmxAttribute attr: result.getAttributes())
+				}
+				
+				for (SdmxAttribute attr: result.getAttributes())
+				{
+					Codelist cl = attr.getCodeList();
+					if (cl != null && cl.isEmpty())
 					{
-						Codelist cl = attr.getCodeList();
-						if (cl != null && cl.isEmpty())
-						{
-							//for attributes we let it go even if we don't fine the codes
-							Codelist codes = getClient(provider).getCodes(cl);
-							cl.importFrom(codes);
-						}
+						//for attributes we let it go even if we don't fine the codes
+						Codelist codes = getClient(provider).getCodes(cl);
+						cl.importFrom(codes);
 					}
 				}
 				p.setDSD(fullkeyFamilyKey, result);

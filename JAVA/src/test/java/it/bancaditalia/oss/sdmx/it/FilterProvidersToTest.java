@@ -11,7 +11,6 @@ import java.util.Set;
 public class FilterProvidersToTest
 {
 	private static final Set<String> keepProviders = new HashSet<>(Arrays.asList(new String[] {
-//			"ABS",			//glitching
 			"ECB",
 			"DEMO_SDMXV3",
 			"EUROSTAT",
