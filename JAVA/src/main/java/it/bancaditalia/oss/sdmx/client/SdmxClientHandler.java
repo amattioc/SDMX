@@ -20,21 +20,16 @@
 */
 package it.bancaditalia.oss.sdmx.client;
 
+import static it.bancaditalia.oss.sdmx.api.SDMXVersion.V3;
 import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BASIC;
 import static it.bancaditalia.oss.sdmx.client.Provider.AuthenticationMethods.BEARER;
 import static it.bancaditalia.oss.sdmx.util.Utils.checkString;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -56,6 +51,7 @@ import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxInvalidParameterException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxUnknownProviderException;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxXmlContentException;
+import it.bancaditalia.oss.sdmx.util.Cache;
 import it.bancaditalia.oss.sdmx.util.Configuration;
 import it.bancaditalia.oss.sdmx.util.LoginDialog;
 
@@ -100,7 +96,7 @@ public class SdmxClientHandler
 	 * 
 	 * @param provider a non-null, non-empty provider identification short name.
 	 * @param endpoint a non-null provider-defined endpoint url for queries
-	 * @param needsCredentials true if the provider needs authentication
+	 * @param authMethod enum indicating what kind of authentication method the provider support.
 	 * @param needsURLEncoding true if the url must be encoded
 	 * @param supportsCompression true if the provider supports message compression
 	 * @param description an optional natural language description of the provider
@@ -229,33 +225,50 @@ public class SdmxClientHandler
 	{
 		checkString(provider, "The name of the provider cannot be null");
 		checkString(dataflow, "The name of the dataflow cannot be null");
-		
-		Map<String, Map<String, String>> codes = new LinkedHashMap<>();
+		LOGGER.entering(sourceClass, "filterCodes");
 		Dataflow df = getFlow(provider, dataflow);
 		DataFlowStructure dsd = getDataFlowStructure(provider, dataflow);
-		Map<String, List<String>> availableCodes = getClient(provider).getAvailableCubeRegion(df, filter, "available");
-		if(availableCodes.size() == dsd.getDimensions().size()){
-			for (Iterator<Dimension> iterator = dsd.getDimensions().iterator(); iterator.hasNext();) {
-				Dimension dim = (Dimension) iterator.next();
-				Map<String, String> dimCodes = getCodes(provider, dataflow, dim.getId())
-						.entrySet()
-		                .stream()
-		                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));;
-				dimCodes.keySet().retainAll(availableCodes.get(dim.getId()));
-				codes.put(dim.getId(), dimCodes);
-			}
+		Provider currentProvider = getProvider(provider);
+		Map<String, Map<String, String>> codes = currentProvider.getAvailabilityQuery(dataflow, filter);
+		if (codes != null) {
+			LOGGER.log(Level.FINE, "Retrieving availability from cache from provider {0} with query {1}/{2}", new Object[]{provider, dataflow, filter});
 			return codes;
+		} else {
+			codes = new LinkedHashMap<>();
+			Map<String, List<String>> availableCodes = getClient(provider).getAvailableCubeRegion(df, filter, "available");
+			if (availableCodes.size() == dsd.getDimensions().size()) {
+				for (Iterator<Dimension> iterator = dsd.getDimensions().iterator(); iterator.hasNext(); ) {
+					Dimension dim = (Dimension) iterator.next();
+					Map<String, String> dimCodes = getCodes(provider, dataflow, dim.getId())
+							.entrySet()
+							.stream()
+							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+					;
+					dimCodes.keySet().retainAll(availableCodes.get(dim.getId()));
+					codes.put(dim.getId(), dimCodes);
+				}
+				currentProvider.putAvailabilityQuery(dataflow, filter, codes);
+				return codes;
+			} else {
+				throw new SdmxInvalidParameterException("The filter returned and empty cube region");
+			}
 		}
-		else{
-			throw new SdmxInvalidParameterException("The filter returned and empty cube region");
-		}
-		
 	}
 	
 	public static Map<String, Integer> getSeriesCount(String provider, String dataflow, String filter) throws SdmxException
 	{
 		Dataflow df = getFlow(provider, dataflow);
-		return getClient(provider).getAvailableTimeSeriesNumber(df, filter);
+		Provider currentProvider = getProvider(provider);
+		Map<String, Integer> counts = currentProvider.getCountSeriesQuery(dataflow, filter);
+        if (counts != null) {
+            LOGGER.log(Level.FINE, "Retrieving series count from cache from provider {0} with query {1}/{2}", new Object[]{provider, dataflow, filter});
+            return counts;
+        } else {
+			counts = getClient(provider).getAvailableTimeSeriesNumber(df, filter);
+            currentProvider.putCountSeriesQuery(dataflow, filter, counts);
+            return counts;
+        }
+
 	}
 	
 	public static Map<String, String> getCodes(String provider, String dataflow, String dimension) throws SdmxException

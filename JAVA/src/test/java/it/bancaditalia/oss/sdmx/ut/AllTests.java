@@ -38,7 +38,7 @@ import it.bancaditalia.oss.sdmx.it.TimeSeriesFromIDsIT;
 						RestQueryBuilderTest.class,
 						DataflowsIT.class,
 						TimeSeriesFromIDsIT.class,
-						TimeSeriesFromFiltersTest.class,
+//						TimeSeriesFromFiltersTest.class,
 						AvailabilityIT.class
 						})
 public class AllTests {

@@ -5,30 +5,14 @@ import static java.awt.GridBagConstraints.HORIZONTAL;
 import static javax.swing.JOptionPane.CANCEL_OPTION;
 import static javax.swing.SwingConstants.TRAILING;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
+import it.bancaditalia.oss.sdmx.client.Provider;
 
 public class NewProviderDialog extends JDialog {
 
@@ -43,14 +27,20 @@ public class NewProviderDialog extends JDialog {
 	private String URL = null;
 	private SDMXVersion sdmxVersion;
 	private String availabilityFlag;
+	private Provider.AuthenticationMethods authenticationMethod;
 
 	public NewProviderDialog()
 	{
+		int defaultX = 100;
+		int defaultY = 100;
+		int defaultWidht = 395;
+		int defaultHeight = 314;
+		int defaultBasicHeight = defaultWidht + 30;
 		setModalityType(APPLICATION_MODAL);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("Add new SDMX 2.1/3.x compliant provider");
-		setBounds(100, 100, 395, 214);
+		setBounds(defaultX, defaultY, defaultWidht, defaultHeight);
 		final Container mainPane = getContentPane();
 		mainPane.setLayout(new BorderLayout());
 
@@ -101,6 +91,7 @@ public class NewProviderDialog extends JDialog {
 		gbc_txtDescription.gridx = 1;
 		gbc_txtDescription.gridy = 1;
 		contentPanel.add(txtDescription, gbc_txtDescription);
+
 
 		final JLabel lblURL = new JLabel("Endpoint URL:");
 		lblURL.setDisplayedMnemonic(KeyEvent.VK_U);
@@ -159,6 +150,26 @@ public class NewProviderDialog extends JDialog {
 		gbc_cmbcmbAvail.gridy = 4;
 		contentPanel.add(cmbAvail, gbc_cmbcmbAvail);
 
+		final JLabel lblAuth = new JLabel("Authentication Method");
+		lblVersion.setHorizontalAlignment(SwingConstants.TRAILING);
+		GridBagConstraints gbc_lblAuth = new GridBagConstraints();
+		gbc_lblAuth.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblAuth.insets = new Insets(5, 5, 5, 5);
+		gbc_lblAuth.gridx = 0;
+		gbc_lblAuth.gridy = 5;
+		contentPanel.add(lblAuth, gbc_lblAuth);
+
+
+		final JComboBox<String> cmbAuth = new JComboBox<>();
+		cmbAuth.setModel(new DefaultComboBoxModel<String>(new String[]{"None", "Basic", "Bearer"}));
+		lblAuth.setLabelFor(cmbAuth);
+		GridBagConstraints gbc_cmbcmbAuth = new GridBagConstraints();
+		gbc_cmbcmbAuth.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cmbcmbAuth.insets = new Insets(5, 5, 5, 5);
+		gbc_cmbcmbAuth.gridx = 1;
+		gbc_cmbcmbAuth.gridy = 5;
+		contentPanel.add(cmbAuth, gbc_cmbcmbAuth);
+
 		JPanel buttonPane = new JPanel();
 		buttonPane.setPreferredSize(new Dimension(10, 35));
 		buttonPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -187,8 +198,20 @@ public class NewProviderDialog extends JDialog {
 				URL = txtURL.getText();
 				sdmxVersion = (SDMXVersion) cmbVersion.getSelectedItem();
 				availabilityFlag = (String)cmbAvail.getSelectedItem();
+
+				String selectedAuthMethod = (String) cmbAuth.getSelectedItem();
+				boolean isNoneAuth = selectedAuthMethod.equals("None");
+				boolean isBasicAuth = selectedAuthMethod.equals("Basic");
+				if (isNoneAuth)
+					authenticationMethod = Provider.AuthenticationMethods.NONE;
+				else if (isBasicAuth)
+					authenticationMethod = Provider.AuthenticationMethods.BASIC;
+				else
+					authenticationMethod = Provider.AuthenticationMethods.BEARER;
+
+
 				result = JOptionPane.OK_OPTION;
-				dispose();
+					dispose();
 			});
 		panel.add(okButton);
 		getRootPane().setDefaultButton(okButton);
@@ -226,4 +249,9 @@ public class NewProviderDialog extends JDialog {
 	public String getAvailabilityFlag() {
 		return availabilityFlag;
 	}
+
+	public Provider.AuthenticationMethods getAuthenticationMethod() {
+		return authenticationMethod;
+	}
+
 }

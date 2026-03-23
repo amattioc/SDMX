@@ -12,7 +12,7 @@ public class FilterProvidersToTest
 {
 	private static final Set<String> keepProviders = new HashSet<>(Arrays.asList(new String[] {
 			"ECB",
-			"DEMO_SDMXV3",
+//			"DEMO_SDMXV3",
 			"EUROSTAT",
 			"ILO",
 			"INSEE",

@@ -239,92 +239,6 @@ public class SDMXHelper extends JFrame
 	 */
 	private boolean isCodelistSortersMapTablesListenerActive;
 
-	private static class SeriesCountPanel extends JPanel {
-		private static final long serialVersionUID = 1L;
-		
-		private final JLabel seriesCountLabel;
-		private final JTextField seriesCount;
-		private final JLabel obsCountLabel;
-		private final JTextField obsCount;
-
-		public SeriesCountPanel(int seriesCount, int obsCount)
-		{
-			this.seriesCountLabel = new JLabel();
-			this.seriesCount = new JTextField(Integer.toString(seriesCount));
-			this.seriesCount.setEditable(false);
-			this.seriesCount.setMinimumSize(new java.awt.Dimension(100, 33));
-			this.obsCountLabel = new JLabel();
-			this.obsCount = new JTextField(Integer.toString(obsCount));
-			this.obsCount.setEditable(false);
-			this.obsCount.setMinimumSize(new java.awt.Dimension(100, 33));
-			add(seriesCountLabel);
-			add(this.seriesCount);
-			add(obsCountLabel);
-			add(this.obsCount);
-		}
-
-		public void updateCounts(int seriesCount, int obsCount)
-		{
-			this.seriesCount.setText(Integer.toString(seriesCount));
-			this.seriesCount.setCaretPosition(0);
-			this.obsCount.setText(Integer.toString(obsCount));
-			this.obsCount.setCaretPosition(0);
-			if (seriesCount <= 0)
-				hideSeriesCount();
-			else
-				showSeriesCount();
-
-			if (obsCount <= 0)
-				hideObsCount();
-			else
-				showObsCount();
-		}
-
-		public void updateBundle(ResourceBundle b)
-		{
-			this.seriesCountLabel.setText(b.getString("SDMXHelper.105"));
-			this.obsCountLabel.setText(b.getString("SDMXHelper.106"));
-		}
-
-		public void hidePanel()
-		{
-			this.seriesCount.setVisible(false);
-			this.seriesCountLabel.setVisible(false);
-			this.obsCount.setVisible(false);
-			this.obsCountLabel.setVisible(false);
-			this.setVisible(false);
-		}
-
-		public void showPanel() {
-			this.seriesCount.setVisible(true);
-			this.seriesCountLabel.setVisible(true);
-			this.obsCount.setVisible(true);
-			this.obsCountLabel.setVisible(true);
-			this.setVisible(true);
-		}
-
-		public void hideSeriesCount() {
-			this.seriesCountLabel.setVisible(false);
-			this.seriesCount.setVisible(false);
-		}
-
-		public void showSeriesCount() {
-			this.seriesCountLabel.setVisible(true);
-			this.seriesCount.setVisible(true);
-		}
-
-		public void hideObsCount() {
-			this.obsCountLabel.setVisible(false);
-			this.obsCount.setVisible(false);
-		}
-
-		public void showObsCount() {
-			this.obsCountLabel.setVisible(true);
-			this.obsCount.setVisible(true);
-		}
-
-	}
-
 	private final SeriesCountPanel seriesCountPanel;
 	
 	/**
@@ -423,7 +337,8 @@ public class SDMXHelper extends JFrame
 							SDMXVersion sdmxVersion = newProviderDialog.getSdmxVersion();
 							URI endpoint = new URI(newProviderDialog.getURL());
 							boolean availabilityQueries = newProviderDialog.getAvailabilityFlag().equalsIgnoreCase("true");
-							SDMXClientFactory.addProvider(name, endpoint, NONE, false, true, availabilityQueries, description, sdmxVersion);
+							Provider.AuthenticationMethods authMethod = newProviderDialog.getAuthenticationMethod();
+							SDMXClientFactory.addProvider(name, endpoint, authMethod, false, true, availabilityQueries, description, sdmxVersion);
 							mnProviders.removeAll();
 							providersSetup(mnProviders);
 						} 
@@ -1089,16 +1004,19 @@ public class SDMXHelper extends JFrame
 					: tblCodes.getRowSorter().getSortKeys();
 		String selectedDataflow = getSelectedDataflow();
 		AtomicBoolean interrupted = new AtomicBoolean(false);
-		
-		new ProgressViewer<>(this, interrupted, () -> 
-			SDMXClientFactory.getProviders().get(provider).isSupportsAvailability() ?
-				V3 == SDMXClientFactory.getProviders().get(provider).getSdmxVersion() ?
-					SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension) 
-					:
-					SdmxClientHandler.filterCodes(provider, selectedDataflow, createFilter()).get(selectedDimension)
-				:
-				getCodes(provider, selectedDataflow, selectedDimension)	
-				,
+
+		new ProgressViewer<>(this, interrupted, () -> {
+			Provider currentProvider = SDMXClientFactory.getProviders().get(provider);
+			if (currentProvider.isSupportsAvailability()) {
+				if (V3 == currentProvider.getSdmxVersion())
+					return SdmxClientHandler.filterCodes(provider, selectedDataflow, createAvailabilityFilter()).get(selectedDimension);
+				 else
+					return SdmxClientHandler.filterCodes(provider, selectedDataflow, createFilter()).get(selectedDimension);
+
+			} else {
+				return getCodes(provider, selectedDataflow, selectedDimension);
+			}
+		},
 			codes -> {
 				// Create new checkbox for codes given the selectedDimension
 				// the new checkbox is stored in codelistSorterMap using the String selectedDimension as key.

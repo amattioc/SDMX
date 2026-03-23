@@ -1,5 +1,7 @@
 package it.bancaditalia.oss.sdmx.client;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.util.Base64;
 
 public class BasicCredentials implements Credentials
@@ -8,7 +10,7 @@ public class BasicCredentials implements Credentials
 	
 	public BasicCredentials(String user, String pw)
 	{
-		header = "Basic " + Base64.getEncoder().encodeToString((user + ":" + pw).getBytes());
+		header = "Basic " + Base64.getEncoder().encodeToString((user + ":" + pw).getBytes(UTF_8));
 	}
 
 	@Override

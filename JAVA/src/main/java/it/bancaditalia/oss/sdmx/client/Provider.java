@@ -30,6 +30,7 @@ import it.bancaditalia.oss.sdmx.api.Dataflow;
 import it.bancaditalia.oss.sdmx.api.SDMXReference;
 import it.bancaditalia.oss.sdmx.api.SDMXVersion;
 import it.bancaditalia.oss.sdmx.exceptions.SdmxException;
+import it.bancaditalia.oss.sdmx.util.Cache;
 
 /**
  * 
@@ -40,6 +41,8 @@ public class Provider
 {
 	public static enum AuthenticationMethods {
 		NONE, BASIC, BEARER
+
+
 	}
 	
 	private final String name;
@@ -55,7 +58,11 @@ public class Provider
 	// key: flow id (full) --> flow
 	private Map<String, Dataflow> flows;
 	// key: dsd id (full) --> structure
-	private Map<String, DataFlowStructure> dsdNameToStructureCache = null;
+	private Cache<DataFlowStructure> dsdNameToStructureCache;
+	// key: V3 -> Cache.toKey(dataflow, filter) if V2 -> dataflow
+	private Cache<Map<String, Map<String, String>>> availabilityCache;
+	// key Cache.toKey(dataflow, filter)
+	private Cache<Map<String, Integer>> countCache;
 
 	public Provider(String name, URI endpoint, AuthenticationMethods authMethod, boolean needsURLEncoding, boolean supportsCompression, boolean supportsAvailability, String description, SDMXVersion sdmxVersion) throws SdmxException
 	{
@@ -63,12 +70,14 @@ public class Provider
 		this.endpoint = endpoint;
 		this.description = description;
 		this.flows = new HashMap<>();
-		this.dsdNameToStructureCache = new HashMap<>();
+		this.dsdNameToStructureCache = new Cache<>();
 		this.authMethod = authMethod;
 		this.needsURLEncoding = needsURLEncoding;
 		this.supportsCompression = supportsCompression;
 		this.supportsAvailability = supportsAvailability;
 		this.sdmxVersion = sdmxVersion;
+		this.availabilityCache = new Cache<>();
+		this.countCache = new Cache<>();
 	}
 
 	public String getName()
@@ -176,5 +185,31 @@ public class Provider
 	public SDMXVersion getSdmxVersion()
 	{
 		return sdmxVersion;
+	}
+
+	public void putAvailabilityQuery(String dataflow, String filter, Map<String, Map<String, String>> codes) {
+		String key = sdmxVersion == SDMXVersion.V3 ? Cache.toKey(dataflow, filter) : dataflow;
+		availabilityCache.put(key, codes);
+	}
+
+	public Map<String, Map<String, String>> getAvailabilityQuery(String dataflow, String filter) {
+		String key = sdmxVersion == SDMXVersion.V3 ? Cache.toKey(dataflow, filter) : dataflow;
+		return availabilityCache.get(key);
+	}
+
+	public void putCountSeriesQuery(String dataflow, String filter, Map<String, Integer> seriesCount) {
+		String key = Cache.toKey(dataflow, filter);
+		countCache.put(key, seriesCount);
+	}
+
+	public Map<String, Integer> getCountSeriesQuery(String dataflow, String filter) {
+		String key = Cache.toKey(dataflow, filter);
+		return countCache.get(key);
+	}
+
+	public void clearCache() {
+		availabilityCache.clear();
+		countCache.clear();
+		dsdNameToStructureCache.clear();
 	}
 }
