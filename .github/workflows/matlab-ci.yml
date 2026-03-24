@@ -38,4 +38,4 @@ jobs:
             cp RJSDMX/inst/java/SDMX.jar MATLAB && \
             cp MATLAB/test/testSDMX.m MATLAB && \
             cd MATLAB/ && \
-            matlab -batch "result=runtests('test/testSDMX.m');exit(any([result.Failed]));"
+            matlab -batch "result=runtests('testSDMX.m');exit(any([result.Failed]));"
