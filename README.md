@@ -14,27 +14,19 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 
 ![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
-![immagine](https://github.com/amattioc/SDMX/assets/8512242/a29069b2-538b-408d-87b5-353ac92ad1bf)
+<img width="1254" height="906" alt="image" src="https://github.com/user-attachments/assets/fc0593e8-0d47-40aa-929c-37933e9982e2" />
+
 
 **List of available providers:**
 
 `> getProviders()`
 
-` [1] "ABS" "BBK" "BIS_PUBLIC" "DEMO_SDMXV3" `
-
-` [5] "ECB" "EUROSTAT" "EUROSTAT_COMEXT" "EUROSTAT_COMP" `
-
-` [9] "EUROSTAT_EMPL" "EUROSTAT_GROW" "ILO" "IMF2" `
-
-`[13] "INEGI" "INSEE" "ISTAT" "ISTAT_CENSUS_AGR"`
-
-` [17] "ISTAT_CENSUS_IND" "ISTAT_CENSUS_POP" "ISTAT_RI" "NBB" `
-
-` [21] "OECD" "OECD_NEW" "OECD_RESTR" "OECD_SDMXV3" `
-
-` [25] "PACIFICDATA" "STATCAN_CENSUS" "STATCAN_NRG" `
-
-` [28] "UNDATA" "UNICEF" "WB" "WITS" `
+`[1]  "ABS"             "AMECO"           "ASTAT"           "BBK"             "BIS_PUBLIC"` <br>
+`[6]  "DEMO_SDMXV3"     "ECB"             "EUROSTAT"        "EUROSTAT_COMEXT" "EUROSTAT_COMP"`  <br>
+`[11] "EUROSTAT_EMPL"   "EUROSTAT_GROW"   "ILO"             "IMF"             "IMF_RESTR"`  <br>
+`[16] "INEGI"           "INSEE"           "ISTAT"           "ISTAT_RI"        "NBB"`  <br>
+`[21] "OECD_NEW"        "OECD_SDMXV3"     "PACIFICDATA"     "STATCAN_CENSUS"  "STATCAN_NRG"` <br> 
+`[26] "SWISS_STAT"      "UNDATA"          "UNICEF"          "WB"              "WITS"` <br>
 
 **Browse SDMX data providers, build your queries and get data directly in your favourite tool.**
 
