@@ -29,8 +29,6 @@ function dsd = getDSDIdentifier(provider, dataflow)
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	% 
-
-    initClasspath;
     
     if nargin <2
     error(sprintf([ '\nUsage: getDSDIdentifier(provider, dataflow)\n\n' ...

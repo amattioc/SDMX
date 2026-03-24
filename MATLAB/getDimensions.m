@@ -29,9 +29,7 @@ function dimensions = getDimensions(provider, dataflow)
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	% 
-    
-    initClasspath;
-    
+     
     if nargin <2
 		error(sprintf([ '\nUsage: getDimensions(provider, dataflow)\n\n' ...
                         'Arguments\n\n' ...

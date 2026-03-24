@@ -24,9 +24,7 @@ function providers = getProviders()
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	%
-    
-    initClasspath;
-    
+      
     try        
         providers = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getProviders();
         providers = cell(providers.keySet.toArray);

@@ -38,9 +38,7 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
 	%
     
     %deal with arguments
-    
-    initClasspath;
-    
+      
     if nargin <2
         error(sprintf(['\nUsage: addProvider(name, endpoint, needsCredentials, needsURLEncoding, supportsCompression, description)\n\n' ...
             'Arguments\n\n' ...

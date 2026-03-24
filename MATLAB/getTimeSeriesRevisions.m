@@ -41,9 +41,7 @@ function tt = getTimeSeriesRevisions(provider, id, startTime, endTime, updatedAf
 	%
     
     %deal with arguments
-    
-    initClasspath;
-    
+
     if nargin <2
         error('\nUsage: getTimeSeriesTable(provider, id, startTime, endTime)\n\n');
     end    

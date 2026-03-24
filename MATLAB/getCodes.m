@@ -31,8 +31,6 @@ function codes = getCodes(provider, flow, dimension)
 % permissions and limitations under the Licence.
 %
 
-initClasspath;
-
 if nargin < 3
     error(sprintf(['\nUsage: getCodes(provider, flow, dimension)\n\n' ...
         'Arguments\n\n' ...

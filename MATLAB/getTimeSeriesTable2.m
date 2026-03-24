@@ -44,8 +44,6 @@ function tt = getTimeSeriesTable2(provider, dataflow, key, filter, startTime, en
     
     %deal with arguments
     
-    initClasspath;
-    
     if nargin <2
         error('\nUsage: getTimeSeriesTable2(provider, dataflow, key, filter, startTime, endTime, attributes, measures)\n\n');
     end    

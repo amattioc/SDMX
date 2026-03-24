@@ -38,8 +38,6 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     
     %deal with arguments
     
-    initClasspath;
-    
     if nargin <2
         error('\nUsage: getTimeSeriesTable(provider, id, startTime, endTime)\n\n');
     end    

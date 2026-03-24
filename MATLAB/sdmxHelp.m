@@ -24,10 +24,7 @@ function sdmxHelp()
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	%
-    
-    initClasspath;
-    
-    %try java code
+        
     try
         it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();
     catch mexp

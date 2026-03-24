@@ -30,9 +30,7 @@ function flows = getFlows(provider, pattern)
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	%
-    
-    initClasspath;
-    
+      
     if nargin == 0
         error(sprintf(['\nUsage: getFlows(provider, pattern)\n\n' ...
                     'Arguments\n\n' ...

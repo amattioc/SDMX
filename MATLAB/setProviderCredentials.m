@@ -14,9 +14,7 @@ function setProviderCredentials(provider, user, pw)
 	% Copyright 2025,2025 Bank Of Italy
 	%
     
-    initClasspath;    
-    
-    if nargin <3
+     if nargin <3
         error('\nUsage: setProviderCredentials(provider, user, pw)\n');    
     end
 
