@@ -14,7 +14,8 @@ Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br>
 
 ![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
-![immagine](https://github.com/amattioc/SDMX/assets/8512242/a29069b2-538b-408d-87b5-353ac92ad1bf)
+<img width="1254" height="906" alt="image" src="https://github.com/user-attachments/assets/fc0593e8-0d47-40aa-929c-37933e9982e2" />
+
 
 **List of available providers:**
 
