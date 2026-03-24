@@ -35,7 +35,7 @@ jobs:
 
         - name: Testing
           run: |
-            mkdir -p MATLAB/lib && \
-            cp RJSDMX/inst/java/SDMX.jar MATLAB/lib && \
+            cp RJSDMX/inst/java/SDMX.jar MATLAB && \
+            cp MATLAB/test/testSDMX.m MATLAB && \
             cd MATLAB/ && \
-            matlab -batch "addpath .;result=runtests('test/testSDMX.m');exit(any([result.Failed]));"
+            matlab -batch "result=runtests('test/testSDMX.m');exit(any([result.Failed]));"
