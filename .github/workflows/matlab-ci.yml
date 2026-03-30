@@ -31,11 +31,11 @@ jobs:
         - name: Setup MATLAB
           uses: matlab-actions/setup-matlab@v1
           with:
-            release: R2023b
+            release: R2024a
 
         - name: Testing
           run: |
             cp RJSDMX/inst/java/SDMX.jar MATLAB && \
-            cp MATLAB/test/testSDMX.m MATLAB && \
-            cd MATLAB/ && \
+            cp MATLAB/files/test/testSDMX.m MATLAB && \
+            cd MATLAB && \
             matlab -batch "result=runtests('testSDMX.m');exit(any([result.Failed]));"
