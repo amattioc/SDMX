@@ -23,8 +23,6 @@
 % permissions and limitations under the Licence.
 %
 
-javaaddpath ./SDMX.jar
-
 %% Test 1: getProviders/add provider
 providers = getProviders;
 n = length(providers);

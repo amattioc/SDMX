@@ -1,5 +1,5 @@
 EXCEL/lib
-MATLAB/lib
+MATLAB/files/lib/*.jar
 SAS/lib
 JAVA/dist
 JAVA/configuration.properties

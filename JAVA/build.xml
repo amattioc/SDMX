@@ -1,7 +1,10 @@
 <project name="SDMX" default="dist" basedir=".">
 	<description>
-        SDMX build file
-    </description>
+		SDMX build file
+	</description>
+
+	<property name="version" value="3.9.0"/>
+
 	<!-- set global properties for this build -->
 	<property name="src" location="src/main/java"/>
 	<property name="resources" location="src/main/resources"/>
@@ -10,17 +13,17 @@
 	<property name="dist"  location="dist"/>
 	<property name="build_file"  location="../BUILD"/>
 	
-	<property name="rjsdmx_libdir"  location="../RJSDMX/inst/java"/>
-	<property name="matlab_libdir"  location="../MATLAB/lib"/>
-	<property name="sas_libdir"  location="../SAS/lib"/>
-	<property name="stata_libdir"  location="../STATA/jar"/>
-	<property name="excel_libdir"  location="../EXCEL/lib"/>
-	
+	<property name="r_dir"  location="../RJSDMX"/>
+	<property name="stata_dir"  location="../STATA"/>
 	<property name="matlab_dir"  location="../MATLAB"/>
 	<property name="sas_dir"  location="../SAS"/>
-	<property name="stata_dir"  location="../STATA"/>
 	<property name="excel_dir"  location="../EXCEL"/>
-	<property name="r_dir"  location="../RJSDMX"/>
+	
+	<property name="rjsdmx_libdir"  location="${r_dir}/inst/java"/>
+	<property name="stata_libdir"  location="${stata_dir}/jar"/>
+	<property name="matlab_libdir"  location="${matlab_dir}/files/lib"/>
+	<property name="sas_libdir"  location="${sas_dir}/lib"/>
+	<property name="excel_libdir"  location="${excel_dir}/lib"/>
 	
 	<target name="init">
 		<!-- Create the build directory structure used by compile -->
@@ -68,22 +71,32 @@
 	</target>
 	
 	<target name="release"  depends="dist" description="create release packages" >
-		<tar destfile="${dist}/statasdmx.tar" basedir="${stata_dir}"/>
-		<gzip destfile="${dist}/statasdmx.tar.gz" src="${dist}/statasdmx.tar"/>
+		<tar destfile="${dist}/statasdmx.tar" basedir="${stata_dir}" compression="gzip"/>
 		<delete file="${dist}/statasdmx.tar"/>
-		<tar destfile="${dist}/excelsdmx.tar" basedir="${excel_dir}"/>
-		<gzip destfile="${dist}/excelsdmx.tar.gz" src="${dist}/excelsdmx.tar"/>
+		<tar destfile="${dist}/excelsdmx.tar" basedir="${excel_dir}" compression="gzip"/>
 		<delete file="${dist}/excelsdmx.tar"/>
-		<tar destfile="${dist}/sassdmx.tar" basedir="${sas_dir}"/>
-		<gzip destfile="${dist}/sassdmx.tar.gz" src="${dist}/sassdmx.tar"/>
+		<tar destfile="${dist}/sassdmx.tar" basedir="${sas_dir}" compression="gzip"/>
 		<delete file="${dist}/sassdmx.tar"/>
-		<tar destfile="${dist}/matlabsdmx.tar" basedir="${matlab_dir}"/>
-		<gzip destfile="${dist}/matlabsdmx.tar.gz" src="${dist}/matlabsdmx.tar"/>
-		<delete file="${dist}/matlabsdmx.tar"/>
+
+		<exec executable="matlab" dir="${matlab_dir}">
+			<arg line="-nodisplay -nosplash -nodesktop -softwareopengl -batch 'build(&quot;${version}&quot;)'" />
+		</exec>
+		<move todir="${dist}">
+			<fileset dir="${matlab_dir}">
+				<include name="MatSDMX.mltbx" />
+			</fileset>
+		</move>
+
+		<copy file="../DESCRIPTION.template" tofile="${r_dir}/DESCRIPTION"/>
+		<replace file="${r_dir}/DESCRIPTION" token="%%VERSION%%" value="${version}"/>
 		<exec executable="R">
 			<arg line="CMD build ${r_dir}" />
 		</exec>
-		<move todir="${dist}" file="RJSDMX_*.tar.gz" />
+		<move todir="${dist}">
+			<fileset dir=".">
+				<include name="RJSDMX*.tar.gz" />
+			</fileset>
+		</move>
 	</target>
 
 	<target name="clean"
