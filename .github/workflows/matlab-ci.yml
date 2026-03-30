@@ -35,7 +35,7 @@ jobs:
 
         - name: Testing
           run: |
-            cp RJSDMX/inst/java/SDMX.jar MATLAB && \
-            cp MATLAB/files/test/testSDMX.m MATLAB && \
-            cd MATLAB && \
+            cp RJSDMX/inst/java/SDMX.jar MATLAB/files && \
+            cp MATLAB/files/test/testSDMX.m MATLAB/files && \
+            cd MATLAB/files && \
             matlab -batch "result=runtests('testSDMX.m');exit(any([result.Failed]));"
