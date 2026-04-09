@@ -27,7 +27,7 @@ jobs:
         - name: Setup Ant
           uses: cedx/setup-ant@v6.1.0
           with:
-            version: 10.1
+            version: '1.10.9'
           
         - name: Repository checkout
           uses: actions/checkout@v6.0.2
