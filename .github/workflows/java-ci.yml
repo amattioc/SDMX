@@ -18,7 +18,7 @@ jobs:
 
       steps:
         - name: Set up JDK 11 for x64
-          uses: actions/setup-java@v3
+          uses: actions/setup-java@v5.2.0
           with:
             java-version: '11'
             distribution: 'temurin'
@@ -30,14 +30,17 @@ jobs:
             version: 10.1
           
         - name: Repository checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v6.0.2
 
         - name: Build
           run: |
             cd JAVA && ant clean dist
         
         - name: Upload SDMX JAR
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v7.0.0
           with:
-            name: java-build
-            path: JAVA/target/SDMX-*.jar
+            name: sdmx-jar
+            path: JAVA/target/SDMX.jar
+            overwrite: true
+            archive: false
+            if-no-files-found: error
