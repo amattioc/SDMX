@@ -40,7 +40,7 @@ jobs:
           uses: actions/upload-artifact@v7.0.0
           with:
             name: sdmx-jar
-            path: JAVA/target/SDMX.jar
+            path: JAVA/dist/lib/SDMX.jar
             overwrite: true
             archive: false
             if-no-files-found: error
