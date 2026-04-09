@@ -27,7 +27,7 @@ jobs:
       - name: Download SDMX JAR from JAVA CI
         uses: actions/download-artifact@v8.0.1
         with:
-          name: sdmx-jar
+          name: SDMX.jar
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
