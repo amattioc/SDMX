@@ -71,12 +71,9 @@
 	</target>
 	
 	<target name="release"  depends="dist" description="create release packages" >
-		<tar destfile="${dist}/statasdmx.tar" basedir="${stata_dir}" compression="gzip"/>
-		<delete file="${dist}/statasdmx.tar"/>
-		<tar destfile="${dist}/excelsdmx.tar" basedir="${excel_dir}" compression="gzip"/>
-		<delete file="${dist}/excelsdmx.tar"/>
-		<tar destfile="${dist}/sassdmx.tar" basedir="${sas_dir}" compression="gzip"/>
-		<delete file="${dist}/sassdmx.tar"/>
+		<tar destfile="${dist}/statasdmx.tar.gz" basedir="${stata_dir}" compression="gzip"/>
+		<tar destfile="${dist}/excelsdmx.tar.gz" basedir="${excel_dir}" compression="gzip"/>
+		<tar destfile="${dist}/sassdmx.tar.gz" basedir="${sas_dir}" compression="gzip"/>
 
 		<exec executable="matlab" dir="${matlab_dir}">
 			<arg line="-nodisplay -nosplash -nodesktop -softwareopengl -batch 'build(&quot;${version}&quot;)'" />
