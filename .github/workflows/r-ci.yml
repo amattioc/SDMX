@@ -44,6 +44,9 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           path: RJSDMX/inst/java
 
+      - name: Setup tinytex for R manuals
+        uses: r-lib/actions/setup-tinytex@v2
+        
       - name: Setup R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -54,6 +57,7 @@ jobs:
         run: |
           R CMD build ./RJSDMX
           TARBALL="$(find . -maxdepth 1 -type f -name 'RJSDMX*.tar.gz' -print -quit)"
+          if [ -z ${TARBALL} ]; then exit 1; fi
           R CMD check --as-cran --no-tests "${TARBALL}"
           echo "TARBALL=${TARBALL}" >> "$GITHUB_ENV"
           
@@ -65,7 +69,7 @@ jobs:
       - name: Upload R package artifact
         uses: actions/upload-artifact@v7.0.0
         with:
-          name: matlab-toolbox
+          name: cran-package
           path: ${TARBALL}
           archive: false
           if-no-files-found: error
