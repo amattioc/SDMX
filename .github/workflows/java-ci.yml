@@ -35,11 +35,42 @@ jobs:
         - name: Build
           run: |
             cd JAVA && ant clean dist
-        
+
+        - name: Create STATA / EXCEL / SAS tarballs
+          run: |
+            mkdir -p JAVA/dist
+            tar -C STATA -czf JAVA/dist/statasdmx.tar.gz .
+            tar -C EXCEL -czf JAVA/dist/excelsdmx.tar.gz .
+            tar -C SAS   -czf JAVA/dist/sassdmx.tar.gz .
+
         - name: Upload SDMX JAR
           uses: actions/upload-artifact@v7.0.0
           with:
             name: sdmx-jar
             path: JAVA/dist/lib/SDMX.jar
+            overwrite: true
+            if-no-files-found: error
+  
+        - name: Upload STATA package
+          uses: actions/upload-artifact@v7.0.0
+          with:
+            name: statasdmx
+            path: JAVA/dist/statasdmx.tar.gz
+            overwrite: true
+            if-no-files-found: error
+  
+        - name: Upload EXCEL package
+          uses: actions/upload-artifact@v7.0.0
+          with:
+            name: excelsdmx
+            path: JAVA/dist/excelsdmx.tar.gz
+            overwrite: true
+            if-no-files-found: error
+  
+        - name: Upload SAS package
+          uses: actions/upload-artifact@v7.0.0
+          with:
+            name: sassdmx
+            path: JAVA/dist/sassdmx.tar.gz
             overwrite: true
             if-no-files-found: error
