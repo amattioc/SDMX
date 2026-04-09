@@ -42,5 +42,4 @@ jobs:
             name: sdmx-jar
             path: JAVA/dist/lib/SDMX.jar
             overwrite: true
-            archive: false
             if-no-files-found: error
