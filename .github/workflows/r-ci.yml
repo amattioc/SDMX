@@ -32,12 +32,6 @@ jobs:
         with:
           r-version: '4.3.2'
 
-      - name: Setup R dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: deps::./RJSDMX
-          extra-packages: any::RUnit
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -49,6 +43,12 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
           path: RJSDMX/inst/java
+
+      - name: Setup R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: deps::./RJSDMX
+          extra-packages: any::RUnit
 
       - name: Build R package
         run: |
