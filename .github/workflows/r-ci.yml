@@ -70,6 +70,6 @@ jobs:
         uses: actions/upload-artifact@v7.0.0
         with:
           name: cran-package
-          path: ${TARBALL}
+          path: ${{ env.TARBALL }}
           archive: false
           if-no-files-found: error
