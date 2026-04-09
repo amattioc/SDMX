@@ -19,15 +19,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download SDMX.jar
+      - name: Checkout repository at triggering commit
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Download SDMX JAR from JAVA CI
         uses: actions/download-artifact@v8.0.1
         with:
           name: sdmx-jar
-          path: MATLAB/files/lib
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
-    
+          path: MATLAB/files/lib
+
       - name: Set up JDK 11 for x64
         uses: actions/setup-java@v5.2.0
         with:
@@ -39,19 +44,19 @@ jobs:
         uses: matlab-actions/setup-matlab@v3.0.1
         with:
           release: R2024a
+          cache: true
 
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+      - name: Build and install toolbox
+        uses: matlab-actions/run-command@v3
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          command: >
+            cd("MATLAB");
+            build("1.0.0");
+            matlab.addons.toolbox.installToolbox("MatSDMX.mltbx");
 
-      - name: Build & Install matlab package
-        run: |
-          cd MATLAB
-          matlab -nodisplay -nosplash -nodesktop -softwareopengl -batch "build('1.0.0')"
-          matlab -nodisplay -r "matlab.addons.toolbox.installToolbox('MatSDMX.mltbx');"
-
-      - name: Matlab test
-        run: |
-          cd MATLAB/files/test
-          matlab -batch "result=runtests('testSDMX.m'); exit(any([result.Failed]));"
+      - name: Run MATLAB tests
+        uses: matlab-actions/run-tests@v3
+        with:
+          source-folder: MATLAB/files
+          select-by-folder: MATLAB/files/test
+          test-results-junit: test-results/matlab-results.xml
