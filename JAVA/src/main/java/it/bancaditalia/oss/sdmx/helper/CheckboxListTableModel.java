@@ -58,7 +58,7 @@ public final class CheckboxListTableModel<T> extends AbstractTableModel
 			// 1 => key column
 			if (codes.contains(((String) items[i][1])))
 				// 0 => checkbox column
-				items[i][0] = Boolean.TRUE;
+				items[i][0] = new Boolean(true);
 	}
 
 	public int getCheckedCodesCount()

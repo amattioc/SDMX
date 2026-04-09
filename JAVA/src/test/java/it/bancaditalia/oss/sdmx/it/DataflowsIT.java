@@ -30,7 +30,7 @@ public class DataflowsIT
 				{ "ABS",              null,                              "ATSI_BIRTHS_SUMM",              "Aboriginal and Torres Strait Islander births and confinements, summary, by state" },
 				{ "ECB",              "*Exchange*",                      "EXR",                           "Exchange Rates" },
 				{ "DEMO_SDMXV3",      "*Exchange*",                      "EXR",                           "Exchange Rates" },
-				{ "EUROSTAT",         "PRC_HICP_MIDX",                   "PRC_HICP_MIDX",                 "HICP - monthly data (index)" },
+				{ "EUROSTAT",         "PRC_HICP_MIDX",                   "PRC_HICP_MIDX",                 "HICP - monthly data (index) (1996-2025)" },
 				{ "ILO",              "*DF_EMP_TEMP_SEX_AGE_NB*", 		 "DF_EMP_TEMP_SEX_AGE_NB", 		  "Employment by sex and age" },
 				{ "IMF2",             "DS-WHDREO",                       "DS-WHDREO",                     "Western Hemisphere Regional Economic Outlook (WHDREO)" },
 				{ "IMF",              "CPI",                             "CPI",                           "Consumer Price Index (CPI)" },

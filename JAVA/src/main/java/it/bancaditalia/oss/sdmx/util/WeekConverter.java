@@ -38,8 +38,8 @@ public class WeekConverter {
 			throw new SdmxInvalidParameterException("Invalid weekly date format: " + week);
 		}
 		Calendar calendar = new GregorianCalendar();
-		calendar.set(Calendar.YEAR, Integer.valueOf(toks[0]));
-		calendar.set(Calendar.WEEK_OF_YEAR, Integer.valueOf(toks[1]));     
+		calendar.set(Calendar.YEAR, new Integer(toks[0]));
+		calendar.set(Calendar.WEEK_OF_YEAR, new Integer(toks[1]));     
 		calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY); //end of period
 		
 		return dayFormatter.format(calendar.getTime());
