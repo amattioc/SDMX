@@ -48,6 +48,7 @@ jobs:
           with:
             name: sdmx-jar
             path: JAVA/dist/lib/SDMX.jar
+            archive: false
             overwrite: true
             if-no-files-found: error
   
@@ -56,6 +57,7 @@ jobs:
           with:
             name: statasdmx
             path: JAVA/dist/statasdmx.tar.gz
+            archive: false
             overwrite: true
             if-no-files-found: error
   
@@ -64,6 +66,7 @@ jobs:
           with:
             name: excelsdmx
             path: JAVA/dist/excelsdmx.tar.gz
+            archive: false
             overwrite: true
             if-no-files-found: error
   
@@ -72,5 +75,6 @@ jobs:
           with:
             name: sassdmx
             path: JAVA/dist/sassdmx.tar.gz
+            archive: false
             overwrite: true
             if-no-files-found: error
