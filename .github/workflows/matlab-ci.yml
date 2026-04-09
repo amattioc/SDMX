@@ -60,3 +60,10 @@ jobs:
           source-folder: MATLAB/files
           select-by-folder: MATLAB/files/test
           test-results-junit: test-results/matlab-results.xml
+
+      - name: Upload MATLAB toolbox artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: matlab-toolbox
+          path: MATLAB/MatSDMX.mltbx
+          if-no-files-found: error
