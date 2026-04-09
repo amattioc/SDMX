@@ -1,41 +1,54 @@
-
 name: MATLAB CI
 
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ master, develop ]
-  pull_request:
-    branches: [ master ]
+  workflow_run:
+    workflows: ["JAVA CI"]
+    types:
+      - completed
+    branches:
+      - master
+      - develop
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
 
 jobs:
-    build-java:
-      runs-on: ubuntu-latest
+  test-matlab:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@v4
+    steps:
+      - name: Download SDMX.jar
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: sdmx-jar
+          path: MATLAB/files/lib
 
-        # Setup job
-        - name: Set up JDK 11 for x64
-          uses: actions/setup-java@v3
-          with:
-            java-version: '11'
-            distribution: 'temurin'
-            architecture: x64
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v5.2.0
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          architecture: x64
 
-        # Sets up MATLAB on the GitHub Actions runner
-        - name: Setup MATLAB
-          uses: matlab-actions/setup-matlab@v1
-          with:
-            release: R2024a
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v3.0.1
+        with:
+          release: R2024a
 
-        - name: Testing
-          run: |
-            cp RJSDMX/inst/java/SDMX.jar MATLAB/files && \
-            cp MATLAB/files/test/testSDMX.m MATLAB/files && \
-            cd MATLAB/files && \
-            matlab -batch "result=runtests('testSDMX.m');exit(any([result.Failed]));"
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Build & Install matlab package
+        run: |
+          cd MATLAB
+          matlab -nodisplay -nosplash -nodesktop -softwareopengl -batch "build('1.0.0')"
+          matlab -nodisplay -r "matlab.addons.toolbox.installToolbox('MatSDMX.mltbx');"
+
+      - name: Matlab test
+        run: |
+          cd MATLAB/files/test
+          matlab -batch "result=runtests('testSDMX.m'); exit(any([result.Failed]));"
