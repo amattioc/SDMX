@@ -55,8 +55,7 @@ jobs:
 
       - name: Apply VERSION
         run: |
-          SDMX_VERSION="$(cat VERSION)"
-          sed 's/${r.style.version}/'"${VERSION}"'/' DESCRIPTION.template > RJSDMX/DESCRIPTION
+          sed 's/${r.style.version}/'"$(cat VERSION)"'/' DESCRIPTION.template > RJSDMX/DESCRIPTION
           
       - name: Setup tinytex for R manuals
         uses: r-lib/actions/setup-tinytex@v2
