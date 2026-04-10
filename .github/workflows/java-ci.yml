@@ -1,89 +1,263 @@
+name: Build & Draft release
 
-name: JAVA CI
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ master, develop ]
-  pull_request:
     branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
-    build-java:
-      runs-on: ubuntu-latest
+  build-java:
+    runs-on: ubuntu-latest
+    outputs:
+      sdmx_version: ${{ steps.read-version.outputs.sdmx_version }}
 
-      steps:
-        - name: Set up JDK 11 for x64
-          uses: actions/setup-java@v5.2.0
-          with:
-            java-version: '11'
-            distribution: 'temurin'
-            architecture: x64
+    steps:
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v5.2.0
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          architecture: x64
 
-        - name: Setup Ant
-          uses: cedx/setup-ant@v6.1.0
-          with:
-            version: '1.10.9'
-          
-        - name: Repository checkout
-          uses: actions/checkout@v6.0.2
+      - name: Setup Ant
+        uses: cedx/setup-ant@v6.1.0
+        with:
+          version: '1.10.9'
 
-        - name: Build
-          run: |
-            cd JAVA && ant clean dist
+      - name: Repository checkout
+        uses: actions/checkout@v6.0.2
 
-        - name: Create STATA / EXCEL / SAS tarballs
-          run: |
-            mkdir -p JAVA/dist
-            tar -C STATA -czf JAVA/dist/statasdmx.tar.gz .
-            tar -C EXCEL -czf JAVA/dist/excelsdmx.tar.gz .
-            tar -C SAS   -czf JAVA/dist/sassdmx.tar.gz .
+      - name: Build
+        run: |
+          cd JAVA && ant clean dist
 
-        - name: Upload VERSION
-          uses: actions/upload-artifact@v7.0.0
-          with:
-            name: sdmx-jar
-            path: JAVA/VERSION
-            archive: false
-            overwrite: true
-            if-no-files-found: error
-  
-        - name: Upload SDMX JAR
-          uses: actions/upload-artifact@v7.0.0
-          with:
-            name: sdmx-jar
-            path: JAVA/dist/lib/SDMX.jar
-            archive: false
-            overwrite: true
-            if-no-files-found: error
-  
-        - name: Upload STATA package
-          uses: actions/upload-artifact@v7.0.0
-          with:
-            name: statasdmx
-            path: JAVA/dist/statasdmx.tar.gz
-            archive: false
-            overwrite: true
-            if-no-files-found: error
-  
-        - name: Upload EXCEL package
-          uses: actions/upload-artifact@v7.0.0
-          with:
-            name: excelsdmx
-            path: JAVA/dist/excelsdmx.tar.gz
-            archive: false
-            overwrite: true
-            if-no-files-found: error
-  
-        - name: Upload SAS package
-          uses: actions/upload-artifact@v7.0.0
-          with:
-            name: sassdmx
-            path: JAVA/dist/sassdmx.tar.gz
-            archive: false
-            overwrite: true
-            if-no-files-found: error
+      - name: Read VERSION
+        id: read-version
+        run: |
+          echo "sdmx_version=$(tr -d '\r\n' < JAVA/VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Create STATA / EXCEL / SAS tarballs
+        run: |
+          mkdir -p JAVA/dist
+          tar -C STATA -czf JAVA/dist/statasdmx.tar.gz .
+          tar -C EXCEL -czf JAVA/dist/excelsdmx.tar.gz .
+          tar -C SAS -czf JAVA/dist/sassdmx.tar.gz .
+
+      - name: Upload SDMX JAR
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: sdmx-jar
+          path: JAVA/dist/lib/SDMX.jar
+          archive: false
+          overwrite: true
+          if-no-files-found: error
+
+      - name: Upload STATA package
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: statasdmx
+          path: JAVA/dist/statasdmx.tar.gz
+          archive: false
+          overwrite: true
+          if-no-files-found: error
+
+      - name: Upload EXCEL package
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: excelsdmx
+          path: JAVA/dist/excelsdmx.tar.gz
+          archive: false
+          overwrite: true
+          if-no-files-found: error
+
+      - name: Upload SAS package
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: sassdmx
+          path: JAVA/dist/sassdmx.tar.gz
+          archive: false
+          overwrite: true
+          if-no-files-found: error
+
+  test-r:
+    needs: build-java
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          architecture: x64
+
+      - name: Install R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.2'
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download SDMX JAR
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: SDMX.jar
+          path: RJSDMX/inst/java
+
+      - name: Apply VERSION
+        run: |
+          sed 's/${r.style.version}/'"${{ needs.build-java.outputs.sdmx_version }}"'/' DESCRIPTION.template > RJSDMX/DESCRIPTION
+
+      - name: Setup tinytex for R manuals
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Setup R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: deps::./RJSDMX
+          extra-packages: any::RUnit
+
+      - name: Build R package
+        run: |
+          R CMD build ./RJSDMX
+          TARBALL="$(find . -maxdepth 1 -type f -name 'RJSDMX*.tar.gz' -print -quit)"
+          if [ -z "${TARBALL}" ]; then exit 1; fi
+          R CMD check --as-cran --no-tests "${TARBALL}"
+          echo "TARBALL=${TARBALL}" >> "$GITHUB_ENV"
+
+      - name: Run R Tests
+        run: |
+          R CMD INSTALL "${TARBALL}"
+          Rscript -e "library(RUnit); library(RJSDMX); runTestFile('RJSDMX/R/test_automation/test.sdmx.r')"
+
+      - name: Upload R package artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: cran-package
+          path: ${{ env.TARBALL }}
+          archive: false
+          if-no-files-found: error
+
+  test-matlab:
+    needs: build-java
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Download SDMX JAR
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: SDMX.jar
+          path: MATLAB/files/lib
+
+      - name: Apply VERSION
+        run: |
+          echo "SDMX_VERSION=${{ needs.build-java.outputs.sdmx_version }}" >> "$GITHUB_ENV"
+
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v5.2.0
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          architecture: x64
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v3.0.1
+        with:
+          release: R2024a
+          cache: true
+
+      - name: Build and install toolbox
+        uses: matlab-actions/run-command@v3
+        with:
+          command: >
+            cd("MATLAB");
+            sdmx_ver = getenv("SDMX_VERSION");
+            fprintf("SDMX VERSION = %s", sdmx_ver);
+            build(sdmx_ver);
+            matlab.addons.toolbox.installToolbox("MatSDMX.mltbx");
+
+      - name: Run MATLAB tests
+        uses: matlab-actions/run-tests@v3
+        with:
+          source-folder: MATLAB/files
+          select-by-folder: MATLAB/files/test
+          test-results-junit: test-results/matlab-results.xml
+
+      - name: Upload MATLAB toolbox artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: matlab-toolbox
+          path: MATLAB/MatSDMX.mltbx
+          archive: false
+          if-no-files-found: error
+
+  draft-release:
+    needs: [build-java, test-r, test-matlab]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8.0.1
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Update latest tag
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.sha;
+
+            try {
+              await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: "tags/latest"
+              });
+
+              await github.rest.git.updateRef({
+                owner,
+                repo,
+                ref: "tags/latest",
+                sha,
+                force: true
+              });
+            } catch (error) {
+              if (error.status === 404) {
+                await github.rest.git.createRef({
+                  owner,
+                  repo,
+                  ref: "refs/tags/latest",
+                  sha
+                });
+              } else {
+                throw error;
+              }
+            }
+
+      - name: Create or update latest draft release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          tag: latest
+          name: latest
+          commit: ${{ github.sha }}
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: false
+          artifacts: "release-assets/*"
