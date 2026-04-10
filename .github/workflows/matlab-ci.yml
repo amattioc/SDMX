@@ -81,4 +81,5 @@ jobs:
         with:
           name: matlab-toolbox
           path: MATLAB/MatSDMX.mltbx
+          archive: false
           if-no-files-found: error
