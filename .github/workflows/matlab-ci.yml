@@ -65,7 +65,7 @@ jobs:
           command: >
             cd("MATLAB");
             sdmx_ver = getenv("SDMX_VERSION");
-            fprintf('SDMX VERSION = %s, sdmx_ver);
+            fprintf("SDMX VERSION = %s", sdmx_ver);
             build(sdmx_ver);
             matlab.addons.toolbox.installToolbox("MatSDMX.mltbx");
 
