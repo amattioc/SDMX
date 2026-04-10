@@ -44,6 +44,20 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           path: RJSDMX/inst/java
 
+      - name: Download VERSION from JAVA CI
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: VERSION
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: .
+
+      - name: Apply VERSION
+        run: |
+          SDMX_VERSION="$(cat VERSION)"
+          sed -i 's/${r.style.version}/'"${VERSION}"'/' RJSDMX/DESCRIPTION
+          
       - name: Setup tinytex for R manuals
         uses: r-lib/actions/setup-tinytex@v2
         
