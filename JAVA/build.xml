@@ -38,7 +38,7 @@
 		<tstamp/>
 		<property name="build_id" value="${DSTAMP}-${TSTAMP}"/>
 		<echo message="${build_id}" file="${build_file}" />
-		<echo message="${VERSION}" file="VERSION" />
+		<echo message="${version}" file="VERSION" />
 	</target>
 
 	<target name="compile"  depends="clean, init" description="compile the source for base java lib" >
