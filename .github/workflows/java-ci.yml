@@ -111,7 +111,7 @@ jobs:
 
       - name: Apply VERSION
         run: |
-          sed 's/${r.style.version}/'"${{ needs.build-java.outputs.sdmx_version }}"'/' DESCRIPTION.template > RJSDMX/DESCRIPTION
+          sed "s/%%VERSION%%/${{ needs.build-java.outputs.sdmx_version }}/" DESCRIPTION.template > RJSDMX/DESCRIPTION
 
       - name: Setup tinytex for R manuals
         uses: r-lib/actions/setup-tinytex@v2
