@@ -16,13 +16,11 @@
 	<property name="r_dir"  location="../RJSDMX"/>
 	<property name="stata_dir"  location="../STATA"/>
 	<property name="matlab_dir"  location="../MATLAB"/>
-	<property name="sas_dir"  location="../SAS"/>
 	<property name="excel_dir"  location="../EXCEL"/>
 	
 	<property name="rjsdmx_libdir"  location="${r_dir}/inst/java"/>
 	<property name="stata_libdir"  location="${stata_dir}/jar"/>
 	<property name="matlab_libdir"  location="${matlab_dir}/files/lib"/>
-	<property name="sas_libdir"  location="${sas_dir}/lib"/>
 	<property name="excel_libdir"  location="${excel_dir}/lib"/>
 	
 	<target name="init">
@@ -31,7 +29,6 @@
 		<mkdir dir="${dist}"/>
 		<mkdir dir="${rjsdmx_libdir}"/>
 		<mkdir dir="${matlab_libdir}"/>
-		<mkdir dir="${sas_libdir}"/>
 		<mkdir dir="${stata_libdir}"/>
 		<mkdir dir="${excel_libdir}"/>
 
@@ -66,7 +63,6 @@
 		<!-- Now distribute the jar file to the plugins -->
 		<copy file="${dist}/lib/SDMX.jar" todir="${rjsdmx_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${matlab_libdir}"/>
-		<copy file="${dist}/lib/SDMX.jar" todir="${sas_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${excel_libdir}"/>
 		<copy file="${dist}/lib/SDMX.jar" todir="${stata_libdir}"/>
 	</target>
@@ -74,7 +70,6 @@
 	<target name="release"  depends="dist" description="create release packages" >
 		<tar destfile="${dist}/statasdmx.tar.gz" basedir="${stata_dir}" compression="gzip"/>
 		<tar destfile="${dist}/excelsdmx.tar.gz" basedir="${excel_dir}" compression="gzip"/>
-		<tar destfile="${dist}/sassdmx.tar.gz" basedir="${sas_dir}" compression="gzip"/>
 
 		<exec executable="matlab" dir="${matlab_dir}">
 			<arg line="-nodisplay -nosplash -nodesktop -softwareopengl -batch 'build(&quot;${version}&quot;)'" />
@@ -104,7 +99,6 @@
 		<delete dir="${dist}"/>
 		<delete file="${rjsdmx_libdir}/SDMX.jar"/>
 		<delete file="${matlab_libdir}/SDMX.jar"/>
-		<delete file="${sas_libdir}/SDMX.jar"/>
 		<delete file="${stata_libdir}/SDMX.jar"/>
 		<delete file="${excel_libdir}/SDMX.jar"/>
 	</target>
