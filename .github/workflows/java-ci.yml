@@ -40,12 +40,11 @@ jobs:
         run: |
           echo "sdmx_version=$(tr -d '\r\n' < JAVA/VERSION)" >> "$GITHUB_OUTPUT"
 
-      - name: Create STATA / EXCEL / SAS tarballs
+      - name: Create STATA / EXCEL tarballs
         run: |
           mkdir -p JAVA/dist
           tar -C STATA -czf JAVA/dist/statasdmx.tar.gz .
           tar -C EXCEL -czf JAVA/dist/excelsdmx.tar.gz .
-          tar -C SAS -czf JAVA/dist/sassdmx.tar.gz .
 
       - name: Upload SDMX JAR
         uses: actions/upload-artifact@v7.0.0
@@ -70,15 +69,6 @@ jobs:
         with:
           name: excelsdmx
           path: JAVA/dist/excelsdmx.tar.gz
-          archive: false
-          overwrite: true
-          if-no-files-found: error
-
-      - name: Upload SAS package
-        uses: actions/upload-artifact@v7.0.0
-        with:
-          name: sassdmx
-          path: JAVA/dist/sassdmx.tar.gz
           archive: false
           overwrite: true
           if-no-files-found: error
