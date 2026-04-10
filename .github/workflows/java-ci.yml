@@ -43,6 +43,15 @@ jobs:
             tar -C EXCEL -czf JAVA/dist/excelsdmx.tar.gz .
             tar -C SAS   -czf JAVA/dist/sassdmx.tar.gz .
 
+        - name: Upload VERSION
+          uses: actions/upload-artifact@v7.0.0
+          with:
+            name: sdmx-jar
+            path: JAVA/VERSION
+            archive: false
+            overwrite: true
+            if-no-files-found: error
+  
         - name: Upload SDMX JAR
           uses: actions/upload-artifact@v7.0.0
           with:
