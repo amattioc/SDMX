@@ -63,9 +63,10 @@ jobs:
         uses: matlab-actions/run-command@v3
         with:
           command: >
-            ver = getenv('SDMX_VERSION')
             cd("MATLAB");
-            build(ver);
+            sdmx_ver = getenv("SDMX_VERSION");
+            fprintf('SDMX VERSION = %s, sdmx_ver);
+            build(sdmx_ver);
             matlab.addons.toolbox.installToolbox("MatSDMX.mltbx");
 
       - name: Run MATLAB tests
