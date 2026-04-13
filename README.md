@@ -4,14 +4,9 @@ Sdmx Connectors
 Setup and Configuration: [SDMX wiki](https://github.com/amattioc/SDMX/wiki)<br> 
 
 [![JAVA CI](https://github.com/amattioc/SDMX/actions/workflows/java-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/java-ci.yml)
-[![R CI](https://github.com/amattioc/SDMX/actions/workflows/r-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/r-ci.yml)
-[![MATLAB CI](https://github.com/amattioc/SDMX/actions/workflows/matlab-ci.yml/badge.svg?branch=master)](https://github.com/amattioc/SDMX/actions/workflows/matlab-ci.yml)
-
-![Latest Release](https://img.shields.io/github/v/release/amattioc/SDMX)   ![Latest Release downloads](https://img.shields.io/github/downloads/amattioc/SDMX/latest/total)
-
-
 [![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)](http://www.awesomeofficialstatistics.org)
 
+![Latest Release](https://img.shields.io/github/v/release/amattioc/SDMX)   ![Latest Release downloads](https://img.shields.io/github/downloads/amattioc/SDMX/latest/total)
 ![CRAN version latest](https://www.r-pkg.org/badges/version-ago/RJSDMX)    ![CRAN downloads month](https://cranlogs.r-pkg.org/badges/RJSDMX)    ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/RJSDMX)
 
 <img width="1254" height="906" alt="image" src="https://github.com/user-attachments/assets/fc0593e8-0d47-40aa-929c-37933e9982e2" />
