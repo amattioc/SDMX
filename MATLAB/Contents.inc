@@ -1,5 +1,5 @@
-% Toolbox MatSDMX
-% MATLAB interface to SDMX Web Services
+% MatSDMX MATLAB interface to SDMX Web Services
+% Version <X.Y.Z> <dd-mm-yyyy>
 %
 % Files 
 %

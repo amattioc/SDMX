@@ -37,6 +37,9 @@ function dimensions = getDimensions(provider, dataflow)
                         'dataflow: the dataflow to be analyzed\n' ...
                         ]));
     end
+    
+    sdmx.setupEnv()
+    
     %try java call
     try
         dim = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDimensions(provider, dataflow);

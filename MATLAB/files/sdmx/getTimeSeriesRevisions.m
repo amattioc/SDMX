@@ -1,6 +1,8 @@
-function tt = getTimeSeriesTable(provider, id, startTime, endTime)  
+function tt = getTimeSeriesRevisions(provider, id, startTime, endTime, updatedAfter, includeHistory)  
 	% Extract a list of time series based on an input pattern and return a
-	% table object with the results
+	% table object with the results. The query can be narrowed to data
+	% points updated after a specific date and the history of revisions can
+	% be returned
     %
     % Usage: getTimeSeriesTable(provider, id, startTime, endTime)
 	%
@@ -13,6 +15,8 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
 	%
 	% startTime: the first observation time  (optional)
 	% endTime:   the last observation time   (optional)
+	% updatedAfter:   only observations updated after this date will be returned (optional)
+	% includeHistory:   If true the full list of revisions will be returned (optional)
 	%
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
@@ -37,9 +41,15 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
 	%
     
     %deal with arguments
-    
+
     if nargin <2
         error('\nUsage: getTimeSeriesTable(provider, id, startTime, endTime)\n\n');
+    end    
+    if nargin < 6
+        includeHistory = false;
+    end    
+    if nargin < 5
+        updatedAfter = '';
     end    
     if nargin < 4
         endTime = '';
@@ -47,10 +57,12 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     if nargin < 3
         startTime = '';
     end
-       
+    
+    sdmx.setupEnv()
+    
     %try java code
     try
-        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, id, startTime, endTime, false, '', false); 
+        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, id, startTime, endTime, false, updatedAfter, includeHistory); 
 	catch mexp
         error('SDMX getTimeSeries() error:\n %s', mexp.message);            
     end
@@ -61,7 +73,7 @@ function tt = getTimeSeriesTable(provider, id, startTime, endTime)
     end
     
     %convert
-	tt = convertTable(result, false);
+	tt = convertTable(result);
     
 end
 

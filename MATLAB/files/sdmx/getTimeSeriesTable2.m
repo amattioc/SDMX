@@ -66,6 +66,7 @@ function tt = getTimeSeriesTable2(provider, dataflow, key, filter, startTime, en
         key = 'all';
     end
      
+    sdmx.setupEnv();
     %try java code
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable2(provider, dataflow, key, filter, startTime, endTime, attributes, measures, '', false); 

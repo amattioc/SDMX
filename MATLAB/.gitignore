@@ -2,3 +2,6 @@
 .flattened-pom.xml
 target
 resources/output
+
+files/sdmx/Contents.m
+test-results/

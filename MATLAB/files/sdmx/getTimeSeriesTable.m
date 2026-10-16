@@ -1,7 +1,8 @@
-function list = getTimeSeries(provider, id, startTime, endTime)  
-	% Extract a list of time series based on an input pattern
+function tt = getTimeSeriesTable(provider, id, startTime, endTime)  
+	% Extract a list of time series based on an input pattern and return a
+	% table object with the results
     %
-    % Usage: getTimeSeries(provider, id, startTime, endTime)
+    % Usage: getTimeSeriesTable(provider, id, startTime, endTime)
 	%
 	% Arguments
 	%
@@ -36,7 +37,7 @@ function list = getTimeSeries(provider, id, startTime, endTime)
 	%
     
     %deal with arguments
-        
+    
     if nargin <2
         error('\nUsage: getTimeSeriesTable(provider, id, startTime, endTime)\n\n');
     end    
@@ -47,20 +48,22 @@ function list = getTimeSeries(provider, id, startTime, endTime)
         startTime = '';
     end
     
+    sdmx.setupEnv()
+    
     %try java code
     try
-        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeries(provider, id, startTime, endTime, false, '', false); 
+        result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getTimeSeriesTable(provider, id, startTime, endTime, false, '', false); 
 	catch mexp
-        error('SDMX getTimeSeries() error:\n %s', mexp.message);      
+        error('SDMX getTimeSeries() error:\n %s', mexp.message);            
     end
     
     %verify returned class type
-    if (~ isa(result, 'java.util.List')) 
-        error('SDMX getTimeSeries() returned class error.')
+    if (~ isa(result, 'it.bancaditalia.oss.sdmx.api.PortableDataSet')) 
+        error('SDMX getTimeSeries() returned wrong class: %s', class(result))
     end
     
     %convert
-	list = convert(result);
+	tt = convertTable(result, false);
     
 end
 

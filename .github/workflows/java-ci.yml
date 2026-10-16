@@ -24,7 +24,7 @@ jobs:
           architecture: x64
 
       - name: Setup Ant
-        uses: cedx/setup-ant@v6.1.0
+        uses: cedx/setup-ant@v7.1.0
         with:
           version: '1.10.9'
 
@@ -136,6 +136,10 @@ jobs:
   test-matlab:
     needs: build-java
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [R2024a, R2026b]
 
     steps:
       - name: Checkout repository
@@ -149,10 +153,6 @@ jobs:
           name: SDMX.jar
           path: MATLAB/files/lib
 
-      - name: Apply VERSION
-        run: |
-          echo "SDMX_VERSION=${{ needs.build-java.outputs.sdmx_version }}" >> "$GITHUB_ENV"
-
       - name: Set up JDK 11 for x64
         uses: actions/setup-java@v5.2.0
         with:
@@ -163,27 +163,33 @@ jobs:
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v3.0.1
         with:
-          release: R2024a
+          release: ${{ matrix.release }}
           cache: true
 
-      - name: Build and install toolbox
+      - name: Set up Java for MATLAB
+        run: |
+          matlab_bin="$(readlink -f "$(command -v matlab)")"
+          matlab_root="$(dirname "$(dirname "$matlab_bin")")"
+          "$matlab_root/bin/glnxa64/matlab_jenv" "$JAVA_HOME"
+
+      - name: Test and build toolbox
+        uses: matlab-actions/run-build@v3.4.0
+        with:
+          startup-options: -sd MATLAB
+          tasks: 'archive("${{ needs.build-java.outputs.sdmx_version }}")'
+
+      - name: Check Installation
         uses: matlab-actions/run-command@v3
         with:
           command: >
-            cd("MATLAB");
-            sdmx_ver = getenv("SDMX_VERSION");
-            fprintf("SDMX VERSION = %s", sdmx_ver);
-            build(sdmx_ver);
-            matlab.addons.toolbox.installToolbox("MatSDMX.mltbx");
-
-      - name: Run MATLAB tests
-        uses: matlab-actions/run-tests@v3
-        with:
-          source-folder: MATLAB/files
-          select-by-folder: MATLAB/files/test
-          test-results-junit: test-results/matlab-results.xml
+            tbx = fullfile("MATLAB", "MatSDMX.mltbx");
+            if isMATLABReleaseOlderThan('R2026b'), matlab.addons.install(tbx); else, mpminstall(tbx, Prompt = false); end,            
+            ver('sdmx').Version,
+            assert(contains(which("sdmxHelp"),'MATLAB Add-Ons')),
+            assert( ~isempty(getFlows('ECB')) )
 
       - name: Upload MATLAB toolbox artifact
+        if: matrix.release == 'R2026b'
         uses: actions/upload-artifact@v7.0.0
         with:
           name: matlab-toolbox

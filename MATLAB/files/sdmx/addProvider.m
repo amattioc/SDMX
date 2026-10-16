@@ -55,6 +55,9 @@ function addProvider(name, endpoint, needsCredentials, needsURLEncoding, support
     if nargin < 8
         supportsAvailability = false;
     end    
+
+    sdmx.setupEnv()
+
     if nargin < 7
         sdmxVersion = it.bancaditalia.oss.sdmx.api.SDMXVersion.V2;
     else

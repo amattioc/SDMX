@@ -43,6 +43,9 @@ function flows = getFlows(provider, pattern)
     if nargin < 2
 		pattern = '';
     end
+    
+    sdmx.setupEnv()
+
     %get flows
     try
         result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getFlows(provider, pattern);

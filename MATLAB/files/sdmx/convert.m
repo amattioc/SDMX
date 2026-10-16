@@ -19,7 +19,7 @@
 % permissions and limitations under the Licence.
 %
 
-function tsList = convert(list, iso8601Date) 
+function tsList = convert(list, iso8601Date)
 
     %check arguments
     if nargin < 1
@@ -65,7 +65,7 @@ function ts = convertSeries(series, iso8601Date)
     end
      
     %check class
-    if (~ isa(series,'it.bancaditalia.oss.sdmx.api.PortableTimeSeries')) 
+    if (~ isa(series,'it.bancaditalia.oss.sdmx.api.PortableTimeSeries'))
         error('SDMX convertSeries(series) error: input list must be of class it.bancaditalia.oss.sdmx.api.PortableTimeSeries.');
     end
     
@@ -100,7 +100,7 @@ function ts = convertSeries(series, iso8601Date)
             ts.timeinfo.startdate = startdate;
         else
             error(['Time series: ', char(name), '. Number of samples different from number of timeslots']);
-        end   %if 
+        end   %if
     else
         warning(['Time series: ', char(name), '. No observations found']);
         ts = timeseries();
@@ -130,13 +130,14 @@ function dates = convertDates(freq, dates, iso8601Date)
 		dates=regexprep(dates, 'S2', '12-31'); 
 		dates=(cell2mat(dates));
 	elseif(strcmp(freq, 'W'))
+        sdmx.setupEnv()
 		for i = 1 : length(dates)
 			dates{i} = char(it.bancaditalia.oss.sdmx.util.WeekConverter.convert(dates{i}));
 		end
 		dates=(cell2mat(dates));
 	else
 		dates=(cell2mat(dates));
-	end
+    end
 end
 
 function metadata = getMetaData(ts)
@@ -150,18 +151,18 @@ function metadata = getMetaData(ts)
     end
     
     % get all dimensions
-    tsdims = cell(ts.getDimensionsMap().keySet().toArray());    
+    tsdims = cell(ts.getDimensionsMap().keySet().toArray());
     for i=1:length(tsdims)
         metadata(tsdims{i}) = char(ts.getDimension(tsdims{i}));
     end
     
     % get all ts level attributes
-    tsattrs = cell(ts.getAttributesMap().keySet().toArray());    
+    tsattrs = cell(ts.getAttributesMap().keySet().toArray());
     for i=1:length(tsattrs)
         metadata(tsattrs{i}) = char(ts.getAttribute(tsattrs{i}));
     end
     
-    % get all ts level attributes 
+    % get all ts level attributes
     obsattrs = cell(ts.getObsLevelAttributesNamesArray);
     for i=1:length(obsattrs)
         attrval = ts.getObsLevelAttributesArray(obsattrs{i});
@@ -170,5 +171,5 @@ function metadata = getMetaData(ts)
         else
             metadata(obsattrs{i}) = cell(attrval);
         end
-    end 
+    end
 end

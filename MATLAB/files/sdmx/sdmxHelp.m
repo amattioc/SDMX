@@ -1,7 +1,7 @@
-function providers = getProviders()
-	% Get the list of available data providers
+function sdmxHelp()
+	% Open a GUI for SDMX metadata browsing
 	%
-	% Usage: getProviders()
+	% Usage: sdmxHelp()
 	%
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
@@ -24,11 +24,13 @@ function providers = getProviders()
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
 	%
-      
+    
+    sdmx.setupEnv()
     try        
-        providers = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getProviders();
-        providers = cell(providers.keySet.toArray);
+        it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();
     catch mexp
-        error(['SDMX getProviders() error:\n' mexp.message]);         
-    end
+        error(['SDMX sdmxHelp()() error:\n' mexp.message]);
+    end 
+	
 end
+

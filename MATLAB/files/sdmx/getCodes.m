@@ -40,6 +40,8 @@ if nargin < 3
         ]));
 end
 
+sdmx.setupEnv()
+
 %get codes
 try
     result = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getCodes(provider, flow, dimension);

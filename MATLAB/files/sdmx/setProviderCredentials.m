@@ -14,9 +14,11 @@ function setProviderCredentials(provider, user, pw)
 	% Copyright 2025,2025 Bank Of Italy
 	%
     
-     if nargin <3
+    if nargin <3
         error('\nUsage: setProviderCredentials(provider, user, pw)\n');    
     end
+
+    sdmx.setupEnv()
 
     try
       it.bancaditalia.oss.sdmx.client.SdmxClientHandler.setCredentials(provider, user, pw);

@@ -1,7 +1,12 @@
-function sdmxHelp()
-	% Open a GUI for SDMX metadata browsing
+function dsd = getDSDIdentifier(provider, dataflow)
+	% Get the key family for this dataflow
 	%
-	% Usage: sdmxHelp()
+	% Usage: getDSDIdentifier(provider, dataflow)
+	%
+	% Arguments
+	%
+	% provider: the name of the SDMX data provider
+	% dataflow: the dataflow to be analyzed   
 	%
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
@@ -23,13 +28,23 @@ function sdmxHelp()
 	% express or implied.
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
-	%
-        
+	% 
+    
+    if nargin <2
+    error(sprintf([ '\nUsage: getDSDIdentifier(provider, dataflow)\n\n' ...
+                    'Arguments\n\n' ...
+                    'provider: the name of the SDMX data provider\n' ...
+                    'dataflow: the dataflow to be analyzed\n' ...
+                    ]));
+    end
+    
+    sdmx.setupEnv()
+
+    %try java code
     try
-        it.bancaditalia.oss.sdmx.helper.SDMXHelper.start();
+        dsd = char(it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDSDIdentifier(provider, dataflow));
     catch mexp
-        error(['SDMX sdmxHelp()() error:\n' mexp.message]);
-    end 
+        error(['SDMX getDSDIdentifier() error:\n' mexp.message]);             
+    end
 	
 end
-

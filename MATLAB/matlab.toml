@@ -1,0 +1,9 @@
+name = "sdmx"
+
+[folders]
+path = [
+    "files/sdmx",
+]
+test = [
+    "test",
+]

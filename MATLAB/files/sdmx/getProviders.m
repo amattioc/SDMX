@@ -1,12 +1,7 @@
-function dsd = getDSDIdentifier(provider, dataflow)
-	% Get the key family for this dataflow
+function providers = getProviders()
+	% Get the list of available data providers
 	%
-	% Usage: getDSDIdentifier(provider, dataflow)
-	%
-	% Arguments
-	%
-	% provider: the name of the SDMX data provider
-	% dataflow: the dataflow to be analyzed   
+	% Usage: getProviders()
 	%
 	% #############################################################################################
 	% Copyright 2010,2014 Bank Of Italy
@@ -28,20 +23,14 @@ function dsd = getDSDIdentifier(provider, dataflow)
 	% express or implied.
 	% See the Licence for the specific language governing
 	% permissions and limitations under the Licence.
-	% 
+	%
     
-    if nargin <2
-    error(sprintf([ '\nUsage: getDSDIdentifier(provider, dataflow)\n\n' ...
-                    'Arguments\n\n' ...
-                    'provider: the name of the SDMX data provider\n' ...
-                    'dataflow: the dataflow to be analyzed\n' ...
-                    ]));
-    end
-    %try java code
-    try
-        dsd = char(it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getDSDIdentifier(provider, dataflow));
+    sdmx.setupEnv()
+    
+    try        
+        providers = it.bancaditalia.oss.sdmx.client.SdmxClientHandler.getProviders();
+        providers = cell(providers.keySet.toArray);
     catch mexp
-        error(['SDMX getDSDIdentifier() error:\n' mexp.message]);             
+        error(['SDMX getProviders() error:\n' mexp.message]);         
     end
-	
 end
